@@ -19,42 +19,67 @@
 console.clear();
 
 if (process.env.NODE_ENV === "development") {
-  figma.showUI(
-    `<script>window.location.href = 'http://localhost:5173'</script>`,
-    { width: 300, height: 500 }
-  );
+	figma.showUI(
+		`<html id="app"></html>
+		<script>
+		const styleSheet = document.styleSheets[0];
+		const cssRules = styleSheet.cssRules || styleSheet.rules
+		parent.postMessage({
+			pluginMessage: {
+				event: "save-figma-stylesheet",
+				styles: document.styleSheets[0].cssRules[0].cssText
+			}
+		}, "https://www.figma.com")
+		window.location.href = 'http://localhost:5173'
+		</script>`,
+		{ width: 300, height: 500, themeColors: true },
+	);
+	// figma.showUI(
+	// 	`<script>window.location.replace(http://localhost:5173')</script>`,
+	// 	{ width: 300, height: 500, themeColors: true },
+	// );
 }
 if (process.env.NODE_ENV === "production") {
-  figma.showUI(__html__, { width: 300, height: 500 });
+	figma.showUI(__html__, { width: 300, height: 500, themeColors: true });
 }
 
-const getSelectedNodes = () => {
-  const selectedTextNodes = figma.currentPage.selection
-    .filter((node) => node.type === "TEXT")
-    .map((node: any) => ({ figmaNodeID: node.id, text: node.characters }));
-  figma.ui.postMessage({
-    event: "selected-text-nodes",
-    nodes: selectedTextNodes,
-  });
-};
-
 figma.ui.onmessage = async (msg) => {
-  if (msg.type === "create-text") {
-    const newTextNode = figma.createText();
-    await figma.loadFontAsync(<FontName>newTextNode.fontName);
-    newTextNode.characters = msg.text;
-    newTextNode.name = "Sample Text";
-
-    figma.currentPage.appendChild(newTextNode);
-
-    figma.currentPage.selection = [newTextNode];
-  }
-  if (msg.type === "update-text") {
-    const textNode = <TextNode>figma.getNodeById(msg.figmaNodeID);
-    await figma.loadFontAsync(<FontName>textNode.fontName);
-    textNode.characters = msg.text;
-    getSelectedNodes();
-  }
+	if (msg.event === "save-figma-stylesheet") {
+		figma.clientStorage.setAsync("figma-stylesheet", msg.styles);
+	}
+	if (msg.event === "get-figma-stylesheet") {
+		let styles = await figma.clientStorage.getAsync("figma-stylesheet");
+		figma.ui.postMessage({ event: "pass-figma-stylesheet", styles });
+	}
 };
+
+const getSelectedNodes = () => {
+	const selectedTextNodes = figma.currentPage.selection
+		.filter((node) => node.type === "TEXT")
+		.map((node: any) => ({ figmaNodeID: node.id, text: node.characters }));
+	figma.ui.postMessage({
+		event: "selected-text-nodes",
+		nodes: selectedTextNodes,
+	});
+};
+
+// figma.ui.onmessage = async (msg) => {
+// 	if (msg.type === "create-text") {
+// 		const newTextNode = figma.createText();
+// 		await figma.loadFontAsync(<FontName>newTextNode.fontName);
+// 		newTextNode.characters = msg.text;
+// 		newTextNode.name = "Sample Text";
+
+// 		figma.currentPage.appendChild(newTextNode);
+
+// 		figma.currentPage.selection = [newTextNode];
+// 	}
+// 	if (msg.type === "update-text") {
+// 		const textNode = <TextNode>figma.getNodeById(msg.figmaNodeID);
+// 		await figma.loadFontAsync(<FontName>textNode.fontName);
+// 		textNode.characters = msg.text;
+// 		getSelectedNodes();
+// 	}
+// };
 
 figma.on("selectionchange", () => getSelectedNodes());

@@ -5,7 +5,21 @@
 
 	let nodes: any = [];
 
+	parent.postMessage(
+		{
+			pluginMessage: {
+				event: "get-figma-stylesheet",
+			},
+			pluginId: "*",
+		},
+		"*"
+	);
+
 	window.onmessage = (msg) => {
+		const message = msg.data.pluginMessage;
+		if (message) {
+			document.styleSheets[0].insertRule(message.styles);
+		}
 		if (
 			msg.data.pluginMessage &&
 			msg.data.pluginMessage.event === "selected-text-nodes"
@@ -46,12 +60,12 @@
 	</p>
 
 	<p class="read-the-docs">
-		Click on the Vite and Svelte logos to learn more
+		Click on the Vite and Svelte logos to learn more.
 	</p>
 </main>
 
 <style>
-	.logo {
+	/* .logo {
 		height: 6em;
 		padding: 1.5em;
 		will-change: filter;
@@ -65,5 +79,5 @@
 	}
 	.read-the-docs {
 		color: #888;
-	}
+	} */
 </style>

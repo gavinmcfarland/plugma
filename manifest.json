@@ -1,6 +1,6 @@
 {
     "name": "Figma Svelte Template",
-    "id": "figma-svelte-template-",
+    "id": "figma-svelte-template",
     "api": "1.0.0",
     "main": "dist/code.js",
     "ui": "dist/index.html",
