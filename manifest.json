@@ -1,0 +1,12 @@
+{
+    "name": "Figma Svelte Vite Template 2",
+    "id": "figma-svelte-vite-template-2",
+    "api": "1.0.0",
+    "main": "dist/code.js",
+    "ui": "dist/index.html",
+    "editorType": ["figma", "figjam"],
+    "networkAccess": {
+        "allowedDomains": ["*"],
+        "reasoning": "Internet access for local development."
+    }
+}
