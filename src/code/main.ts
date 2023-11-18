@@ -22,7 +22,7 @@ if (process.env.NODE_ENV === "development") {
 	figma.showUI(
 		`<html id="app"></html>
 		<script>
-		// Grab figma styles before loading dev url
+		// Grab figma styles before loading local dev url
 		const styleSheet = document.styleSheets[0];
 		const cssRules = styleSheet.cssRules || styleSheet.rules
 		parent.postMessage({
