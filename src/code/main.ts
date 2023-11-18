@@ -22,6 +22,7 @@ if (process.env.NODE_ENV === "development") {
 	figma.showUI(
 		`<html id="app"></html>
 		<script>
+		// Grab figma styles before loading dev url
 		const styleSheet = document.styleSheets[0];
 		const cssRules = styleSheet.cssRules || styleSheet.rules
 		parent.postMessage({
@@ -34,24 +35,23 @@ if (process.env.NODE_ENV === "development") {
 		</script>`,
 		{ width: 300, height: 500, themeColors: true },
 	);
-	// figma.showUI(
-	// 	`<script>window.location.replace(http://localhost:5173')</script>`,
-	// 	{ width: 300, height: 500, themeColors: true },
-	// );
 }
 if (process.env.NODE_ENV === "production") {
 	figma.showUI(__html__, { width: 300, height: 500, themeColors: true });
 }
 
-figma.ui.onmessage = async (msg) => {
-	if (msg.event === "save-figma-stylesheet") {
-		figma.clientStorage.setAsync("figma-stylesheet", msg.styles);
-	}
-	if (msg.event === "get-figma-stylesheet") {
-		let styles = await figma.clientStorage.getAsync("figma-stylesheet");
-		figma.ui.postMessage({ event: "pass-figma-stylesheet", styles });
-	}
-};
+// Save figma stylesheet so can send it to UI during development
+if (process.env.NODE_ENV === "development") {
+	figma.ui.onmessage = async (msg) => {
+		if (msg.event === "save-figma-stylesheet") {
+			figma.clientStorage.setAsync("figma-stylesheet", msg.styles);
+		}
+		if (msg.event === "get-figma-stylesheet") {
+			let styles = await figma.clientStorage.getAsync("figma-stylesheet");
+			figma.ui.postMessage({ event: "pass-figma-stylesheet", styles });
+		}
+	};
+}
 
 const getSelectedNodes = () => {
 	const selectedTextNodes = figma.currentPage.selection

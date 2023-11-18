@@ -16,8 +16,9 @@
 	);
 
 	window.onmessage = (msg) => {
+		// We listen for message to add figma styles during development
 		const message = msg.data.pluginMessage;
-		if (message) {
+		if (message && message.event === "pass-figma-stylesheet") {
 			document.styleSheets[0].insertRule(message.styles);
 		}
 		if (
