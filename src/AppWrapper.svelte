@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from "svelte";
 	import App from "./views/App.svelte";
 
 	const ws: any = {};
@@ -41,7 +42,13 @@
 				let msg = JSON.parse(event.data);
 				if (msg.src === "server") {
 					let temp = JSON.parse(msg.message);
-					window.parent.postMessage({ pluginMessage: temp }, "*");
+					window.parent.postMessage(
+						{
+							pluginMessage: temp,
+							pluginId: "*",
+						},
+						"*"
+					);
 				}
 			} catch (err) {
 				console.error("not a valid message", err);
@@ -57,8 +64,29 @@
 		};
 	};
 
-	startWebSocket();
-	console.log("wrapper");
+	parent.postMessage(
+		{
+			pluginMessage: {
+				event: "get-figma-stylesheet",
+			},
+			pluginId: "*",
+		},
+		"*"
+	);
+
+	onMount(() => {
+		const onWindowMsg2 = (msg: any) => {
+			// We listen for message to add figma styles during development
+			const message = msg.data.pluginMessage;
+			if (message && message.event === "pass-figma-stylesheet") {
+				document.styleSheets[0].insertRule(message.styles);
+				window.removeEventListener("message", onWindowMsg2);
+			}
+		};
+		window.addEventListener("message", onWindowMsg2);
+
+		startWebSocket();
+	});
 </script>
 
 <span bind:this={isConnected}>(connected ?)</span>

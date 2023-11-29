@@ -6,9 +6,9 @@ Use this template to get started developing Figma plugins in Svelte.
 
 ## Features
 
-- Develop faster by using a local server for development
-- Bundle into inlined `code.js` and `ui.html` files when you want to publish
-- Use the `dev:server` option to preview your plugin in the browser
+-   Develop faster by using a local server for development
+-   Bundle into inlined `code.js` and `ui.html` files when you want to publish
+-   Use the `dev:server` option to preview your plugin in the browser
 
 ## Getting started
 
@@ -37,7 +37,7 @@ To develop
 npm run dev
 ```
 
-To develop in different browsers
+To develop in different browsers (needs fixing)
 
 ```shell
 npm run dev:server

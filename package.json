@@ -6,7 +6,7 @@
     "scripts": {
         "dev": "vite & esbuild src/code/main.ts --bundle --outfile=dist/code.js --watch",
         "build": "vite build && esbuild src/code/main.ts --bundle --outfile=dist/code.js --minify",
-        "dev:server": "vite dev --mode server & esbuild src/code/main.ts --bundle --outfile=dist/code.js --watch"
+        "dev:server": "vite dev --mode server & esbuild src/code/main.ts --define:process.env.NODE_ENV='\"server\"' --bundle --outfile=dist/code.js --watch"
     },
     "devDependencies": {
         "@figma/plugin-typings": "^1.81.0",

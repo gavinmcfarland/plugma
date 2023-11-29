@@ -1,33 +1,21 @@
 <script lang="ts">
+	import { onMount } from "svelte";
 	import svelteLogo from "../assets/svelte.svg";
 	import viteLogo from "../assets/vite.svg";
 	import Counter from "../lib/Counter.svelte";
 
 	let nodes: any = [];
 
-	parent.postMessage(
-		{
-			pluginMessage: {
-				event: "get-figma-stylesheet",
-			},
-			pluginId: "*",
-		},
-		"*"
-	);
-
-	window.onmessage = (msg) => {
-		// We listen for message to add figma styles during development
-		const message = msg.data.pluginMessage;
-		if (message && message.event === "pass-figma-stylesheet") {
-			document.styleSheets[0].insertRule(message.styles);
-		}
-		if (
-			msg.data.pluginMessage &&
-			msg.data.pluginMessage.event === "selected-text-nodes"
-		) {
-			nodes = msg.data.pluginMessage.nodes;
-		}
-	};
+	onMount(() => {
+		window.onmessage = (msg) => {
+			if (
+				msg.data.pluginMessage &&
+				msg.data.pluginMessage.event === "selected-text-nodes"
+			) {
+				nodes = msg.data.pluginMessage.nodes;
+			}
+		};
+	});
 </script>
 
 <main>

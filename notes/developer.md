@@ -70,3 +70,9 @@ export default writable(0);
     "server": "node server.cjs"
   },
 ```
+
+### Environment variable does not work across server and plugin
+
+`import.meta.env.MODE` is not consistant when viewing same page in plugin window, versus in browser. Need another way to track that setting.
+
+-   I think there is something wrong with the build scripts, tripping over one another

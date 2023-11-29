@@ -1,24 +1,9 @@
-// // This plugin will open a modal to prompt the user to enter a number, and
-// // it will then create that many rectangles on the screen.
-// // This file holds the main code for the plugins. It has access to the *document*.
-// // You can access browser APIs in the <script> tag inside "ui.html" which has a
-// // full browser environment (see documentation).
-// // This shows the HTML page in "ui.html".
-// figma.showUI(__html__, { width: 350, height: 400, themeColors: true });
-// // Calls to "parent.postMessage" from within the HTML page will trigger this
-// // callback. The callback will be passed the "pluginMessage" property of the
-// // posted message.
-// figma.ui.onmessage = (msg) => {
-//   // One way of distinguishing between different types of messages sent from
-//   // your HTML page is to use an object with a "type" property like this.
-//   // Make sure to close the plugin when you're done. Otherwise the plugin will
-//   // keep running, which shows the cancel button at the bottom of the screen.
-//   // figma.closePlugin();
-// };
-
 console.clear();
 
-if (process.env.NODE_ENV === "development") {
+if (
+	process.env.NODE_ENV === "development" ||
+	process.env.NODE_ENV === "server"
+) {
 	figma.showUI(
 		`<html id="app"></html>
 		<script>
@@ -41,7 +26,10 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // Save figma stylesheet so can send it to UI during development
-if (process.env.NODE_ENV === "development") {
+if (
+	process.env.NODE_ENV === "development" ||
+	process.env.NODE_ENV === "server"
+) {
 	figma.ui.onmessage = async (msg) => {
 		if (msg.event === "save-figma-stylesheet") {
 			figma.clientStorage.setAsync("figma-stylesheet", msg.styles);
@@ -53,6 +41,8 @@ if (process.env.NODE_ENV === "development") {
 	};
 }
 
+// Your app code below
+
 const getSelectedNodes = () => {
 	const selectedTextNodes = figma.currentPage.selection
 		.filter((node) => node.type === "TEXT")
@@ -62,24 +52,5 @@ const getSelectedNodes = () => {
 		nodes: selectedTextNodes,
 	});
 };
-
-// figma.ui.onmessage = async (msg) => {
-// 	if (msg.type === "create-text") {
-// 		const newTextNode = figma.createText();
-// 		await figma.loadFontAsync(<FontName>newTextNode.fontName);
-// 		newTextNode.characters = msg.text;
-// 		newTextNode.name = "Sample Text";
-
-// 		figma.currentPage.appendChild(newTextNode);
-
-// 		figma.currentPage.selection = [newTextNode];
-// 	}
-// 	if (msg.type === "update-text") {
-// 		const textNode = <TextNode>figma.getNodeById(msg.figmaNodeID);
-// 		await figma.loadFontAsync(<FontName>textNode.fontName);
-// 		textNode.characters = msg.text;
-// 		getSelectedNodes();
-// 	}
-// };
 
 figma.on("selectionchange", () => getSelectedNodes());
