@@ -76,3 +76,7 @@ export default writable(0);
 `import.meta.env.MODE` is not consistant when viewing same page in plugin window, versus in browser. Need another way to track that setting.
 
 -   I think there is something wrong with the build scripts, tripping over one another
+
+-   Use `npm link` to install local bin scripts in package, ie `plugma`
+
+-   Possible to create cli that creates a figma plugin but for any framework?

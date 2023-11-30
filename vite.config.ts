@@ -5,11 +5,11 @@ import svgLoader from "vite-svg-loader";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    svelte(),
-    viteSingleFile(),
-    svgLoader({
-      defaultImport: "raw", // or 'raw'
-    }),
-  ],
+	plugins: [
+		svelte(),
+		viteSingleFile(),
+		svgLoader({
+			defaultImport: "raw", // or 'raw'
+		}),
+	],
 });
