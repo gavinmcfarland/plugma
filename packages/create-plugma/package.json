@@ -1,0 +1,14 @@
+{
+    "name": "create-plugma",
+    "version": "0.0.1",
+    "description": "",
+    "main": "create-plugma.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "bin": {
+        "plugma": "lib/plugma.js"
+    },
+    "author": "",
+    "license": "ISC"
+}

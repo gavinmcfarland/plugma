@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import slugify from '@sindresorhus/slugify'
-import createDirectoryContents from './createDirectoryContents.js';
+import createDirectoryContents from './scripts/createDirectoryContents.js';
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
