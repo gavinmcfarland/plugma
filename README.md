@@ -1,14 +1,14 @@
 # Figma Svelte Template
 
-> This template is a work in progress.
+> This template is still in development, use at your own risk.
 
 Use this template to get started developing Figma plugins in Svelte.
 
 ## Features
 
--   Develop faster by using a local server for development
--   Bundle into inlined `code.js` and `ui.html` files when you want to publish
--   Use the `dev:server` option to preview your plugin in the browser
+-   Live Development Server: Develop your plugin UI by connecting the plugin window to a development server, eliminating the need to bundle your UI file during development.
+
+-   Browser Preview: Test your plugin's UI in various browsers in real-time without needing to publish your file. Figma's CSS variables are automatically passed from Figma to your local development server for accurate style previews.
 
 ## Getting started
 
@@ -19,7 +19,7 @@ npx degit fignite/svelte-template my-plugin
 cd my-plugin
 ```
 
-Then install the dependencies.
+Then install the dependencies
 
 ```shell
 npm install
