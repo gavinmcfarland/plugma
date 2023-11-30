@@ -80,3 +80,5 @@ export default writable(0);
 -   Use `npm link` to install local bin scripts in package, ie `plugma`
 
 -   Possible to create cli that creates a figma plugin but for any framework?
+
+-   for now, until packages are published need to run `npm pack` and them copy package to new plugin and install `npm install plugma-0.0.1.tgz`

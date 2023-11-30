@@ -11,12 +11,12 @@ export default defineConfig({
 		//     defaultImport: "raw", // or 'raw'
 		// }),
 	],
-	root: "./src",
-	build: {
-		outDir: "../dist",
-		rollupOptions: {
-			input: "./src/index.html",
-		},
-	},
+	// root: "./src",
+	// build: {
+	// 	outDir: "../dist",
+	// 	rollupOptions: {
+	// 		input: "./src/index.html",
+	// 	},
+	// },
 
 });
