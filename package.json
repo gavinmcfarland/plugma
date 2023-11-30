@@ -8,10 +8,14 @@
         "build": "vite build && esbuild src/code/main.ts --bundle --outfile=dist/code.js --minify",
         "dev:server": "vite dev --mode server & esbuild src/code/main.ts --define:process.env.NODE_ENV='\"server\"' --bundle --outfile=dist/code.js --watch"
     },
+    "bin": {
+        "generate": "./lib/create-figma-plugin.js"
+    },
     "devDependencies": {
         "@figma/plugin-typings": "^1.81.0",
         "@sveltejs/vite-plugin-svelte": "^3.0.0",
         "@tsconfig/svelte": "^5.0.2",
+        "inquirer": "^9.2.12",
         "prettier": "^3.1.0",
         "prettier-plugin-svelte": "^3.1.0",
         "svelte": "^4.2.3",

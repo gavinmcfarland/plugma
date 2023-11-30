@@ -1,6 +1,6 @@
 import "./styles/app.css";
 import App from "./views/App.svelte";
-import DevelopmentWrapper from "./DevelopmentWrapper.svelte";
+import DevelopmentWrapper from "../lib/DevelopmentWrapper.svelte";
 
 let app;
 

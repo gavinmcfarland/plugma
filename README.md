@@ -48,6 +48,7 @@ npm run dev:server
 ```
 lib/
     globals.ts
+    DevelopmentWrapper.svelte
 dist/
     code.js
     index.html

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import App from "./views/App.svelte";
+	import App from "../src/views/App.svelte";
 
 	const ws: any = {};
 	let isConnected: any;
@@ -47,7 +47,7 @@
 							pluginMessage: temp,
 							pluginId: "*",
 						},
-						"*"
+						"*",
 					);
 				}
 			} catch (err) {
@@ -71,7 +71,7 @@
 			},
 			pluginId: "*",
 		},
-		"*"
+		"*",
 	);
 
 	onMount(() => {
