@@ -42,3 +42,21 @@ To develop in different browsers (needs fixing)
 ```shell
 npm run dev:server
 ```
+
+## Folder Structure
+
+```
+lib/
+    globals.ts
+dist/
+    code.js
+    index.html
+scr/
+    main/
+    styles/
+    assets/
+    views/
+manifest.json
+package.json
+README.md
+```
