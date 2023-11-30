@@ -3,12 +3,16 @@
     "version": "0.0.1",
     "description": "",
     "main": "create-plugma.js",
+    "type": "module",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "bin": {
-        "plugma": "lib/plugma.js"
+        "create-plugma": "./create-plugma.js"
     },
+    "files": [
+        "configs"
+    ],
     "author": "",
     "license": "ISC"
 }

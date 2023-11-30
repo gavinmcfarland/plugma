@@ -6,6 +6,8 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import slugify from '@sindresorhus/slugify'
 import createDirectoryContents from './scripts/createDirectoryContents.js';
+import { exec } from 'node:child_process'
+
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -36,5 +38,21 @@ inquirer.prompt(QUESTIONS).then(answers => {
 
 	fs.mkdirSync(`${CURR_DIR}/${projectName}`);
 
+	console.log(`Copying "${projectChoice}" template...`)
 	createDirectoryContents(templatePath, projectName, answers);
+
+	// Install dependencies
+	console.log(`Installing dependencies...`)
+
+	console.log(`Next:
+	cd ${projectName}
+	npm install`)
+	const command = 'npm install'
+	let cwd = process.cwd()
+	exec(command, { cwd }, function (error) {
+		// if (error) {
+		// 	reject(error)
+		// 	return
+		// }
+	})
 });
