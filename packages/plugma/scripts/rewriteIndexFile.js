@@ -16,22 +16,28 @@ function writeIndexFile() {
 
 	// let newIndexPath = `${CURR_DIR}/${projectName}/node_modules/plugma/index.html`;
 
-	let indexTemplatePath = `${CURR_DIR}/index.html`
+	let indexTemplatePath = `${CURR_DIR}/templates/index.html`
+	let newIndexPath = `${CURR_DIR}/index.html`
+
+	// Need to use process.env.INIT_CWD because otherwise package is referenced from the module and not the users project
+	let pkgPath = resolve(`${process.env.INIT_CWD}/package.json`)
+
+	console.log("package path", pkgPath)
 
 	let contents = fs.readFileSync(indexTemplatePath, 'utf8');
-	// let pkg = fs.readFileSync(`${CURR_DIR}/package.json`, 'utf8');
+	let pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
 
 	let comptempl = lodashTemplate(contents)
 
-	let input = "svelte" === "svelte" ? 'svelte/main.ts' : 'vanilla/main.js'
+	let input = pkg?.plugma?.framework === "svelte" ? 'svelte/main.ts' : 'vanilla/main.js'
 
 	contents = comptempl({ name: "figma", input })
 
-	console.log(contents)
+	// console.log(contents)
 
 
 	// Write
-	fs.writeFileSync(indexTemplatePath, contents, 'utf8');
+	fs.writeFileSync(newIndexPath, contents, 'utf8');
 }
 
 writeIndexFile()
