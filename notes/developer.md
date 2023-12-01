@@ -86,3 +86,4 @@ export default writable(0);
 ## Todo
 
 -   Do I need to create my own build and dev commands, so that source code can be injected into plugins?
+-   Maybe manifest is included in package.json, or at the least distributed to dist when built
