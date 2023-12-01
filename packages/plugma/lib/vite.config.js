@@ -12,11 +12,11 @@ export default defineConfig({
 		// }),
 	],
 	// root: "./src",
-	// build: {
-	// 	outDir: "../dist",
-	// 	rollupOptions: {
-	// 		input: "./src/index.html",
-	// 	},
-	// },
+	build: {
+		// outDir: "../dist",
+		rollupOptions: {
+			input: "plugma/index.html",
+		},
+	},
 
 });

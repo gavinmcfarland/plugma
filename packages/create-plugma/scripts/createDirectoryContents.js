@@ -16,6 +16,7 @@ import lodashTemplate from 'lodash.template'
 // // Displays output
 // console.log(result);
 
+
 const createDirectoryContents = (templatePath, newProjectPath, answers) => {
 
 	// let newProjectPath = answers['project-name']
@@ -26,6 +27,8 @@ const createDirectoryContents = (templatePath, newProjectPath, answers) => {
 
 		// get stats about the current file
 		const stats = fs.statSync(origFilePath);
+
+
 
 		if (stats.isFile()) {
 			let contents = fs.readFileSync(origFilePath, 'utf8');
