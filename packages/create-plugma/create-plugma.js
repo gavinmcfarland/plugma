@@ -65,14 +65,17 @@ inquirer.prompt(QUESTIONS).then(answers => {
 
 	createDirectoryContents(templatePath, projectName, answers);
 
+	console.log(`Next:
+			cd ${projectName}
+			npm install`)
 
 
+	// const command = `npm install ${__dirname}/../plugma --no-save --no-package-lock`
 
-	const command = `npm install ${__dirname}/../plugma --no-save --no-package-lock`
-
-	let cwd = `${CURR_DIR}/${slugify(projectName)}`
+	// let cwd = `${CURR_DIR}/${slugify(projectName)}`
 	// Install dependencies
-	console.log(`Installing dependencies...`)
+	// console.log(`Installing dependencies...`)
+
 	// console.log(cwd)
 	// exec(command, function (error) {
 	// 	console.log(error)
@@ -81,17 +84,17 @@ inquirer.prompt(QUESTIONS).then(answers => {
 	// 	}
 	// })
 
-	fs.cp(`${__dirname}/../plugma`, `${CURR_DIR}/${slugify(projectName)}/node_modules/plugma`, { recursive: true }, (err) => {
-		if (err) {
-			console.error(err);
-		}
-		else {
-			writeIndexFile(projectName, answers)
-			console.log(`Next:
-			cd ${projectName}
-			npm install`)
-		}
-	});
+	// fs.cp(`${__dirname}/../plugma`, `${CURR_DIR}/${slugify(projectName)}/node_modules/plugma`, { recursive: true }, (err) => {
+	// 	if (err) {
+	// 		console.error(err);
+	// 	}
+	// 	else {
+	// 		writeIndexFile(projectName, answers)
+	// 		console.log(`Next:
+	// 		cd ${projectName}
+	// 		npm install`)
+	// 	}
+	// });
 
 
 

@@ -11,10 +11,13 @@
     "devDependencies": {
         "vite": "^5.0.0",
         "vite-plugin-singlefile": "^0.13.5",
-        "plugma": "^0.0.0"
+        "plugma": "file:/Users/gavinmcfarland/Developer/figma-svelte-template/packages/plugma"
     },
     "main": "main.js",
     "author": "",
     "license": "ISC",
-    "description": ""
+    "description": "",
+    "plugma": {
+        "framework": "vanilla"
+    }
 }

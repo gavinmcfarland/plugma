@@ -87,3 +87,13 @@ export default writable(0);
 
 -   Do I need to create my own build and dev commands, so that source code can be injected into plugins?
 -   Maybe manifest is included in package.json, or at the least distributed to dist when built
+
+## Challenge
+
+-   Problem I've got is that I want to hide the html and main files. They're different for each framework. The html file I want to be generated from one file.
+-   Issues:
+    -   If I rely on installing the common module as a dependency, I can't customise the index file for the given project because it gets over ridden when the user installs their dependencies
+-   I could use a post-install script and update the index file after the dependancy is installed
+-   I could create a build a script which the user runs to build the project (more effort?)
+-   I could build a vite plugin instead of this project, but then I'd miss out on the great things the project has.
+-   I should add a field to the package.json that tells me what framework their using

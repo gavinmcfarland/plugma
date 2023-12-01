@@ -17,6 +17,9 @@
         "tslib": "^2.6.2",
         "typescript": "^5.2.2",
         "vite": "^5.0.0",
-        "plugma": "^0.0.0"
+        "plugma": "file:/Users/gavinmcfarland/Developer/figma-svelte-template/packages/plugma"
+    },
+    "plugma": {
+        "framework": "svelte"
     }
 }
