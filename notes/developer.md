@@ -97,3 +97,5 @@ export default writable(0);
 -   I could create a build a script which the user runs to build the project (more effort?)
 -   I could build a vite plugin instead of this project, but then I'd miss out on the great things the project has.
 -   I should add a field to the package.json that tells me what framework their using
+
+-   Don't use "file: " in package.json as it only acts as a symlink and causes issues with relative file paths
