@@ -1,8 +1,5 @@
 import "./styles.css";
-import Index from "./components/Index.svelte";
+import App from "./components/App.svelte";
+import { mount } from "@plugma/ui";
 
-const app = new Index({
-	target: document.getElementById("app"),
-});
-
-export default app;
+export default mount(App);
