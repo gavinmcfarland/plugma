@@ -1,1 +1,3 @@
-figma.closePlugin("Goodbye");
+export function() {
+	figma.closePlugin("Goodbye");
+}
