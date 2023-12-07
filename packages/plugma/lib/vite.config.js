@@ -33,6 +33,7 @@ export default defineConfig({
 		//     defaultImport: "raw", // or 'raw'
 		// }),
 	],
+	// publicDir: "public-2",
 	// root: path.resolve(CURR_DIR, 'src'),
 	build: {
 		// outDir: "../dist",
