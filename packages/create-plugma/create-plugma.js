@@ -40,7 +40,7 @@ function writeIndexFile(projectName, answers) {
 
 	let comptempl = lodashTemplate(contents)
 
-	let input = answers['project-choice'] === "svelte" ? 'svelte/main.ts' : 'vanilla/main.js'
+	let input = answers['project-choice'] === "svelte" ? 'svelte/ui.ts' : 'vanilla/ui.js'
 
 	contents = comptempl({ name: "figma", input })
 

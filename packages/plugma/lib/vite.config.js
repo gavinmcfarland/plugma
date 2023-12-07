@@ -13,6 +13,17 @@ console.log(path.resolve(CURR_DIR, 'src'))
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
+		{
+			name: "deep-index",
+			configureServer(server) {
+				server.middlewares.use((req, res, next) => {
+					if (req.url === "/") {
+						req.url = "/node_modules/plugma/index.html";
+					}
+					next();
+				});
+			},
+		},
 		viteSingleFile(),
 		viteCopyDirectoryPlugin({
 			sourceDir: 'dist/node_modules/plugma/',
