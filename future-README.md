@@ -51,6 +51,29 @@ npm run build
         -   **`event`** { String } the name of the event
         -   **`callback`** { Function } _Optional_ If provided, it will return the result from the event handler with the same event name.
 
+## Configure
+
+Plugma specific settings
+
+```jsonc
+// package.json
+{
+    "plugma": {
+        "framework": "svelte"
+    }
+}
+```
+
+Figma specific settings
+
+```jsonc
+// manifest.json
+{
+    "main": "src/main.js",
+    "ui": "src/ui.js"
+}
+```
+
 ## Plugin Folder Structure
 
 Depending on which framework you choose, the files might vary slightly, but the file structure will remain the same.

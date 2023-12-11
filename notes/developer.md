@@ -83,11 +83,6 @@ export default writable(0);
 
 -   for now, until packages are published need to run `npm pack` and them copy package to new plugin and install `npm install plugma-0.0.1.tgz`
 
-## Todo
-
--   Do I need to create my own build and dev commands, so that source code can be injected into plugins?
--   Maybe manifest is included in package.json, or at the least distributed to dist when built
-
 ## Challenge
 
 -   Problem I've got is that I want to hide the html and main files. They're different for each framework. The html file I want to be generated from one file.
@@ -99,3 +94,9 @@ export default writable(0);
 -   I should add a field to the package.json that tells me what framework their using
 
 -   Don't use "file: " in package.json as it only acts as a symlink and causes issues with relative file paths
+
+## Todo
+
+-   Do I need to create my own build and dev commands, so that source code can be injected into plugins?
+-   Maybe manifest is included in package.json, or at the least distributed to dist when built
+-   Look at manifest file to determine where to look for ui.ts and main.ts file
