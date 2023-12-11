@@ -2,8 +2,8 @@
     "name": "<%- name %>",
     "id": "<%- id %>",
     "api": "1.0.0",
-    "main": "main.js",
-    "ui": "ui.html",
+    "main": "dist/main.js",
+    "ui": "dist/ui.html",
     "editorType": ["figma", "figjam"],
     "networkAccess": {
         "allowedDomains": ["*"],
