@@ -29,7 +29,7 @@ function writeIndexFile() {
 
 	let comptempl = lodashTemplate(contents)
 
-	let input = pkg?.plugma?.framework === "svelte" ? 'svelte/main.ts' : 'vanilla/main.js'
+	let input = pkg?.plugma?.framework === "svelte" ? 'ui.ts' : 'ui.js'
 
 	contents = comptempl({ name: "figma", input })
 
