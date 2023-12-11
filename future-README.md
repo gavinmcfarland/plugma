@@ -1,20 +1,14 @@
-# Readme
+# Plugma
 
-Use this framework to spead up creating plugins in any framework.
+Plugma is a CLI to help spead up creating plugins in any framework.
 
-## Features
-
--   Live Development Server: Develop your plugin UI by connecting the plugin window to a development server, eliminating the need to bundle your UI file during development.
-
--   Browser Preview: Test your plugin's UI in various browsers in real-time without needing to publish your file. Figma's CSS variables are automatically passed from Figma to your local development server for accurate style previews.
+## To Get Started
 
 ```shell
 npm create plugma@latest my-plugin
 ```
 
-Then follow the prompts.
-
-Once a template has been copied across:
+Choose a template you'd like to create a plugin from and then:
 
 ```shell
 cd my-plugin
@@ -22,17 +16,37 @@ npm install
 npm run build
 ```
 
+## Features
+
+-   ### Live Development Server
+    By linking the plugin window to a development server it eliminates the need to rebuild the UI file repeatedly. This aids in debugging and streamlines the process.
+
+---
+
+-   ### Browser Preview
+
+    Since it utilises a development server, you can try out your plugin's UI on different browsers, including previewing how it looks in both Figma's dark and light themes.
+
+---
+
+-   ### Consistant Folder Structure
+
+    Plugma hides uneccesary boilerplate code so you can concentrate on the code required to develop your plugins.
+
 ## Folder Structure
+
+Depending on which framework you choose, the files might vary slightly, but the file structure will remain the same.
 
 ```
 dist/
     main.js
     ui.html
 scr/
-    App.svelte
     main.ts
     ui.ts
+    App.jsx
     styles.css
+manifest.json
 vite.config.ts
 package.json
 README.md
