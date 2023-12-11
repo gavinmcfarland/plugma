@@ -1,6 +1,6 @@
 # Plugma
 
-Plugma is a CLI to help spead up creating plugins in any framework.
+Plugma is a CLI to help speed up creating plugins.
 
 ## To Get Started
 

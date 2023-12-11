@@ -100,3 +100,4 @@ export default writable(0);
 -   Do I need to create my own build and dev commands, so that source code can be injected into plugins?
 -   Maybe manifest is included in package.json, or at the least distributed to dist when built
 -   Look at manifest file to determine where to look for ui.ts and main.ts file
+-   Configure typescript properly
