@@ -4,7 +4,7 @@
 	// import Counter from "./lib/Counter.svelte";
 </script>
 
-<main>Plugin</main>
+<main>Plugin test sss</main>
 
 <style>
 </style>

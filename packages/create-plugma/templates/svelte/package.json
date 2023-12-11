@@ -4,7 +4,7 @@
     "version": "0.0.0",
     "type": "module",
     "scripts": {
-        "dev": "vite & esbuild src/main.ts --bundle --outfile=dist/code.js --watch",
+        "dev": "vite & esbuild src/main.ts --bundle --outfile=dist/main.js --watch",
         "build": "vite build",
         "preview": "vite preview",
         "check": "svelte-check --tsconfig ./tsconfig.json"
