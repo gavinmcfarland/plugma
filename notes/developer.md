@@ -101,3 +101,4 @@ export default writable(0);
 -   Maybe manifest is included in package.json, or at the least distributed to dist when built
 -   Look at manifest file to determine where to look for ui.ts and main.ts file
 -   Configure typescript properly
+-   Decide on npm package name

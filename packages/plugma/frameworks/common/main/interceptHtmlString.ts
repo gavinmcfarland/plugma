@@ -1,3 +1,5 @@
+import { saveFigmaStyles } from "plugma/frameworks/common/main/saveFigmaStyles";
+
 let __html__ = "";
 let htmlString = "";
 
@@ -23,5 +25,7 @@ if (
 }
 
 __html__ = htmlString;
+
+saveFigmaStyles();
 
 export { __html__ };
