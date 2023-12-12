@@ -1,6 +1,6 @@
 # Vitma
 
-Vitma is a CLI to simplify creating plugins.
+Vitma is a CLI to simplify creating Figma plugins.
 
 ## To Get Started
 
