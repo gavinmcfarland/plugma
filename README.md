@@ -79,7 +79,7 @@ Figma specific settings
 Depending on which framework you choose, the files might vary slightly, but the file structure will remain the same.
 
 ```
-.vite/
+.vitma/
 dist/
     main.js
     ui.html
