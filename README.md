@@ -1,4 +1,4 @@
-# Plugma
+# Vitma
 
 Plugma is a CLI to help speed up creating plugins.
 
