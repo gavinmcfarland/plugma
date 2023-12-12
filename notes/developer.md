@@ -92,8 +92,8 @@ export default writable(0);
 -   I could create a build a script which the user runs to build the project (more effort?)
 -   I could build a vite plugin instead of this project, but then I'd miss out on the great things the project has.
 -   I should add a field to the package.json that tells me what framework their using
-
 -   Don't use "file: " in package.json as it only acts as a symlink and causes issues with relative file paths
+-   Files stored in node_modules are not checked for changes in vite because of caching (https://github.com/vitejs/vite/issues/8619#issuecomment-1707700396)
 
 ## Todo
 
@@ -102,3 +102,4 @@ export default writable(0);
 -   Look at manifest file to determine where to look for ui.ts and main.ts file
 -   Configure typescript properly
 -   Decide on npm package name
+-   Make sure env variables are being passed through to vite
