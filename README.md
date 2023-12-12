@@ -1,11 +1,11 @@
 # Vitma
 
-Plugma is a CLI to help speed up creating plugins.
+Vitma is a CLI to simplify creating plugins.
 
 ## To Get Started
 
 ```shell
-npm create plugma@latest my-plugin
+npm create vitma@latest my-plugin
 ```
 
 Choose a template you'd like to create a plugin from and then:
@@ -31,7 +31,7 @@ npm run build
 
 -   ### Consistant Folder Structure
 
-    Plugma hides uneccesary boilerplate code so you can concentrate on the code required to develop your plugins.
+    Vitma hides uneccesary boilerplate code so you can concentrate on the code required to develop your plugins.
 
 ## Helpers
 
@@ -53,12 +53,12 @@ npm run build
 
 ## Configure
 
-Plugma specific settings
+Vitma specific settings
 
 ```jsonc
 // package.json
 {
-    "plugma": {
+    "vitma": {
         "framework": "svelte"
     }
 }
