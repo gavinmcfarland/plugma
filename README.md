@@ -13,7 +13,7 @@ Choose a template you'd like to create a plugin from and then:
 ```shell
 cd my-plugin
 npm install
-npm run build
+npm run dev
 ```
 
 ## Features
