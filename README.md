@@ -1,63 +1,94 @@
-# Figma Svelte Template
+# Plugma
 
-> This template is still in development, use at your own risk.
+Plugma is a CLI to help speed up creating plugins.
 
-Use this template to get started developing Figma plugins in Svelte.
-
-## Features
-
--   Live Development Server: Develop your plugin UI by connecting the plugin window to a development server, eliminating the need to bundle your UI file during development.
-
--   Browser Preview: Test your plugin's UI in various browsers in real-time without needing to publish your file. Figma's CSS variables are automatically passed from Figma to your local development server for accurate style previews.
-
-## Getting started
-
-Create a new plugin or widget based on this template using [degit](https://github.com/Rich-Harris/degit).
+## To Get Started
 
 ```shell
-npx degit fignite/svelte-template my-plugin
+npm create plugma@latest my-plugin
+```
+
+Choose a template you'd like to create a plugin from and then:
+
+```shell
 cd my-plugin
-```
-
-Then install the dependencies
-
-```shell
 npm install
-```
-
-To create a build for production
-
-```shell
 npm run build
 ```
 
-To develop
+## Features
 
-```shell
-npm run dev
+-   ### Live Development Server
+    By linking the plugin window to a development server it eliminates the need to rebuild the UI file repeatedly. This aids in debugging and streamlines the process.
+
+---
+
+-   ### Browser Preview
+
+    Since it utilises a development server, you can try out your plugin's UI on different browsers, including previewing how it looks in both Figma's dark and light themes.
+
+---
+
+-   ### Consistant Folder Structure
+
+    Plugma hides uneccesary boilerplate code so you can concentrate on the code required to develop your plugins.
+
+## Helpers
+
+-   ### Messaging
+
+    -   #### `on(event, callback)`
+
+        ##### Parameters
+
+        -   **`event`** { String } the name of the event
+        -   **`callback`** { Function }
+
+    -   #### `emit(event, callback)`
+
+        ##### Parameters
+
+        -   **`event`** { String } the name of the event
+        -   **`callback`** { Function } _Optional_ If provided, it will return the result from the event handler with the same event name.
+
+## Configure
+
+Plugma specific settings
+
+```jsonc
+// package.json
+{
+    "plugma": {
+        "framework": "svelte"
+    }
+}
 ```
 
-To develop in different browsers (needs fixing)
+Figma specific settings
 
-```shell
-npm run dev:server
+```jsonc
+// manifest.json
+{
+    "main": "src/main.js",
+    "ui": "src/ui.js"
+}
 ```
 
-## Folder Structure
+## Plugin Folder Structure
+
+Depending on which framework you choose, the files might vary slightly, but the file structure will remain the same.
 
 ```
-lib/
-    globals.ts
-    DevelopmentWrapper.svelte
 dist/
-    code.js
-    index.html
+    main.js
+    ui.html
 scr/
-    main/
-    styles/
-    assets/
-    views/
+    main.ts
+    ui.ts
+    App.jsx
+    styles.css
 manifest.json
+vite.config.ts
 package.json
 README.md
 ```
