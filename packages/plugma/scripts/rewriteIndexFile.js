@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 // import createDirectoryContents from './scripts/createDirectoryContents.js';
 // import { exec } from 'node:child_process'
 import lodashTemplate from 'lodash.template'
+import createPrivateDir from './createPrivateDir.js';
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -40,4 +41,6 @@ function writeIndexFile() {
 	fs.writeFileSync(newIndexPath, contents, 'utf8');
 }
 
+console.log("test")
 writeIndexFile()
+createPrivateDir()

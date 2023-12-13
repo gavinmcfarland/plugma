@@ -1,11 +1,11 @@
-# Vitma
+# Plugma
 
-Vitma is a CLI to simplify creating Figma plugins.
+Plugma is a CLI to simplify creating Figma plugins.
 
 ## To Get Started
 
 ```shell
-npm create vitma@latest my-plugin
+npm create plugma@latest my-plugin
 ```
 
 Choose a template you'd like to create a plugin from and then:
@@ -31,7 +31,7 @@ npm run dev
 
 -   ### Consistant Folder Structure
 
-    Vitma hides uneccesary boilerplate code so you can concentrate on the code required to develop your plugins.
+    Plugma hides unneccesary boilerplate code so you can concentrate on the code required to develop your plugins.
 
 ## Helpers
 
@@ -53,12 +53,12 @@ npm run dev
 
 ## Configure
 
-Vitma specific settings
+Plugma specific settings
 
 ```jsonc
 // package.json
 {
-    "vitma": {
+    "plugma": {
         "framework": "svelte"
     }
 }
@@ -79,7 +79,7 @@ Figma specific settings
 Depending on which framework you choose, the files might vary slightly, but the file structure will remain the same.
 
 ```
-.vitma/
+.plugma/
 dist/
     main.js
     ui.html

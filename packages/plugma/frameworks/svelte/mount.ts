@@ -1,4 +1,4 @@
-import PreviewWrapper from "./previewWrapper.svelte";
+import Preview from "./Preview.svelte";
 
 function mount(App) {
 	let app;
@@ -7,7 +7,7 @@ function mount(App) {
 		import.meta.env.MODE === "server" ||
 		import.meta.env.MODE === "development"
 	) {
-		app = new PreviewWrapper({
+		app = new Preview({
 			target: document.getElementById("app")!,
 		});
 	} else {
