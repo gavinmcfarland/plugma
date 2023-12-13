@@ -19,6 +19,7 @@ npm run dev
 ## Features
 
 -   ### Live Development Server
+    
     By linking the plugin window to a development server it eliminates the need to rebuild the UI file repeatedly. This aids in debugging and streamlines the process.
 
 ---
@@ -39,17 +40,32 @@ npm run dev
 
     -   #### `on(event, callback)`
 
-        ##### Parameters
+        __Parameters__
 
         -   **`event`** { String } the name of the event
         -   **`callback`** { Function }
 
     -   #### `emit(event, callback)`
 
-        ##### Parameters
+        __Parameters__
 
         -   **`event`** { String } the name of the event
         -   **`callback`** { Function } _Optional_ If provided, it will return the result from the event handler with the same event name.
+     
+-   ### UI
+
+    -   #### `ui`
+ 
+        Stores the state for the UI.
+
+        __example__
+
+        ```js
+        ui = {
+          width: 400,
+          height: 600
+        }
+        ```
 
 ## Configure
 
