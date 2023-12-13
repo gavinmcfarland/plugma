@@ -10,6 +10,8 @@
 	});
 </script>
 
+<p>Preview</p>
+
 <!-- <span bind:this={isConnected}>(connected ?)</span> -->
 
 <App />

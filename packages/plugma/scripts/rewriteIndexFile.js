@@ -41,6 +41,5 @@ function writeIndexFile() {
 	fs.writeFileSync(newIndexPath, contents, 'utf8');
 }
 
-console.log("test")
 writeIndexFile()
-createPrivateDir()
+// createPrivateDir()
