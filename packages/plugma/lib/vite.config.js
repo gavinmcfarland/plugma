@@ -26,7 +26,7 @@ export default defineConfig({
 		},
 		viteSingleFile(),
 		viteCopyDirectoryPlugin({
-			sourceDir: 'dist/node_modules/plugma/',
+			sourceDir: 'dist/node_modules/plugma/tmp/',
 			targetDir: 'dist/',
 		}),
 		// svgLoader({
