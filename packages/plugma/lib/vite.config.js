@@ -18,7 +18,7 @@ export default defineConfig({
 			configureServer(server) {
 				server.middlewares.use((req, res, next) => {
 					if (req.url === "/") {
-						req.url = "/node_modules/plugma/index.html";
+						req.url = "/node_modules/plugma/tmp/index.html";
 					}
 					next();
 				});
@@ -38,7 +38,7 @@ export default defineConfig({
 	build: {
 		// outDir: "../dist",
 		rollupOptions: {
-			input: "node_modules/plugma/index.html",
+			input: "node_modules/plugma/tmp/index.html",
 		},
 	},
 
