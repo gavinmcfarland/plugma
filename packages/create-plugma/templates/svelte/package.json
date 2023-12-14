@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite & esbuild src/main.ts --bundle --outfile=dist/main.js --watch",
-        "build": "vite build && esbuild src/code/main.ts --bundle --outfile=dist/main.js --minify",
+        "build": "vite build && esbuild src/main.ts --bundle --outfile=dist/main.js --minify",
         "preview": "vite preview",
         "check": "svelte-check --tsconfig ./tsconfig.json"
     },

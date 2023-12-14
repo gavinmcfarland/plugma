@@ -8,7 +8,7 @@ export default mergeConfig(baseConfig, {
 	plugins: [
 		svelte({
 			// Need this so that vite recognises plugma files
-			include: ["src/**/*.svelte", "node_modules/pluma/frameworks/svelte/**/*.svelte"],
+			include: ["src/**/*.svelte", ".plugma/**/*.svelte", "node_modules/plugma/frameworks/svelte/**/*.svelte"],
 		}),
 	],
 });
