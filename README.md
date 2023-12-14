@@ -58,12 +58,16 @@ npm run dev
  
         Stores the state for the UI.
 
-        __example__
+        __Example__
 
         ```js
-        ui = {
-          width: 400,
-          height: 600
+        export function(ui) {
+          ui = {
+            width: 400,
+            height: 600
+          }
+
+          ui.show(data)
         }
         ```
 
