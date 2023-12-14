@@ -12,7 +12,7 @@
 	});
 </script>
 
-<p>Preview</p>
+<p>Preview Wrapper</p>
 
 <!-- <span bind:this={isConnected}>(connected ?)</span> -->
 

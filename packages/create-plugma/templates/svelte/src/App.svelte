@@ -4,7 +4,7 @@
 	// import Counter from "./lib/Counter.svelte";
 </script>
 
-<main>Plugin test sss</main>
+<main>Hellow World</main>
 
 <style>
 </style>
