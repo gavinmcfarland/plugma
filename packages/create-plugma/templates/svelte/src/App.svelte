@@ -4,7 +4,7 @@
 	// import Counter from "./lib/Counter.svelte";
 </script>
 
-<main>Hellow World</main>
+<main>Hello World</main>
 
 <style>
 </style>

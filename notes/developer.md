@@ -102,4 +102,6 @@ export default writable(0);
 -   Look at manifest file to determine where to look for ui.ts and main.ts file
 -   Configure typescript properly
 -   Decide on npm package name
--   Make sure env variables are being passed through to vite
+-   Make sure env variables are being passed through to vite DONE
+-   Generate ui.html file when dev script run
+-   Find a way to run websocket on vite server or run node server alongside. Fix issue with closing and opening servers
