@@ -105,3 +105,5 @@ export default writable(0);
 -   Make sure env variables are being passed through to vite DONE
 -   Generate ui.html file when dev script run
 -   Find a way to run websocket on vite server or run node server alongside. Fix issue with closing and opening servers
+-   Add a way to specify which port, so that it matches with what's in main.js (inerceptHTML)
+-   Disable running server in script for now (need to create custom script)
