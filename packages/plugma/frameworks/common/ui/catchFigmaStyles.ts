@@ -20,4 +20,6 @@ function catchFigmaStyles() {
 	window.addEventListener("message", onWindowMsg2);
 }
 
+catchFigmaStyles();
+
 export { catchFigmaStyles };

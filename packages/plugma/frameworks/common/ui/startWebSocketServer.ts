@@ -60,4 +60,6 @@ function startWebSocketServer() {
 	};
 }
 
+startWebSocketServer();
+
 export { startWebSocketServer };
