@@ -1,4 +1,4 @@
-import { mount } from "plugma/frameworks/svelte/mount";
+import { mount } from "../.plugma/mount";
 import App from "./App.svelte";
 import "./styles.css";
 
