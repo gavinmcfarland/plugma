@@ -67,4 +67,4 @@ async function writeIndexFile() {
 }
 
 writeIndexFile()
-createPrivateDir()
+// createPrivateDir()
