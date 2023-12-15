@@ -14,6 +14,15 @@ console.log(path.resolve(CURR_DIR, 'src'))
 export default defineConfig({
 	plugins: [
 		{
+			name: 'html-transform',
+			transformIndexHtml(html) {
+				const scriptTag = `<script type="module" src="/node_modules/plugma/frameworks/common/ui/catchFigmaStyles.ts"></script>
+				<script type="module" src="/node_modules/plugma/frameworks/common/ui/startWebSocketServer.ts"></script>`;
+				return html.replace('</body>', `</body>${scriptTag}`);
+			},
+			apply: 'serve'
+		},
+		{
 			name: "deep-index",
 			configureServer(server) {
 				server.middlewares.use((req, res, next) => {
