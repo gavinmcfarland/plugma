@@ -1,13 +1,86 @@
 import { createServer } from 'vite';
 import esbuild from 'esbuild';
 import { exec } from 'child_process';
+import { dirname, resolve, parse } from 'path';
+import fs from 'fs';
 
-async function bundleMainWithEsbuild() {
+var root
+
+if (process.env.PWD.endsWith("bin")) {
+	if (process.env.PWD.endsWith(".bin")) {
+
+		root = resolve(process.env.PWD + "/../..")
+	}
+	else {
+		root = resolve(process.env.PWD + "/../../..")
+	}
+
+}
+else {
+	root = process.cwd()
+}
+
+async function getJsonFile(filePath) {
+	// var array = [
+	//     resolve(root, `manifest.json`),
+	//     resolve(root, 'public', 'manifest.json')
+	// ]
+
+	// var pathToManifest;
+
+	// if (fs.existsSync(array[0])) {
+	//     pathToManifest = array[0]
+	// }
+	// else if (fs.existsSync(array[1])) {
+	//     pathToManifest = array[1]
+	// }
+
+	return new Promise((resolve, reject) => {
+		fs.readFile(filePath, 'utf8', function (err, data) {
+			if (err) {
+				reject(err);
+			}
+			// console.log(data)
+			resolve(JSON.parse(data));
+		});
+	});
+}
+
+async function getManifest() {
+	var array = [
+		resolve(root, `manifest.json`),
+		resolve(root, 'public', 'manifest.json')
+	]
+
+	var pathToManifest;
+
+	if (fs.existsSync(array[0])) {
+		pathToManifest = array[0]
+	}
+	else if (fs.existsSync(array[1])) {
+		pathToManifest = array[1]
+	}
+
+	return new Promise((resolve, reject) => {
+		fs.readFile(pathToManifest, 'utf8', function (err, data) {
+			if (err) {
+				reject(err);
+			}
+
+			resolve(JSON.parse(data));
+		});
+	});
+}
+
+async function bundleMainWithEsbuild(data) {
+
 	try {
+
+		// Fix me, needs to output js file
 		// Bundle your .mjs file using esbuild
 		await esbuild.build({
-			entryPoints: ['src/main.ts'],
-			outfile: 'dist/main.js',
+			entryPoints: [`${data.figmaManifest.main}`],
+			outfile: `dist/${parse(data.figmaManifest.main).base}`,
 			format: 'esm',
 			bundle: true,
 		});
@@ -18,10 +91,18 @@ async function bundleMainWithEsbuild() {
 	}
 }
 
-async function startViteServer() {
+async function startViteServer(data) {
 	try {
 		// Create Vite server
 		const server = await createServer({
+			plugins: [
+				{
+					name: 'html-transform-1',
+					transformIndexHtml(html) {
+						return html.replace('id="entry" src="(.+?)"', `src="${data.figmaManifest.ui}"`);
+					},
+				},
+			],
 			server: { port: 3000 }, // Specify the port you want to use
 		});
 
@@ -42,5 +123,20 @@ async function startViteServer() {
 	}
 }
 
+async function getFiles() {
+	let figmaManifest = (await getJsonFile(resolve('./package.json')))["figma-manifest"]
+
+	return {
+		figmaManifest
+	}
+}
+
 // Bundle the file and start the server
-bundleMainWithEsbuild().then(startViteServer);
+
+getFiles().then(async (data) => {
+	// Rewrite index html file
+	await bundleMainWithEsbuild(data)
+	await startViteServer(data)
+});
+
+
