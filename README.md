@@ -102,12 +102,12 @@ Depending on which framework you choose, the files might vary slightly, but the 
 dist/
     main.js
     ui.html
+    manifest.json
 scr/
     main.ts
     ui.ts
     App.jsx
     styles.css
-manifest.json
 vite.config.ts
 package.json
 README.md
