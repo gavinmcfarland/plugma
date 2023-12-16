@@ -1,7 +1,7 @@
 import { createServer } from 'vite';
 import esbuild from 'esbuild';
 import { exec } from 'child_process';
-import { dirname, resolve, parse } from 'path';
+import { dirname, resolve, parse, join } from 'path';
 import fs from 'fs';
 
 var root
@@ -80,7 +80,7 @@ async function bundleMainWithEsbuild(data) {
 		// Bundle your .mjs file using esbuild
 		await esbuild.build({
 			entryPoints: [`${data.figmaManifest.main}`],
-			outfile: `dist/${parse(data.figmaManifest.main).base}`,
+			outfile: `dist/main.js`,
 			format: 'esm',
 			bundle: true,
 		});
@@ -95,6 +95,7 @@ async function startViteServer(data) {
 	try {
 		// Create Vite server
 		const server = await createServer({
+			// Rewrite index html file
 			plugins: [
 				{
 					name: 'html-transform-1',
@@ -124,17 +125,45 @@ async function startViteServer(data) {
 }
 
 async function getFiles() {
-	let figmaManifest = (await getJsonFile(resolve('./package.json')))["figma-manifest"]
+	let pkg = await getJsonFile(resolve('./package.json'));
+	let figmaManifest = pkg["figma-manifest"];
 
 	return {
-		figmaManifest
+		figmaManifest,
+		pkg
 	}
+}
+
+function createJSONFile(directory, filename, data) {
+	const filePath = join(directory, filename);
+	const jsonData = JSON.stringify(data, null, 2); // Convert data to JSON string with indentation
+
+	fs.writeFile(filePath, jsonData, 'utf8', (err) => {
+
+
+		if (err) {
+			console.error('Error creating JSON file:', err);
+		} else {
+			console.log(`JSON file ${filePath} has been created successfully!`);
+		}
+	});
 }
 
 // Bundle the file and start the server
 
 getFiles().then(async (data) => {
-	// Rewrite index html file
+	await createJSONFile("./dist", "manifest.json", {
+		"name": `${data.pkg.name}`,
+		"id": "<%- id %>",
+		"api": "1.0.0",
+		"main": "main.js",
+		"ui": "ui.html",
+		"editorType": ["figma", "figjam"],
+		"networkAccess": {
+			"allowedDomains": ["*"],
+			"reasoning": "Internet access for local development."
+		}
+	})
 	await bundleMainWithEsbuild(data)
 	await startViteServer(data)
 });

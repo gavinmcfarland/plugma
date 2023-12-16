@@ -4,7 +4,8 @@
     "version": "0.0.0",
     "type": "module",
     "scripts": {
-        "dev": "vite & esbuild src/main.ts --bundle --outfile=dist/main.js --watch & node lib/server.js",
+        "dev": "node node_modules/plugma/scripts/runDevScript.js",
+        "dev-old": "vite & esbuild src/main.ts --bundle --outfile=dist/main.js --watch & node lib/server.js",
         "build": "vite build && esbuild src/main.ts --bundle --outfile=dist/main.js --minify",
         "preview": "vite preview",
         "check": "svelte-check --tsconfig ./tsconfig.json"
@@ -21,5 +22,9 @@
     },
     "plugma": {
         "framework": "svelte"
+    },
+    "figma-manifest": {
+        "main": "src/main.ts",
+        "ui": "src/ui.ts"
     }
 }
