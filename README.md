@@ -19,7 +19,7 @@ npm run dev
 ## Features
 
 -   ### Live Development Server
-    
+
     By linking the plugin window to a development server it eliminates the need to rebuild the UI file repeatedly. This aids in debugging and streamlines the process.
 
 ---
@@ -40,25 +40,25 @@ npm run dev
 
     -   #### `on(event, callback)`
 
-        __Parameters__
+        **Parameters**
 
         -   **`event`** { String } the name of the event
         -   **`callback`** { Function }
 
     -   #### `emit(event, callback)`
 
-        __Parameters__
+        **Parameters**
 
         -   **`event`** { String } the name of the event
         -   **`callback`** { Function } _Optional_ If provided, it will return the result from the event handler with the same event name.
-     
+
 -   ### UI
 
     -   #### `ui`
- 
+
         Stores the state for the UI.
 
-        __Example__
+        **Example**
 
         ```js
         export function(ui) {
@@ -112,3 +112,24 @@ vite.config.ts
 package.json
 README.md
 ```
+
+## Scripts
+
+-   `plugma dev`
+
+    This script does the following in this order:
+
+    1. Creates a `manifest.json` file
+    2. Builds the `main.js` file using `esbuild`
+    3. Builds `ui.html` file
+    4. Uses location of `main` and `ui` to build plugin
+    5. Starts a Vite development server to mount the UI
+    6. Starts a Websocket server
+
+-   `plugma build`
+
+    This script does the following in this order:
+
+    2. Creates a `manifest.json` file
+    1. Builds the `main.js` file using `esbuild` and minifies it
+    1. Builds the `ui.html` file using Vite
