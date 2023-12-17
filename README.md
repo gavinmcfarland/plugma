@@ -8,12 +8,18 @@ Plugma is a CLI to simplify creating Figma plugins.
 npm create plugma@latest my-plugin
 ```
 
-Choose a template you'd like to create a plugin from and then:
+Choose a framework you'd like to create a plugin for and then:
 
 ```shell
 cd my-plugin
 npm install
 npm run dev
+```
+
+To prepare a build for publishing:
+
+```shell
+npm run build
 ```
 
 ## Features
@@ -33,6 +39,86 @@ npm run dev
 -   ### Consistant Folder Structure
 
     Plugma hides unneccesary boilerplate code so you can concentrate on the code required to develop your plugins.
+
+## Scripts
+
+### Developing your plugin
+
+Develop your plugin using this command. It redirects the plugin iframe's content to a local dev server, letting you preview it in your browser. To interact with the preview version, ensure the dev plugin is open in Figma using the Desktop app.
+
+```shell
+plugma dev [--port 300]
+```
+
+### Publishing or sharing
+
+Before sharing or publishing your plugin, run this command so that the UI is no longer pointing at the local dev server. It will bundle the UI, inlining the JS and CSS into a single HTML file and minify it.
+
+```shell
+plugma build
+```
+
+## Plugin Folder Structure
+
+Your plugin project will look something like this.
+
+Depending on which framework you choose, the files might vary slightly, but the file structure will remain the same.
+
+```
+dist/
+    main.js
+    ui.html
+    manifest.json
+scr/
+    main.ts
+    ui.ts
+    App.jsx
+    styles.css
+vite.config.ts
+package.json
+README.md
+```
+
+-   `dist` The dist folder is where the outputted plugin code is built. When importing a plugin in Figma, select the `manifest.json` file from this folder.
+
+-   `src` All of the files required for your plugin.
+
+    -   `main.ts` This file interacts with Figma's Plugin API
+    -   `ui.ts` This file mounts the UI
+    -   `App.jsx` This file contains your UI markup (mandatory for some frameworks)
+
+-   `vite.config.ts` Because Plugma uses Vite for bundling, it gives you access to all of Vite's plugins.
+
+-   `package.json` Contains the name of our plugin and Figma manifest details `figma-manifest`.
+
+## Configure
+
+<!-- Plugma specific settings
+
+```jsonc
+// package.json
+{
+    "plugma": {
+        "framework": "svelte"
+    }
+}
+``` -->
+
+### Figma specific settings
+
+Add Figma's manifest details to the field `figma-manifest` inside the `package.json` file.
+
+```jsonc
+// package.json
+{
+    //...
+
+    "figma-manifest": {
+        "main": "src/main.js",
+        "ui": "src/ui.js"
+    }
+}
+```
 
 ## Helpers
 
@@ -70,66 +156,3 @@ npm run dev
           ui.show(data)
         }
         ```
-
-## Configure
-
-Plugma specific settings
-
-```jsonc
-// package.json
-{
-    "plugma": {
-        "framework": "svelte"
-    }
-}
-```
-
-Figma specific settings
-
-```jsonc
-// manifest.json
-{
-    "main": "src/main.js",
-    "ui": "src/ui.js"
-}
-```
-
-## Plugin Folder Structure
-
-Depending on which framework you choose, the files might vary slightly, but the file structure will remain the same.
-
-```
-dist/
-    main.js
-    ui.html
-    manifest.json
-scr/
-    main.ts
-    ui.ts
-    App.jsx
-    styles.css
-vite.config.ts
-package.json
-README.md
-```
-
-## Scripts
-
--   `plugma dev`
-
-    This script does the following in this order:
-
-    1. Creates a `manifest.json` file
-    2. Builds the `main.js` file using `esbuild`
-    3. Builds `ui.html` file
-    4. Uses location of `main` and `ui` to build plugin
-    5. Starts a Vite development server to mount the UI
-    6. Starts a Websocket server
-
--   `plugma build`
-
-    This script does the following in this order:
-
-    2. Creates a `manifest.json` file
-    1. Builds the `main.js` file using `esbuild` and minifies it
-    1. Builds the `ui.html` file using Vite

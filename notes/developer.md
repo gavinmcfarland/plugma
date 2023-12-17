@@ -107,3 +107,26 @@ export default writable(0);
 -   Find a way to run websocket on vite server or run node server alongside. Fix issue with closing and opening servers
 -   Add a way to specify which port, so that it matches with what's in main.js (inerceptHTML)
 -   Disable running server in script for now (need to create custom script)
+
+```shell
+plugma dev
+```
+
+This script does the following in this order:
+
+1. Creates a `manifest.json` file
+2. Builds the `main.js` file using `esbuild`
+3. Builds `ui.html` file
+4. Uses location of `main` and `ui` to build plugin
+5. Starts a Vite development server to mount the UI
+6. Starts a Websocket server
+
+```shell
+plugma build
+```
+
+This script does the following in this order:
+
+2. Creates a `manifest.json` file
+1. Builds the `main.js` file using `esbuild` and minifies it
+1. Builds the `ui.html` file using Vite
