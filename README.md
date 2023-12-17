@@ -8,11 +8,11 @@ The following things are required to use this tool.
 
 -   NPM
 -   Node.js
--   A CLI like Terminal
+-   A CLI (Command Line Interface) like Terminal
 
 ## To Get Started
 
-Using the command line interface (CLI), start by creating a plugin.
+Start by creating a plugin using the CLI:
 
 ```shell
 npm create plugma@latest my-plugin
@@ -91,7 +91,7 @@ README.md
 
 -   `dist` The dist folder is where the outputted plugin code is built. When importing a plugin in Figma, select the `manifest.json` file from this folder.
 
--   `src` All of the files required for your plugin.
+-   `src` All of the source files required for your plugin.
 
     -   `main.ts` This file interacts with Figma's Plugin API
     -   `ui.ts` This file mounts the UI
@@ -99,7 +99,7 @@ README.md
 
 -   `vite.config.ts` Because Plugma uses Vite for bundling, it gives you access to all of Vite's plugins.
 
--   `package.json` Contains the name of our plugin and Figma manifest details `figma-manifest`.
+-   `package.json` Contains the name of our plugin and Figma manifest details in the `figma-manifest` field.
 
 ## Configure
 
