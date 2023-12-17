@@ -3,6 +3,7 @@ import esbuild from 'esbuild';
 import { exec } from 'child_process';
 import { dirname, resolve, parse, join } from 'path';
 import fs from 'fs';
+import chalk from 'chalk';
 
 var root
 
@@ -85,7 +86,7 @@ async function bundleMainWithEsbuild(data) {
 			bundle: true,
 		});
 
-		console.log('Main bundled successfully with esbuild!');
+		// console.log('Main bundled successfully with esbuild!');
 	} catch (err) {
 		console.error('Error bundling file with esbuild:', err);
 	}
@@ -108,12 +109,17 @@ async function startViteServer(data) {
 		});
 
 		await server.listen(); // Start the Vite server
-		console.log('Vite UI server is running on http://localhost:3000');
+		// ➜  Local:   http://localhost:5179/
+		// ➜  Network: use --host to expose
+		console.log(`
+  ${chalk.blue.bold('Plugma')} ${chalk.grey('v0.0.1')}
+
+  ➜  Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan('3000')}${chalk.cyan('/')}`);
 
 		// Run your additional Node.js script
 		const childProcess = exec('node node_modules/plugma/lib/server-old.cjs');
 		childProcess.stdout.on('data', (data) => {
-			console.log(`Script output: ${data}`);
+			// console.log(`Script output: ${data}`);
 		});
 		childProcess.stderr.on('data', (data) => {
 			console.error(`Script error: ${data}`);
@@ -144,7 +150,7 @@ function createJSONFile(directory, filename, data) {
 		if (err) {
 			console.error('Error creating JSON file:', err);
 		} else {
-			console.log(`JSON file ${filePath} has been created successfully!`);
+			// console.log(`JSON file ${filePath} has been created successfully!`);
 		}
 	});
 }
