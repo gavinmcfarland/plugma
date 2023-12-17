@@ -2,7 +2,17 @@
 
 Plugma is a CLI to simplify creating Figma plugins.
 
+## Requirements
+
+The following things are required to use this tool.
+
+-   NPM
+-   Node.js
+-   A CLI like Terminal
+
 ## To Get Started
+
+Using the command line interface (CLI), start by creating a plugin.
 
 ```shell
 npm create plugma@latest my-plugin
