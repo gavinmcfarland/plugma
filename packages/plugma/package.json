@@ -4,6 +4,9 @@
     "description": "",
     "main": "index.js",
     "type": "module",
+    "bin": {
+        "plugma": "./bin/cli.js"
+    },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "postinstall": "node scripts/rewriteIndexFile.js"
@@ -15,5 +18,9 @@
         "lodash.template": "^4.5.0",
         "vite": "^5.0.4",
         "vite-plugin-singlefile": "^0.13.5"
+    },
+    "devDependencies": {
+        "cli": "^1.0.1",
+        "yargs": "^17.7.2"
     }
 }

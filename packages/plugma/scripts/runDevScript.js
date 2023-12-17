@@ -157,21 +157,24 @@ function createJSONFile(directory, filename, data) {
 
 // Bundle the file and start the server
 
-getFiles().then(async (data) => {
-	await createJSONFile("./dist", "manifest.json", {
-		"name": `${data.pkg.name}`,
-		"id": "<%- id %>",
-		"api": "1.0.0",
-		"main": "main.js",
-		"ui": "ui.html",
-		"editorType": ["figma", "figjam"],
-		"networkAccess": {
-			"allowedDomains": ["*"],
-			"reasoning": "Internet access for local development."
-		}
-	})
-	await bundleMainWithEsbuild(data)
-	await startViteServer(data)
-});
+export default function cli() {
+	getFiles().then(async (data) => {
+		await createJSONFile("./dist", "manifest.json", {
+			"name": `${data.pkg.name}`,
+			"id": "<%- id %>",
+			"api": "1.0.0",
+			"main": "main.js",
+			"ui": "ui.html",
+			"editorType": ["figma", "figjam"],
+			"networkAccess": {
+				"allowedDomains": ["*"],
+				"reasoning": "Internet access for local development."
+			}
+		})
+		await bundleMainWithEsbuild(data)
+		await startViteServer(data)
+	});
+}
+
 
 
