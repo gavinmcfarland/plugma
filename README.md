@@ -1,5 +1,7 @@
 # Plugma
 
+> This is a work in progress
+
 Plugma is a CLI to simplify creating Figma plugins.
 
 ## Requirements

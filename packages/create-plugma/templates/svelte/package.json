@@ -19,7 +19,7 @@
         "typescript": "^5.2.2",
         "vite": "^5.0.0",
         "esbuild": "^0.19.9",
-        "plugma": "git://github.com/gavinmcfarland/plugma/tree/main/packages/plugma"
+        "plugma": "https://gitpkg.now.sh/gavinmcfarland/plugma/packages/plugma?main"
     },
     "plugma": {
         "framework": "svelte"
