@@ -4,6 +4,9 @@
     "description": "",
     "main": "create-plugma.js",
     "type": "module",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
     "bin": {
         "create-plugma": "./create-plugma.js"
     },
