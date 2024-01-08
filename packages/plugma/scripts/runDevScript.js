@@ -140,6 +140,27 @@ async function getFiles() {
 	}
 }
 
+function createFileWithDirectory(filePath, fileContent, callback) {
+	// Extract the directory path
+	const directoryPath = dirname(filePath);
+
+	// Use fs.mkdir to create the directory
+	fs.mkdir(directoryPath, { recursive: true }, (err) => {
+		if (err) {
+			callback(err);
+		} else {
+			// Write to the file using fs.writeFile
+			fs.writeFile(filePath, fileContent, 'utf8', (err) => {
+				if (err) {
+					callback(err);
+				} else {
+					callback(null, 'File created successfully!');
+				}
+			});
+		}
+	});
+}
+
 function createJSONFile(directory, filename, data) {
 	const filePath = join(directory, filename);
 	const jsonData = JSON.stringify(data, null, 2); // Convert data to JSON string with indentation
@@ -150,7 +171,7 @@ function createJSONFile(directory, filename, data) {
 		if (err) {
 			console.error('Error creating JSON file:', err);
 		} else {
-			// console.log(`JSON file ${filePath} has been created successfully!`);
+			console.log(`JSON file ${filePath} has been created successfully!`);
 		}
 	});
 }
@@ -159,7 +180,7 @@ function createJSONFile(directory, filename, data) {
 
 export default function cli() {
 	getFiles().then(async (data) => {
-		await createJSONFile("./dist", "manifest.json", {
+		await createFileWithDirectory("./dist/manifest.json", JSON.stringify({
 			"name": `${data.pkg.name}`,
 			"id": "<%- id %>",
 			"api": "1.0.0",
@@ -169,6 +190,12 @@ export default function cli() {
 			"networkAccess": {
 				"allowedDomains": ["*"],
 				"reasoning": "Internet access for local development."
+			}
+		}, null, 2), (err, result) => {
+			if (err) {
+				console.error('Error:', err);
+			} else {
+				console.log(result);
 			}
 		})
 		await bundleMainWithEsbuild(data)
