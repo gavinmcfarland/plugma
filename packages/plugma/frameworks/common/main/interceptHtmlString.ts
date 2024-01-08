@@ -1,4 +1,4 @@
-import { saveFigmaStyles } from "plugma/frameworks/common/main/saveFigmaStyles";
+import { saveFigmaStyles } from "./saveFigmaStyles";
 
 if (process.env.NODE_ENV === "development") {
 	figma.ui.onmessage = async (msg) => {
