@@ -1,6 +1,6 @@
 {
     "name": "create-plugma",
-    "version": "0.0.1",
+    "version": "0.0.0",
     "description": "",
     "main": "create-plugma.js",
     "type": "module",
@@ -11,7 +11,8 @@
         "create-plugma": "./create-plugma.js"
     },
     "files": [
-        "configs"
+        "templates",
+        "scripts"
     ],
     "author": "",
     "license": "ISC"
