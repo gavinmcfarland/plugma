@@ -90,4 +90,5 @@ yargs.command('build', 'Publish or share your plugin', (yargs) => {
 // })
 
 console.log(yargs.argv)
-// cli(options)
+cli(yargs.argv)
+
