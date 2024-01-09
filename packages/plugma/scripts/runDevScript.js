@@ -189,10 +189,17 @@ function createFileWithDirectory(filePath, fileName, fileContent, callback) {
 export default function cli(options) {
 
 	if (options._[0] === "build") {
-
+		// 1. Create dist folder
+		// 1. Create manifest file
+		// 2. Create code.js file
+		// 3. Create ui.html file
 	}
 
 	if (options._[0] === "dev") {
+		// 1. Create dist folder
+		// 1. Create manifest file
+		// 2. Create code.js file
+		// 3. Create ui.html file
 		getFiles().then(async (data) => {
 			await createFileWithDirectory("./dist", "manifest.json", JSON.stringify({
 				"name": `${data.pkg.name}`,
