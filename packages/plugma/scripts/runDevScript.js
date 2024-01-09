@@ -116,14 +116,14 @@ async function startViteServer(data) {
 
   ➜  Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan('3000')}${chalk.cyan('/')}`);
 
-		// Run your additional Node.js script
-		const childProcess = exec('node node_modules/plugma/lib/server-old.cjs');
-		childProcess.stdout.on('data', (data) => {
-			// console.log(`Script output: ${data}`);
-		});
-		childProcess.stderr.on('data', (data) => {
-			console.error(`Script error: ${data}`);
-		});
+		// // Run your additional Node.js script
+		// const childProcess = exec('node node_modules/plugma/lib/server-old.cjs');
+		// childProcess.stdout.on('data', (data) => {
+		// 	// console.log(`Script output: ${data}`);
+		// });
+		// childProcess.stderr.on('data', (data) => {
+		// 	console.error(`Script error: ${data}`);
+		// });
 	} catch (err) {
 		console.error('Error starting Vite server:', err);
 		process.exit(1);
@@ -140,9 +140,17 @@ async function getFiles() {
 	}
 }
 
-function createFileWithDirectory(filePath, fileContent, callback) {
+function createFileWithDirectory(filePath, fileName, fileContent, callback) {
+
+	function callback(err, result) {
+		if (err) {
+			console.error('Error:', err);
+		} else {
+			console.log(result);
+		}
+	}
 	// Extract the directory path
-	const directoryPath = dirname(filePath);
+	const directoryPath = dirname(resolve(filePath, fileName));
 
 	// Use fs.mkdir to create the directory
 	fs.mkdir(directoryPath, { recursive: true }, (err) => {
@@ -150,57 +158,59 @@ function createFileWithDirectory(filePath, fileContent, callback) {
 			callback(err);
 		} else {
 			// Write to the file using fs.writeFile
-			fs.writeFile(filePath, fileContent, 'utf8', (err) => {
+			fs.writeFile(resolve(filePath, fileName), fileContent, 'utf8', (err) => {
 				if (err) {
 					callback(err);
 				} else {
-					callback(null, 'File created successfully!');
+					callback(null, `${fileName} created successfully!`);
 				}
 			});
 		}
 	});
 }
 
-function createJSONFile(directory, filename, data) {
-	const filePath = join(directory, filename);
-	const jsonData = JSON.stringify(data, null, 2); // Convert data to JSON string with indentation
+// function createJSONFile(directory, filename, data) {
+// 	const filePath = join(directory, filename);
+// 	const jsonData = JSON.stringify(data, null, 2); // Convert data to JSON string with indentation
 
-	fs.writeFile(filePath, jsonData, 'utf8', (err) => {
+// 	fs.writeFile(filePath, jsonData, 'utf8', (err) => {
 
 
-		if (err) {
-			console.error('Error creating JSON file:', err);
-		} else {
-			console.log(`JSON file ${filePath} has been created successfully!`);
-		}
-	});
-}
+// 		if (err) {
+// 			console.error('Error creating JSON file:', err);
+// 		} else {
+// 			console.log(`JSON file ${filePath} has been created successfully!`);
+// 		}
+// 	});
+// }
 
 // Bundle the file and start the server
 
-export default function cli() {
-	getFiles().then(async (data) => {
-		await createFileWithDirectory("./dist/manifest.json", JSON.stringify({
-			"name": `${data.pkg.name}`,
-			"id": "<%- id %>",
-			"api": "1.0.0",
-			"main": "main.js",
-			"ui": "ui.html",
-			"editorType": ["figma", "figjam"],
-			"networkAccess": {
-				"allowedDomains": ["*"],
-				"reasoning": "Internet access for local development."
-			}
-		}, null, 2), (err, result) => {
-			if (err) {
-				console.error('Error:', err);
-			} else {
-				console.log(result);
-			}
-		})
-		await bundleMainWithEsbuild(data)
-		await startViteServer(data)
-	});
+export default function cli(options) {
+
+	if (options._[0] === "build") {
+
+	}
+
+	if (options._[0] === "dev") {
+		getFiles().then(async (data) => {
+			await createFileWithDirectory("./dist", "manifest.json", JSON.stringify({
+				"name": `${data.pkg.name}`,
+				"id": "<%- id %>",
+				"api": "1.0.0",
+				"main": "main.js",
+				"ui": "ui.html",
+				"editorType": ["figma", "figjam"],
+				"networkAccess": {
+					"allowedDomains": ["*"],
+					"reasoning": "Internet access for local development."
+				}
+			}, null, 2))
+			await bundleMainWithEsbuild(data)
+			await startViteServer(data)
+		});
+	}
+
 }
 
 

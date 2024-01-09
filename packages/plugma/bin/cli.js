@@ -8,34 +8,27 @@ import { hideBin } from 'yargs/helpers';
 const yargs = _yargs(hideBin(process.argv));
 
 yargs.scriptName("plugma")
-	.usage('Usage: $0 <cmd> [args] -b [path]')
+	.usage('Usage: $0 <cmd> [opts]')
 	.help()
 
-yargs.command('dev', 'Develop your plugin', (yargs) => {
-	yargs.positional('name', {
-		type: 'string',
-		default: '',
-		describe: 'semver to increment',
-		choices: ['patch', 'minor', 'major', '']
+yargs.command('dev', 'Develop your plugin')
+	.example(
+		"$0 dev -p 3000",
+		"Runs a dev server on port 3000"
+	)
+	.option('p', {
+		alias: 'port',
+		describe: 'Speficy the port for the plugin preview',
+		type: 'number',
+		nargs: 1
 	})
-}, function (argv) {
-	// console.log('[plugma]', argv.name)
-}).option('port', {
-	describe: 'Speficy a port for the plugin preview'
-})
 
-yargs.command('build', 'Publish or share your plugin', (yargs) => {
-	yargs.positional('name', {
-		type: 'string',
-		default: '',
-		describe: 'semver to increment',
-		choices: ['patch', 'minor', 'major', '']
-	})
-}, function (argv) {
-	// console.log('[plugma]', argv.name)
-}).option('port', {
-	describe: 'Speficy a port for the plugin preview'
-})
+
+yargs.command('build', 'Publish or share your plugin')
+	.example(
+		"$0 build",
+		"Creates a build ready for publishing"
+	)
 
 
 // const options = yargs.scriptName("plugma")
@@ -89,6 +82,5 @@ yargs.command('build', 'Publish or share your plugin', (yargs) => {
 // 	// console.log('[plugma]', argv.name)
 // })
 
-console.log(yargs.argv)
 cli(yargs.argv)
 
