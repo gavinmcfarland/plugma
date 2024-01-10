@@ -91,11 +91,15 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 		// Create a temporary file path
 		const tempFilePath = join(CURR_DIR, `temp_${Date.now()}.js`);
 
+		if (NODE_ENV === "development") {
 
-		// Append the specified string to the entry file content and write to the temporary file
-		const modifiedContent = `import { __html__ } from "plugma/frameworks/common/main/interceptHtmlString";` + originalContent;
+			const modifiedContent = `import { __html__ } from "plugma/frameworks/common/main/interceptHtmlString";` + originalContent;
+			fs.writeFileSync(tempFilePath, modifiedContent);
+		}
+		else {
+			fs.writeFileSync(tempFilePath, originalContent);
+		}
 
-		fs.writeFileSync(tempFilePath, modifiedContent);
 
 		// let ctx = await esbuild.context({
 		// 	entryPoints: [`${data.figmaManifest.main}`],
