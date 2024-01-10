@@ -4,6 +4,7 @@ import { exec } from 'child_process';
 import { dirname, resolve, parse, join } from 'path';
 import fs from 'fs';
 import chalk from 'chalk';
+import { build } from 'vite'
 
 var root
 
@@ -73,17 +74,32 @@ async function getManifest() {
 	});
 }
 
-async function bundleMainWithEsbuild(data) {
+async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
+
+	if (callback && typeof (callback) === "function") {
+		callback();
+	}
 
 	try {
 
-		// Fix me, needs to output js file
-		// Bundle your .mjs file using esbuild
+		// let ctx = await esbuild.context({
+		// 	entryPoints: [`${data.figmaManifest.main}`],
+		// 	outfile: `dist/main.js`,
+		// 	format: 'esm',
+		// 	bundle: true
+		// });
+		// await ctx.watch();
+
+		// // Fix me, needs to output js file
+		// // Bundle your .mjs file using esbuild
 		await esbuild.build({
 			entryPoints: [`${data.figmaManifest.main}`],
 			outfile: `dist/main.js`,
 			format: 'esm',
 			bundle: true,
+			define: {
+				'process.env.NODE_ENV': JSON.stringify(NODE_ENV),
+			},
 		});
 
 		// console.log('Main bundled successfully with esbuild!');
@@ -92,11 +108,11 @@ async function bundleMainWithEsbuild(data) {
 	}
 }
 
-async function startViteServer(data) {
+async function startViteServer(data, options) {
 	try {
 		// Create Vite server
 		const server = await createServer({
-			// Rewrite index html file
+			// Rewrite index html file to point to ui file specified in manifest
 			plugins: [
 				{
 					name: 'html-transform-1',
@@ -105,16 +121,11 @@ async function startViteServer(data) {
 					},
 				},
 			],
-			server: { port: 3000 }, // Specify the port you want to use
+			server: { port: options.port }, // Specify the port you want to use
 		});
 
 		await server.listen(); // Start the Vite server
-		// ➜  Local:   http://localhost:5179/
-		// ➜  Network: use --host to expose
-		console.log(`
-  ${chalk.blue.bold('Plugma')} ${chalk.grey('v0.0.1')}
 
-  ➜  Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan('3000')}${chalk.cyan('/')}`);
 
 		// // Run your additional Node.js script
 		// const childProcess = exec('node node_modules/plugma/lib/server-old.cjs');
@@ -128,6 +139,30 @@ async function startViteServer(data) {
 		console.error('Error starting Vite server:', err);
 		process.exit(1);
 	}
+}
+
+async function buildVite(data, callback) {
+
+
+	if (callback && typeof (callback) === "function") {
+		callback();
+	}
+
+	// Surpress console logs created by vite
+	const originalConsoleLog = console.log;
+	console.log = function () { };
+	// {
+	// 	root: path.resolve(__dirname, './project'),
+	// 	base: '/foo/',
+	// 	build: {
+	// 	  rollupOptions: {
+	// 		// ...
+	// 	  },
+	// 	},
+	//   }
+	await build()
+
+	console.log = originalConsoleLog;
 }
 
 async function getFiles() {
@@ -162,11 +197,29 @@ function createFileWithDirectory(filePath, fileName, fileContent, callback) {
 				if (err) {
 					callback(err);
 				} else {
-					callback(null, `${fileName} created successfully!`);
+					// callback(null, `${fileName} created successfully!`);
 				}
 			});
 		}
 	});
+}
+
+async function writeManifestFile(data, callback) {
+	if (callback && typeof (callback) === "function") {
+		callback();
+	}
+	return await createFileWithDirectory("./dist", "manifest.json", JSON.stringify({
+		"name": `${data.pkg.name}`,
+		"id": "<%- id %>",
+		"api": "1.0.0",
+		"main": "main.js",
+		"ui": "ui.html",
+		"editorType": ["figma", "figjam"],
+		"networkAccess": {
+			"allowedDomains": ["*"],
+			"reasoning": "Internet access for local development."
+		}
+	}, null, 2))
 }
 
 // function createJSONFile(directory, filename, data) {
@@ -188,11 +241,25 @@ function createFileWithDirectory(filePath, fileName, fileContent, callback) {
 
 export default function cli(options) {
 
+	options.port = options.port || 3000
+
 	if (options._[0] === "build") {
 		// 1. Create dist folder
 		// 1. Create manifest file
 		// 2. Create code.js file
 		// 3. Create ui.html file
+		getFiles().then(async (data) => {
+			await buildVite(data, () => {
+				console.log(`  ui.html file created!`)
+			})
+			await writeManifestFile(data, () => {
+				console.log(`  manifest.json file created!`)
+			})
+			await bundleMainWithEsbuild(data, true, () => {
+				console.log(`  main.js file created!`)
+			}, 'production')
+
+		});
 	}
 
 	if (options._[0] === "dev") {
@@ -200,21 +267,33 @@ export default function cli(options) {
 		// 1. Create manifest file
 		// 2. Create code.js file
 		// 3. Create ui.html file
+		// ➜  Local:   http://localhost:5179/
+		// ➜  Network: use --host to expose
+
+
 		getFiles().then(async (data) => {
-			await createFileWithDirectory("./dist", "manifest.json", JSON.stringify({
-				"name": `${data.pkg.name}`,
-				"id": "<%- id %>",
-				"api": "1.0.0",
-				"main": "main.js",
-				"ui": "ui.html",
-				"editorType": ["figma", "figjam"],
-				"networkAccess": {
-					"allowedDomains": ["*"],
-					"reasoning": "Internet access for local development."
-				}
-			}, null, 2))
-			await bundleMainWithEsbuild(data)
-			await startViteServer(data)
+
+			await buildVite(data, () => {
+				console.log(`  main.js file created!`)
+			})
+			await writeManifestFile(data, () => {
+				console.log(`  manifest.json file created!`)
+			})
+			await bundleMainWithEsbuild(data, true, () => {
+				console.log(`  ui.html file created!`)
+			}, 'development')
+
+			console.log(`
+  ${chalk.blue.bold('Plugma')} ${chalk.grey('v0.0.1')}
+
+  ➜  Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan(options.port)}${chalk.cyan('/')}
+  `);
+
+			await startViteServer(data, options)
+
+
+
+
 		});
 	}
 

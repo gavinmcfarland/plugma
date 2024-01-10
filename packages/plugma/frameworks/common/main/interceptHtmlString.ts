@@ -32,6 +32,7 @@ if (process.env.NODE_ENV === "development") {
 	html = htmlString;
 } else {
 	htmlString = __html__;
+	html = htmlString;
 }
 
 saveFigmaStyles();
