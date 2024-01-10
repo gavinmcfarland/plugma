@@ -101,31 +101,25 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 		}
 
 
-		if (NODE_ENV === "development") {
-			let ctx = await esbuild.context({
-				entryPoints: [`${data.figmaManifest.main}`],
-				outfile: `dist/main.js`,
-				format: 'esm',
-				bundle: true
-			});
-			await ctx.watch();
-		} else {
-			// Fix me, needs to output js file
-			// Bundle your .mjs file using esbuild
-			await esbuild.build({
-				entryPoints: [tempFilePath],
-				outfile: `dist/main.js`,
-				format: 'esm',
-				bundle: true,
-				define: {
-					'process.env.NODE_ENV': JSON.stringify(NODE_ENV),
-				},
-			});
-		}
+
+		// Fix me, needs to output js file
+		// Bundle your .mjs file using esbuild
+		await esbuild.build({
+			entryPoints: [tempFilePath],
+			outfile: `dist/main.js`,
+			format: 'esm',
+			bundle: true,
+			define: {
+				'process.env.NODE_ENV': JSON.stringify(NODE_ENV),
+			},
+		});
 
 		await fs.unlink(tempFilePath, (err => {
 			if (err) console.log(err);
 		}));
+
+
+
 
 		// console.log('Main bundled successfully with esbuild!');
 	} catch (err) {
@@ -299,14 +293,22 @@ export default function cli(options) {
 		getFiles().then(async (data) => {
 
 			await buildVite(data, () => {
-				console.log(`  main.js file created!`)
+				console.log(`  ui.js file created!`)
 			})
 			await writeManifestFile(data, () => {
 				console.log(`  manifest.json file created!`)
 			})
+
 			await bundleMainWithEsbuild(data, true, () => {
-				console.log(`  ui.html file created!`)
+				console.log(`  main.html file created!`)
 			}, 'development')
+
+			fs.watch(resolve(data.figmaManifest.main), {}, async (eventType, filename) => {
+
+				await bundleMainWithEsbuild(data, true, () => {
+					console.log(`  main.html file modified!`)
+				}, 'development')
+			});
 
 			console.log(`
   ${chalk.blue.bold('Plugma')} ${chalk.grey('v0.0.1')}
