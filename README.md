@@ -1,6 +1,6 @@
 # Plugma
 
-> This is a work in progress
+> This is a work in progress, it may not work as expected
 
 Plugma is a CLI to simplify creating Figma plugins.
 
@@ -14,13 +14,13 @@ The following things are required to use this tool.
 
 ## To Get Started
 
-Start by creating a plugin using the CLI:
+Start by creating a plugin from a template using the CLI:
 
 ```shell
 npm create plugma@latest my-plugin
 ```
 
-Choose a framework you'd like to create a plugin for and then:
+Follow the on-screen instructions and then:
 
 ```shell
 cd my-plugin
