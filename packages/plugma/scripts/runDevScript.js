@@ -3,8 +3,11 @@ import esbuild from 'esbuild';
 import { exec } from 'child_process';
 import { dirname, resolve, parse, join } from 'path';
 import fs from 'fs';
+import os from 'os';
 import chalk from 'chalk';
 import { build } from 'vite'
+
+const CURR_DIR = process.cwd();
 
 var root
 
@@ -82,6 +85,18 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 
 	try {
 
+		// Create a temporary file and inject code that replaces html string for local dev server
+		const originalContent = fs.readFileSync(data.figmaManifest.main, 'utf8');
+
+		// Create a temporary file path
+		const tempFilePath = join(CURR_DIR, `temp_${Date.now()}.js`);
+
+
+		// Append the specified string to the entry file content and write to the temporary file
+		const modifiedContent = `import { __html__ } from "plugma/frameworks/common/main/interceptHtmlString";` + originalContent;
+
+		fs.writeFileSync(tempFilePath, modifiedContent);
+
 		// let ctx = await esbuild.context({
 		// 	entryPoints: [`${data.figmaManifest.main}`],
 		// 	outfile: `dist/main.js`,
@@ -90,10 +105,10 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 		// });
 		// await ctx.watch();
 
-		// // Fix me, needs to output js file
-		// // Bundle your .mjs file using esbuild
+		// Fix me, needs to output js file
+		// Bundle your .mjs file using esbuild
 		await esbuild.build({
-			entryPoints: [`${data.figmaManifest.main}`],
+			entryPoints: [tempFilePath],
 			outfile: `dist/main.js`,
 			format: 'esm',
 			bundle: true,
@@ -101,6 +116,10 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 				'process.env.NODE_ENV': JSON.stringify(NODE_ENV),
 			},
 		});
+
+		await fs.unlink(tempFilePath, (err => {
+			if (err) console.log(err);
+		}));
 
 		// console.log('Main bundled successfully with esbuild!');
 	} catch (err) {
