@@ -101,25 +101,27 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 		}
 
 
-		// let ctx = await esbuild.context({
-		// 	entryPoints: [`${data.figmaManifest.main}`],
-		// 	outfile: `dist/main.js`,
-		// 	format: 'esm',
-		// 	bundle: true
-		// });
-		// await ctx.watch();
-
-		// Fix me, needs to output js file
-		// Bundle your .mjs file using esbuild
-		await esbuild.build({
-			entryPoints: [tempFilePath],
-			outfile: `dist/main.js`,
-			format: 'esm',
-			bundle: true,
-			define: {
-				'process.env.NODE_ENV': JSON.stringify(NODE_ENV),
-			},
-		});
+		if (NODE_ENV === "development") {
+			let ctx = await esbuild.context({
+				entryPoints: [`${data.figmaManifest.main}`],
+				outfile: `dist/main.js`,
+				format: 'esm',
+				bundle: true
+			});
+			await ctx.watch();
+		} else {
+			// Fix me, needs to output js file
+			// Bundle your .mjs file using esbuild
+			await esbuild.build({
+				entryPoints: [tempFilePath],
+				outfile: `dist/main.js`,
+				format: 'esm',
+				bundle: true,
+				define: {
+					'process.env.NODE_ENV': JSON.stringify(NODE_ENV),
+				},
+			});
+		}
 
 		await fs.unlink(tempFilePath, (err => {
 			if (err) console.log(err);
