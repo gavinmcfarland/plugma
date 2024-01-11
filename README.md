@@ -1,6 +1,7 @@
 # Plugma
 
-> This is a work in progress, it may not work as expected
+> [!WARNING]
+> This work is still in progress. use st your own risk.
 
 Plugma is a CLI to simplify creating Figma plugins.
 
