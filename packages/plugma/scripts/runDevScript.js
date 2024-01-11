@@ -194,6 +194,11 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 
 async function startViteServer(data, options) {
 	try {
+
+		// Surpress console logs created by vite
+		const originalConsoleLog = console.log;
+		console.log = function () { };
+
 		// Create Vite server
 		const server = await createServer({
 			// Rewrite index html file to point to ui file specified in manifest
@@ -209,6 +214,8 @@ async function startViteServer(data, options) {
 		});
 
 		await server.listen(); // Start the Vite server
+
+		console.log = originalConsoleLog
 
 
 		// // Run your additional Node.js script
