@@ -6,8 +6,11 @@ import fs from 'fs';
 import os from 'os';
 import chalk from 'chalk';
 import { build } from 'vite'
+import { replace } from 'esbuild-plugin-replace';
+import { fileURLToPath } from 'url';
 
 const CURR_DIR = process.cwd();
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 var root
 
@@ -105,17 +108,27 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 
 		function writeTempFile(fileName) {
 			const tempFilePath = join(os.tmpdir(), fileName);
-			const modifiedContent = `import { __html__ } from "${CURR_DIR}/node_modules/plugma/frameworks/common/main/interceptHtmlString";
+			const modifiedContent = `import { saveFigmaStyles } from "${CURR_DIR}/node_modules/plugma/frameworks/common/main/saveFigmaStyles";
 			import main from "${CURR_DIR}/${data.figmaManifest.main}";
+			saveFigmaStyles();
 			main();`;
-			fs.writeFileSync(tempFilePath, modifiedContent);
+			const modifiedContent2 = `import main from "${CURR_DIR}/${data.figmaManifest.main}";
+			main();`;
+			if (NODE_ENV === "development") {
+				fs.writeFileSync(tempFilePath, modifiedContent);
+			}
+			else {
+				fs.writeFileSync(tempFilePath, modifiedContent2);
+			}
 			return tempFilePath
 		}
 
+		const fileName = `temp_${Date.now()}.js`
+		let tempFilePath = writeTempFile(fileName)
+
 
 		if (NODE_ENV === "development") {
-			const fileName = `temp_${Date.now()}.js`
-			let tempFilePath = writeTempFile(fileName)
+
 
 			let ctx = await esbuild.context({
 				entryPoints: [tempFilePath],
@@ -146,8 +159,12 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 							// 	if (err) console.log(err);
 							// }));
 						})
-					},
-				}],
+					}
+					,
+				},
+				replace({
+					'__buildVersion': '"1.0.0"',
+				})],
 			});
 			await ctx.watch();
 
@@ -157,7 +174,7 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 			// Fix me, needs to output js file
 			// Bundle your .mjs file using esbuild
 			await esbuild.build({
-				entryPoints: [data.figmaManifest.main],
+				entryPoints: [tempFilePath],
 				outfile: `dist/main.js`,
 				format: 'esm',
 				bundle: true,
@@ -208,7 +225,7 @@ async function startViteServer(data, options) {
 	}
 }
 
-async function buildVite(data, callback) {
+async function buildVite(data, callback, NODE_ENV) {
 
 
 	if (callback && typeof (callback) === "function") {
@@ -217,7 +234,7 @@ async function buildVite(data, callback) {
 
 	// Surpress console logs created by vite
 	const originalConsoleLog = console.log;
-	console.log = function () { };
+
 	// {
 	// 	root: path.resolve(__dirname, './project'),
 	// 	base: '/foo/',
@@ -227,7 +244,21 @@ async function buildVite(data, callback) {
 	// 	  },
 	// 	},
 	//   }
-	await build()
+
+	if (NODE_ENV === "development") {
+		// We don't need to bundle the UI because when developing it needs to point to the dev server
+		const devHtmlString = fs.readFileSync(`${__dirname}/../frameworks/common/main/devHtmlString.html`, 'utf8');
+
+
+		// FIX ME: Need to replace the port number
+		fs.writeFileSync(`${CURR_DIR}/dist/ui.html`, devHtmlString)
+		// await build()
+	}
+	else {
+		console.log = function () { };
+		await build()
+	}
+
 
 	console.log = originalConsoleLog;
 }
@@ -342,7 +373,7 @@ export default function cli(options) {
 
 			await buildVite(data, () => {
 				console.log(`  ui.html file created!`)
-			})
+			}, "development")
 			await writeManifestFile(data, () => {
 				console.log(`  manifest.json file created!`)
 			})
