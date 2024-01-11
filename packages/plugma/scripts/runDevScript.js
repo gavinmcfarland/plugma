@@ -86,38 +86,86 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 	try {
 
 		// Create a temporary file and inject code that replaces html string for local dev server
-		const originalContent = fs.readFileSync(data.figmaManifest.main, 'utf8');
+		// const originalContent = fs.readFileSync(data.figmaManifest.main, 'utf8');
 
 		// Create a temporary file path
-		const tempFilePath = join(CURR_DIR, `temp_${Date.now()}.js`);
+		// const tempFilePath = join(os.tmpdir(), `temp_${Date.now()}.js`);
+
+
+		// if (NODE_ENV === "development") {
+
+		// 	const modifiedContent = `import { __html__ } from "plugma/frameworks/common/main/interceptHtmlString";
+		// 	import main from "./${data.figmaManifest.main}";
+		// 	main();`;
+		// 	fs.writeFileSync(tempFilePath, modifiedContent);
+		// }
+		// else {
+		// 	fs.writeFileSync(tempFilePath, originalContent);
+		// }
+
+		function writeTempFile(fileName) {
+			const tempFilePath = join(os.tmpdir(), fileName);
+			const modifiedContent = `import { __html__ } from "${CURR_DIR}/node_modules/plugma/frameworks/common/main/interceptHtmlString";
+			import main from "${CURR_DIR}/${data.figmaManifest.main}";
+			main();`;
+			fs.writeFileSync(tempFilePath, modifiedContent);
+			return tempFilePath
+		}
+
 
 		if (NODE_ENV === "development") {
+			const fileName = `temp_${Date.now()}.js`
+			let tempFilePath = writeTempFile(fileName)
 
-			const modifiedContent = `import { __html__ } from "plugma/frameworks/common/main/interceptHtmlString";` + originalContent;
-			fs.writeFileSync(tempFilePath, modifiedContent);
+			let ctx = await esbuild.context({
+				entryPoints: [tempFilePath],
+				outfile: `dist/main.js`,
+				format: 'esm',
+				bundle: true,
+				plugins: [{
+					name: 'rebuild-notify',
+					setup(build) {
+						// build.onLoad({ filter: /\.txt$/ }, async (args) => {
+						// 	let text = await fs.promises.readFile(args.path, 'utf8')
+						// 	return {
+						// 		contents: JSON.stringify(text.split(/\s+/)),
+						// 		loader: 'json',
+						// 	}
+						// })
+						// build.onStart(() => {
+						// 	tempFilePath = writeTempFile(fileName)
+						// 	console.log('build started')
+						// })
+						// build.onStart(() => {
+						// 	console.log('Rebuilding...');
+						// });
+						build.onEnd(async result => {
+							console.log(`main.ts built with ${result.errors.length} errors`);
+							// HERE: somehow restart the server from here, e.g., by sending a signal that you trap and react to inside the server.
+							// await fs.unlink(tempFilePath, (err => {
+							// 	if (err) console.log(err);
+							// }));
+						})
+					},
+				}],
+			});
+			await ctx.watch();
+
+
+
+		} else {
+			// Fix me, needs to output js file
+			// Bundle your .mjs file using esbuild
+			await esbuild.build({
+				entryPoints: [data.figmaManifest.main],
+				outfile: `dist/main.js`,
+				format: 'esm',
+				bundle: true,
+				define: {
+					'process.env.NODE_ENV': JSON.stringify(NODE_ENV),
+				},
+			});
 		}
-		else {
-			fs.writeFileSync(tempFilePath, originalContent);
-		}
-
-
-
-		// Fix me, needs to output js file
-		// Bundle your .mjs file using esbuild
-		await esbuild.build({
-			entryPoints: [tempFilePath],
-			outfile: `dist/main.js`,
-			format: 'esm',
-			bundle: true,
-			define: {
-				'process.env.NODE_ENV': JSON.stringify(NODE_ENV),
-			},
-		});
-
-		await fs.unlink(tempFilePath, (err => {
-			if (err) console.log(err);
-		}));
-
 
 
 
@@ -293,22 +341,14 @@ export default function cli(options) {
 		getFiles().then(async (data) => {
 
 			await buildVite(data, () => {
-				console.log(`  ui.js file created!`)
+				console.log(`  ui.html file created!`)
 			})
 			await writeManifestFile(data, () => {
 				console.log(`  manifest.json file created!`)
 			})
-
 			await bundleMainWithEsbuild(data, true, () => {
-				console.log(`  main.html file created!`)
+				console.log(`  main.js file created!`)
 			}, 'development')
-
-			fs.watch(resolve(data.figmaManifest.main), {}, async (eventType, filename) => {
-
-				await bundleMainWithEsbuild(data, true, () => {
-					console.log(`  main.html file modified!`)
-				}, 'development')
-			});
 
 			console.log(`
   ${chalk.blue.bold('Plugma')} ${chalk.grey('v0.0.1')}
