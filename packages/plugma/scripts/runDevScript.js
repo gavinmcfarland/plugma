@@ -8,6 +8,7 @@ import chalk from 'chalk';
 import { build } from 'vite'
 import { replace } from 'esbuild-plugin-replace';
 import { fileURLToPath } from 'url';
+import nodeCleanup from 'node-cleanup';
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -240,6 +241,7 @@ async function startViteServer(data, options) {
 
 		console.log = originalConsoleLog
 
+		return server
 
 		// // Run your additional Node.js script
 		// const childProcess = exec('node node_modules/plugma/lib/server-old.cjs');
@@ -253,6 +255,8 @@ async function startViteServer(data, options) {
 		console.error('Error starting Vite server:', err);
 		process.exit(1);
 	}
+
+
 }
 
 async function buildVite(data, callback, NODE_ENV, options) {
@@ -381,7 +385,7 @@ export default function cli(options) {
 		getFiles().then(async (data) => {
 			await buildVite(data, () => {
 				console.log(`  ui.html file created!`)
-			}, "productions", options)
+			}, "production", options)
 			await writeManifestFile(data, () => {
 				console.log(`  manifest.json file created!`)
 			})
@@ -403,6 +407,8 @@ export default function cli(options) {
 
 		getFiles().then(async (data) => {
 
+
+
 			await buildVite(data, () => {
 				console.log(`  ui.html file created!`)
 			}, "development", options)
@@ -421,7 +427,24 @@ export default function cli(options) {
 
 			await startViteServer(data, options)
 
+			// async function exitHandler(evtOrExitCodeOrError) {
+			// 	try {
+			// 		await build()
+			// 		// await async code here
+			// 		// Optionally: Handle evtOrExitCodeOrError here
+			// 	} catch (e) {
+			// 		console.error('EXIT HANDLER ERROR', e);
+			// 	}
 
+			// 	process.exit(isNaN(+evtOrExitCodeOrError) ? 1 : +evtOrExitCodeOrError);
+			// }
+
+			// [
+			// 	'beforeExit', 'uncaughtException', 'unhandledRejection',
+			// 	'SIGHUP', 'SIGINT', 'SIGQUIT', 'SIGILL', 'SIGTRAP',
+			// 	'SIGABRT', 'SIGBUS', 'SIGFPE', 'SIGUSR1', 'SIGSEGV',
+			// 	'SIGUSR2', 'SIGTERM',
+			// ].forEach(evt => process.on(evt, exitHandler));
 
 
 		});
