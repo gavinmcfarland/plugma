@@ -11,7 +11,7 @@ This plugin was created using [Plugma](https://github.com/gavinmcfarland/plugma)
 
 ### Develop
 
-Install the dependencies and watch for changes while developing
+Install the dependencies and watch for changes while developing:
 
 ```shell
 npm install
