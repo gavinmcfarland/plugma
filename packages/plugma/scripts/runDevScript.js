@@ -232,7 +232,7 @@ async function startViteServer(data, options) {
 	}
 }
 
-async function buildVite(data, callback, NODE_ENV) {
+async function buildVite(data, callback, NODE_ENV, options) {
 
 
 	if (callback && typeof (callback) === "function") {
@@ -254,7 +254,9 @@ async function buildVite(data, callback, NODE_ENV) {
 
 	if (NODE_ENV === "development") {
 		// We don't need to bundle the UI because when developing it needs to point to the dev server
-		const devHtmlString = fs.readFileSync(`${__dirname}/../frameworks/common/main/devHtmlString.html`, 'utf8');
+		let devHtmlString = fs.readFileSync(`${__dirname}/../frameworks/common/main/devHtmlString.html`, 'utf8');
+
+		devHtmlString = devHtmlString.replace("5173", `${options.port}`)
 
 
 		// FIX ME: Need to replace the port number
@@ -356,7 +358,7 @@ export default function cli(options) {
 		getFiles().then(async (data) => {
 			await buildVite(data, () => {
 				console.log(`  ui.html file created!`)
-			})
+			}, "productions", options)
 			await writeManifestFile(data, () => {
 				console.log(`  manifest.json file created!`)
 			})
@@ -380,7 +382,7 @@ export default function cli(options) {
 
 			await buildVite(data, () => {
 				console.log(`  ui.html file created!`)
-			}, "development")
+			}, "development", options)
 			await writeManifestFile(data, () => {
 				console.log(`  manifest.json file created!`)
 			})
