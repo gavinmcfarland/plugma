@@ -1,11 +1,13 @@
-# Using Plugma
+# <%- name %>
 
-## Requirements
+## Quickstart
+
+### Requirements
 
 - [Node.js]()
 - [Figma desktop app]()
 
-## Getting started
+### Developing
 
 Install the dependencies and watch for changes while developing
 
@@ -20,7 +22,7 @@ Prepare a build for publishing:
 npm run build
 ```
 
-## Install the plugin
+### Install the plugin
 
 1. Open the Figma desktop app and open a new file.
 2. In the Quick Actions search bar, type and run "Import plugin from manifest..."
