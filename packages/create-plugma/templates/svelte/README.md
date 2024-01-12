@@ -28,7 +28,7 @@ Open the Figma desktop app, import the plugin and run.
 
 ### Preview
 
-Open [http://localhost:{port}](http://localhost:3000) to preview your plugin in different browsers.
+Open [http://localhost:\<port\>](http://localhost:3000) to preview your plugin in different browsers.
 
 _Make sure the plugin is open in the Figma desktop app._
 
