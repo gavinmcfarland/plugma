@@ -2,7 +2,7 @@
 
 ## Quickstart
 
-This plugin was created using [Plugma](https://github.com/gavinmcfarland/plugma).
+This plugin was made with [Plugma](https://github.com/gavinmcfarland/plugma) using the [Svelte](https://svelte.dev/) framework.
 
 ### Requirements
 
