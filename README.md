@@ -31,13 +31,9 @@ npm install
 
   By linking the plugin window to a development server it eliminates the need to rebuild the UI file repeatedly. This aids in debugging and streamlines the process.
 
----
-
 - #### Browser Preview
 
   Since it utilises a development server, you can try out your plugin's UI on different browsers, including previewing how it looks in both Figma's dark and light themes.
-
----
 
 - #### Consistent Folder Structure
 
