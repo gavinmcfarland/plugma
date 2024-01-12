@@ -2,22 +2,15 @@
 
 ## Requirements
 
-The following things are required to use this tool.
-
 - [Node.js]()
 - [Figma desktop app]()
 
 ## Getting started
 
-Install the dependencies
+Install the dependencies and watch for changes while developing
 
 ```shell
 npm install
-```
-
-To watch for changes while developing
-
-```shell
 npm run dev
 ```
 
