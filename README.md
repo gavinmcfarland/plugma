@@ -5,6 +5,11 @@
 
 Plugma is a CLI to simplify creating Figma plugins.
 
+### Requirements
+
+- [Node.js](https://nodejs.org/en)
+- [Figma desktop app](https://www.figma.com/downloads/)
+
 ## Get started
 
 Start by creating a plugin from a template using the CLI:
@@ -20,34 +25,25 @@ cd my-plugin
 npm install
 ```
 
-## Features
+### Features
 
-- ### Live Development Server
+- #### Live Development Server
 
   By linking the plugin window to a development server it eliminates the need to rebuild the UI file repeatedly. This aids in debugging and streamlines the process.
 
 ---
 
-- ### Browser Preview
+- #### Browser Preview
 
   Since it utilises a development server, you can try out your plugin's UI on different browsers, including previewing how it looks in both Figma's dark and light themes.
 
 ---
 
-- ### Consistant Folder Structure
+- #### Consistent Folder Structure
 
   Plugma hides unnecessary boilerplate code so you can concentrate on the code required to develop your plugins.
 
-## Requirements
-
-The following things are required to use this tool.
-
-- [Node.js](https://nodejs.org/en)
-- [Figma desktop app](https://www.figma.com/downloads/)
-
----
-
-## Plugin Folder Structure
+### Plugin Folder Structure
 
 Your plugin project will look something like this.
 
@@ -80,7 +76,7 @@ README.md
 
 - `package.json` Contains the name of our plugin and Figma manifest details in the `figma-manifest` field.
 
-## Configure
+### Configure
 
 <!-- Plugma specific settings
 
@@ -93,7 +89,7 @@ README.md
 }
 ``` -->
 
-### Figma specific settings
+#### Figma specific settings
 
 Add Figma's manifest details to the field `figma-manifest` inside the `package.json` file.
 
