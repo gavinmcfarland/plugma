@@ -54,6 +54,27 @@ async function getJsonFile(filePath) {
 	});
 }
 
+function formatTime() {
+	var currentDate = new Date();
+	var hours = currentDate.getHours();
+	var minutes = currentDate.getMinutes();
+	var seconds = currentDate.getSeconds();
+	var meridiem = hours >= 12 ? 'PM' : 'AM';
+
+	// Convert 24-hour format to 12-hour format
+	hours = hours % 12;
+	hours = hours ? hours : 12; // Handle midnight (12 AM)
+
+	// Add leading zeros to minutes and seconds if needed
+	minutes = minutes < 10 ? '0' + minutes : minutes;
+	seconds = seconds < 10 ? '0' + seconds : seconds;
+
+	// Concatenate the formatted time
+	var formattedTime = hours + ':' + minutes + ':' + seconds + ' ' + meridiem;
+
+	return formattedTime;
+}
+
 async function getManifest() {
 	var array = [
 		resolve(root, `manifest.json`),
@@ -153,7 +174,8 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 						// 	console.log('Rebuilding...');
 						// });
 						build.onEnd(async result => {
-							console.log(`main.ts built with ${result.errors.length} errors`);
+							console.log(`${chalk.grey(formatTime())} ${chalk.cyan.bold('[esbuild]')} ${chalk.green('rebuilt')} ${chalk.grey('/dist/main.js')}`)
+							// console.log(`main.ts built with ${result.errors.length} errors`);
 							// HERE: somehow restart the server from here, e.g., by sending a signal that you trap and react to inside the server.
 							// await fs.unlink(tempFilePath, (err => {
 							// 	if (err) console.log(err);
@@ -164,7 +186,8 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 				},
 				replace({
 					'__buildVersion': '"1.0.0"',
-				})],
+				})
+				],
 			});
 			await ctx.watch();
 
