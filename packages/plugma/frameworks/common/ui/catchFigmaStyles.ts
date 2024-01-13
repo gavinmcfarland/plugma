@@ -1,3 +1,5 @@
+// FIX ME: Figure out why TS syntax doesn't work in these files
+
 function catchFigmaStyles() {
   parent.postMessage(
     {
