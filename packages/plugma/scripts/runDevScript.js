@@ -241,16 +241,16 @@ async function startViteServer(data, options) {
 
 		console.log = originalConsoleLog
 
-		return server
 
-		// // Run your additional Node.js script
-		// const childProcess = exec('node node_modules/plugma/lib/server-old.cjs');
-		// childProcess.stdout.on('data', (data) => {
-		// 	// console.log(`Script output: ${data}`);
-		// });
+		// Run a web socket server so postMessage works between browser and Figma. And so Figma theme works in browser
+		const childProcess = exec('node node_modules/plugma/lib/server-old.cjs');
 		// childProcess.stderr.on('data', (data) => {
 		// 	console.error(`Script error: ${data}`);
 		// });
+
+		return server
+
+
 	} catch (err) {
 		console.error('Error starting Vite server:', err);
 		process.exit(1);
