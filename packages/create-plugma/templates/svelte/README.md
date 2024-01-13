@@ -4,11 +4,6 @@
 
 This plugin was created with [Plugma](https://github.com/gavinmcfarland/plugma) using the [Svelte](https://svelte.dev/) framework.
 
-### Requirements
-
-- [Node.js](https://nodejs.org/en)
-- [Figma desktop app](https://www.figma.com/downloads/)
-
 ### Develop
 
 Install the dependencies and watch for changes while developing:
@@ -41,3 +36,8 @@ npm run build
 ```
 
 Now you can publish the plugin from the Figma desktop app.
+
+### Requirements
+
+- [Node.js](https://nodejs.org/en)
+- [Figma desktop app](https://www.figma.com/downloads/)
