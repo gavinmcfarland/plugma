@@ -473,14 +473,18 @@ function createBuildConfig(data) {
 		// FIX ME: This is not doing anything at the moment. This should probably happen in the build/dev script instead?
 		let templateData = {
 			name: "figma",
-			input: value
+			input: "/" + value
+		}
+
+		if (key === 'index') {
+			filePath = join(`${__dirname}/../tmp/`)
 		}
 
 		template = comptempl(templateData)
 
 		// FIX ME: Add exception if index, then just output index.html
-		createFileWithDirectory(filePath, newValue, template);
-		viteObject[key] = join(filePath, newValue)
+		createFileWithDirectory(filePath, 'index.html', template);
+		viteObject[key] = join(filePath, 'index.html')
 	}
 
 	return viteObject
