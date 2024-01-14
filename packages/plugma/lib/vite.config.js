@@ -14,6 +14,7 @@ console.log(path.resolve(CURR_DIR, 'src'))
 export default defineConfig({
 	plugins: [
 		{
+			// Insert catchFigmaStyles and startWebSocketServer
 			name: 'html-transform',
 			transformIndexHtml(html) {
 				const scriptTag = `<script type="module" src="/node_modules/plugma/frameworks/common/ui/catchFigmaStyles.ts"></script>
@@ -23,6 +24,7 @@ export default defineConfig({
 			apply: 'serve'
 		},
 		{
+			// Point / to index.html
 			name: "deep-index",
 			configureServer(server) {
 				server.middlewares.use((req, res, next) => {
@@ -35,6 +37,7 @@ export default defineConfig({
 		},
 		viteSingleFile(),
 		viteCopyDirectoryPlugin({
+			// Copy index to dist
 			sourceDir: 'dist/node_modules/plugma/tmp/',
 			targetDir: 'dist/',
 		}),

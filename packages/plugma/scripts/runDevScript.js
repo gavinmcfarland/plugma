@@ -3,12 +3,13 @@ import esbuild from 'esbuild';
 import { exec } from 'child_process';
 import { dirname, resolve, parse, join } from 'path';
 import fs from 'fs';
-import os from 'os';
+import os, { type } from 'os';
 import chalk from 'chalk';
 import { build } from 'vite'
 import { replace } from 'esbuild-plugin-replace';
 import { fileURLToPath } from 'url';
 import nodeCleanup from 'node-cleanup';
+import lodashTemplate from 'lodash.template'
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -109,24 +110,6 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 	}
 
 	try {
-
-		// Create a temporary file and inject code that replaces html string for local dev server
-		// const originalContent = fs.readFileSync(data.figmaManifest.main, 'utf8');
-
-		// Create a temporary file path
-		// const tempFilePath = join(os.tmpdir(), `temp_${Date.now()}.js`);
-
-
-		// if (NODE_ENV === "development") {
-
-		// 	const modifiedContent = `import { __html__ } from "plugma/frameworks/common/main/interceptHtmlString";
-		// 	import main from "./${data.figmaManifest.main}";
-		// 	main();`;
-		// 	fs.writeFileSync(tempFilePath, modifiedContent);
-		// }
-		// else {
-		// 	fs.writeFileSync(tempFilePath, originalContent);
-		// }
 
 		function writeTempFile(fileName) {
 			const tempFilePath = join(os.tmpdir(), fileName);
@@ -383,6 +366,8 @@ export default function cli(options) {
 		// 2. Create code.js file
 		// 3. Create ui.html file
 		getFiles().then(async (data) => {
+			let viteConfig = createBuildConfig(data)
+			console.log(viteConfig)
 			await buildVite(data, () => {
 				console.log(`  ui.html file created!`)
 			}, "production", options)
@@ -452,5 +437,53 @@ export default function cli(options) {
 
 }
 
+// 1. Itterate through manifest
+// 2. Create object
+// 3. Create folders
 
+function createBuildConfig(data) {
+	// Loop though ui field
+	let object = {}
+
+	if (typeof data.figmaManifest.ui === "string") {
+		Object.assign(object, {
+			"index": data.figmaManifest.ui
+		})
+	}
+	else {
+		Object.assign(object, data.figmaManifest.ui)
+	}
+
+	// Create folders
+
+	let viteObject = {}
+
+	for (const [key, value] of Object.entries(object)) {
+		// Remove src form value
+		let newValue = value.replace('src/', '')
+		// Replace extension with .html
+		newValue = newValue.replace('.ts', '.html')
+
+		// Create file from template
+		let template = fs.readFileSync(`${__dirname}/../templates/index.html`, 'utf8');
+		let filePath = join(`${__dirname}/../tmp/${key}`)
+
+		let comptempl = lodashTemplate(template)
+
+		// FIX ME: This is not doing anything at the moment. This should probably happen in the build/dev script instead?
+		let templateData = {
+			name: "figma",
+			input: value
+		}
+
+		template = comptempl(templateData)
+
+		// FIX ME: Add exception if index, then just output index.html
+		createFileWithDirectory(filePath, newValue, template);
+		viteObject[key] = join(filePath, newValue)
+	}
+
+	return viteObject
+
+}
 
