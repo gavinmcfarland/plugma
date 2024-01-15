@@ -367,7 +367,7 @@ export default function cli(options) {
 		// 3. Create ui.html file
 		getFiles().then(async (data) => {
 			let viteConfig = createBuildConfig(data)
-			console.log(viteConfig)
+			// console.log(viteConfig)
 			await buildVite(data, () => {
 				console.log(`  ui.html file created!`)
 			}, "production", options)
