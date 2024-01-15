@@ -382,6 +382,7 @@ export default function cli(options) {
 	}
 
 	if (options._[0] === "dev") {
+
 		// 1. Create dist folder
 		// 1. Create manifest file
 		// 2. Create code.js file
@@ -391,6 +392,7 @@ export default function cli(options) {
 
 
 		getFiles().then(async (data) => {
+			let viteConfig = createBuildConfig(data)
 
 
 
@@ -459,6 +461,7 @@ function createBuildConfig(data) {
 	let viteObject = {}
 
 	for (const [key, value] of Object.entries(object)) {
+
 		// Remove src form value
 		let newValue = value.replace('src/', '')
 		// Replace extension with .html
