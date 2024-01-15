@@ -270,7 +270,7 @@ async function buildVite(data, callback, NODE_ENV, options) {
 
 
 		// FIX ME: Need to replace the port number
-		fs.writeFileSync(`${CURR_DIR}/dist/ui.html`, devHtmlString)
+		createFileWithDirectory(`${CURR_DIR}/dist`, 'ui.html', devHtmlString)
 		// await build()
 	}
 	else {
