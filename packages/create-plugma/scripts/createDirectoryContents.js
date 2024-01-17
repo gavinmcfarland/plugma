@@ -40,7 +40,7 @@ const createDirectoryContents = (templatePath, newProjectPath, answers) => {
 
 			if (file === "manifest.json" ||
 				file === "package.json" ||
-				file === "README.md" ||) {
+				file === "README.md") {
 				contents = comptempl(data);
 			}
 
