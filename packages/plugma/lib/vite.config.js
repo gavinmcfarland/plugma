@@ -1,14 +1,103 @@
 import { defineConfig } from "vite";
 import { viteSingleFile } from "vite-plugin-singlefile";
 import path from "path";
+import { dirname, resolve, parse, join } from 'path';
+import fs from "fs";
 import { fileURLToPath } from 'url';
 import viteCopyDirectoryPlugin from './vite-plugin-copy-dir.js';
 // import svgLoader from "vite-svg-loader";
+import lodashTemplate from 'lodash.template'
 
 const CURR_DIR = process.cwd();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-console.log(path.resolve(CURR_DIR, 'src'))
+function createBuildConfig() {
+
+	let data = fs.readFileSync(resolve('./package.json'), 'utf8')
+
+	data = JSON.parse(data)
+
+	// Loop though ui field
+	let object = {}
+
+	if (typeof data["figma-manifest"].ui === "string") {
+		Object.assign(object, {
+			"index": data["figma-manifest"].ui
+		})
+	}
+	else {
+		Object.assign(object, data["figma-manifest"].ui)
+	}
+
+	// Create folders
+
+	let viteObject = {}
+
+	for (const [key, value] of Object.entries(object)) {
+
+		// Remove src form value
+		let newValue = value.replace('src/', '')
+		// Replace extension with .html
+		newValue = newValue.replace('.ts', '.html')
+
+		// Create file from template
+		let template = fs.readFileSync(`${__dirname}/../templates/index.html`, 'utf8');
+		let filePath = join(`${__dirname}/../tmp/${key}`)
+
+		let comptempl = lodashTemplate(template)
+
+		// FIX ME: This is not doing anything at the moment. This should probably happen in the build/dev script instead?
+		let templateData = {
+			name: "figma",
+			input: "/" + value
+		}
+
+		if (key === 'index') {
+			filePath = join(`${__dirname}/../tmp/`)
+		}
+
+		template = comptempl(templateData)
+
+		// FIX ME: Add exception if index, then just output index.html
+		createFileWithDirectory(filePath, 'index.html', template);
+		viteObject[key] = join(filePath, 'index.html')
+	}
+
+	return viteObject
+
+}
+
+function createFileWithDirectory(filePath, fileName, fileContent, callback) {
+
+	function callback(err, result) {
+		if (err) {
+			console.error('Error:', err);
+		} else {
+			console.log(result);
+		}
+	}
+	// Extract the directory path
+	const directoryPath = dirname(resolve(filePath, fileName));
+
+	// Use fs.mkdir to create the directory
+	fs.mkdir(directoryPath, { recursive: true }, (err) => {
+		if (err) {
+			callback(err);
+		} else {
+			// Write to the file using fs.writeFile
+			fs.writeFile(resolve(filePath, fileName), fileContent, 'utf8', (err) => {
+				if (err) {
+					callback(err);
+				} else {
+					// callback(null, `${fileName} created successfully!`);
+				}
+			});
+		}
+	});
+}
+
+console.log(createBuildConfig())
+
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -18,7 +107,7 @@ export default defineConfig({
 			name: 'html-transform',
 			transformIndexHtml(html) {
 				const scriptTag = `<script type="module" src="/node_modules/plugma/frameworks/common/ui/catchFigmaStyles.ts"></script>
-				<script type="module" src="/node_modules/plugma/frameworks/common/ui/startWebSocketServer.ts"></script>`;
+			<script type="module" src="/node_modules/plugma/frameworks/common/ui/startWebSocketServer.ts"></script>`;
 				return html.replace('</body>', `</body>${scriptTag}`);
 			},
 			apply: 'serve'
@@ -47,11 +136,14 @@ export default defineConfig({
 	],
 	// publicDir: "public-2",
 	// root: path.resolve(CURR_DIR, 'src'),
+
+	// Add output of viteConfig here
 	build: {
 		// outDir: "../dist",
+		// Replace with createBuildConfig()
 		rollupOptions: {
 			input: "node_modules/plugma/tmp/index.html",
-		},
+		}
 	},
 
 });

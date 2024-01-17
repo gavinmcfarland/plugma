@@ -274,7 +274,7 @@ async function buildVite(data, callback, NODE_ENV, options) {
 		// await build()
 	}
 	else {
-		console.log = function () { };
+		// console.log = function () { };
 		await build()
 	}
 
@@ -366,17 +366,17 @@ export default function cli(options) {
 		// 2. Create code.js file
 		// 3. Create ui.html file
 		getFiles().then(async (data) => {
-			let viteConfig = createBuildConfig(data)
+
 			// console.log(viteConfig)
 			await buildVite(data, () => {
 				console.log(`  ui.html file created!`)
 			}, "production", options)
-			await writeManifestFile(data, () => {
-				console.log(`  manifest.json file created!`)
-			})
-			await bundleMainWithEsbuild(data, true, () => {
-				console.log(`  main.js file created!`)
-			}, 'production')
+			// await writeManifestFile(data, () => {
+			// 	console.log(`  manifest.json file created!`)
+			// })
+			// await bundleMainWithEsbuild(data, true, () => {
+			// 	console.log(`  main.js file created!`)
+			// }, 'production')
 
 		});
 	}
@@ -392,7 +392,7 @@ export default function cli(options) {
 
 
 		getFiles().then(async (data) => {
-			let viteConfig = createBuildConfig(data)
+
 
 
 
@@ -439,58 +439,4 @@ export default function cli(options) {
 
 }
 
-// 1. Itterate through manifest
-// 2. Create object
-// 3. Create folders
-
-function createBuildConfig(data) {
-	// Loop though ui field
-	let object = {}
-
-	if (typeof data.figmaManifest.ui === "string") {
-		Object.assign(object, {
-			"index": data.figmaManifest.ui
-		})
-	}
-	else {
-		Object.assign(object, data.figmaManifest.ui)
-	}
-
-	// Create folders
-
-	let viteObject = {}
-
-	for (const [key, value] of Object.entries(object)) {
-
-		// Remove src form value
-		let newValue = value.replace('src/', '')
-		// Replace extension with .html
-		newValue = newValue.replace('.ts', '.html')
-
-		// Create file from template
-		let template = fs.readFileSync(`${__dirname}/../templates/index.html`, 'utf8');
-		let filePath = join(`${__dirname}/../tmp/${key}`)
-
-		let comptempl = lodashTemplate(template)
-
-		// FIX ME: This is not doing anything at the moment. This should probably happen in the build/dev script instead?
-		let templateData = {
-			name: "figma",
-			input: "/" + value
-		}
-
-		if (key === 'index') {
-			filePath = join(`${__dirname}/../tmp/`)
-		}
-
-		template = comptempl(templateData)
-
-		// FIX ME: Add exception if index, then just output index.html
-		createFileWithDirectory(filePath, 'index.html', template);
-		viteObject[key] = join(filePath, 'index.html')
-	}
-
-	return viteObject
-
-}
 
