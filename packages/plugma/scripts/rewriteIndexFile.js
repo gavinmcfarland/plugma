@@ -14,7 +14,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 
 
-async function writeIndexFile() {
+export async function writeIndexFile() {
 
 	// let newIndexPath = `${CURR_DIR}/${projectName}/node_modules/plugma/index.html`;
 
@@ -32,7 +32,7 @@ async function writeIndexFile() {
 	let comptempl = lodashTemplate(contents)
 
 	// FIX ME: This is not doing anything at the moment. This should probably happen in the build/dev script instead?
-	let input = pkg?.plugma?.framework === "svelte" ? 'ui.ts' : 'ui.ts'
+	let input = pkg?.plugma?.framework === "svelte" ? '/src/ui.ts' : '/src/ui.ts'
 
 	contents = comptempl({ name: "figma", input })
 
@@ -67,5 +67,5 @@ async function writeIndexFile() {
 	await fse.outputFile(newIndexPath, contents);
 }
 
-writeIndexFile()
+// writeIndexFile()
 // createPrivateDir()

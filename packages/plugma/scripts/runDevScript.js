@@ -10,6 +10,7 @@ import { replace } from 'esbuild-plugin-replace';
 import { fileURLToPath } from 'url';
 import nodeCleanup from 'node-cleanup';
 import lodashTemplate from 'lodash.template'
+import writeIndexFile from './rewriteIndexFile'
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -368,6 +369,8 @@ export default function cli(options) {
 		// 3. Create ui.html file
 		getFiles().then(async (data) => {
 
+			await writeIndexFile()
+
 			// console.log(viteConfig)
 			await buildVite(data, () => {
 				console.log(`  ui.html file created!`)
@@ -395,7 +398,7 @@ export default function cli(options) {
 		getFiles().then(async (data) => {
 
 
-
+			await writeIndexFile()
 
 			await buildVite(data, () => {
 				console.log(`  ui.html file created!`)
