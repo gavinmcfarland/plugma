@@ -263,13 +263,14 @@ async function buildVite(data, callback, NODE_ENV, options) {
 	//   }
 
 	if (NODE_ENV === "development") {
-		// We don't need to bundle the UI because when developing it needs to point to the dev server
+		// We don't need to bundle the UI because when developing it needs to point to the dev server. So instead we create a placeholder ui file that points to a server
 		let devHtmlString = fs.readFileSync(`${__dirname}/../frameworks/common/main/devHtmlString.html`, 'utf8');
 
-		devHtmlString = devHtmlString.replace("5173", `${options.port}`)
 
 
 		// FIX ME: Need to replace the port number
+		devHtmlString = devHtmlString.replace("5173", `${options.port}`)
+
 		createFileWithDirectory(`${CURR_DIR}/dist`, 'ui.html', devHtmlString)
 		// await build()
 	}
@@ -371,12 +372,12 @@ export default function cli(options) {
 			await buildVite(data, () => {
 				console.log(`  ui.html file created!`)
 			}, "production", options)
-			// await writeManifestFile(data, () => {
-			// 	console.log(`  manifest.json file created!`)
-			// })
-			// await bundleMainWithEsbuild(data, true, () => {
-			// 	console.log(`  main.js file created!`)
-			// }, 'production')
+			await writeManifestFile(data, () => {
+				console.log(`  manifest.json file created!`)
+			})
+			await bundleMainWithEsbuild(data, true, () => {
+				console.log(`  main.js file created!`)
+			}, 'production')
 
 		});
 	}

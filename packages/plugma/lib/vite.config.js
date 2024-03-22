@@ -56,11 +56,13 @@ function createBuildConfig() {
 			filePath = join(`${__dirname}/../tmp/`)
 		}
 
+
+
 		template = comptempl(templateData)
 
 		// FIX ME: Add exception if index, then just output index.html
 		createFileWithDirectory(filePath, 'index.html', template);
-		viteObject[key] = join(filePath, 'index.html')
+		viteObject["input"] = join(filePath, 'index.html')
 	}
 
 	return viteObject
@@ -96,7 +98,7 @@ function createFileWithDirectory(filePath, fileName, fileContent, callback) {
 	});
 }
 
-console.log(createBuildConfig())
+console.log("build", createBuildConfig())
 
 
 // https://vitejs.dev/config/

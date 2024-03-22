@@ -1,42 +1,25 @@
 // vite-plugin-copy-directory.js
 import fs from 'fs';
 import path from 'path';
-// import { promisify } from 'util';
 
-// const copyFile = promisify(fs.copyFile);
-// const mkdir = promisify(fs.mkdir);
-// const rmdir = promisify(fs.rmdir);
-// const unlink = promisify(fs.unlink);
-// const rename = promisify(fs.rename);
 
-// function removeEmptyDirectories(dirPath) {
-// 	const parentDir = path.dirname(dirPath);
-// 	if (fs.existsSync(dirPath)) {
-// 		fs.rmdirSync(dirPath);
-// 	}
-// 	if (fs.existsSync(parentDir) && fs.readdirSync(parentDir).length === 0) {
-// 		removeEmptyDirectories(parentDir);
-// 	}
-// }
+function removeDirectory(dirPath) {
+	if (fs.existsSync(dirPath)) {
+		const files = fs.readdirSync(dirPath);
 
-// function removeDirectory(dirPath) {
-// 	if (!fs.existsSync(dirPath)) {
-// 		return;
-// 	}
-
-// 	const files = fs.readdirSync(dirPath);
-// 	files.forEach((file) => {
-// 		const curPath = path.join(dirPath, file);
-// 		if (fs.lstatSync(curPath).isDirectory()) {
-// 			removeDirectory(curPath);
-// 		} else {
-// 			fs.unlinkSync(curPath);
-// 		}
-// 	});
-
-// 	fs.rmdirSync(dirPath);
-// 	removeEmptyDirectories(dirPath);
-// }
+		for (const file of files) {
+			const filePath = path.join(dirPath, file);
+			if (fs.statSync(filePath).isDirectory()) {
+				// Recursively remove subdirectories
+				removeDirectory(filePath);
+			} else {
+				// Remove files
+				fs.unlinkSync(filePath);
+			}
+		}
+		fs.rmdirSync(dirPath); // Remove the directory itself
+	}
+}
 
 function copyDirectory(source, destination) {
 	if (!fs.existsSync(destination)) {
@@ -53,11 +36,27 @@ function copyDirectory(source, destination) {
 			// Recursively copy subdirectories
 			copyDirectory(sourcePath, destPath);
 		} else {
-			// Copy files
-			fs.copyFileSync(sourcePath, destPath);
+			// Check if file is named 'index.html'
+			if (file === 'index.html') {
+				// Rename 'index.html' to 'ui.html' during copy
+				fs.copyFileSync(sourcePath, path.join(destination, 'ui.html'));
+			} else {
+				// Copy files other than 'index.html'
+				fs.copyFileSync(sourcePath, destPath);
+			}
+		}
+	}
+
+	// Remove all directories within the destination directory
+	const subdirs = fs.readdirSync(destination);
+	for (const subdir of subdirs) {
+		const subdirPath = path.join(destination, subdir);
+		if (fs.statSync(subdirPath).isDirectory()) {
+			removeDirectory(subdirPath);
 		}
 	}
 }
+
 
 export default function viteCopyDirectoryPlugin({ sourceDir, targetDir }) {
 	return {
