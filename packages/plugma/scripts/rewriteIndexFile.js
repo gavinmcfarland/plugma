@@ -14,12 +14,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 
 
-export async function writeIndexFile() {
+async function writeIndexFile() {
 
 	// let newIndexPath = `${CURR_DIR}/${projectName}/node_modules/plugma/index.html`;
 
-	let indexTemplatePath = `${CURR_DIR}/templates/index.html`
-	let newIndexPath = `${CURR_DIR}/tmp/index.html`
+	let indexTemplatePath = `${__dirname}/../templates/index.html`
+	let newIndexPath = `${__dirname}/../tmp/index.html`
 
 	// Need to use process.env.INIT_CWD because otherwise package is referenced from the module and not the users project
 	let pkgPath = resolve(`${process.env.INIT_CWD}/package.json`)
@@ -67,5 +67,6 @@ export async function writeIndexFile() {
 	await fse.outputFile(newIndexPath, contents);
 }
 
+export default writeIndexFile
 // writeIndexFile()
 // createPrivateDir()

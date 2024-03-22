@@ -10,7 +10,7 @@ import { replace } from 'esbuild-plugin-replace';
 import { fileURLToPath } from 'url';
 import nodeCleanup from 'node-cleanup';
 import lodashTemplate from 'lodash.template'
-import writeIndexFile from './rewriteIndexFile'
+import writeIndexFile from './rewriteIndexFile.js'
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
