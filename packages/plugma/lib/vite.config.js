@@ -98,8 +98,6 @@ function createFileWithDirectory(filePath, fileName, fileContent, callback) {
 	});
 }
 
-console.log("build", createBuildConfig())
-
 
 // https://vitejs.dev/config/
 export default defineConfig({
