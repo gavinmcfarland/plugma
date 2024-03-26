@@ -327,18 +327,17 @@ async function writeManifestFile(data, callback) {
 	if (callback && typeof (callback) === "function") {
 		callback();
 	}
-	return await createFileWithDirectory("./dist", "manifest.json", JSON.stringify({
-		"name": `${data.pkg.name}`,
-		"id": "<%- id %>",
-		"api": "1.0.0",
-		"main": "main.js",
-		"ui": "ui.html",
-		"editorType": ["figma", "figjam"],
-		"networkAccess": {
-			"allowedDomains": ["*"],
-			"reasoning": "Internet access for local development."
+
+	let newManifest = {
+		...data.pkg["figma-manifest"], ...{
+			"name": `${data.pkg.name}`,
+			"api": "1.0.0",
+			"main": "main.js",
+			"ui": "ui.html",
 		}
-	}, null, 2))
+	}
+
+	return await createFileWithDirectory("./dist", "manifest.json", JSON.stringify(newManifest, null, 2))
 }
 
 // function createJSONFile(directory, filename, data) {

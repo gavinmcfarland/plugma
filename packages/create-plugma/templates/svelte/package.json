@@ -22,7 +22,18 @@
     "framework": "svelte"
   },
   "figma-manifest": {
+    "id": "<%- name %>",
     "main": "src/main.ts",
-    "ui": "src/ui.ts"
+    "ui": "src/ui.ts",
+    "editorType": [
+      "figma",
+      "figjam"
+    ],
+    "networkAccess": {
+      "allowedDomains": [
+        "*"
+      ],
+      "reasoning": "Internet access for local development."
+    }
   }
 }
