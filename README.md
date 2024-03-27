@@ -24,15 +24,7 @@ Currently, the only framework supported is `Svelte`.
 
 ## How does it work?
 
-Plugma leverages Vite for building UIs across various frameworks and employs ESBuild for efficient management of the main thread. It streamlines plugin development by minimizing boilerplate code and offers seamless local development with its built-in server, making it an optimal choice for Figma plugin development due to its exceptional developer experience.
-
-## Features
-
-- **Live Development Server:** By linking the plugin window to a development server it eliminates the need to rebuild the UI file repeatedly. This aids in debugging and streamlines the process.
-
-- **Browser Preview:** Since it utilises a development server, you can try out your plugin's UI on different browsers, including previewing how it looks in both Figma's dark and light themes.
-
-- **Consistent Folder Structure:** Plugma hides unnecessary boilerplate code so you can concentrate on the code required to develop your plugins.
+Plugma simplifies plugin development with Vite for UI building and ESBuild for main thread management. It streamlines coding by hiding boilerplate and enables seamless local development. Plus, it offers browser preview via WebSockets.
 
 ## Plugin Folder Structure
 
@@ -67,7 +59,7 @@ README.md
 
 - `package.json` Contains the name of our plugin and Figma manifest details in the `plugma.manifest` field.
 
-## Configure
+## Configure Plugma
 
 You need either a `manifest.json` file in the root of the project or the manifest details must be included in the `plugma.manifest` field within the `package.json` file.
 
@@ -84,3 +76,7 @@ You need either a `manifest.json` file in the root of the project or the manifes
   }
 }
 ```
+
+## Acknowledgments
+
+I would like to thank Yuan Qing Lim's [Create Figma Plugin](https://yuanqing.github.io/create-figma-plugin/) for the inspiration for this project.
