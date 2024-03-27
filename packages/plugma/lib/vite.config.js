@@ -20,13 +20,13 @@ function createBuildConfig() {
 	// Loop though ui field
 	let object = {}
 
-	if (typeof data["figma-manifest"].ui === "string") {
+	if (typeof data["plugma"]["manifest"].ui === "string") {
 		Object.assign(object, {
-			"index": data["figma-manifest"].ui
+			"index": data["plugma"]["manifest"].ui
 		})
 	}
 	else {
-		Object.assign(object, data["figma-manifest"].ui)
+		Object.assign(object, data["plugma"]["manifest"].ui)
 	}
 
 	// Create folders

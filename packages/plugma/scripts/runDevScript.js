@@ -47,13 +47,19 @@ async function getJsonFile(filePath) {
 	// }
 
 	return new Promise((resolve, reject) => {
-		fs.readFile(filePath, 'utf8', function (err, data) {
-			if (err) {
-				reject(err);
-			}
-			// console.log(data)
-			resolve(JSON.parse(data));
-		});
+		if (fs.existsSync(filePath)) {
+			fs.readFile(filePath, 'utf8', function (err, data) {
+				if (err) {
+					reject(err);
+				}
+				// console.log(data)
+				resolve(JSON.parse(data));
+			});
+		}
+		else {
+			resolve(false)
+		}
+
 	});
 }
 
@@ -286,7 +292,7 @@ async function buildVite(data, callback, NODE_ENV, options) {
 
 async function getFiles() {
 	let pkg = await getJsonFile(resolve('./package.json'));
-	let figmaManifest = pkg["figma-manifest"];
+	let figmaManifest = await getJsonFile(resolve('./manifest.json')) || pkg["plugma"]["manifest"];
 
 	return {
 		figmaManifest,
@@ -329,7 +335,7 @@ async function writeManifestFile(data, callback) {
 	}
 
 	let newManifest = {
-		...data.pkg["figma-manifest"], ...{
+		...data.figmaManifest, ...{
 			"name": `${data.pkg.name}`,
 			"api": "1.0.0",
 			"main": "main.js",
