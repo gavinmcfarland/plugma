@@ -65,33 +65,24 @@ README.md
 
 - `vite.config.ts` Because Plugma uses Vite for bundling, it gives you access to all of Vite's plugins.
 
-- `package.json` Contains the name of our plugin and Figma manifest details in the `figma-manifest` field.
+- `package.json` Contains the name of our plugin and Figma manifest details in the `plugma.manifest` field.
 
 ### Configure
 
-<!-- Plugma specific settings
-
-```jsonc
-// package.json
-{
-    "plugma": {
-        "framework": "svelte"
-    }
-}
-``` -->
-
 #### Figma specific settings
 
-Add Figma's manifest details to the field `figma-manifest` inside the `package.json` file.
+Add Figma's manifest details to the field `plugma.manifest` inside the `package.json` file.
 
 ```jsonc
 // package.json
 {
   //...
 
-  "figma-manifest": {
-    "main": "src/main.js",
-    "ui": "src/ui.js"
+  "plugma": {
+    "manifest": {
+      "main": "src/main.js",
+      "ui": "src/ui.js"
+    }
   }
 }
 ```
