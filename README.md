@@ -22,7 +22,7 @@ Follow the on-screen instructions.
 
 Currently, the only framework supported is `Svelte`.
 
-## How does it work?
+## How does it work?
 
 Plugma leverages Vite for building UIs across various frameworks and employs ESBuild for efficient management of the main thread. It streamlines plugin development by minimizing boilerplate code and offers seamless local development with its built-in server, making it an optimal choice for Figma plugin development due to its exceptional developer experience.
 
