@@ -12,7 +12,7 @@ Plugma is a CLI to simplify creating Figma plugins.
 
 ## Get started
 
-Start by creating a plugin from a template using the CLI:
+To get started, create a plugin from a template using:
 
 ```shell
 npm create plugma@latest
@@ -20,21 +20,21 @@ npm create plugma@latest
 
 Follow the on-screen instructions.
 
-### Features
+Currently, the only framework supported is `Svelte`.
 
-- #### Live Development Server
+## How does it work?
 
-  By linking the plugin window to a development server it eliminates the need to rebuild the UI file repeatedly. This aids in debugging and streamlines the process.
+Plugma leverages Vite for building UIs across various frameworks and employs ESBuild for efficient management of the main thread. It streamlines plugin development by minimizing boilerplate code and offers seamless local development with its built-in server, making it an optimal choice for Figma plugin development due to its exceptional developer experience.
 
-- #### Browser Preview
+## Features
 
-  Since it utilises a development server, you can try out your plugin's UI on different browsers, including previewing how it looks in both Figma's dark and light themes.
+- **Live Development Server:** By linking the plugin window to a development server it eliminates the need to rebuild the UI file repeatedly. This aids in debugging and streamlines the process.
 
-- #### Consistent Folder Structure
+- **Browser Preview:** Since it utilises a development server, you can try out your plugin's UI on different browsers, including previewing how it looks in both Figma's dark and light themes.
 
-  Plugma hides unnecessary boilerplate code so you can concentrate on the code required to develop your plugins.
+- **Consistent Folder Structure:** Plugma hides unnecessary boilerplate code so you can concentrate on the code required to develop your plugins.
 
-### Plugin Folder Structure
+## Plugin Folder Structure
 
 Your plugin project will look something like this.
 
@@ -67,11 +67,9 @@ README.md
 
 - `package.json` Contains the name of our plugin and Figma manifest details in the `plugma.manifest` field.
 
-### Configure
+## Configure
 
-#### Figma specific settings
-
-Add Figma's manifest details to the field `plugma.manifest` inside the `package.json` file.
+You need either a `manifest.json` file in the root of the project or the manifest details must be included in the `plugma.manifest` field within the `package.json` file.
 
 ```jsonc
 // package.json

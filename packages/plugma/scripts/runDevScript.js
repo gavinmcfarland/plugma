@@ -249,7 +249,7 @@ async function startViteServer(data, options) {
 
 }
 
-async function buildVite(data, callback, NODE_ENV, options) {
+async function buildUI(data, callback, NODE_ENV, options) {
 
 
 	if (callback && typeof (callback) === "function") {
@@ -269,7 +269,11 @@ async function buildVite(data, callback, NODE_ENV, options) {
 	// 	},
 	//   }
 
+	// TODO: Add option/flag here
+	console.log({ options })
 	if (NODE_ENV === "development") {
+
+
 		// We don't need to bundle the UI because when developing it needs to point to the dev server. So instead we create a placeholder ui file that points to a server
 		let devHtmlString = fs.readFileSync(`${__dirname}/../frameworks/common/main/devHtmlString.html`, 'utf8');
 
@@ -377,7 +381,7 @@ export default function cli(options) {
 			await writeIndexFile()
 
 			// console.log(viteConfig)
-			await buildVite(data, () => {
+			await buildUI(data, () => {
 				console.log(`  ui.html file created!`)
 			}, "production", options)
 			await writeManifestFile(data, () => {
@@ -405,7 +409,7 @@ export default function cli(options) {
 
 			await writeIndexFile()
 
-			await buildVite(data, () => {
+			await buildUI(data, () => {
 				console.log(`  ui.html file created!`)
 			}, "development", options)
 			await writeManifestFile(data, () => {
