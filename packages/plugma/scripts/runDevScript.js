@@ -258,6 +258,7 @@ async function buildUI(data, callback, NODE_ENV, options) {
 
 	// Surpress console logs created by vite
 	const originalConsoleLog = console.log;
+	console.log = function () { };
 
 	// {
 	// 	root: path.resolve(__dirname, './project'),
@@ -270,8 +271,8 @@ async function buildUI(data, callback, NODE_ENV, options) {
 	//   }
 
 	// TODO: Add option/flag here
-	console.log({ options })
-	if (NODE_ENV === "development") {
+
+	if (options.port) {
 
 
 		// We don't need to bundle the UI because when developing it needs to point to the dev server. So instead we create a placeholder ui file that points to a server
@@ -279,7 +280,7 @@ async function buildUI(data, callback, NODE_ENV, options) {
 
 
 
-		// FIX ME: Need to replace the port number
+		// Replace the port number in the template
 		devHtmlString = devHtmlString.replace("5173", `${options.port}`)
 
 		createFileWithDirectory(`${CURR_DIR}/dist`, 'ui.html', devHtmlString)
@@ -287,8 +288,31 @@ async function buildUI(data, callback, NODE_ENV, options) {
 	}
 	else {
 		// console.log = function () { };
-		await build()
+		if (options._[0] === "dev" && !options.port) {
+			await build({
+				build: {
+					watch: {},
+					emptyOutDir: false,
+				}
+			})
+
+		} else {
+			await build()
+		}
+
 	}
+
+	// if (options._[0] === "dev" && !options.port) {
+	// 	await build({
+	// 		build: {
+	// 			watch: {},
+	// 			emptyOutDir: false,
+	// 		}
+	// 	})
+	// }
+	// else {
+	// 	await build()
+	// }
 
 
 	console.log = originalConsoleLog;
@@ -367,9 +391,12 @@ async function writeManifestFile(data, callback) {
 
 // Bundle the file and start the server
 
+
 export default function cli(options) {
 
-	options.port = options.port || 3000
+	if (options.hasOwnProperty('port') && typeof options.port === "undefined") {
+		options.port = 3000
+	}
 
 	if (options._[0] === "build") {
 		// 1. Create dist folder
@@ -420,10 +447,14 @@ export default function cli(options) {
 			}, 'development')
 
 			console.log(`
-  ${chalk.blue.bold('Plugma')} ${chalk.grey('v0.0.1')}
+  ${chalk.blue.bold('Plugma')} ${chalk.grey('v0.0.1')}`);
 
-  ➜  Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan(options.port)}${chalk.cyan('/')}
-  `);
+
+			if (options.hasOwnProperty('port')) {
+				console.log(`
+  ➜  Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan(options.port)}${chalk.cyan('/')}`)
+			}
+
 
 			await startViteServer(data, options)
 

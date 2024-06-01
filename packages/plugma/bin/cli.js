@@ -20,7 +20,6 @@ yargs.command('dev', 'Develop your plugin')
 		alias: 'port',
 		describe: 'Speficy the port for the plugin preview',
 		type: 'number',
-		nargs: 1
 	})
 
 

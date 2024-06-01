@@ -21,10 +21,8 @@ async function writeIndexFile() {
 	let indexTemplatePath = `${__dirname}/../templates/index.html`
 	let newIndexPath = `${__dirname}/../tmp/index.html`
 
-	// Need to use process.env.INIT_CWD because otherwise package is referenced from the module and not the users project
-	let pkgPath = resolve(`${process.env.INIT_CWD}/package.json`)
-
-	console.log("package path", pkgPath)
+	// Need to use process.env.INIT_CWD because otherwise package is referenced from the module and not the users project <- not sure this is true
+	let pkgPath = resolve(`${CURR_DIR}/package.json`)
 
 	let contents = fs.readFileSync(indexTemplatePath, 'utf8');
 	let pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));

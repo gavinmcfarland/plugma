@@ -77,6 +77,14 @@ You need either a `manifest.json` file in the root of the project or the manifes
 }
 ```
 
+## CLI Options
+
+To preview in a local browser
+
+```
+plugma dev -p 5000
+```
+
 ## Acknowledgments
 
 I would like to thank Yuan Qing Lim's [Create Figma Plugin](https://yuanqing.github.io/create-figma-plugin/) for the inspiration for this project.
