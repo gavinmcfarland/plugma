@@ -48,7 +48,7 @@ Start a development server.
 
 #### Options
 
-- `--websockets`, `-ws`: Turn off websockets. Accepts: `off`.
+- `--websockets=off`, `-ws=off`: Turn off websockets.
 - `port`, `-p`: Specify the port number for the server to run on. Default is _3000_.
 
 ### `plugma build`
