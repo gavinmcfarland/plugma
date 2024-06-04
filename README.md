@@ -10,7 +10,7 @@ Plugma is a CLI to simplify creating Figma plugins.
 - [Node.js](https://nodejs.org/en)
 - [Figma desktop app](https://www.figma.com/downloads/)
 
-### Get started
+### Start from plugin template
 
 ```shell
 npm create plugma@latest
