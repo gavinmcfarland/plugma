@@ -10,9 +10,21 @@ Plugma is a CLI to simplify creating Figma plugins.
 - [Node.js](https://nodejs.org/en)
 - [Figma desktop app](https://www.figma.com/downloads/)
 
-## Get started
+### Get started
 
-To get started, create a plugin from a template using:
+```shell
+npm create plugma@latest
+```
+
+Currently, the only framework supported is `Svelte`.
+
+## Install
+
+```
+npm install plugma
+```
+
+<!-- ## Create plugin from template
 
 ```shell
 npm create plugma@latest
@@ -20,32 +32,38 @@ npm create plugma@latest
 
 Follow the on-screen instructions.
 
-Currently, the only framework supported is `Svelte`.
+Currently, the only framework supported is `Svelte`. -->
 
-## How does it work?
+## Commands
 
-Plugma simplifies plugin development with Vite for UI building and ESBuild for main thread management. It streamlines coding by hiding boilerplate and enables seamless local development. Plus, it offers browser preview via WebSockets.
+<!-- ### `plugma init`
 
-## Plugin Folder Structure
+Follow the on-screen instructions to create a plugin from a template.
+
+Currently, the only framework supported is `Svelte`. -->
+
+### `plugma dev`
+
+Start a development server.
+
+#### Options
+
+- `--websockets`, `-ws`: Turn off websockets. Accepts: `off`.
+- `port`, `-p`: Specify the port number for the server to run on. Default is 3000
+
+### `plugma build`
+
+Create a build ready for publishing.
+
+#### Options
+
+- `--watch`, `-w`: Watch for changes and rebuild automatically.
+
+<!-- ## Plugin Folder Structure
 
 Your plugin project will look something like this.
 
 Depending on which framework you choose, the files might vary slightly, but the file structure will remain the same.
-
-```
-dist/
-    main.js
-    ui.html
-    manifest.json
-scr/
-    main.ts
-    ui.ts
-    App.jsx
-    styles.css
-vite.config.ts
-package.json
-README.md
-```
 
 - `dist` The dist folder is where the outputted plugin code is built. When importing a plugin in Figma, select the `manifest.json` file from this folder.
 
@@ -77,13 +95,9 @@ You need either a `manifest.json` file in the root of the project or the manifes
 }
 ```
 
-## CLI Options
+## How does it work?
 
-To preview in a local browser
-
-```
-plugma dev -p 5000
-```
+Plugma simplifies plugin development with Vite for UI building and ESBuild for main thread management. It streamlines coding by hiding boilerplate and enables seamless local development. Plus, it offers browser preview via WebSockets. -->
 
 ## Acknowledgments
 
