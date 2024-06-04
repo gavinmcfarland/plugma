@@ -20,6 +20,8 @@ Currently, the only framework supported is `Svelte`.
 
 ## Install
 
+Create a plugin from scratch or use the CLI independently.
+
 ```
 npm install plugma
 ```
