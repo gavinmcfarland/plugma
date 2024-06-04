@@ -5,16 +5,16 @@
 
 Plugma is a CLI to simplify creating Figma plugins.
 
-### Requirements
-
-- [Node.js](https://nodejs.org/en)
-- [Figma desktop app](https://www.figma.com/downloads/)
-
-### Start from plugin template
+## Create plugin from template
 
 ```shell
 npm create plugma@latest
 ```
+
+### Requirements
+
+- [Node.js](https://nodejs.org/en)
+- [Figma desktop app](https://www.figma.com/downloads/)
 
 Currently, the only framework supported is `Svelte`.
 
