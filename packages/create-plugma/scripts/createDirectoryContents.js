@@ -1,7 +1,7 @@
 import slugify from '@sindresorhus/slugify';
 import * as fs from 'fs';
 const CURR_DIR = process.cwd();
-import { lodashTemplate } from 'lodash.template'
+import lodashTemplate from 'lodash.template'
 
 // lodashTemplate(buffer.toString())(values)
 

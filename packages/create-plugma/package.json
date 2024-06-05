@@ -1,6 +1,6 @@
 {
   "name": "create-plugma",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "description": "",
   "main": "create-plugma.js",
   "type": "module",
