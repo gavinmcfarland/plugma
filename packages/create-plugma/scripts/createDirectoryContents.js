@@ -1,7 +1,7 @@
 import slugify from '@sindresorhus/slugify';
 import * as fs from 'fs';
 const CURR_DIR = process.cwd();
-import lodashTemplate from 'lodash.template'
+import { template } from 'lodash'
 
 // lodashTemplate(buffer.toString())(values)
 
@@ -33,7 +33,7 @@ const createDirectoryContents = (templatePath, newProjectPath, answers) => {
 		if (stats.isFile()) {
 			let contents = fs.readFileSync(origFilePath, 'utf8');
 
-			let comptempl = lodashTemplate(contents)
+			let comptempl = template(contents)
 			let data = Object.assign(answers, {
 				id: slugify(answers['name'])
 			})
