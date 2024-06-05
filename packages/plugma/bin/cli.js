@@ -9,25 +9,42 @@ const yargs = _yargs(hideBin(process.argv));
 
 yargs.scriptName("plugma")
 	.usage('Usage: $0 <cmd> [opts]')
-	.help()
 
-yargs.command('dev', 'Develop your plugin')
-	.example(
-		"$0 dev -p 3000",
-		"Runs a dev server on port 3000"
-	)
-	.option('p', {
-		alias: 'port',
-		describe: 'Speficy the port for the plugin preview',
-		type: 'number',
-	})
+yargs.command('dev', 'Start a server to develope your plugin', function (yargs) {
+	yargs
+		.option('p', {
+			alias: 'port',
+			description: 'Speficy the port for the plugin preview',
+			type: 'number'
+		})
+		.example(
+			"$0 dev -p 3000",
+			"Runs a dev server on port 3000"
+		)
+		.argv;
+}).command('build', 'Create a build ready for publishing', function (yargs) {
+	yargs
+		.option('w', {
+			description: 'Watch for changes and rebuild automatically',
+			alias: 'watch',
+			type: 'boolean'
+		})
+		.example(
+			"$0 build -w",
+			"Creates a build and watches for changes"
+		)
+		.argv;
+})
+// .example(
+// 	"$0 build",
+// 	"Creates a build ready for publishing"
+// )
 
-
-yargs.command('build', 'Publish or share your plugin')
-	.example(
-		"$0 build",
-		"Creates a build ready for publishing"
-	)
+// .option('w', {
+// 	alias: 'watch',
+// 	describe: 'Watch for changes and rebuild automatically',
+// 	type: 'boolean',
+// })
 
 
 // const options = yargs.scriptName("plugma")

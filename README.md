@@ -48,12 +48,12 @@ Currently, the only framework supported is `Svelte`. -->
 
 ### `plugma dev`
 
-Start a development server.
+Start a server to develope your plugin.
 
 #### Options
 
 - `--websockets=off`, `-ws=off`: Turn off websockets.
-- `port`, `-p`: Specify the port number for the server to run on. Default is _3000_.
+- `port`, `-p`: Speficy the port for the plugin preview, default is _3000_.
 
 ### `plugma build`
 

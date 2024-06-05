@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url';
 import nodeCleanup from 'node-cleanup';
 import lodashTemplate from 'lodash.template'
 import writeIndexFile from './rewriteIndexFile.js'
+// import { option } from 'yargs';
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -272,9 +273,26 @@ async function buildUI(data, callback, NODE_ENV, options) {
 
 	// TODO: Add option/flag here
 
-	if (options.port) {
+	// if (options.port) {
 
 
+	if (options._[0] === 'build') {
+
+		if (options.watch) {
+			await build({
+				build: {
+					watch: {},
+					emptyOutDir: false,
+				}
+			})
+		}
+		else {
+			await build()
+		}
+
+	}
+
+	if (options._[0] === 'dev') {
 		// We don't need to bundle the UI because when developing it needs to point to the dev server. So instead we create a placeholder ui file that points to a server
 		let devHtmlString = fs.readFileSync(`${__dirname}/../frameworks/common/main/devHtmlString.html`, 'utf8');
 
@@ -284,36 +302,7 @@ async function buildUI(data, callback, NODE_ENV, options) {
 		devHtmlString = devHtmlString.replace("5173", `${options.port}`)
 
 		createFileWithDirectory(`${CURR_DIR}/dist`, 'ui.html', devHtmlString)
-		// await build()
 	}
-	else {
-		// console.log = function () { };
-		if (options._[0] === "dev" && !options.port) {
-			await build({
-				build: {
-					watch: {},
-					emptyOutDir: false,
-				}
-			})
-
-		} else {
-			await build()
-		}
-
-	}
-
-	// if (options._[0] === "dev" && !options.port) {
-	// 	await build({
-	// 		build: {
-	// 			watch: {},
-	// 			emptyOutDir: false,
-	// 		}
-	// 	})
-	// }
-	// else {
-	// 	await build()
-	// }
-
 
 	console.log = originalConsoleLog;
 }
@@ -394,9 +383,7 @@ async function writeManifestFile(data, callback) {
 
 export default function cli(options) {
 
-	if (options.hasOwnProperty('port') && typeof options.port === "undefined") {
-		options.port = 3000
-	}
+	options.port = options.port || 3000
 
 	if (options._[0] === "build") {
 		// 1. Create dist folder
@@ -405,18 +392,40 @@ export default function cli(options) {
 		// 3. Create ui.html file
 		getFiles().then(async (data) => {
 
+			console.log(`
+${chalk.blue.bold('Plugma')} ${chalk.grey('v0.0.1')}
+`);
+
 			await writeIndexFile()
 
 			// console.log(viteConfig)
-			await buildUI(data, () => {
-				console.log(`  ui.html file created!`)
-			}, "production", options)
+
+
 			await writeManifestFile(data, () => {
 				console.log(`  manifest.json file created!`)
 			})
 			await bundleMainWithEsbuild(data, true, () => {
 				console.log(`  main.js file created!`)
 			}, 'production')
+
+			console.log(`
+Watching for changes...`)
+
+
+
+			if (options.watch) {
+				await build({
+					build: {
+						watch: {},
+						emptyOutDir: false,
+					}
+				})
+			}
+			else {
+				await build()
+			}
+
+
 
 		});
 	}
@@ -433,6 +442,9 @@ export default function cli(options) {
 
 		getFiles().then(async (data) => {
 
+			console.log(`
+${chalk.blue.bold('Plugma')} ${chalk.grey('v0.0.1')}
+`);
 
 			await writeIndexFile()
 
@@ -446,17 +458,19 @@ export default function cli(options) {
 				console.log(`  main.js file created!`)
 			}, 'development')
 
-			console.log(`
-  ${chalk.blue.bold('Plugma')} ${chalk.grey('v0.0.1')}`);
 
 
-			if (options.hasOwnProperty('port')) {
+
+			if (options._[0] === 'dev') {
 				console.log(`
   ➜  Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan(options.port)}${chalk.cyan('/')}`)
 			}
 
 
 			await startViteServer(data, options)
+
+			console.log(`
+Watching for changes...`)
 
 			// async function exitHandler(evtOrExitCodeOrError) {
 			// 	try {

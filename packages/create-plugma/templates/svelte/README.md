@@ -9,22 +9,22 @@ This plugin was created with [Plugma](https://github.com/gavinmcfarland/plugma) 
 - [Node.js](https://nodejs.org/en)
 - [Figma desktop app](https://www.figma.com/downloads/)
 
-### Develop
+### Develop and Import
 
-Install the dependencies and watch for changes while developing:
+1. Install the dependencies and watch for changes while developing:
 
-```shell
-npm install
-npm run dev
-```
+   ```shell
+   npm install
+   npm run dev
+   ```
 
-Open the Figma desktop app, import the plugin and run.
+2. Open the Figma desktop app and import the plugin:
 
-### Import the plugin
+   - Open a file in Figma.
+   - Search for "Import plugin from manifest..." using the [Quick Actions](https://help.figma.com/hc/en-us/articles/360040328653-Use-shortcuts-and-quick-actions#Use_quick_actions) bar.
+   - Choose the `manifest.json` file from the `dist` folder.
 
-1. Open the Figma desktop app and open a file
-2. Search for "Import plugin from manifest..." using the [Quick Actions](https://help.figma.com/hc/en-us/articles/360040328653-Use-shortcuts-and-quick-actions#Use_quick_actions) bar.
-3. Choose the `manifest.json` file from the `dist` folder.
+3. Manage `manifest` details from inside `package.json`.
 
 ### Preview
 
