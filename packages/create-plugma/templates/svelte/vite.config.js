@@ -3,7 +3,7 @@
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import baseConfig from 'plugma/lib/vite.config.js';
 import { defineConfig } from "vite";
-import { merge } from 'lodash';
+import merge from 'lodash.merge';
 
 
 export default defineConfig(
