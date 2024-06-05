@@ -7,6 +7,8 @@ Plugma is a CLI to simplify creating Figma plugins.
 
 ## Create plugin from template
 
+To start from a template run the following:
+
 ```shell
 npm create plugma@latest
 ```
@@ -60,6 +62,22 @@ Create a build ready for publishing.
 #### Options
 
 - `--watch`, `-w`: Watch for changes and rebuild automatically.
+
+## Folder structure
+
+Depending on which framework you choose, the files might vary slightly, but the file structure will remain the same.
+
+- `dist` The dist folder is where the outputted plugin code is built. When importing a plugin in Figma, select the `manifest.json` file from this folder.
+
+- `src` All of the source files required for your plugin.
+
+  - `src/main.ts` This file interacts with Figma's Plugin API
+  - `src/ui.ts` This file mounts the UI
+  - `src/App.jsx` This file contains your UI markup (mandatory for some frameworks)
+
+- `vite.config.ts` Because Plugma uses Vite for bundling, it gives you access to all of Vite's plugins.
+
+- `package.json` Contains the name of our plugin and Figma manifest details in the `plugma.manifest` field.
 
 <!-- ## Plugin Folder Structure
 
