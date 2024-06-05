@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 import slugify from '@sindresorhus/slugify'
 import createDirectoryContents from './scripts/createDirectoryContents.js';
 import { exec } from 'node:child_process'
-import { lodashTemplate } from 'lodash.template'
+import lodashTemplate from 'lodash.template'
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
