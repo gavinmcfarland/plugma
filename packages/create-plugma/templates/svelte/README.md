@@ -41,3 +41,7 @@ npm run build
 ```
 
 Now you can publish the plugin from the Figma desktop app.
+
+### Advanced
+
+See [Plugma](https://github.com/gavinmcfarland/plugma) for further options.
