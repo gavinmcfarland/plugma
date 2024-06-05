@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 import slugify from '@sindresorhus/slugify'
 import createDirectoryContents from './scripts/createDirectoryContents.js';
 import { exec } from 'node:child_process'
-import lodashTemplate from 'lodash.template'
+import { template } from 'lodash'
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -38,7 +38,7 @@ function writeIndexFile(projectName, answers) {
 
 	let contents = fs.readFileSync(`${__dirname}/index.html`, 'utf8');
 
-	let comptempl = lodashTemplate(contents)
+	let comptempl = template(contents)
 
 	let input = answers['project-choice'] === "svelte" ? 'svelte/ui.ts' : 'vanilla/ui.js'
 

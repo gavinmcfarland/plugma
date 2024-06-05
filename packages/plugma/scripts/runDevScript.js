@@ -422,7 +422,11 @@ Watching for changes...`)
 				})
 			}
 			else {
-				await build()
+				await build({
+					build: {
+						emptyOutDir: false,
+					}
+				})
 			}
 
 
