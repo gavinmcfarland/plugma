@@ -1,5 +1,5 @@
 <p align="center">
-![logos](https://github.com/gavinmcfarland/plugma/assets/5551/3d167d4f-2190-4003-8ec4-6456dd632710)
+  <img src="https://github.com/gavinmcfarland/plugma/assets/5551/3d167d4f-2190-4003-8ec4-6456dd632710" height="100px" alt="Logo"/>
 </p>
 
 # Plugma
