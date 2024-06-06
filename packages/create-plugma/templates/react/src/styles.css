@@ -1,0 +1,22 @@
+:root {
+	/* color-scheme: light dark; */
+	font-family: Inter, system-ui, Helvetica, Arial, sans-serif;
+	font-display: optional;
+	font-size: 68.75%; /* 11/16 */
+	/* line-height: 1.5;
+	  font-weight: 400;
+
+
+	  color: rgba(255, 255, 255, 0.87);
+	  background-color: #242424;
+
+	  font-synthesis: none;
+	  text-rendering: optimizeLegibility;
+	  -webkit-font-smoothing: antialiased;
+	  -moz-osx-font-smoothing: grayscale; */
+}
+
+body {
+	background-color: var(--figma-color-bg);
+	color: var(--figma-color-text);
+}

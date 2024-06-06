@@ -22,7 +22,7 @@ npm create plugma@latest
 - [Node.js](https://nodejs.org/en)
 - [Figma desktop app](https://www.figma.com/downloads/)
 
-Currently, the only frameworks supported are `Svelte` and vanilla `JavaScript`, more coming soon!
+The frameworks currently supported are `React`, `Svelte` and vanilla `JavaScript`.
 
 ## Install
 
@@ -123,7 +123,6 @@ You need either a `manifest.json` file in the root of the project or the manifes
 ## How does it work?
 
 Plugma simplifies plugin development with Vite for UI building and ESBuild for main thread management. It streamlines coding by hiding boilerplate code and enables seamless local development. Plus, it offers browser preview via WebSockets. -->
-
 
 ## Acknowledgments
 

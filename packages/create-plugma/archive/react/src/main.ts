@@ -1,1 +1,0 @@
-figma.closePlugin("Goodbye");
