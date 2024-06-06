@@ -52,7 +52,8 @@ Start a server to develope your plugin.
 
 #### Options
 
-- `--websockets=off`, `-ws=off`: Turn off websockets.
+<!-- - `--websockets=off`, `-ws=off`: Turn off websockets. -->
+
 - `port`, `-p`: Speficy the port for the plugin preview, default is _3000_.
 
 ### `plugma build`
