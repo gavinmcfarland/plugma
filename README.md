@@ -7,7 +7,7 @@
 > [!WARNING]
 > This CLI is currently in alpha. Your feedback is greatly appreciated!
 
-Plugma hides unnecessary boilerplate code and simplifies plugin development.
+Plugma is a CLI to simplify creating Figma plugins.
 
 ## Create plugin from template
 
