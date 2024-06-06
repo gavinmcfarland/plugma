@@ -22,7 +22,7 @@ npm create plugma@latest
 - [Node.js](https://nodejs.org/en)
 - [Figma desktop app](https://www.figma.com/downloads/)
 
-Currently, the only frameworks supported are `Svelte` and vanilla `JavaScript`.
+Currently, the only frameworks supported are `Svelte` and vanilla `JavaScript`, more coming soon!
 
 ## Install
 
