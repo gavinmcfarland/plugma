@@ -1,7 +1,7 @@
 # Plugma
 
 > [!WARNING]
-> This work is still in progress. Use at your own risk.
+> This CLI is currently in alpha. Your feedback is greatly appreciated!
 
 Plugma is a CLI to simplify creating Figma plugins.
 
@@ -18,7 +18,7 @@ npm create plugma@latest
 - [Node.js](https://nodejs.org/en)
 - [Figma desktop app](https://www.figma.com/downloads/)
 
-Currently, the only framework supported is `Svelte`.
+Currently, the only frameworks supported are `Svelte` and vanilla `JavaScript`.
 
 ## Install
 
