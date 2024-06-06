@@ -16,7 +16,7 @@
     "typescript": "^5.2.2",
     "vite": "^5.0.0",
     "esbuild": "^0.19.9",
-    "plugma": "^0.0.16",
+    "plugma": "^0.0.18",
     "html-template-tag": "4.0.1"
   },
   "plugma": {
