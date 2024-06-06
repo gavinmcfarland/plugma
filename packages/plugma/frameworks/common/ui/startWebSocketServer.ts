@@ -1,6 +1,22 @@
 const ws = {};
 let isConnected;
 
+function throttle(mainFunction, delay) {
+  let timerFlag = null; // Variable to keep track of the timer
+
+  // Returning a throttled version
+  return (...args) => {
+    if (timerFlag === null) {
+      // If there is no timer currently running
+      mainFunction(...args); // Execute the main function
+      timerFlag = setTimeout(() => {
+        // Set a timer to clear the timerFlag after the specified delay
+        timerFlag = null; // Clear the timerFlag to allow the main function to be executed again
+      }, delay);
+    }
+  };
+}
+
 function onWindowMsg(msg) {
   if (msg.data.pluginMessage) {
     const message = JSON.stringify(msg.data.pluginMessage);
@@ -34,9 +50,12 @@ function startWebSocketServer() {
     }, 3000);
   };
 
-  ws.current.onmessage = (event) => {
+  // Throttle the event because it's causing plugin window to crash/slow down
+  ws.current.onmessage = throttle((event) => {
     try {
       let msg = JSON.parse(event.data);
+
+      // Pass messages received from Figma main to local server
       if (msg.src === "server") {
         let temp = JSON.parse(msg.message);
         window.parent.postMessage(
@@ -51,7 +70,7 @@ function startWebSocketServer() {
       console.error("not a valid message", err);
     }
     // return false;
-  };
+  }, 1000);
 
   window.addEventListener("message", onWindowMsg);
 
