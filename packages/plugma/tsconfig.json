@@ -1,12 +1,10 @@
 {
-    "compilerOptions": {
-      "esModuleInterop": true,
-      "isolatedModules": true,
-      "jsx": "react",
-      "jsxFactory": "h",
-      "lib": ["DOM", "ES2020"],
-      "module": "ES2020",
-      "moduleResolution": "Node",
-      "strict": true
-    }
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "lib": ["DOM", "ES2020"],
+    "module": "ES2020",
+    "moduleResolution": "Node",
+    "strict": true
   }
+}
