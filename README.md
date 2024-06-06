@@ -7,7 +7,7 @@
 > [!WARNING]
 > This CLI is currently in alpha. Your feedback is greatly appreciated!
 
-Plugma is a CLI to simplify creating Figma plugins.
+Plugma hides unnecessary boilerplate code and simplifies plugin development.
 
 ## Create plugin from template
 
@@ -122,7 +122,8 @@ You need either a `manifest.json` file in the root of the project or the manifes
 
 ## How does it work?
 
-Plugma simplifies plugin development with Vite for UI building and ESBuild for main thread management. It streamlines coding by hiding boilerplate and enables seamless local development. Plus, it offers browser preview via WebSockets. -->
+Plugma simplifies plugin development with Vite for UI building and ESBuild for main thread management. It streamlines coding by hiding boilerplate code and enables seamless local development. Plus, it offers browser preview via WebSockets. -->
+
 
 ## Acknowledgments
 
