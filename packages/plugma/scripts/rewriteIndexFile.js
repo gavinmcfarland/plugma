@@ -29,8 +29,9 @@ async function writeIndexFile() {
 
 	let comptempl = lodashTemplate(contents)
 
-	// FIX ME: This is not doing anything at the moment. This should probably happen in the build/dev script instead?
-	let input = pkg?.plugma?.framework === "svelte" ? '/src/ui.ts' : '/src/ui.ts'
+
+	// let input = pkg?.plugma?.framework === "svelte" ? '/src/ui.ts' : '/src/ui.ts'
+	let input = resolve("/", pkg?.plugma?.manifest?.ui) || "/src/ui.ts"
 
 	contents = comptempl({ name: "figma", input })
 
