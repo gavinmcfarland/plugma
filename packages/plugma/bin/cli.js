@@ -14,7 +14,7 @@ yargs.command('dev', 'Start a server to develope your plugin', function (yargs) 
 	yargs
 		.option('p', {
 			alias: 'port',
-			description: 'Speficy the port for the plugin preview',
+			description: 'Specify a port number for the plugin preview',
 			type: 'number'
 		})
 		.example(
