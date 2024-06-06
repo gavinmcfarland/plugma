@@ -17,6 +17,7 @@ function onWindowMsg(msg) {
 }
 
 function startWebSocketServer() {
+  console.log("start web socket");
   ws.current = new WebSocket("ws://localhost:9001/ws");
   ws.current.onopen = () => {
     console.log("ws opened");
