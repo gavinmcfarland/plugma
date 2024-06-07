@@ -8,10 +8,10 @@
 
 # Plugma
 
-Plugma simplifies Figma plugin development by removing unnecessary boilerplate and using a local server for development.
-
 > [!WARNING]
 > Project is currently in alpha. Your feedback is greatly appreciated!
+
+Plugma simplifies Figma plugin development by removing unnecessary boilerplate and using a local server for development.
 
 ## Start from a template
 
