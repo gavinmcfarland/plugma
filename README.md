@@ -106,9 +106,9 @@ Depending on which framework you choose, the files might vary slightly, but the 
 
 - `package.json` Contains the name of our plugin and Figma manifest details in the `plugma.manifest` field. -->
 
-## Manifest
+<!-- ## Manifest
 
-You can either place a `manifest.json` file in the root of the project or add a `plugma.manifest` field to the `package.json` file.
+You can either place a `manifest.json` file in the root of the project or add a `plugma.manifest` field to the `package.json` file. -->
 
 <!-- ```jsonc
 // package.json
