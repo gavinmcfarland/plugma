@@ -3,20 +3,6 @@ import * as fs from 'fs';
 const CURR_DIR = process.cwd();
 import lodashTemplate from 'lodash.template'
 
-// lodashTemplate(buffer.toString())(values)
-
-// let comptempl =
-// 	lodashTemplate('Hi <%= author%>!');
-
-// // Assigning the value to the
-// // interpolate delimiter
-// let result =
-// 	comptempl({ 'author': 'Nidhi' });
-
-// // Displays output
-// console.log(result);
-
-
 const createDirectoryContents = (templatePath, newProjectPath, answers) => {
 
 	// let newProjectPath = answers['project-name']
@@ -27,8 +13,6 @@ const createDirectoryContents = (templatePath, newProjectPath, answers) => {
 
 		// get stats about the current file
 		const stats = fs.statSync(origFilePath);
-
-
 
 		if (stats.isFile()) {
 			let contents = fs.readFileSync(origFilePath, 'utf8');
@@ -44,7 +28,7 @@ const createDirectoryContents = (templatePath, newProjectPath, answers) => {
 				contents = comptempl(data);
 			}
 
-			// Rename
+			// Rename gitignore when duplicating directory
 			if (file === 'gitignore') file = '.gitignore';
 
 			const writePath = `${CURR_DIR}/${newProjectPath}/${file}`;
@@ -52,7 +36,7 @@ const createDirectoryContents = (templatePath, newProjectPath, answers) => {
 		} else if (stats.isDirectory()) {
 			fs.mkdirSync(`${CURR_DIR}/${newProjectPath}/${file}`);
 
-			// recursive call
+			// Recursive call to do this for each directory in the current directory
 			createDirectoryContents(`${templatePath}/${file}`, `${newProjectPath}/${file}`, answers);
 		}
 	});

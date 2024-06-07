@@ -1,10 +1,5 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
+import { mount } from "plugma/frameworks/react/mount";
 import App from './App.tsx'
 import './styles.css'
 
-ReactDOM.createRoot(document.getElementById('app')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
+mount(App)

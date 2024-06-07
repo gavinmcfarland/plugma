@@ -1,13 +1,10 @@
 /** @type {import('vite').UserConfig} */
 
-import { svelte } from "@sveltejs/vite-plugin-svelte";
 import baseConfig from 'plugma/lib/vite.config.js';
 import { defineConfig, mergeConfig } from "vite";
 
-export default defineConfig(
-	mergeConfig(baseConfig, {
+export default defineConfig(mergeConfig(baseConfig, {
 
-	})
-);
+}));
 
 
