@@ -9,9 +9,9 @@
 # Plugma
 
 > [!WARNING]
-> Project is currently in alpha. Your feedback is greatly appreciated!
+> Plugma is currently in alpha. Your feedback is greatly appreciated!
 
-Plugma simplifies Figma plugin development by removing unnecessary boilerplate and using a local server for development.
+Plugma simplifies Figma plugin development.
 
 ## Start from a template
 
@@ -21,7 +21,7 @@ Create a plugin from a template using the following:
 npm create plugma@latest
 ```
 
-### Requirements
+#### Requirements
 
 - [Node.js](https://nodejs.org/en)
 - [Figma desktop app](https://www.figma.com/downloads/)
@@ -126,7 +126,7 @@ You can either place a `manifest.json` file in the root of the project or add a 
 
 ## How does it work?
 
-Plugma used Vite to bundle Figma plugins and is already preconfigured to inline all styles and scripts into one file. It uses a local server for developing, that passes messages from Figma's main thread to the local server using websockets.
+Plugma uses Vite to bundle Figma plugins and is configured to inline all styles and scripts into one file. It uses a local server for development, that passes messages from Figma's main thread to the local server using web sockets.
 
 ## Acknowledgments
 
