@@ -13,6 +13,38 @@ const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 
+async function getJsonFile(filePath) {
+	// var array = [
+	//     resolve(root, `manifest.json`),
+	//     resolve(root, 'public', 'manifest.json')
+	// ]
+
+	// var pathToManifest;
+
+	// if (fs.existsSync(array[0])) {
+	//     pathToManifest = array[0]
+	// }
+	// else if (fs.existsSync(array[1])) {
+	//     pathToManifest = array[1]
+	// }
+
+	return new Promise((resolve, reject) => {
+		if (fs.existsSync(filePath)) {
+			fs.readFile(filePath, 'utf8', function (err, data) {
+				if (err) {
+					reject(err);
+				}
+				// console.log(data)
+				resolve(JSON.parse(data));
+			});
+		}
+		else {
+			resolve(false)
+		}
+
+	});
+}
+
 
 async function writeIndexFile() {
 
@@ -31,9 +63,14 @@ async function writeIndexFile() {
 
 
 	// let input = pkg?.plugma?.framework === "svelte" ? '/src/ui.ts' : '/src/ui.ts'
-	let input = resolve("/", pkg?.plugma?.manifest?.ui) || "/src/ui.ts"
 
-	contents = comptempl({ name: "figma", input })
+	let manifest = await getJsonFile(resolve('./manifest.json')) || pkg["plugma"]["manifest"];
+
+	let input = resolve("/", manifest?.ui) || "/src/ui.ts"
+
+	if (getJsonFile(resolve('./manifest.json')))
+
+		contents = comptempl({ name: "figma", input })
 
 	// console.log(contents)
 
