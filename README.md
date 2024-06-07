@@ -2,16 +2,20 @@
   <img width="428" alt="logos" src="https://github.com/gavinmcfarland/plugma/assets/5551/ad6f0a2d-43d5-413d-88f0-4f31374aa148">
 </p>
 
+<p align="center">
+    <a href="https://www.npmjs.com/package/plugma"><img src="https://img.shields.io/npm/v/plugma.svg"></a>
+</p>
+
 # Plugma
 
+Plugma simplifies Figma plugin development by removing unnecessary boilerplate and using a local server for development.
+
 > [!WARNING]
-> This CLI is currently in alpha. Your feedback is greatly appreciated!
+> Project is currently in alpha. Your feedback is greatly appreciated!
 
-Plugma is a CLI to simplify creating Figma plugins.
+## Start from a template
 
-## Create plugin from template
-
-To start from a template run the following:
+Create a plugin from a template using the following:
 
 ```shell
 npm create plugma@latest
@@ -68,7 +72,7 @@ Create a build ready for publishing.
 
 - `--watch`, `-w`: Watch for changes and rebuild automatically.
 
-## Folder structure
+<!-- ## Folder structure
 
 Depending on which framework you choose, the files might vary slightly, but the file structure will remain the same.
 
@@ -82,7 +86,7 @@ Depending on which framework you choose, the files might vary slightly, but the 
 
 - `vite.config.ts` Because Plugma uses Vite for bundling, it gives you access to all of Vite's plugins.
 
-- `package.json` Contains the name of our plugin and Figma manifest details in the `plugma.manifest` field.
+- `package.json` Contains the name of our plugin and Figma manifest details in the `plugma.manifest` field. -->
 
 <!-- ## Plugin Folder Structure
 
@@ -100,13 +104,13 @@ Depending on which framework you choose, the files might vary slightly, but the 
 
 - `vite.config.ts` Because Plugma uses Vite for bundling, it gives you access to all of Vite's plugins.
 
-- `package.json` Contains the name of our plugin and Figma manifest details in the `plugma.manifest` field.
+- `package.json` Contains the name of our plugin and Figma manifest details in the `plugma.manifest` field. -->
 
-## Configure Plugma
+## Manifest
 
-You need either a `manifest.json` file in the root of the project or the manifest details must be included in the `plugma.manifest` field within the `package.json` file.
+You can either place a `manifest.json` file in the root of the project or add a `plugma.manifest` field to the `package.json` file.
 
-```jsonc
+<!-- ```jsonc
 // package.json
 {
   //...
@@ -118,11 +122,11 @@ You need either a `manifest.json` file in the root of the project or the manifes
     }
   }
 }
-```
+``` -->
 
 ## How does it work?
 
-Plugma simplifies plugin development with Vite for UI building and ESBuild for main thread management. It streamlines coding by hiding boilerplate code and enables seamless local development. Plus, it offers browser preview via WebSockets. -->
+Plugma used Vite to bundle Figma plugins and is already preconfigured to inline all styles and scripts into one file. It uses a local server for developing, that passes messages from Figma's main thread to the local server using websockets.
 
 ## Acknowledgments
 
