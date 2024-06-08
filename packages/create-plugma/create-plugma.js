@@ -32,24 +32,6 @@ const QUESTIONS = [
 	},
 ];
 
-function writeIndexFile(projectName, answers) {
-
-	let newIndexPath = `${CURR_DIR}/${projectName}/node_modules/plugma/index.html`;
-
-	let contents = fs.readFileSync(`${__dirname}/index.html`, 'utf8');
-
-	let comptempl = lodashTemplate(contents)
-
-	let input = answers['project-choice'] === "svelte" ? 'svelte/ui.ts' : 'vanilla/ui.js'
-
-	contents = comptempl({ name: "figma", input })
-
-	// console.log(newIndexPath)
-
-	// Write
-	fs.writeFileSync(newIndexPath, contents, 'utf8');
-}
-
 inquirer.prompt(QUESTIONS).then(answers => {
 	const projectChoice = answers['project-choice'];
 	const projectName = slugify(answers['name']);
