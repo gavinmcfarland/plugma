@@ -311,8 +311,6 @@ async function getFiles() {
 	let pkg = await getJsonFile(resolve('./package.json'));
 	let figmaManifest = await getJsonFile(resolve('./manifest.json')) || pkg["plugma"]["manifest"];
 
-	console.log(figmaManifest)
-
 	return {
 		figmaManifest,
 		pkg
