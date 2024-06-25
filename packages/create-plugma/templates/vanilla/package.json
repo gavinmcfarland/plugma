@@ -1,0 +1,35 @@
+{
+  "name": "<%- name %>",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "plugma dev",
+    "build": "plugma build"
+  },
+  "devDependencies": {
+    "html-template-tag": "4.0.1",
+    "@figma/plugin-typings": "^1.88.0",
+    "tslib": "^2.6.2",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.0",
+    "esbuild": "^0.19.9",
+    "plugma": "^0.0.22"
+  },
+  "plugma": {
+    "manifest": {
+      "id": "<%- name %>",
+      "main": "src/main.js",
+      "ui": "src/ui.js",
+      "editorType": [
+        "figma",
+        "figjam"
+      ],
+      "networkAccess": {
+        "allowedDomains": [
+          "*"
+        ],
+        "reasoning": "Internet access for local development."
+      }
+    }
+  }
+}

@@ -5,6 +5,7 @@ import lodashTemplate from 'lodash.template'
 
 const createDirectoryContents = (templatePath, newProjectPath, answers) => {
 
+
 	// let newProjectPath = answers['project-name']
 	const filesToCreate = fs.readdirSync(templatePath);
 
@@ -17,7 +18,10 @@ const createDirectoryContents = (templatePath, newProjectPath, answers) => {
 		if (stats.isFile()) {
 			let contents = fs.readFileSync(origFilePath, 'utf8');
 
+
+
 			let comptempl = lodashTemplate(contents)
+
 			let data = Object.assign(answers, {
 				id: slugify(answers['name'])
 			})

@@ -8,77 +8,112 @@ import slugify from '@sindresorhus/slugify'
 import createDirectoryContents from './scripts/createDirectoryContents.js';
 import { exec } from 'node:child_process'
 import lodashTemplate from 'lodash.template'
+import path from 'path';
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const CHOICES = fs.readdirSync(`${__dirname}/templates`);
-
-const QUESTIONS = [
+const frameworks = [
 	{
-		name: 'project-choice',
-		type: 'list',
-		message: 'What project template would you like to generate?',
-		choices: CHOICES,
+		name: 'Vanilla',
+		variants: [
+			{
+				name: 'TypeScript',
+				dir: 'vanilla-ts'
+			},
+			{
+				name: 'JavaScript',
+				dir: 'vanilla'
+			}
+		]
 	},
 	{
-		name: 'name',
-		type: 'input',
-		message: 'Project name:',
-		validate: function (input) {
-			if (/^([A-Za-z\-\\_\d])+$/.test(input)) return true;
-			else return 'Project name may only include letters, numbers, underscores and hashes.';
-		},
+		name: 'Svelte',
+		variants: [
+			{
+				name: 'TypeScript',
+				dir: 'svelte-ts'
+			}
+		]
 	},
+	{
+		name: 'React',
+		variants: [
+			{
+				name: 'TypeScript',
+				dir: 'react-ts'
+			}
+		]
+	}
 ];
 
-inquirer.prompt(QUESTIONS).then(answers => {
-	const projectChoice = answers['project-choice'];
-	const projectName = slugify(answers['name']);
-	const templatePath = `${__dirname}/templates/${projectChoice}`;
+const questions = [
+	{
+		type: 'list',
+		name: 'framework',
+		message: 'Select a framework:',
+		choices: frameworks.map(f => f.name)
+	},
+	{
+		type: 'list',
+		name: 'variant',
+		message: 'Select a variant:',
+		choices: answers => {
+			const framework = frameworks.find(f => f.name === answers.framework);
+			return framework.variants.map(v => v.name);
+		}
+	},
+	{
+		type: 'input',
+		name: 'name',
+		message: 'Project name:',
+		validate: input => {
+			const valid = /^[a-zA-Z0-9_-]+$/.test(input);
+			if (!valid) {
+				return 'Project name can only include letters, numbers, underscores, and hyphens.';
+			}
+			const destDir = path.join(process.cwd(), input);
+			if (fs.existsSync(destDir)) {
+				return `Directory "${input}" already exists. Please choose a different name.`;
+			}
+			return true;
+		}
+	},
 
+];
 
+inquirer.prompt(questions).then(answers => {
+	const { name, framework, variant } = answers;
 
-	fs.mkdirSync(`${CURR_DIR}/${projectName}`);
+	const selectedFramework = frameworks.find(f => f.name === framework);
+	const selectedVariant = selectedFramework.variants.find(v => v.name === variant);
 
-	console.log(`Copying "${projectChoice}" template...`)
+	// Define the source and destination directories
+	const sourceDir = path.join(__dirname, 'templates', selectedVariant.dir);
+	const destDir = path.join(CURR_DIR, name);
 
+	// Copy the selected framework and variant to the destination directory
+	// copyDirectory(sourceDir, destDir);
 
+	fs.mkdirSync(`${CURR_DIR}/${name}`);
 
-	createDirectoryContents(templatePath, projectName, answers);
+	// console.log(`Copying "${selectedFramework}" template...`)
+
+	createDirectoryContents(sourceDir, name, answers);
 
 	console.log(`Next:
-			cd ${projectName}
-			npm install`)
-
-
-	// const command = `npm install ${__dirname}/../plugma --no-save --no-package-lock`
-
-	// let cwd = `${CURR_DIR}/${slugify(projectName)}`
-	// Install dependencies
-	// console.log(`Installing dependencies...`)
-
-	// console.log(cwd)
-	// exec(command, function (error) {
-	// 	console.log(error)
-	// 	if (!error) {
-
-	// 	}
-	// })
-
-	// fs.cp(`${__dirname}/../plugma`, `${CURR_DIR}/${slugify(projectName)}/node_modules/plugma`, { recursive: true }, (err) => {
-	// 	if (err) {
-	// 		console.error(err);
-	// 	}
-	// 	else {
-	// 		writeIndexFile(projectName, answers)
-	// 		console.log(`Next:
-	// 		cd ${projectName}
-	// 		npm install`)
-	// 	}
-	// });
-
-
+    cd ${name}
+    npm install
+    npm run dev`)
 
 });
+
+
+
+
+
+
+
+
+
 
