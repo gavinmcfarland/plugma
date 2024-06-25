@@ -18,8 +18,8 @@
   "plugma": {
     "manifest": {
       "id": "<%- name %>",
-      "main": "src/main.js",
-      "ui": "src/ui.js",
+      "main": "src/main.ts",
+      "ui": "src/ui.ts",
       "editorType": [
         "figma",
         "figjam"
