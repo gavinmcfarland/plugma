@@ -175,3 +175,7 @@ This script does the following in this order:
 - Note: main.ts needs to be created in a vite project (Figma main thread file)
 - Note: Plugma doesn't look in root for html template (currently anyway), so it's redunant
 - Issue: vite.config.ts file needs to point to plugma's because it contains the source code to inject scripts and other stuff...
+
+## Log
+
+- Made changes to support variants of frameworks now. Just need to create the different variants
