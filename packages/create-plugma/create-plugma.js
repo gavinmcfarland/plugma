@@ -33,6 +33,10 @@ const frameworks = [
 			{
 				name: 'TypeScript',
 				dir: 'svelte-ts'
+			},
+			{
+				name: 'JavaScript',
+				dir: 'svelte'
 			}
 		]
 	},
@@ -42,6 +46,10 @@ const frameworks = [
 			{
 				name: 'TypeScript',
 				dir: 'react-ts'
+			},
+			{
+				name: 'JavaScript',
+				dir: 'react'
 			}
 		]
 	}
