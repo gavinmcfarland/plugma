@@ -4,46 +4,60 @@
 </html>
 <script>
 	// Grab figma styles before loading local dev url
-	const styleSheet = document.styleSheets[0];
-	const cssRules = styleSheet.cssRules || styleSheet.rules
-	parent.postMessage({
-		pluginMessage: {
-			event: "save-figma-stylesheet",
-			styles: document.styleSheets[0].cssRules[0].cssText
-		}
-	}, "https://www.figma.com")
 
-	function checkUrlStatus(url) {
-		return fetch(url)
-			.then(response => {
-				// Check if the response status is within the range 200-299
-				if (response.ok) {
-					return "URL is active";
-				} else {
-					throw new Error("URL is not active");
+	const pluginFrame = document.getElementById("app")
+
+	setTimeout(function () {
+		const htmlClasses = pluginFrame.className
+
+		// console.log(pluginFrame.classList, pluginFrame.className)
+		// const htmlClasses = document.documentElement.className
+		console.log("sss", htmlClasses)
+		const styleSheet = document.styleSheets[0];
+		const cssRules = styleSheet.cssRules || styleSheet.rules
+		parent.postMessage({
+			pluginMessage: {
+				event: "save-figma-stylesheet",
+				data: {
+					styles: document.styleSheets[0].cssRules[0].cssText,
+					classes: htmlClasses
+				}
+			}
+		}, "https://www.figma.com")
+
+		function checkUrlStatus(url) {
+			return fetch(url)
+				.then(response => {
+					// Check if the response status is within the range 200-299
+					if (response.ok) {
+						return "URL is active";
+					} else {
+						throw new Error("URL is not active");
+					}
+				})
+				.catch(error => {
+					return "Error: " + error.message;
+				});
+		}
+
+		const statusMessageElement = document.getElementById("statusMessage");
+		const urlToCheck = "http://localhost:5173";
+		checkUrlStatus(urlToCheck)
+			.then(result => {
+
+				if (result === "Error: Failed to fetch") {
+					statusMessageElement.textContent = "Dev server not active";
+				}
+				else {
+					window.location.href = urlToCheck
 				}
 			})
 			.catch(error => {
-				return "Error: " + error.message;
+
+				console.error(error)
 			});
-	}
+	}, 1);
 
-	const statusMessageElement = document.getElementById("statusMessage");
-	const urlToCheck = "http://localhost:5173";
-	checkUrlStatus(urlToCheck)
-		.then(result => {
-
-			if (result === "Error: Failed to fetch") {
-				statusMessageElement.textContent = "Dev server not active";
-			}
-			else {
-				window.location.href = urlToCheck
-			}
-		})
-		.catch(error => {
-
-			console.error(error)
-		});
 </script>
 
 <style>

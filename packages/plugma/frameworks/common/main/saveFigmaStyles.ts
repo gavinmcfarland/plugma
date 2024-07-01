@@ -5,14 +5,14 @@ function saveFigmaStyles() {
   ) {
     figma.ui.on("message", async (msg) => {
       if (msg.event === "save-figma-stylesheet") {
-        figma.clientStorage.setAsync("figma-stylesheet", msg.styles);
+        figma.clientStorage.setAsync("figma-stylesheet", msg.data);
       }
       if (msg.event === "get-figma-stylesheet") {
         console.log("pass figma styles");
-        let styles = await figma.clientStorage.getAsync("figma-stylesheet");
+        let data = await figma.clientStorage.getAsync("figma-stylesheet");
         figma.ui.postMessage({
           event: "pass-figma-stylesheet",
-          styles,
+          data,
         });
       }
     });

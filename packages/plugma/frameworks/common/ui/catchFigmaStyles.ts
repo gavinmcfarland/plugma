@@ -16,7 +16,14 @@ function catchFigmaStyles() {
     // We listen for message to add figma styles during development
     const message = msg.data.pluginMessage;
     if (message && message.event === "pass-figma-stylesheet") {
-      document.styleSheets[0].insertRule(message.styles);
+      document.styleSheets[0].insertRule(message.data.styles);
+      const pluginFrame = document.documentElement;
+      console.log("pluginFrame", pluginFrame);
+      if (pluginFrame) {
+        pluginFrame.className = message.data.classes;
+        console.log(message.data);
+      }
+
       window.removeEventListener("message", onWindowMsg2);
     }
   };
