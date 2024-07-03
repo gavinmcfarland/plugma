@@ -193,6 +193,7 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 				outfile: `dist/main.js`,
 				format: 'esm',
 				bundle: true,
+				target: 'es2016',
 				define: {
 					'process.env.NODE_ENV': JSON.stringify(NODE_ENV),
 				},
