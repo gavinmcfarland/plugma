@@ -23,14 +23,15 @@ const createDirectoryContents = (templatePath, newProjectPath, answers) => {
 		if (stats.isFile()) {
 			let contents = fs.readFileSync(origFilePath, 'utf8');
 
-			let plugmaPackage = JSON.parse(fs.readFileSync(`${path.resolve(__dirname, '../../plugma/package.json')}`, 'utf8'));
+			// let plugmaPackage = JSON.parse(fs.readFileSync(`${path.resolve(__dirname, '../../plugma/package.json')}`, 'utf8'));
 
 			let comptempl = lodashTemplate(contents)
 
+			// Need to manually update versions before publishing. Need a way to automate this. Issue is that this version belongs in a different package, so this doesn't work when user runs create plugma
 			let data = Object.assign(answers, {
 				id: slugify(answers['name']),
 				versions: {
-					plugma: plugmaPackage.version
+					plugma: "0.0.26"
 				}
 			})
 
