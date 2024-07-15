@@ -14,11 +14,13 @@ function catchFigmaStyles() {
   const onWindowMsg2 = (msg) => {
     // We listen for message to add figma styles during development
     const message = msg.data.pluginMessage;
+    console.log(message);
     if (message && message.event === "pass-figma-stylesheet") {
       //   document.styleSheets[0].insertRule(message.styles);
+
       const styleSheet = document.createElement("style");
-      // styleSheet.type = "text/css";
-      styleSheet.innerText = message.styles;
+      styleSheet.type = "text/css";
+      styleSheet.innerText = message.data.styles;
 
       // Append the style tag to the head
       document.head.appendChild(styleSheet);
