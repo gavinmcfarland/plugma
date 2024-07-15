@@ -25,6 +25,14 @@ function catchFigmaStyles() {
       // Append the style tag to the head
       document.head.appendChild(styleSheet);
 
+      // Add classes from Figma
+      const pluginFrame = document.documentElement;
+      console.log("pluginFrame", pluginFrame);
+      if (pluginFrame) {
+        pluginFrame.className = message.data.classes;
+        console.log(message.data);
+      }
+
       window.removeEventListener("message", onWindowMsg2);
     }
   };
