@@ -2,6 +2,11 @@ import slugify from '@sindresorhus/slugify';
 import * as fs from 'fs';
 const CURR_DIR = process.cwd();
 import lodashTemplate from 'lodash.template'
+import path from 'path';
+import { dirname, resolve } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const createDirectoryContents = (templatePath, newProjectPath, answers) => {
 
@@ -18,7 +23,7 @@ const createDirectoryContents = (templatePath, newProjectPath, answers) => {
 		if (stats.isFile()) {
 			let contents = fs.readFileSync(origFilePath, 'utf8');
 
-			let plugmaPackage = JSON.parse(fs.readFileSync(`../plugma/package.json`, 'utf8'));
+			let plugmaPackage = JSON.parse(fs.readFileSync(`${path.resolve(__dirname, '../../plugma/package.json')}`, 'utf8'));
 
 			let comptempl = lodashTemplate(contents)
 
