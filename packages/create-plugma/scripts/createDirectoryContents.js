@@ -18,17 +18,20 @@ const createDirectoryContents = (templatePath, newProjectPath, answers) => {
 		if (stats.isFile()) {
 			let contents = fs.readFileSync(origFilePath, 'utf8');
 
-
+			let plugmaPackage = JSON.parse(fs.readFileSync(`../plugma/package.json`, 'utf8'));
 
 			let comptempl = lodashTemplate(contents)
 
 			let data = Object.assign(answers, {
-				id: slugify(answers['name'])
+				id: slugify(answers['name']),
+				versions: {
+					plugma: plugmaPackage.version
+				}
 			})
 
 			if (file === "manifest.json" ||
 				file === "package.json" ||
-				file.toUpperCase() === "READ.MD") {
+				file.toUpperCase() === "README.MD") {
 				contents = comptempl(data);
 			}
 
