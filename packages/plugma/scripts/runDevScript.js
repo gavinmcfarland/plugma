@@ -148,6 +148,7 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 				outfile: `dist/main.js`,
 				format: 'esm',
 				bundle: true,
+				target: 'es2016',
 				plugins: [{
 					name: 'rebuild-notify',
 					setup(build) {
