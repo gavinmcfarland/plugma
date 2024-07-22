@@ -8,7 +8,6 @@ function saveFigmaStyles() {
         figma.clientStorage.setAsync("figma-stylesheet", msg.data);
       }
       if (msg.event === "get-figma-stylesheet") {
-        console.log("pass figma styles");
         let data = await figma.clientStorage.getAsync("figma-stylesheet");
         figma.ui.postMessage({
           event: "pass-figma-stylesheet",

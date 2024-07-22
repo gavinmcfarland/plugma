@@ -14,7 +14,7 @@ function catchFigmaStyles() {
   const onWindowMsg2 = (msg) => {
     // We listen for message to add figma styles during development
     const message = msg.data.pluginMessage;
-    console.log(message);
+
     if (message && message.event === "pass-figma-stylesheet") {
       //   document.styleSheets[0].insertRule(message.styles);
 
@@ -27,10 +27,9 @@ function catchFigmaStyles() {
 
       // Add classes from Figma
       const pluginFrame = document.documentElement;
-      console.log("pluginFrame", pluginFrame);
+
       if (pluginFrame) {
         pluginFrame.className = message.data.classes;
-        console.log(message.data);
       }
 
       window.removeEventListener("message", onWindowMsg2);

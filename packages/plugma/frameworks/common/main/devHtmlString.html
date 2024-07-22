@@ -10,9 +10,6 @@
 	setTimeout(function () {
 		const htmlClasses = pluginFrame.className
 
-		// console.log(pluginFrame.classList, pluginFrame.className)
-		// const htmlClasses = document.documentElement.className
-		console.log("sss", htmlClasses)
 		const styleSheet = document.styleSheets[0];
 		const cssRules = styleSheet.cssRules || styleSheet.rules
 		parent.postMessage({
@@ -60,7 +57,7 @@
 
 </script>
 
-<style>
+<!-- <style>
 	:root {
 		color: var(--figma-color-text);
 		font-family: Inter, system-ui, Helvetica, Arial, sans-serif;
@@ -74,4 +71,4 @@
 		background-color: var(--figma-color-bg);
 		color: var(--figma-color-text);
 	}
-</style>
+</style> -->

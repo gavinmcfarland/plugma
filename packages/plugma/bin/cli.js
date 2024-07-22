@@ -10,7 +10,7 @@ const yargs = _yargs(hideBin(process.argv));
 yargs.scriptName("plugma")
 	.usage('Usage: $0 <cmd> [opts]')
 
-yargs.command('dev', 'Start a server to develope your plugin', function (yargs) {
+yargs.command('dev', 'Start a server to develop your plugin', function (yargs) {
 	yargs
 		.option('p', {
 			alias: 'port',

@@ -380,11 +380,18 @@ async function writeManifestFile(data, callback) {
 // 	});
 // }
 
+function getRandomNumber() {
+	const min = 3000;
+	const max = 6999;
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 // Bundle the file and start the server
 
 
 export default function cli(options) {
 
+	options.port = options.port || getRandomNumber()
 	options.port = options.port || 3000
 
 	if (options._[0] === "build") {
