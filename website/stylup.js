@@ -79,6 +79,12 @@ export const stylup = {
 	markup({ content, filename }) {
 		// phtml trips over sveltes markup attribute={handlerbars}. So this replaces those occurances with attribute="{handlebars}"
 		content = processForSvelte(content)
-		return stylupProcessor.process(content, { from: filename }).then(result => ({ code: result.html, map: null }));
+
+		let newContent = stylupProcessor.process(content, { from: filename }).then(result => {
+			console.log(result.html)
+			return ({ code: result.html, map: null })
+		})
+
+		return newContent;
 	}
 }

@@ -18,8 +18,7 @@
 		<a class="Button" href="https://github.com/gavinmcfarland/plugma">View on Github</a>
 	</div>
 
-	<div style="&:hover { color: red; }">Hello</div>
-	<div style="color: red">Hello</div>
+	<div style="color: red" class="p-2">Hello</div>
 
 	<div>
 		<h2>Usage</h2>
