@@ -1,29 +1,32 @@
 // since there's no dynamic data here, we can prerender
 // it so that it gets served as a static asset in production
 export const prerender = true;
-import { marked } from 'marked';
-import { _process, preprocess } from '../stancyPreprocess';
 
-export async function load({ fetch }) {
-	const res = await fetch(`__STANCY_SERVER__/index`);
-	// const res = await fetch(`__SERVER__/index`);
-	// const res = await fetch(`http://localhost:4001/index`);
+// import { marked } from 'marked';
+// import { _process, preprocess } from '../stancyPreprocess';
 
-	const data = await res.json();
+// function replaceRequestBody(body) {
+// 	return _process(
+// 		body,
+// 		preprocess('content', (data) => {
+// 			return marked(data);
+// 		})
+// 	);
+// }
 
-	_process(
-		data,
-		preprocess('content', (data) => {
-			return marked(data);
-		})
-	);
+// /** @type {import('./$types').PageLoad} */
 
-	if (res.ok) {
-		return data;
-	} else {
-		return {
-			status: res.status,
-			error: new Error('Could not load data')
-		};
-	}
-}
+// export async function load({ fetch }) {
+// 	const res = await fetch(`__STANCY_SERVER__/index`);
+
+// 	const data = await res.json();
+
+// 	if (res.ok) {
+// 		return replaceRequestBody(data);
+// 	} else {
+// 		return {
+// 			status: res.status,
+// 			error: new Error('Could not load data')
+// 		};
+// 	}
+// }

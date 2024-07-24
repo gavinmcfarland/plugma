@@ -12,23 +12,33 @@
 </svelte:head>
 
 <section>
-	{@html data.content}
-	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcome_fallback} alt="Welcome" />
-			</picture>
-		</span>
+	<div class="Header fullwidth">
+		<h1 class="Header_Name">Plugma</h1>
+		<p class="Header_Tagline">CLI that simplifies creating Figma plugins</p>
+		<a class="Button" href="https://github.com/gavinmcfarland/plugma">View on Github</a>
+	</div>
 
-		to your new<br />SvelteKit app
-	</h1>
+	<div style="&:hover { color: red; }">Hello</div>
+	<div style="color: red">Hello</div>
 
-	<h2>
-		try editing <strong>src/routes/+page.svelte</strong>
-	</h2>
+	<div>
+		<h2>Usage</h2>
 
-	<Counter />
+		<div>
+			{#each data.highlights as { svg, description }}
+				<div>
+					<span>
+						{@html svg}
+					</span>
+					<p>{description}</p>
+				</div>
+			{/each}
+		</div>
+	</div>
+
+	<!-- {@html data.content} -->
+
+	<!-- <Counter /> -->
 </section>
 
 <style>
