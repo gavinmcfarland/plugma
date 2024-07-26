@@ -1,0 +1,57 @@
+Elements a {
+	text-decoration: none;
+	border-bottom: 1px solid;
+	/* background-image: linear-gradient(black, black);
+	background-size: 100% 1px;
+	background-position: left bottom;
+	background-repeat: no-repeat; */
+	--text-crop-over: var(--true);
+	--text-crop-under: var(--true);
+}
+
+h1 a,
+h2 a,
+h3 a,
+h4 a,
+h5 a,
+h6 a {
+	border-bottom: none;
+}
+
+body {
+	padding-left: var(--rem-3);
+	padding-right: var(--rem-3);
+	margin: 0;
+}
+
+hr {
+	border-bottom: 1px solid;
+}
+
+code {
+	cursor: text;
+}
+
+p > code {
+	padding-left: var(--rem--2);
+	padding-right: var(--rem--2);
+	white-space: nowrap;
+}
+
+:not(p) > code {
+	border: 1px solid;
+	padding: var(--rem-1);
+	overflow-x: scroll;
+}
+
+.text-crop-none {
+	display: block;
+}
+
+.text-crop-none::before {
+	display: none;
+}
+
+.text-crop-none::after {
+	display: none;
+}

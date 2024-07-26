@@ -1,0 +1,111 @@
+/* Remove top margin from all container items by default */
+[data-grid] > * {
+	margin-top: 0;
+}
+
+[data-grid] > * > :first-child {
+	margin-top: 0;
+}
+
+[data-grid] > * > :last-child {
+	margin-bottom: 0;
+}
+
+/* [data-span]> :first-child {
+	margin-top: unset;
+} */
+
+[data-grid] {
+	display: grid;
+	/* To avoid issue with contents of grid pushing out of container when width of container smaller than content */
+	grid-template-columns: repeat(var(--cols), 100%);
+	column-gap: var(--rem-3);
+}
+
+[data-grid] > * {
+	grid-column: 1 / -1;
+	width: 100%;
+}
+
+/* ------------------------------------------------------------------------ */
+
+:root {
+	--cols: 0;
+}
+
+@media (min-width: 900px) {
+	[data-grid] {
+		--cols: 8;
+		grid-template-columns: repeat(var(--cols), 1fr);
+	}
+
+	[data-span='1'] {
+		grid-column: span 1;
+	}
+
+	[data-span='2'] {
+		grid-column: span 2;
+	}
+
+	[data-span='3'] {
+		grid-column: span 3;
+	}
+
+	[data-span='4'] {
+		grid-column: span 4;
+	}
+
+	[data-span='5'] {
+		grid-column: span 5;
+	}
+
+	[data-span='6'] {
+		grid-column: span 6;
+	}
+
+	[data-span='7'] {
+		grid-column: span 7;
+	}
+
+	[data-span='8'] {
+		grid-column: span 8;
+	}
+}
+
+/* Not supported in Chrome */
+/* [span="1/2"] {
+	grid-column: span calc(var(--cols) / 2);
+} */
+
+/* Break out of max-width */
+
+body {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.App {
+	max-width: 1400px;
+	margin-left: auto;
+	margin-right: auto;
+	padding-left: inherit;
+	padding-right: inherit;
+	box-sizing: content-box;
+
+	width: 100%;
+	flex-grow: 1;
+	flex-shrink: 0;
+}
+
+.fullwidth {
+	max-width: none !important;
+	width: 100vw;
+	box-sizing: border-box;
+	position: relative;
+	/* margin-left: calc(var(--container-margin) * -1); */
+	left: 50%;
+	transform: translate(-50vw);
+	padding-left: inherit;
+	padding-right: inherit;
+}

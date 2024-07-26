@@ -1,0 +1,210 @@
+@import 'typolize';
+@import 'typolize/theme/default';
+
+@import './reset.css';
+@import './colors.css';
+/* @import './layout.css'; */
+@import './components.css';
+@import './syntax-highlighting.css';
+
+/* Type settings */
+
+:root {
+	--font-base: 12px;
+	--font-ratio: 1.25; /* Update to font-scale-ratio? */
+	--line-ratio: 1.5; /* Update to line-height-ratio? */
+	--spacing-ratio: 1;
+}
+
+/* Font styling */
+
+:root {
+	--cap-height: 0.75;
+	--tab-size: 2;
+	--letter-spacing-body: 0;
+	--letter-spacing-heading: -0.04em;
+	--font-family-body: 'Helvetica Neue', sans-serif;
+	--font-family-heading: 'Helvetica Neue', sans-serif;
+	--font-family-code: 'Andale Mono', monospace;
+	--font-weight-heading: bold;
+}
+
+/* Typsetting */
+
+:root {
+	--font-size-body: var(--font-size-0);
+	--font-size-h1: var(--font-size-em-6);
+	--font-size-h2: var(--font-size-em-4);
+	--font-size-h3: var(--font-size-em-2);
+	--font-size-h4: var(--font-size-em-0);
+	--font-size-h5: var(--font-size-em-0);
+	--font-size-h6: var(--font-size-em-0);
+	--font-size-blockquote: var(--font-size-body);
+	--font-size-small: var(--font-size--1);
+
+	--border-color-code: grey;
+
+	--text-gap: var(--em-1);
+}
+
+* {
+	font-size: var(--font-size-1);
+}
+
+/* Leading Trimming */
+
+h1,
+h2,
+h3,
+h4,
+blockquote,
+p {
+	--leading-trim: ''; /* comment out to disable */
+}
+
+code::before {
+	display: none;
+}
+
+code::after {
+	display: none;
+}
+
+/* Text Spacing */
+
+* + * {
+	margin-top: var(--em-0);
+}
+
+html,
+body,
+section,
+div,
+a {
+	margin-top: unset;
+	margin-bottom: unset;
+}
+
+hr {
+	margin-top: var(--rem-5);
+	margin-bottom: var(--rem-5);
+}
+
+h1 {
+	--text-gap: var(--em-1);
+	margin-top: calc(0.5 * var(--text-gap));
+	margin-bottom: var(--em-0);
+}
+
+h2,
+h3,
+h4,
+h5 {
+	--text-gap: var(--em-2);
+	margin-top: var(--text-gap);
+	margin-bottom: var(--em-0);
+}
+
+h6 {
+	margin-top: var(--em-2);
+}
+
+/* Spacing */
+
+* + * {
+	margin-top: var(--self-text-gap, var(--text-gap));
+}
+
+a,
+body,
+html,
+section,
+svg {
+	margin-top: unset;
+	margin-bottom: unset;
+}
+
+.margin-trim-block {
+	margin-trim: block;
+}
+.margin-trim-block > :first-child,
+.margin-trim-block > * > :first-child,
+.margin-trim-block > * > :first-child > :not(div):first-child {
+	margin-top: unset;
+}
+
+/* Text gap */
+
+[class^='text-gap'] > *,
+[class*=' text-gap'] > * {
+	margin-bottom: unset;
+}
+
+.text-gap-none > * {
+	--text-gap: 0;
+}
+
+.text-gap-0 > * {
+	--text-gap: var(--em-0);
+}
+
+.text-gap-1 > * {
+	--text-gap: var(--em-1);
+}
+
+.text-gap-2 > * {
+	--text-gap: var(--em-2);
+}
+
+.text-gap-3 > * {
+	--text-gap: var(--em-3);
+}
+
+.text-gap-4 > * {
+	--text-gap: var(--em-4);
+}
+
+.text-gap-5 > * {
+	--text-gap: var(--em-5);
+}
+
+.self-text-gap-none {
+	--self-text-gap: 0;
+}
+
+.self-text-gap-1 {
+	--self-text-gap: 1rem;
+}
+
+.self-text-gap-2 {
+	--self-text-gap: 3rem;
+}
+
+.self-text-gap-3 {
+	--self-text-gap: 3rem;
+}
+
+.self-text-gap-4 {
+	--self-text-gap: 4rem;
+}
+
+.self-text-gap-5 {
+	--self-text-gap: 5rem;
+}
+
+/* Code component */
+
+code {
+	padding: var(--em-0);
+	cursor: text;
+}
+
+p > code {
+	padding-left: var(--rem--2);
+	padding-right: var(--rem--2);
+	white-space: nowrap;
+}
+
+pre code {
+	border: 1px solid var(--border-color);
+}

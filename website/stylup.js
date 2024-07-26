@@ -81,7 +81,7 @@ export const stylup = {
 		content = processForSvelte(content)
 
 		let newContent = stylupProcessor.process(content, { from: filename }).then(result => {
-			console.log(result.html)
+			// console.log(result.html)
 			return ({ code: result.html, map: null })
 		})
 
