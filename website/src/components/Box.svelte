@@ -18,7 +18,13 @@
 		'borderRight',
 		'borderTop',
 		'padding',
-		'margin'
+		'paddingTop',
+		'paddingBottom',
+		'paddingLeft',
+		'paddingRight',
+		'margin',
+		'maxWidth',
+		'gap'
 	];
 
 	let props: { [key: string]: string } = {};

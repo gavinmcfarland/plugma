@@ -13,7 +13,7 @@
 	export let lang;
 	export let text;
 
-	$: html_now = hljs.highlight(text, { language: lang }).value;
+	$: html_now = hljs.highlight(text, { language: 'bash' }).value;
 
 	onMount(() => {
 		document.addEventListener('DOMContentLoaded', (event) => {
@@ -26,17 +26,25 @@
 	  {@html github}
   </svelte:head> -->
 
-<!-- <pre><code>{@html html_now}</code></pre> -->
+<pre><code>{@html html_now}</code></pre>
 
-<pre class="host"><code class="language-{lang}">{@html html_now}</code></pre>
+<!-- <pre class="host"><code class={lang}>{@html html_now}</code></pre> -->
 
-<style>
-	/* .host {
-		border: 1px solid var(--border-color);
-		border-radius: 4px;
-	}
-
+<style global>
 	code {
 		padding: var(--em-0);
-	} */
+		cursor: text;
+	}
+
+	p > code {
+		padding-left: var(--rem--2);
+		padding-right: var(--rem--2);
+		white-space: nowrap;
+	}
+
+	div code,
+	pre code {
+		border: 1px solid var(--border-color-tertiary);
+		border-radius: 2px;
+	}
 </style>

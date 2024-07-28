@@ -43,3 +43,7 @@ a {
 img {
 	height: auto;
 }
+
+small * {
+	font-size: inherit;
+}

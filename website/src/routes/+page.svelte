@@ -6,6 +6,9 @@
 	import Code from '../components/Code.svelte';
 	import Box from '../components/Box.svelte';
 	import Icon from '../components/Icon.svelte';
+	import FolderDiagram from '../components/FolderDiagram.svelte';
+	import File from '../components/File.svelte';
+	import Folder from '../components/Folder.svelte';
 
 	export let data;
 </script>
@@ -15,95 +18,106 @@
 	<meta name="description" content="Svelte demo app" />
 </svelte:head>
 
-<section>
-	<div class="Header fullwidth">
-		<div style="text-align: center">
-			<h1>Plugma</h1>
-			<p class="Header_Tagline">Simplify Figma plugin development</p>
-			<!-- <a class="Button" href="https://github.com/gavinmcfarland/plugma">View on Github</a> -->
-		</div>
-		<Box display="grid" gridTemplateColumns="repeat(9, 1fr)">
-			<Box
-				display="flex"
-				alignItems="center"
-				justifyContent="center"
-				flexDirection="column"
-				gridColumn="span 3">
-				<Icon icon="folder" size={100} />
-
-				<p>
-					Just works, out of the box. No need to worry about inlining all the files. TypeScript
-					supported.
-				</p>
-			</Box>
-			<Box
-				display="flex"
-				alignItems="center"
-				justifyContent="center"
-				flexDirection="column"
-				gridColumn="span 3">
-				<Icon icon="small-globe" size={100} />
-
-				<p>
-					Faster development and better debugging. Avoids the need to build to view every change.
-				</p>
-			</Box>
-			<Box
-				display="flex"
-				alignItems="center"
-				justifyContent="center"
-				flexDirection="column"
-				gridColumn="span 3">
-				<Icon icon="frame" size={100} />
-
-				<p>
-					Built on the back of Vite. Works with most frameworks and supports lots of Vite and Rolup
-					plugins.
-				</p>
-			</Box>
-		</Box>
+<div class="Header fullwidth">
+	<div style="text-align: center">
+		<h1>Plugma</h1>
+		<p class="Header_Tagline">Create Figma plugins without the boilerplate</p>
+		<!-- <a class="Button" href="https://github.com/gavinmcfarland/plugma">View on Github</a> -->
 	</div>
+</div>
 
-	<hr />
+<hr />
 
-	<Box element="section" display="grid" gridTemplateColumns="repeat(8, 1fr)" padding="var(--rem-2)">
-		<h2 style:grid-column="span 3">Getting started</h2>
-		<Box gridColumn="span 5">{@html data.features.content}</Box>
-	</Box>
+<Box display="flex" flexDirection="column" alignItems="center">
+	<Box display="grid" gridTemplateColumns="repeat(26, 1fr)" gap="var(--em--1)" maxWidth="1200px">
+		<Box
+			border="1px solid var(--border-color-tertiary)"
+			element="section"
+			display="grid"
+			padding="var(--rem-4) 0"
+			flexDirection="column"
+			justifyContent="center"
+			alignItems="center"
+			gap="var(--em-0)"
+			gridTemplateColumns="subgrid"
+			gridColumn="span 26">
+			<!-- <Box gridColumn="span 5">{@html data.features.content}</Box> -->
+			<Box gridColumn="10 /span 10">
+				{@html data['get-started'].content}
+			</Box>
+		</Box>
 
-	<hr />
+		<Box display="grid" gridTemplateColumns="subgrid" gridColumn="span 26">
+			<Box
+				border="1px solid var(--border-color-tertiary)"
+				element="section"
+				display="grid"
+				justifyContent="center"
+				gap="var(--em-0)"
+				gridColumn="span 14"
+				gridTemplateColumns="subgrid"
+				padding="var(--rem-4) 0">
+				<!-- <Box gridColumn="span 5">{@html data.features.content}</Box> -->
+				<Box gridColumn="span 5"><h2 style="margin-left: var(--em-0); margin-top: 0;">Dev</h2></Box>
+				<Box gridColumn="span 7">
+					{@html data['developing'].content}
+				</Box>
+			</Box>
 
-	<Box element="section" display="grid" gridTemplateColumns="repeat(8, 1fr)" padding="var(--rem-2)">
-		<h2 style:grid-column="span 3">Development</h2>
-		<Box gridColumn="span 5">
-			<p>Develop locally and preview your plugin UI in any browser</p>
-			<Code
-				lang="shell"
-				text="npm run dev
+			<Box
+				border="1px solid var(--border-color-tertiary)"
+				element="section"
+				display="grid"
+				padding="var(--rem-4) 0"
+				justifyContent="center"
+				gap="var(--em-0)"
+				gridColumn="span 12"
+				gridTemplateColumns="subgrid">
+			</Box>
+		</Box>
 
-Plugma v0.0.29
+		<Box
+			border="1px solid var(--border-color-tertiary)"
+			element="section"
+			display="grid"
+			gridTemplateColumns="subgrid"
+			padding="var(--rem-4) 0"
+			justifyContent="center"
+			gridColumn="span 26">
+			<!-- <Box gridColumn="span 5">{@html data.features.content}</Box> -->
+			<Box gridColumn="span 9"
+				><h2 style="margin-left: var(--em-0); margin-top: 0;">Folder structure</h2></Box>
+			<Box gridColumn="span 10">
+				<FolderDiagram>
+					<Folder name="my-app">
+						<Folder name="dist/" />
+						<Folder name="src/">
+							<File name="code.ts" />
+							<File name="ui.ts" />
+							<File name="styles.css" />
+						</Folder>
+						<File name="README.md" />
+						<File name="package.json" />
+						<File name="tsconfig.js" />
+						<File name="vite.config.js" />
+					</Folder>
+				</FolderDiagram>
+			</Box>
+		</Box>
 
-ui.html file created!
-manifest.json file created!
-main.js file created!
-
-Preview: http://localhost:3123/" />
-			<p>Open the Figma desktop app and import the plugin</p>
-			<Code lang="bash" text="npm run dev -- -p 4000" />
+		<Box
+			border="1px solid var(--border-color-tertiary)"
+			element="section"
+			display="grid"
+			gridTemplateColumns="subgrid"
+			padding="var(--rem-4) 0"
+			justifyContent="center"
+			gridColumn="span 26">
+			<!-- <Box gridColumn="span 5">{@html data.features.content}</Box> -->
+			<Box gridColumn="span 9"><h2 style="margin-left: var(--em-0); margin-top: 0;">Build</h2></Box>
+			<Box gridColumn="span 10">
+				{@html data['building'].content}
+			</Box>
 		</Box>
 	</Box>
-
-	<hr />
-
-	<Box element="section" display="grid" gridTemplateColumns="repeat(8, 1fr)" padding="var(--rem-2)">
-		<h2 style:grid-column="span 3">Build</h2>
-		<Box gridColumn="span 5">
-			<p>Create a build before publishing</p>
-			<Code lang="bash" text="npm run build" />
-			<p>Watch for changes while building</p>
-			<Code lang="bash" text="npm run build -- -w" />
-			<p>Inject plugin version data on build</p>
-			<Code lang="bash" text="npm run build -- -i" />
-		</Box>
-	</Box>
-</section>
+</Box>

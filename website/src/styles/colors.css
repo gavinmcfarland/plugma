@@ -15,9 +15,20 @@
 	--black15: rgba(0, 0, 0, 0.15);
 	--white15: rgba(255, 255, 255, 0.15);
 
+	--black25: rgba(0, 0, 0, 0.25);
+	--white25: rgba(255, 255, 255, 0.25);
+
 	--color: var(--black);
 	--background-color: var(--dark);
 	--border-color: var(--black15);
+
+	--text-color-secondary: rgba(0, 0, 0, 0.7);
+
+	--border-color-tertiary: var(--black15);
+
+	/* Used by filediagram */
+	--border: var(--border-color);
+	--gradient: linear-gradient(var(--border), var(--border));
 }
 
 @media (prefers-color-scheme: dark) {
@@ -25,6 +36,8 @@
 		background-color: var(--black);
 		color: var(--white);
 		--border-color: var(--white);
+		--border-color-tertiary: var(--white25);
+		--text-color-secondary: rgba(255, 255, 255, 0.7);
 	}
 	a {
 		color: var(--white);
@@ -40,6 +53,8 @@
 		background-color: var(--white);
 		color: var(--black);
 		--border-color: var(--black);
+		--border-color-tertiary: var(--black25);
+		--text-color-secondary: rgba(0, 0, 0, 0.7);
 	}
 	a {
 		color: var(--black);

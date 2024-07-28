@@ -109,6 +109,13 @@ h6 {
 	margin-top: var(--em-2);
 }
 
+/* Text Colors */
+
+p,
+code {
+	color: var(--text-color-secondary);
+}
+
 /* Spacing */
 
 * + * {
@@ -190,21 +197,4 @@ svg {
 
 .self-text-gap-5 {
 	--self-text-gap: 5rem;
-}
-
-/* Code component */
-
-code {
-	padding: var(--em-0);
-	cursor: text;
-}
-
-p > code {
-	padding-left: var(--rem--2);
-	padding-right: var(--rem--2);
-	white-space: nowrap;
-}
-
-pre code {
-	border: 1px solid var(--border-color);
 }
