@@ -26,7 +26,7 @@
 	--font-family-body: 'Helvetica Neue', sans-serif;
 	--font-family-heading: 'Helvetica Neue', sans-serif;
 	--font-family-code: 'Andale Mono', monospace;
-	--font-weight-heading: bold;
+	--font-weight-heading: 500;
 }
 
 /* Typsetting */
@@ -34,7 +34,7 @@
 :root {
 	--font-size-body: var(--font-size-0);
 	--font-size-h1: var(--font-size-em-6);
-	--font-size-h2: var(--font-size-em-4);
+	--font-size-h2: var(--font-size-em-3);
 	--font-size-h3: var(--font-size-em-2);
 	--font-size-h4: var(--font-size-em-0);
 	--font-size-h5: var(--font-size-em-0);

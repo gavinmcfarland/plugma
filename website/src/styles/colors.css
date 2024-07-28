@@ -21,6 +21,7 @@
 	--color: var(--black);
 	--background-color: var(--dark);
 	--border-color: var(--black15);
+	--bg-color-raised: rgba(255, 255, 255, 0.1);
 
 	--text-color-secondary: rgba(0, 0, 0, 0.7);
 

@@ -9,6 +9,7 @@
 	import FolderDiagram from '../components/FolderDiagram.svelte';
 	import File from '../components/File.svelte';
 	import Folder from '../components/Folder.svelte';
+	import Info from '../components/Info.svelte';
 
 	export let data;
 </script>
@@ -40,7 +41,8 @@
 			alignItems="center"
 			gap="var(--em-0)"
 			gridTemplateColumns="subgrid"
-			gridColumn="span 26">
+			gridColumn="span 26"
+			borderRadius="2px">
 			<!-- <Box gridColumn="span 5">{@html data.features.content}</Box> -->
 			<Box gridColumn="10 /span 10">
 				{@html data['get-started'].content}
@@ -56,9 +58,10 @@
 				gap="var(--em-0)"
 				gridColumn="span 14"
 				gridTemplateColumns="subgrid"
-				padding="var(--rem-4) 0">
+				padding="var(--rem-4) 0"
+				borderRadius="2px">
 				<!-- <Box gridColumn="span 5">{@html data.features.content}</Box> -->
-				<Box gridColumn="span 5"><h2 style="margin-left: var(--em-0); margin-top: 0;">Dev</h2></Box>
+				<Box gridColumn="span 5"><h2 style="margin-left: var(--em-1); margin-top: 0;">Dev</h2></Box>
 				<Box gridColumn="span 7">
 					{@html data['developing'].content}
 				</Box>
@@ -72,7 +75,8 @@
 				justifyContent="center"
 				gap="var(--em-0)"
 				gridColumn="span 12"
-				gridTemplateColumns="subgrid">
+				gridTemplateColumns="subgrid"
+				borderRadius="2px">
 			</Box>
 		</Box>
 
@@ -83,10 +87,11 @@
 			gridTemplateColumns="subgrid"
 			padding="var(--rem-4) 0"
 			justifyContent="center"
-			gridColumn="span 26">
+			gridColumn="span 26"
+			borderRadius="2px">
 			<!-- <Box gridColumn="span 5">{@html data.features.content}</Box> -->
-			<Box gridColumn="span 9"
-				><h2 style="margin-left: var(--em-0); margin-top: 0;">Folder structure</h2></Box>
+			<Box gridColumn="span 7"
+				><h2 style="margin-left: var(--em-1); margin-top: 0;">Folder structure</h2></Box>
 			<Box gridColumn="span 10">
 				<FolderDiagram>
 					<Folder name="my-app">
@@ -103,6 +108,10 @@
 					</Folder>
 				</FolderDiagram>
 			</Box>
+
+			<Box gridColumn="20 / span 5">
+				<Info>Only the folders and files you need. Customise their names and locations.</Info>
+			</Box>
 		</Box>
 
 		<Box
@@ -112,9 +121,10 @@
 			gridTemplateColumns="subgrid"
 			padding="var(--rem-4) 0"
 			justifyContent="center"
-			gridColumn="span 26">
+			gridColumn="span 26"
+			borderRadius="2px">
 			<!-- <Box gridColumn="span 5">{@html data.features.content}</Box> -->
-			<Box gridColumn="span 9"><h2 style="margin-left: var(--em-0); margin-top: 0;">Build</h2></Box>
+			<Box gridColumn="span 9"><h2 style="margin-left: var(--em-1); margin-top: 0;">Build</h2></Box>
 			<Box gridColumn="span 10">
 				{@html data['building'].content}
 			</Box>

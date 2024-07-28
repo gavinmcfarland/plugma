@@ -17,6 +17,7 @@
 		'borderLeft',
 		'borderRight',
 		'borderTop',
+		'borderRadius',
 		'padding',
 		'paddingTop',
 		'paddingBottom',
