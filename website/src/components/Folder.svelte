@@ -10,7 +10,7 @@
 	}
 </script>
 
-<li class={open ? 'open' : ''}>
+<li class={open ? 'open' : ''} draggable="true">
 	<span>
 		{#if open}
 			<Icon color="#42AD00" size={12} strokeWidth={2} svg="folder" />

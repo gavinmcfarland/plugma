@@ -4,7 +4,9 @@
 	export let name;
 </script>
 
-<li><span><Icon color="#42AD00" size={12} strokeWidth={2} svg="file" />{name}</span></li>
+<li draggable="true">
+	<span><Icon color="#42AD00" size={12} strokeWidth={2} svg="file" />{name}</span>
+</li>
 
 <style>
 	li {
