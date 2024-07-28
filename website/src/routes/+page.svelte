@@ -94,7 +94,7 @@
 				><h2 style="margin-left: var(--em-1); margin-top: 0;">Folder structure</h2></Box>
 			<Box gridColumn="span 10">
 				<FolderDiagram>
-					<Folder name="my-app">
+					<Folder name="my-plugin/">
 						<Folder name="dist/" />
 						<Folder name="src/">
 							<File name="code.ts" />
@@ -110,7 +110,8 @@
 			</Box>
 
 			<Box gridColumn="20 / span 5">
-				<Info>Only the folders and files you need. Customise their names and locations.</Info>
+				<Info>
+					<p>Only the folders and files you need. Customise their names and locations.</p></Info>
 			</Box>
 		</Box>
 

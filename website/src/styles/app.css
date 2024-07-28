@@ -10,7 +10,7 @@
 /* Type settings */
 
 :root {
-	--font-base: 12px;
+	--font-base: 14px;
 	--font-ratio: 1.25; /* Update to font-scale-ratio? */
 	--line-ratio: 1.5; /* Update to line-height-ratio? */
 	--spacing-ratio: 1;
@@ -48,7 +48,7 @@
 }
 
 * {
-	font-size: var(--font-size-1);
+	font-size: var(--font-size-0);
 }
 
 /* Leading Trimming */

@@ -13,9 +13,9 @@
 <li class={open ? 'open' : ''}>
 	<span>
 		{#if open}
-			<Icon color="#42AD00" strokeWidth={2.5} svg="folder" />
+			<Icon color="#42AD00" size={12} strokeWidth={2} svg="folder" />
 		{:else}
-			<Icon color="#42AD00" strokeWidth={2.5} svg="folder-open" />
+			<Icon color="#42AD00" size={12} strokeWidth={2} svg="folder-open" />
 		{/if}
 		<span>{name}</span>
 	</span>
