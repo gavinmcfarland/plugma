@@ -1,16 +1,83 @@
-<script>
+<script context="module">
+	const folders = {};
+
+	export function getFolder(id = '') {
+		return folders[id];
+	}
+</script>
+
+<script lang="ts">
+	import { onMount } from 'svelte';
 	import Icon from './Icon.svelte';
 
 	export let name;
+	export let id = '';
+	let item;
 
 	let open = false;
 
 	if ($$slots.default) {
 		open = true;
 	}
+
+	// onMount(() => {
+	// 	var dragSrcEl = null;
+
+	// 	function handleDragEnd(e) {
+	// 		this.style.opacity = '1';
+	// 		item.classList.remove('over');
+	// 	}
+
+	// 	function handleDragOver(e) {
+	// 		// console.log(e);
+	// 		e.preventDefault();
+	// 		return false;
+	// 	}
+
+	// 	function handleDragEnter(e) {
+	// 		this.classList.add('over');
+	// 	}
+
+	// 	function handleDragLeave(e) {
+	// 		this.classList.remove('over');
+	// 	}
+
+	// 	function handleDrop(e) {
+	// 		e.stopPropagation();
+
+	// 		if (dragSrcEl !== this) {
+	// 			dragSrcEl.innerHTML = this.innerHTML;
+	// 			this.innerHTML = e.dataTransfer.getData('text/html');
+	// 		}
+
+	// 		return false;
+	// 	}
+
+	// 	function handleDragStart(e) {
+	// 		this.style.opacity = '0.4';
+
+	// 		dragSrcEl = this;
+
+	// 		e.dataTransfer.effectAllowed = 'move';
+	// 		e.dataTransfer.setData('text/html', this.innerHTML);
+	// 	}
+
+	// 	item.addEventListener('dragstart', handleDragStart);
+	// 	item.addEventListener('dragover', handleDragOver);
+	// 	item.addEventListener('dragenter', handleDragEnter);
+	// 	item.addEventListener('dragleave', handleDragLeave);
+	// 	item.addEventListener('dragend', handleDragEnd);
+	// 	item.addEventListener('drop', handleDrop);
+	// });
+
+	// let items = document.querySelectorAll('.container .box');
+
+	// items.forEach(function (item) {
+	//
+	// });
 </script>
 
-<li class={open ? 'open' : ''} draggable="true">
+<li bind:this={item} class={open ? 'open' : ''} draggable="true">
 	<span>
 		{#if open}
 			<Icon color="#42AD00" size={12} strokeWidth={2} svg="folder" />
@@ -39,6 +106,7 @@
 
 	li {
 		position: relative;
+		cursor: move;
 	}
 
 	ul {
@@ -60,6 +128,10 @@
 		margin-left: calc(-01 * var(--em-2) + (12px / 2) - 1px);
 		padding: 0;
 		border-left: 1px solid var(--border-color-tertiary);
+	}
+
+	:global(li.over) {
+		background-color: red;
 	}
 
 	li::after {

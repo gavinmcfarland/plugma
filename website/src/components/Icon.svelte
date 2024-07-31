@@ -9,54 +9,6 @@
 </script>
 
 <div class="Icon">
-	{#if svg === 'star'}
-		<svg
-			style:width={sizePx}
-			style:height={sizePx}
-			viewBox="0 0 24 24"
-			fill="none"
-			xmlns="http://www.w3.org/2000/svg">
-			<path
-				fill-rule="evenodd"
-				clip-rule="evenodd"
-				d="M14.2368 10.0591L12.5322 5.88821L11.9904 4.56252L11.4526 5.88982L9.76316 10.0591H5.29381H3.5L4.98921 11.0591L8.75686 13.5891L7.28415 17.8413L6.73132 19.4375L8.12181 18.4783L11.9904 15.8095L15.8591 18.4783L17.2496 19.4375L16.6967 17.8413L15.224 13.5891L19.0054 11.0591L20.5 10.0591H18.7017H14.2368ZM17.2071 11.0591H14.2368H13.5652L13.3112 10.4374L11.9944 7.21551L10.69 10.4347L10.4369 11.0591H9.76316H6.78302L9.31433 12.7589L9.95392 13.1884L9.70179 13.9164L8.67465 16.8821L11.4226 14.9864L11.9904 14.5947L12.5583 14.9864L15.3062 16.8821L14.2791 13.9164L14.0265 13.1871L14.668 12.758L17.2071 11.0591Z"
-				fill={color}
-				fill-opacity={opacity} />
-		</svg>
-	{/if}
-
-	{#if svg === 'frame'}
-		<svg
-			style:width={sizePx}
-			style:height={sizePx}
-			viewBox="0 0 16 16"
-			fill="none"
-			xmlns="http://www.w3.org/2000/svg">
-			<path
-				fill-rule="evenodd"
-				clip-rule="evenodd"
-				d="M6 2.5V3V5H10V3V2.5H11V3V5H13H13.5V6H13H11L11 10H13H13.5V11H13H11V13V13.5H10V13V11H6V13V13.5H5V13V11H3H2.5V10H3H5L5 6H3H2.5V5H3H5V3V2.5H6ZM10 10V6H6L6 10H10Z"
-				fill={color}
-				fill-opacity={opacity} />
-		</svg>
-	{/if}
-
-	{#if svg === 'small-globe'}
-		<svg
-			style:width={sizePx}
-			style:height={sizePx}
-			viewBox="0 0 16 16"
-			fill="none"
-			xmlns="http://www.w3.org/2000/svg">
-			<path
-				fill-rule="evenodd"
-				clip-rule="evenodd"
-				d="M5.92695 8.5C5.98052 9.79492 6.23995 10.9445 6.62557 11.7576C5.24377 11.252 4.21875 10.006 4.03095 8.5H5.92695ZM6.92788 8.5C6.97621 9.57037 7.17673 10.4952 7.44994 11.1509C7.60831 11.531 7.77144 11.7733 7.90146 11.9053C7.94585 11.9503 7.97869 11.9754 8 11.9891C8.02131 11.9754 8.05415 11.9503 8.09854 11.9053C8.22856 11.7733 8.39169 11.531 8.55006 11.1509C8.82327 10.4952 9.02379 9.57037 9.07212 8.5H6.92788ZM9.07212 7.5H6.92788C6.97621 6.42963 7.17673 5.50477 7.44994 4.84908C7.60831 4.469 7.77144 4.2267 7.90146 4.09471C7.94585 4.04965 7.97869 4.02455 8 4.01095C8.02131 4.02455 8.05415 4.04965 8.09854 4.09471C8.22856 4.2267 8.39169 4.469 8.55006 4.84908C8.82327 5.50477 9.02379 6.42963 9.07212 7.5ZM10.073 8.5C10.0195 9.79492 9.76005 10.9445 9.37443 11.7576C10.7562 11.252 11.7813 10.006 11.9691 8.5H10.073ZM11.9691 7.5H10.073C10.0195 6.20508 9.76006 5.05549 9.37443 4.24239C10.7562 4.74795 11.7813 5.99397 11.9691 7.5ZM5.92695 7.5H4.03095C4.21875 5.99397 5.24377 4.74795 6.62557 4.24239C6.23994 5.05549 5.98052 6.20508 5.92695 7.5ZM13 8C13 5.23858 10.7614 3 8 3C5.23858 3 3 5.23858 3 8C3 10.7614 5.23858 13 8 13C10.7614 13 13 10.7614 13 8Z"
-				fill={color}
-				fill-opacity={opacity} />
-		</svg>
-	{/if}
-
 	{#if svg === 'folder'}
 		<svg
 			style:width={sizePx}
@@ -114,11 +66,122 @@
 			</defs>
 		</svg>
 	{/if}
+
+	{#if svg === 'box'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg">
+			<g clip-path="url(#clip0_474_5467)">
+				<path
+					d="M2.252 6.75101H21.752C21.752 6.75101 23.252 6.75101 23.252 8.25101V21.751C23.252 21.751 23.252 23.251 21.752 23.251H2.252C2.252 23.251 0.752001 23.251 0.752001 21.751V8.25101C0.752001 8.25101 0.752001 6.75101 2.252 6.75101Z"
+					stroke={color}
+					stroke-opacity={opacity}
+					stroke-width={strokeWidth}
+					stroke-linecap="round"
+					stroke-linejoin="round" />
+				<path
+					d="M0.954 7.50001L3.354 1.64101C3.47212 1.37566 3.66474 1.1503 3.90846 0.992316C4.15219 0.834328 4.43655 0.750499 4.727 0.751009H19.277C19.5672 0.750973 19.8512 0.835131 20.0946 0.993281C20.3379 1.15143 20.5302 1.37678 20.648 1.64201L22.991 7.40701"
+					stroke={color}
+					stroke-opacity={opacity}
+					stroke-width={strokeWidth}
+					stroke-linecap="round"
+					stroke-linejoin="round" />
+				<path
+					d="M12.002 6.75101V0.751007"
+					stroke={color}
+					stroke-opacity={opacity}
+					stroke-width={strokeWidth}
+					stroke-linecap="round"
+					stroke-linejoin="round" />
+			</g>
+			<defs>
+				<clipPath id="clip0_474_5467">
+					<rect width="24" height="24" fill="white" />
+				</clipPath>
+			</defs>
+		</svg>
+	{/if}
+
+	{#if svg === 'data-transfer-square'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg">
+			<g clip-path="url(#clip0_474_5515)">
+				<path
+					d="M15.75 12.75L9.75 18.75"
+					stroke={color}
+					stroke-opacity={opacity}
+					stroke-width={strokeWidth}
+					stroke-linecap="round"
+					stroke-linejoin="round" />
+				<path
+					d="M14.25 18.75H9.75V14.25"
+					stroke={color}
+					stroke-opacity={opacity}
+					stroke-width={strokeWidth}
+					stroke-linecap="round"
+					stroke-linejoin="round" />
+				<path
+					d="M8.25 11.25L14.25 5.25"
+					stroke={color}
+					stroke-opacity={opacity}
+					stroke-width={strokeWidth}
+					stroke-linecap="round"
+					stroke-linejoin="round" />
+				<path
+					d="M9.75 5.25H14.25V9.75"
+					stroke={color}
+					stroke-opacity={opacity}
+					stroke-width={strokeWidth}
+					stroke-linecap="round"
+					stroke-linejoin="round" />
+				<path
+					d="M3.75 0.75H20.25C20.25 0.75 23.25 0.75 23.25 3.75V20.25C23.25 20.25 23.25 23.25 20.25 23.25H3.75C3.75 23.25 0.75 23.25 0.75 20.25V3.75C0.75 3.75 0.75 0.75 3.75 0.75Z"
+					stroke={color}
+					stroke-opacity={opacity}
+					stroke-width={strokeWidth}
+					stroke-linecap="round"
+					stroke-linejoin="round" />
+			</g>
+			<defs>
+				<clipPath id="clip0_474_5515">
+					<rect width="24" height="24" fill="white" />
+				</clipPath>
+			</defs>
+		</svg>
+	{/if}
+
+	{#if svg === 'vite-logo'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 22"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg">
+			<path
+				d="M8.5 3.52027L2.12837 2.38281C1.68044 2.30284 1.34242 2.78104 1.56784 3.17583L11.6367 20.8106C11.8436 21.1729 12.3673 21.1707 12.5711 20.8067L22.4442 3.17413C22.6656 2.77857 22.326 2.30407 21.8796 2.38534L17.7837 3.13094"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round" />
+			<path
+				d="M15.4748 1.73764L10.6102 2.70868C10.5302 2.72464 10.4711 2.79366 10.4662 2.8765L10.167 9.02499C10.16 9.14626 10.2693 9.24038 10.3855 9.21308L11.7398 8.89467C11.8665 8.8649 11.981 8.97859 11.955 9.10841L11.5526 11.1157C11.5255 11.2508 11.65 11.3663 11.7795 11.3262L12.6161 11.0673C12.7457 11.0272 12.8704 11.143 12.8429 11.2783L12.2035 14.4312C12.1635 14.6284 12.421 14.736 12.5284 14.5669L12.6001 14.454L16.564 6.3952C16.6304 6.26027 16.5159 6.10641 16.3704 6.13501L14.9764 6.40911C14.8453 6.43484 14.7339 6.31055 14.7709 6.17998L15.6808 1.96666C15.7178 1.83586 15.6059 1.71147 15.4748 1.73764Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth} />
+		</svg>
+	{/if}
 </div>
 
 <style>
 	.Icon {
-		display: flex;
+		display: table;
 	}
 
 	svg {

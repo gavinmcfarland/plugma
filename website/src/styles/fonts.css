@@ -1,0 +1,13 @@
+@font-face {
+	font-family: 'Akkurat TT';
+	src: url('fonts/lineto-akkurat-light.ttf') format('truetype');
+	font-weight: light;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Akkurat TT';
+	src: url('fonts/lineto-akkurat-regular.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}

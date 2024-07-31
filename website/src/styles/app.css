@@ -2,6 +2,7 @@
 @import 'typolize/theme/default';
 
 @import './reset.css';
+@import './fonts.css';
 @import './colors.css';
 /* @import './layout.css'; */
 @import './components.css';
@@ -11,7 +12,7 @@
 
 :root {
 	--font-base: 14px;
-	--font-ratio: 1.25; /* Update to font-scale-ratio? */
+	--font-ratio: 1.225; /* Update to font-scale-ratio? */
 	--line-ratio: 1.5; /* Update to line-height-ratio? */
 	--spacing-ratio: 1;
 }
@@ -24,7 +25,7 @@
 	--letter-spacing-body: 0;
 	--letter-spacing-heading: -0.04em;
 	--font-family-body: 'Helvetica Neue', sans-serif;
-	--font-family-heading: 'Helvetica Neue', sans-serif;
+	--font-family-heading: Akkurat-Regular, 'Helvetica Neue', sans-serif;
 	--font-family-code: 'Andale Mono', monospace;
 	--font-weight-heading: 500;
 }
@@ -58,16 +59,18 @@ h2,
 h3,
 h4,
 blockquote,
-p {
-	--leading-trim: ''; /* comment out to disable */
+p,
+code {
+	--leading-trim: '';
+	display: flow-root;
 }
 
 code::before {
-	display: none;
+	/* display: none; */
 }
 
 code::after {
-	display: none;
+	/* display: none; */
 }
 
 /* Text Spacing */
@@ -197,4 +200,9 @@ svg {
 
 .self-text-gap-5 {
 	--self-text-gap: 5rem;
+}
+
+body {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cg opacity='0.45'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M24 23H23V24H24V23ZM24 47H23V48H24V47ZM47 23H48V24H47V23ZM48 47H47V48H48V47Z' fill='currentColor'%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
+	background-repeat: repeat;
 }

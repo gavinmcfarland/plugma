@@ -15,6 +15,7 @@
 		margin-top: 0;
 		list-style: none;
 		/* padding-left: var(--em-2); */
+		cursor: move;
 	}
 
 	li::after {
