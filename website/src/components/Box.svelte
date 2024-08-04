@@ -25,7 +25,9 @@
 		'paddingRight',
 		'margin',
 		'maxWidth',
-		'gap'
+		'gap',
+		'textAlign',
+		'gridAutoDlow'
 	];
 
 	let props: { [key: string]: string } = {};

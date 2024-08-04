@@ -39,6 +39,7 @@
 		--border-color: var(--white);
 		--border-color-tertiary: var(--white25);
 		--text-color-secondary: rgba(255, 255, 255, 0.7);
+		--bg-color-raised: rgba(255, 255, 255, 0.1);
 	}
 	a {
 		color: var(--white);
@@ -56,6 +57,7 @@
 		--border-color: var(--black);
 		--border-color-tertiary: var(--black25);
 		--text-color-secondary: rgba(0, 0, 0, 0.7);
+		--bg-color-raised: rgba(0, 0, 0, 0.1);
 	}
 	a {
 		color: var(--black);

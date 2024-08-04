@@ -11,6 +11,9 @@
 	import Folder from '../components/Folder.svelte';
 	import Info from '../components/Info.svelte';
 
+	import logo from '$lib/images/vite-logo.svg';
+	import Card from '../components/Card.svelte';
+
 	export let data;
 </script>
 
@@ -19,116 +22,146 @@
 	<meta name="description" content="Svelte demo app" />
 </svelte:head>
 
-<div class="Header fullwidth">
-	<div style="text-align: center">
-		<h1>Plugma</h1>
-		<p class="Header_Tagline">Create Figma plugins without the boilerplate</p>
-		<!-- <a class="Button" href="https://github.com/gavinmcfarland/plugma">View on Github</a> -->
+<!-- Navigation -->
+<div class="Nav">
+	<p class="Text">Plugma</p>
+</div>
+
+<div class="Hero">
+	<div class="Badge">
+		<p class="Text">New</p>
 	</div>
+	<h1 class="Text">Create Figma plugins without the boilerplate</h1>
+	<div class="Code">
+		<pre><code><span class="hljs-symbol">npm</span> create plugma@latest my-plugin</code></pre>
+	</div>
+</div>
+
+<div class="Features">
+	<Card>
+		<div class="Image">
+			<Icon svg="box" size={54} strokeWidth={1} color="#42AD00"></Icon>
+		</div>
+		<div class="Group">
+			<p class="Text heading">Just works</p>
+			<p class="Text">
+				Just works, out of the box. No need to worry about inlining all the files. TypeScript
+				supported.
+			</p>
+		</div>
+	</Card>
+	<Card>
+		<div class="Image">
+			<Icon svg="data-transfer-square" size={54} strokeWidth={1} color="#42AD00"></Icon>
+		</div>
+		<div class="Group">
+			<p class="Text heading">Faster development</p>
+			<p class="Text">
+				Faster development and better debugging. Avoids the need to build to view every change.
+			</p>
+		</div>
+	</Card>
+	<Card>
+		<div class="Image">
+			<Icon svg="vite-logo" size={54} strokeWidth={1} color="#42AD00"></Icon>
+		</div>
+		<div class="Group">
+			<p class="Text heading">Built with Vite</p>
+			<p class="Text">
+				Built on the back of Vite. Works with most frameworks and supports lots of Vite and Rolup
+				plugins.
+			</p>
+		</div>
+	</Card>
 </div>
 
 <hr />
 
-<Box display="flex" flexDirection="column" alignItems="center">
-	<Box display="grid" gridTemplateColumns="repeat(26, 1fr)" gap="var(--em--1)" maxWidth="1200px">
-		<Box
-			border="1px solid var(--border-color-tertiary)"
-			element="section"
-			display="grid"
-			padding="var(--rem-4) 0"
-			flexDirection="column"
-			justifyContent="center"
-			alignItems="center"
-			gap="var(--em-0)"
-			gridTemplateColumns="subgrid"
-			gridColumn="span 26"
-			borderRadius="2px">
-			<!-- <Box gridColumn="span 5">{@html data.features.content}</Box> -->
-			<Box gridColumn="10 /span 10">
-				{@html data['get-started'].content}
-			</Box>
-		</Box>
+<div class="FeaturedVideo">
+	<h2>Watch me create a plugin from scratch</h2>
+	<p>See how easy it is to create a plugin from scratch.</p>
+	<div class="Video"></div>
+</div>
 
-		<Box display="grid" gridTemplateColumns="subgrid" gridColumn="span 26">
-			<Box
-				border="1px solid var(--border-color-tertiary)"
-				element="section"
-				display="grid"
-				justifyContent="center"
-				gap="var(--em-0)"
-				gridColumn="span 14"
-				gridTemplateColumns="subgrid"
-				padding="var(--rem-4) 0"
-				borderRadius="2px">
-				<!-- <Box gridColumn="span 5">{@html data.features.content}</Box> -->
-				<Box gridColumn="span 5"><h2 style="margin-left: var(--em-1); margin-top: 0;">Dev</h2></Box>
-				<Box gridColumn="span 7">
-					{@html data['developing'].content}
-				</Box>
-			</Box>
+<style>
+	.Nav {
+		border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+		padding: 16px 11px;
 
-			<Box
-				border="1px solid var(--border-color-tertiary)"
-				element="section"
-				display="grid"
-				padding="var(--rem-4) 0"
-				justifyContent="center"
-				gap="var(--em-0)"
-				gridColumn="span 12"
-				gridTemplateColumns="subgrid"
-				borderRadius="2px">
-			</Box>
-		</Box>
+		max-width: none !important;
+		width: 100vw;
+		box-sizing: border-box;
+		position: relative;
+		left: 50%;
+		transform: translate(-50vw);
+	}
 
-		<Box
-			border="1px solid var(--border-color-tertiary)"
-			element="section"
-			display="grid"
-			gridTemplateColumns="subgrid"
-			padding="var(--rem-4) 0"
-			justifyContent="center"
-			gridColumn="span 26"
-			borderRadius="2px">
-			<!-- <Box gridColumn="span 5">{@html data.features.content}</Box> -->
-			<Box gridColumn="span 7"
-				><h2 style="margin-left: var(--em-1); margin-top: 0;">Folder structure</h2></Box>
-			<Box gridColumn="span 10">
-				<FolderDiagram>
-					<Folder name="my-plugin/">
-						<Folder name="dist/" />
-						<Folder name="src/">
-							<File name="code.ts" />
-							<File name="ui.ts" />
-							<File name="styles.css" />
-						</Folder>
-						<File name="README.md" />
-						<File name="package.json" />
-						<File name="tsconfig.js" />
-						<File name="vite.config.js" />
-					</Folder>
-				</FolderDiagram>
-			</Box>
+	.Nav p {
+		color: #000;
+		font-family: 'Akkurat TT';
+		font-size: 16px;
+		font-style: normal;
+		font-weight: 700;
+		line-height: 125%;
+		letter-spacing: -0.64px;
+	}
 
-			<Box gridColumn="20 / span 5">
-				<Info>
-					<p>Only the folders and files you need. Customise their names and locations.</p></Info>
-			</Box>
-		</Box>
+	.Badge {
+		border-radius: 48px;
+		background: rgba(66, 173, 0, 0.1);
 
-		<Box
-			border="1px solid var(--border-color-tertiary)"
-			element="section"
-			display="grid"
-			gridTemplateColumns="subgrid"
-			padding="var(--rem-4) 0"
-			justifyContent="center"
-			gridColumn="span 26"
-			borderRadius="2px">
-			<!-- <Box gridColumn="span 5">{@html data.features.content}</Box> -->
-			<Box gridColumn="span 9"><h2 style="margin-left: var(--em-1); margin-top: 0;">Build</h2></Box>
-			<Box gridColumn="span 10">
-				{@html data['building'].content}
-			</Box>
-		</Box>
-	</Box>
-</Box>
+		display: flex;
+		width: 220px;
+		height: 28px;
+		padding: 4px 55px;
+		justify-content: center;
+		align-items: center;
+		gap: 8px;
+		flex-shrink: 0;
+	}
+
+	.Hero {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding-block: 88px;
+	}
+
+	.Hero h1 {
+		color: #000;
+		text-align: center;
+		font-family: 'Akkurat TT';
+		font-size: 48px;
+		font-style: normal;
+		font-weight: 700;
+		line-height: 125%; /* 60px */
+		letter-spacing: -1.92px;
+	}
+
+	.Badge p {
+		color: #000;
+		font-family: 'Akkurat TT';
+		font-size: 16px;
+		font-style: normal;
+		font-weight: 700;
+		line-height: 125%; /* 20px */
+		letter-spacing: -0.64px;
+	}
+
+	.Features {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+	}
+
+	.Video {
+		border-radius: 8px;
+		background: rgba(66, 173, 0, 0.1);
+		aspect-ratio: 16 / 9;
+		margin-top: 2em;
+	}
+
+	hr {
+		border-color: rgba(0, 0, 0, 0.2);
+	}
+</style>
