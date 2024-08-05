@@ -5,6 +5,7 @@ import lodashTemplate from 'lodash.template'
 import path from 'path';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
+import * as versions from '../../../common/versions'
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -30,9 +31,7 @@ const createDirectoryContents = (templatePath, newProjectPath, answers) => {
 			// Need to manually update versions before publishing. Need a way to automate this. Issue is that this version belongs in a different package, so this doesn't work when user runs create plugma
 			let data = Object.assign(answers, {
 				id: slugify(answers['name']),
-				versions: {
-					plugma: "0.0.28"
-				}
+				versions
 			})
 
 			if (file === "manifest.json" ||

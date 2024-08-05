@@ -52,6 +52,19 @@ const frameworks = [
 				dir: 'react'
 			}
 		]
+	},
+	{
+		name: 'Vue',
+		variants: [
+			{
+				name: 'TypeScript',
+				dir: 'vue-ts'
+			},
+			{
+				name: 'JavaScript',
+				dir: 'vue'
+			}
+		]
 	}
 ];
 
