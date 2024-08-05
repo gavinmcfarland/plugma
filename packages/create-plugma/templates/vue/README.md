@@ -2,7 +2,7 @@
 
 ## Quickstart
 
-This plugin was created with [Plugma](https://github.com/gavinmcfarland/plugma) using the [React](https://react.dev/) framework.
+This plugin was created with [Plugma](https://github.com/gavinmcfarland/plugma) using the [Vue](https://vuejs.org/) framework.
 
 ### Requirements
 
