@@ -12,7 +12,6 @@ import nodeCleanup from 'node-cleanup';
 import lodashTemplate from 'lodash.template'
 import writeIndexFile from './rewriteIndexFile.js'
 // import { option } from 'yargs';
-import * as versions from '../../../common/versions'
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -403,7 +402,7 @@ export default function cli(options) {
 		getFiles().then(async (data) => {
 
 			console.log(`
-${chalk.blue.bold('Plugma')} ${chalk.grey(versions.plugma)}
+${chalk.blue.bold('Plugma')} ${chalk.grey("0.0.30")}
 `);
 
 			await writeIndexFile()
