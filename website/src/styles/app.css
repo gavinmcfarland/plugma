@@ -4,6 +4,7 @@
 @import './reset.css';
 @import './fonts.css';
 @import './colors.css';
+@import './vars.css';
 /* @import './layout.css'; */
 @import './components.css';
 @import './syntax-highlighting.css';

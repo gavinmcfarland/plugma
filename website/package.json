@@ -2,8 +2,8 @@
 	"name": "website",
 	"version": "0.0.1",
 	"scripts": {
-		"dev": "node stancyClient.js & vite dev",
-		"build": "vite build",
+		"dev": "node mole/mole.js & node stancyClient.js & vite dev",
+		"build": "node mole/mole.js & vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",

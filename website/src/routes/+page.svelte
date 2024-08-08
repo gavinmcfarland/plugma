@@ -65,7 +65,7 @@
 		<div class="Image">
 			<Icon svg="vite-logo" size={54} strokeWidth={1} color="#42AD00"></Icon>
 		</div>
-		<div class="Group">
+		<div class="Group green">
 			<p class="Text heading">Built with Vite</p>
 			<p class="Text">
 				Built on the back of Vite. Works with most frameworks and supports lots of Vite and Rolup
