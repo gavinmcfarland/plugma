@@ -1,4 +1,5 @@
 import v from 'voca'
+import { Str } from 'str'
 
 Object.filter = (obj, predicate) =>
 	Object.keys(obj)
@@ -6,7 +7,7 @@ Object.filter = (obj, predicate) =>
 		.reduce((res, key) => (res[key] = obj[key], res), {});
 
 export default function (theme) {
-	let string = ''
+	let str = new Str()
 	let selector = ''
 	let colors = Object.filter(theme.color, (color) => {
 		return color !== 'theme'
@@ -14,10 +15,11 @@ export default function (theme) {
 
 	for (let color in colors) {
 		let value = colors[color]
-		string += `.${selector}${color} {\n`
-		string += `	color: ${value};\n`
-		string += `}\n`
+		str.append`
+		.${selector}${color} {
+			color: ${value};
+		}`
 	}
 
-	return string
+	return str.output
 }
