@@ -38,19 +38,23 @@ local sides = {
     },
     size: {
         font: [
-            std.ceil(16 * std.pow($.number['major second'], n)) + 'px'
-            for n in std.range(0, 10)
+            { [std.toString(n)]: 1 * std.pow($.number['major second'], n) + 'rem' }
+            for n in std.range(-2, 10)
         ],
         spacing: [
-            std.ceil(2 * std.pow($.number.octave, n / 2)) / 16 + 'em'
+            { [std.toString(n)]: std.ceil(2 * std.pow($.number.octave, n / 2)) / 16 + 'em' }
             for n in std.range(0, 20)
         ],
-        width: ['300px', '600px', '1200px'],
+        width: [
+            { '1': '300px' },
+            { '2': '600px' },
+            { '4': '1200px' },
+        ],
         lines: [
-            '1px',
-            '2px',
-            '4px',
-            '8px',
+            { '1': '1px' },
+            { '2': '2px' },
+            { '3': '4px' },
+            { '4': '8px' },
         ],
     },
     property: {

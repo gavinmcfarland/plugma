@@ -1,19 +1,10 @@
-function range(min, max) {
-	var len = max - min + 1;
-	var arr = new Array(len);
-	for (var i = 0; i < len; i++) {
-		arr[i] = min + i;
-	}
-	return arr;
-}
-
 export default new class Theme {
 	base = {
 		'font-size': 16
 	}
-	color = {
-		red: "#fff000"
-	}
+	// color = {
+	// 	red: "#fff000"
+	// }
 	number = {
 		'minor second': 1.067,
 		'major second': 1.125,
@@ -35,5 +26,5 @@ export default new class Theme {
 		'double octave': 4,
 	};
 
-	size = range(0, 20).map((v) => Math.floor(this.base['font-size'] * Math.pow(this.number['dim fith'], v)))
+	// size = range(0, 10).map((v) => Math.floor(this.base['font-size'] * Math.pow(this.number['dim fith'], v)))
 };

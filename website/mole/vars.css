@@ -1,0 +1,52 @@
+:where(html) {
+	--font-size-00: 0.79rem;
+	--font-size-0: 0.89rem;
+	--font-size-1: 1rem;
+	--font-size-2: 1.13rem;
+	--font-size-3: 1.27rem;
+	--font-size-4: 1.42rem;
+	--font-size-5: 1.6rem;
+	--font-size-6: 1.8rem;
+	--font-size-7: 2.03rem;
+	--font-size-8: 2.28rem;
+	--font-size-9: 2.57rem;
+	--font-size-10: 2.89rem;
+}
+:where(html) {
+	--size-em-00: 0.79em;
+	--size-em-0: 0.89em;
+	--size-em-1: 1em;
+	--size-em-2: 1.13em;
+	--size-em-3: 1.27em;
+	--size-em-4: 1.42em;
+	--size-em-5: 1.6em;
+	--size-em-6: 1.8em;
+	--size-em-7: 2.03em;
+	--size-em-8: 2.28em;
+	--size-em-9: 2.57em;
+	--size-em-10: 2.89em;
+	--size-em-11: 3.25em;
+	--size-em-12: 3.65em;
+	--size-em-13: 4.11em;
+	--size-em-14: 4.62em;
+	--size-em-15: 5.2em;
+}
+:where(html) {
+	--size-00: 0.79rem;
+	--size-0: 0.89rem;
+	--size-1: 1rem;
+	--size-2: 1.13rem;
+	--size-3: 1.27rem;
+	--size-4: 1.42rem;
+	--size-5: 1.6rem;
+	--size-6: 1.8rem;
+	--size-7: 2.03rem;
+	--size-8: 2.28rem;
+	--size-9: 2.57rem;
+	--size-10: 2.89rem;
+	--size-11: 3.25rem;
+	--size-12: 3.65rem;
+	--size-13: 4.11rem;
+	--size-14: 4.62rem;
+	--size-15: 5.2rem;
+}

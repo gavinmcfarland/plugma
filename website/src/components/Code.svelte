@@ -32,13 +32,13 @@
 
 <style global>
 	code {
-		padding: var(--em-0);
+		padding: var(--size-1);
 		cursor: text;
 	}
 
 	p > code {
-		padding-left: var(--rem--2);
-		padding-right: var(--rem--2);
+		padding-left: var(--size-1);
+		padding-right: var(--size-1);
 		white-space: nowrap;
 	}
 
@@ -46,5 +46,15 @@
 	pre code {
 		border: 1px solid var(--border-color-tertiary);
 		border-radius: 2px;
+	}
+
+	code {
+		cursor: text;
+	}
+
+	:not(p) > code {
+		/* border: 1px solid; */
+		padding: var(--size-3);
+		overflow-x: scroll;
 	}
 </style>

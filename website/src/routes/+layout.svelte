@@ -22,3 +22,8 @@
 		</Box>
 	</Box>
 </div>
+
+<style>
+	@import 'https://unpkg.com/open-props/src/media.min.css';
+	/* @import '../styles/props.media.css'; */
+</style>

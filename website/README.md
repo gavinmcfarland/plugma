@@ -1,32 +1,29 @@
 # website
 
+This website is created using Svelte Kit.
+
+Content is managed using Stancy.
+
+The design system is managed primarily using conventional CSS and CSS variables. The design tokens used by the website are generated using Mole.
+
+Typography and spacing is currently implemented using Typolize but not fully adhered to.
+
 ## Developing
 
-## Mole
+To preview the website and watch for changes.
+
+```bash
+npm run dev
+```
+
+To create a production version ready to publish.
+
+```bash
+npm run build
+```
 
 Make sure to create a new build of the `vars.css` which is used by the website.
 
 ```shell
 npm run build:mole
 ```
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.

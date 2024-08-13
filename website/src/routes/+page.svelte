@@ -45,8 +45,8 @@
 		<div class="Group">
 			<p class="Text heading">Just works</p>
 			<p class="Text">
-				Just works, out of the box. No need to worry about inlining all the files. TypeScript
-				supported.
+				Just works, out of the box. No need to worry about inlining all the files.
+				TypeScript supported.
 			</p>
 		</div>
 	</Card>
@@ -57,7 +57,8 @@
 		<div class="Group">
 			<p class="Text heading">Faster development</p>
 			<p class="Text">
-				Faster development and better debugging. Avoids the need to build to view every change.
+				Faster development and better debugging. Avoids the need to build to view every
+				change.
 			</p>
 		</div>
 	</Card>
@@ -68,8 +69,8 @@
 		<div class="Group green">
 			<p class="Text heading">Built with Vite</p>
 			<p class="Text">
-				Built on the back of Vite. Works with most frameworks and supports lots of Vite and Rolup
-				plugins.
+				Built on the back of Vite. Works with most frameworks and supports lots of Vite and
+				Rolup plugins.
 			</p>
 		</div>
 	</Card>
@@ -85,8 +86,8 @@
 
 <style>
 	.Nav {
-		border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-		padding: 16px 11px;
+		border-bottom: 1px solid var(--border-color-tertiary);
+		padding: var(--size-2) var(--size-0);
 
 		max-width: none !important;
 		width: 100vw;
@@ -113,10 +114,10 @@
 		display: flex;
 		width: 220px;
 		height: 28px;
-		padding: 4px 55px;
+		padding: var(--size-00) var(--size-6);
 		justify-content: center;
 		align-items: center;
-		gap: 8px;
+		gap: var(--size-00);
 		flex-shrink: 0;
 	}
 
@@ -124,14 +125,16 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		padding-block: 88px;
+		padding-block: var(--size-8);
+		min-height: 400px;
+		justify-content: center;
 	}
 
 	.Hero h1 {
 		color: #000;
 		text-align: center;
 		font-family: 'Akkurat TT';
-		font-size: 48px;
+		font-size: var(--font-size-6);
 		font-style: normal;
 		font-weight: 700;
 		line-height: 125%; /* 60px */
@@ -141,7 +144,7 @@
 	.Badge p {
 		color: #000;
 		font-family: 'Akkurat TT';
-		font-size: 16px;
+		font-size: var(--font-size-1);
 		font-style: normal;
 		font-weight: 700;
 		line-height: 125%; /* 20px */
@@ -151,14 +154,23 @@
 	.Features {
 		display: flex;
 		flex-direction: column;
-		gap: 24px;
+		gap: var(--size-3);
+		user-select: none;
+	}
+
+	@custom-media --lg-n-above (width >= 1024px);
+
+	@media (--lg-n-above) {
+		.Features {
+			flex-direction: row;
+		}
 	}
 
 	.Video {
 		border-radius: 8px;
 		background: rgba(66, 173, 0, 0.1);
 		aspect-ratio: 16 / 9;
-		margin-top: 2em;
+		margin-top: var(--size-2);
 	}
 
 	hr {

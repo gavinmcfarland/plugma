@@ -4,7 +4,7 @@
 @import './reset.css';
 @import './fonts.css';
 @import './colors.css';
-@import './vars.css';
+@import '../../mole/vars.css';
 /* @import './layout.css'; */
 @import './components.css';
 @import './syntax-highlighting.css';
@@ -35,12 +35,12 @@
 
 :root {
 	--font-size-body: var(--font-size-0);
-	--font-size-h1: var(--font-size-em-6);
-	--font-size-h2: var(--font-size-em-3);
-	--font-size-h3: var(--font-size-em-2);
-	--font-size-h4: var(--font-size-em-0);
-	--font-size-h5: var(--font-size-em-0);
-	--font-size-h6: var(--font-size-em-0);
+	--font-size-h1: var(--font-size-6);
+	--font-size-h2: var(--font-size-3);
+	--font-size-h3: var(--font-size-2);
+	--font-size-h4: var(--font-size-0);
+	--font-size-h5: var(--font-size-0);
+	--font-size-h6: var(--font-size-0);
 	--font-size-blockquote: var(--font-size-body);
 	--font-size-small: var(--font-size--1);
 

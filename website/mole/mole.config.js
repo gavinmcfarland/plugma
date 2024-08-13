@@ -1,7 +1,7 @@
 export default {
-	theme: 'theme.jsonnet',
+	theme: 'theme.js',
 	template: ['templates/'],
 	output: {
-		file: '../src/styles/vars.css'
+		file: 'vars.css'
 	}
 }

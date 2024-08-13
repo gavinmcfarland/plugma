@@ -9,13 +9,12 @@
 <style>
 	.Card {
 		border-radius: 2px;
-		border: 1px solid rgba(0, 0, 0, 0.2);
+		border: 1px solid var(--border-color-tertiary);
 
 		display: flex;
-		padding: 40px;
+		padding: var(--size-8);
 		align-items: flex-start;
-		gap: 40px;
-		flex-shrink: 0;
+		gap: var(--size-8);
 	}
 
 	:global(.Card .Text.heading) {

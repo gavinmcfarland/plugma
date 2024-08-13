@@ -28,22 +28,6 @@ hr {
 	border-bottom: 1px solid;
 }
 
-code {
-	cursor: text;
-}
-
-p > code {
-	padding-left: var(--rem--2);
-	padding-right: var(--rem--2);
-	white-space: nowrap;
-}
-
-:not(p) > code {
-	border: 1px solid;
-	padding: var(--rem-1);
-	overflow-x: scroll;
-}
-
 .text-crop-none {
 	display: block;
 }
