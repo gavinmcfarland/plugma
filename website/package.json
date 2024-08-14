@@ -39,5 +39,8 @@
 		"vite": "^5.0.3",
 		"voca": "^1.4.1"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"@marko/run": "^0.4.5"
+	}
 }
