@@ -108,7 +108,11 @@ export default defineConfig({
 			transformIndexHtml(html) {
 				const scriptTag = `<script type="module" src="/node_modules/plugma/frameworks/common/ui/catchFigmaStyles.ts"></script>
 			<script type="module" src="/node_modules/plugma/frameworks/common/ui/startWebSocketServer.ts"></script>`;
-				return html.replace('</body>', `</body>${scriptTag}`);
+				html = html.replace('</body>', `</body>${scriptTag}`)
+
+				let devToolbarFile = fs.readFileSync(resolve(`${__dirname}/../frameworks/common/main/devToolbar.html`), 'utf-8')
+
+				return html.replace('<body>', `<body>${devToolbarFile}`);
 			},
 			apply: 'serve'
 		},

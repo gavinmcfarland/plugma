@@ -41,6 +41,12 @@ if (
 			let styles = await figma.clientStorage.getAsync("figma-stylesheet");
 			figma.ui.postMessage({ event: "pass-figma-stylesheet", styles });
 		}
+		if (msg.event === "plugma-delete-file-storage") {
+			figma.notify("Root.pluginData deleted")
+		}
+		if (msg.event === "plugma-delete-client-storage") {
+			figma.notify("ClientStorage deleted")
+		}
 	};
 }
 
