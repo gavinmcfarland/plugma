@@ -14,6 +14,14 @@
 <script>
 	// Grab figma styles before loading local dev url
 
+	let grabMessages = []
+	// Todo: bug where if message sent when plugin first opens, then UI doesn't receive it (I think)
+	window.onmessage = (event) => {
+		let msg = event.data
+
+		grabMessages.push(msg)
+	};
+
 	const pluginFrame = document.getElementById("app")
 
 	// We use setTimeout to give the dom chance to load to retrieve figma's CSS variables
@@ -43,6 +51,7 @@
 					}
 				})
 				.catch(error => {
+
 					return "Error: " + error.message;
 				});
 		}
@@ -59,7 +68,15 @@
 					// statusMessageElement.textContent = "Dev server not active";
 				}
 				else {
+					// Now send acumilated messages to main before loading url to save to client storage
+					parent.postMessage({
+						pluginMessage: {
+							event: "plugma-save-on-run-messages",
+							data: grabMessages
+						}
+					}, "https://www.figma.com")
 					window.location.href = urlToCheck
+
 				}
 			})
 			.catch(error => {

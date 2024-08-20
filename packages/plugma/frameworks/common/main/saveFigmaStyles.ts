@@ -4,6 +4,7 @@ function saveFigmaStyles() {
     process.env.NODE_ENV === "server"
   ) {
     figma.ui.on("message", async (msg) => {
+      // figma.ui.onmessage = async (msg) => {
       if (msg.event === "save-figma-stylesheet") {
         figma.clientStorage.setAsync("figma-stylesheet", msg.data);
       }
@@ -33,6 +34,30 @@ function saveFigmaStyles() {
           }
         }
         figma.notify("ClientStorage deleted");
+      }
+      //   if (msg.event === "plugma-save-on-run-message") {
+      //     let data = await figma.clientStorage.getAsync("plugma-on-run-messages");
+      //     console.log("----- check data before", data);
+      //     if (typeof data === "undefined") {
+      //       data = [];
+      //     }
+
+      //     data.push(msg.data);
+
+      //     console.log("----- check data after", data);
+      //     // console.log("-- save messages", data);
+      //     figma.clientStorage.setAsync("plugma-on-run-messages", data);
+      //   }
+      if (msg.event === "plugma-save-on-run-messages") {
+        figma.clientStorage.setAsync("plugma-on-run-messages", msg.data);
+      }
+      if (msg.event === "plugma-get-on-run-messages") {
+        let data = await figma.clientStorage.getAsync("plugma-on-run-messages");
+
+        for (let i = 0; i < data.length; i++) {
+          let msg = data[i];
+          figma.ui.postMessage(msg.pluginMessage);
+        }
       }
     });
   }

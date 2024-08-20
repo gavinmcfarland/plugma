@@ -1,10 +1,22 @@
 // FIX ME: Figure out why TS syntax doesn't work in these files
 
 function catchFigmaStyles() {
+  // When plugin loads, get styles that were sent before url was hosted
   parent.postMessage(
     {
       pluginMessage: {
         event: "get-figma-stylesheet",
+      },
+      pluginId: "*",
+    },
+    "*"
+  );
+
+  // When plugin loads, get messages that were sent before url was hosted
+  parent.postMessage(
+    {
+      pluginMessage: {
+        event: "plugma-get-on-run-messages",
       },
       pluginId: "*",
     },
@@ -34,6 +46,8 @@ function catchFigmaStyles() {
 
       window.removeEventListener("message", onWindowMsg2);
     }
+    // if (message && message.event === "pass-on-run-messages") {
+    // }
   };
   window.addEventListener("message", onWindowMsg2);
 }
