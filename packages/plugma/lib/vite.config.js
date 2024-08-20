@@ -100,7 +100,7 @@ function createFileWithDirectory(filePath, fileName, fileContent, callback) {
 
 
 // https://vitejs.dev/config/
-export default (config) => defineConfig({
+export default defineConfig({
 	plugins: [
 
 		viteSingleFile(),
