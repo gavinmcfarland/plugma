@@ -62,8 +62,8 @@ Start a server to develop your plugin.
 
 <!-- - `--websockets=off`, `-ws=off`: Turn off websockets. -->
 
-- `port`, `-p`: Specify a port number for the plugin preview.
-- `toolbar`, `-t`: Show the developer toolbar within the plugin UI.
+- `--port`, `-p`: Specify a port number for the plugin preview.
+- `--toolbar`, `-t`: Show the developer toolbar within the plugin UI.
 
 ### `plugma build`
 
