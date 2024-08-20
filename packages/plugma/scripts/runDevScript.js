@@ -140,7 +140,7 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 		let tempFilePath = writeTempFile(fileName)
 
 
-		if (NODE_ENV === "development") {
+		if (NODE_ENV === "development" || shouldWatch) {
 
 
 			let ctx = await esbuild.context({
@@ -443,7 +443,7 @@ ${chalk.blue.bold('Plugma')} ${chalk.grey("0.0.30")}
 			await writeManifestFile(data, () => {
 				console.log(`  manifest.json file created!`)
 			})
-			await bundleMainWithEsbuild(data, true, () => {
+			await bundleMainWithEsbuild(data, options.watch, () => {
 				console.log(`  main.js file created!`)
 			}, 'production')
 
