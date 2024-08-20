@@ -30,10 +30,10 @@ The frameworks currently supported are `React`, `Svelte`, `Vue` and vanilla `Jav
 
 ## Install
 
-Create a plugin from scratch or use the CLI independently.
+To install the CLI globally.
 
 ```
-npm install plugma
+npm install plugma -g
 ```
 
 <!-- ## Create plugin from template
@@ -47,6 +47,8 @@ Follow the on-screen instructions.
 Currently, the only framework supported is `Svelte`. -->
 
 ## Commands
+
+_To use these with the pre-made template just pass the arguments with `--`, for example `node run dev -- -p`._
 
 <!-- ### `plugma init`
 
