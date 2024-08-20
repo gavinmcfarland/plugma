@@ -21,6 +21,15 @@ yargs.command('dev', 'Start a server to develop your plugin', function (yargs) {
 			"$0 dev -p 3000",
 			"Runs a dev server on port 3000"
 		)
+		.option('t', {
+			alias: 'toolbar',
+			description: 'Display the developer toolbar within the plugin UI',
+			type: 'boolean'
+		})
+		.example(
+			"$0 dev -t",
+			"Displays the developer toolbar within the plugin UI"
+		)
 		.argv;
 }).command('build', 'Create a build ready for publishing', function (yargs) {
 	yargs

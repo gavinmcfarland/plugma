@@ -100,34 +100,9 @@ function createFileWithDirectory(filePath, fileName, fileContent, callback) {
 
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default (config) => defineConfig({
 	plugins: [
-		{
-			// Insert catchFigmaStyles and startWebSocketServer
-			name: 'html-transform',
-			transformIndexHtml(html) {
-				const scriptTag = `<script type="module" src="/node_modules/plugma/frameworks/common/ui/catchFigmaStyles.ts"></script>
-			<script type="module" src="/node_modules/plugma/frameworks/common/ui/startWebSocketServer.ts"></script>`;
-				html = html.replace('</body>', `</body>${scriptTag}`)
 
-				let devToolbarFile = fs.readFileSync(resolve(`${__dirname}/../frameworks/common/main/devToolbar.html`), 'utf-8')
-
-				return html.replace('<body>', `<body>${devToolbarFile}`);
-			},
-			apply: 'serve'
-		},
-		{
-			// Point / to index.html
-			name: "deep-index",
-			configureServer(server) {
-				server.middlewares.use((req, res, next) => {
-					if (req.url === "/") {
-						req.url = "/node_modules/plugma/tmp/index.html";
-					}
-					next();
-				});
-			},
-		},
 		viteSingleFile(),
 		viteCopyDirectoryPlugin({
 			// Copy index to dist
