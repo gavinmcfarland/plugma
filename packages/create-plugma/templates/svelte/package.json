@@ -28,10 +28,12 @@
         "figjam"
       ],
       "networkAccess": {
-        "allowedDevDomains": [
-          "*"
+        "allowedDomains": [
+          "none"
         ],
-        "reasoning": "Internet access for local development."
+        "devAllowedDomains": [
+          "*"
+        ]
       }
     }
   }
