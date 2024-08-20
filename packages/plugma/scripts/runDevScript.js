@@ -422,7 +422,6 @@ function getRandomNumber() {
 export default function cli(options) {
 
 	options.port = options.port || getRandomNumber()
-	options.port = options.port || 3000
 
 	if (options._[0] === "build") {
 		// 1. Create dist folder
