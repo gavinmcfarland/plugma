@@ -1,3 +1,5 @@
+// Todo: Add check to see if url active before loading the rest of plugin main code
+
 function saveFigmaStyles() {
   if (
     process.env.NODE_ENV === "development" ||
