@@ -6,12 +6,6 @@
     {
       "path": ".",
     },
-    {
-      "path": "packages/plugma",
-    },
-    {
-      "path": "packages/create-plugma",
-    },
   ],
   "settings": {},
 }
