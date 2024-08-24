@@ -7,7 +7,7 @@ if (!appName) {
 
 console.log("----", appName);
 
-import(`./projects/${appName}/App.svelte`)
+import(`./lib/${appName}/App.svelte`)
   .then(({ default: App }) => {
     new App({
       target: document.getElementById(appName)!,
