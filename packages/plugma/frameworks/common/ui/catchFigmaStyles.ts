@@ -1,3 +1,39 @@
+// Implement own select all
+
+// Flag to control whether the default action is allowed
+let allowDefault = true;
+
+// Your custom event listener
+document.addEventListener("keydown", function (event) {
+  if ((event.ctrlKey || event.metaKey) && event.key === "a") {
+    if (allowDefault) {
+      // Custom behavior: Select all text in input/textarea
+      const activeElement = document.activeElement;
+      if (
+        activeElement &&
+        (activeElement.tagName === "INPUT" ||
+          activeElement.tagName === "TEXTAREA")
+      ) {
+        activeElement.select();
+      }
+    }
+    // Allow or prevent further action based on flag
+    if (!allowDefault) {
+      event.preventDefault();
+      console.log("Custom behavior: prevented default action");
+    }
+  }
+});
+
+// TODO: Think of a way that this can be exposed to consumers
+// Function to control whether the default action should be allowed
+function setAllowDefault(flag) {
+  allowDefault = flag;
+}
+
+// // Example: User wants to override the default behavior
+// setAllowDefault(false);
+
 // FIX ME: Figure out why TS syntax doesn't work in these files
 
 function catchFigmaStyles() {
