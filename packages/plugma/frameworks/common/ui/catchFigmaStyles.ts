@@ -23,6 +23,21 @@ document.addEventListener("keydown", function (event) {
       console.log("Custom behavior: prevented default action");
     }
   }
+
+  if (
+    (event.metaKey || event.ctrlKey) &&
+    event.altKey &&
+    (event.key === "π" || event.key === "p")
+  ) {
+    console.log("pressed");
+    parent.postMessage("$INTERNAL_DO_NOT_USE$RERUN_PLUGIN$", "*");
+
+    // Allow or prevent further action based on flag
+    if (!allowDefault) {
+      event.preventDefault();
+      console.log("Custom behavior: prevented default action");
+    }
+  }
 });
 
 // TODO: Think of a way that this can be exposed to consumers
