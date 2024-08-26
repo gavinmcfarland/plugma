@@ -29,7 +29,6 @@ document.addEventListener("keydown", function (event) {
     event.altKey &&
     (event.key === "π" || event.key === "p")
   ) {
-    console.log("pressed");
     parent.postMessage("$INTERNAL_DO_NOT_USE$RERUN_PLUGIN$", "*");
 
     // Allow or prevent further action based on flag
