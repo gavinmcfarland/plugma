@@ -17,6 +17,7 @@ function throttle(mainFunction, delay) {
 }
 
 const ws = { current: null };
+let hasLoggedError = false; // Flag to control error logging
 
 function onWindowMsg(msg) {
   if (msg.data.pluginMessage) {
@@ -30,8 +31,10 @@ function onWindowMsg(msg) {
       setTimeout(() => {
         onWindowMsg(msg);
       }, 1000);
-    } else {
+    } else if (!hasLoggedError) {
+      // Log the error only if it has not been logged yet
       console.warn("WebSocket is not initialized or is in an invalid state.");
+      hasLoggedError = true; // Set the flag after logging the error
     }
   }
 }
@@ -46,26 +49,30 @@ function startWebSocketServer() {
     return;
   }
 
-  ws.current = new WebSocket("ws://localhost:9001/ws");
+  try {
+    ws.current = new WebSocket("ws://localhost:9001/ws");
+  } catch (error) {
+    console.log("--error", error);
+  }
 
   ws.current.onopen = () => {
-    // console.log("WebSocket connected ---");
-    // ws.pingInterval = setInterval(() => {
-    //     if (ws.current.readyState === WebSocket.OPEN) {
-    //         ws.current.send(JSON.stringify({ type: 'ping' }));
-    //     }
-    // }, 5000);
+    // Reset error log flag when connection is successfully opened
+    hasLoggedError = false;
   };
 
   ws.current.onclose = () => {
-    // console.log("WebSocket closed, attempting to reconnect...");
+    // Attempt to reconnect
     setTimeout(() => {
       startWebSocketServer();
     }, 3000);
   };
 
   ws.current.onerror = (error) => {
-    console.error("WebSocket error:", error);
+    // To prevent the error message appearing repeatedly
+    if (!hasLoggedError) {
+      console.error("WebSocket error:", error);
+      hasLoggedError = true;
+    }
   };
 
   ws.current.onmessage = (event) => {
@@ -97,5 +104,11 @@ function startWebSocketServer() {
 }
 
 startWebSocketServer();
+
+// Backup the original console.error function
+const originalConsoleError = console.error;
+
+// Don't forget to restore the original console.error when appropriate
+// console.error = originalConsoleError;
 
 export { startWebSocketServer };

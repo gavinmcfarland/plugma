@@ -58,8 +58,6 @@ function broadcastMessage(message, senderId) {
 	clients.forEach((client, clientId) => {
 
 		if (clientId !== senderId && client.readyState === WebSocket.OPEN) {
-			console.log("---clientId:", clientId, senderId)
-			console.log("---message", message)
 			client.send(JSON.stringify({ message, src: 'server' }));
 		}
 	});
