@@ -127,41 +127,133 @@ function calculateProximityPercentage(number, a0, r) {
 
 
 
-export default (theme) => {
+// export default (theme) => {
 
-	let str = new Str()
-	str.append`:where(html) {`
+// 	let str = new Str()
+// 	str.append`:where(html) {`
 
-	let i = -2;
-	while (i < range(-2, 15).length - 2) {
-		let commonRatio = 2
-		let baseNumber = 16
-		let mod = i < 0 ? "0".repeat(i * -1) : i + 1
-		// let mod = i < 0 ? "0" : i + 1
-		// let value = 1 * Math.round(Math.pow(theme.number['major second'], i) * 100) / 100
-		// let value = 16 * convertNegativeToDecimal(i)
-		// let value = 16 * Math.pow(2, i)
-		// TODO: Does the value need to include the commonRatio somehow?
-		let value = (baseNumber * convertNegativeToDecimal(i))
-		let geometricSequence = Math.pow(commonRatio, convertNegativeToDecimal(i))
+// 	let i = -8;
+// 	while (i < range(-8, 0).length - 8) {
+// 		let commonRatio = 2
+// 		let baseNumber = 800
+// 		let value = (baseNumber * convertNegativeToDecimal(i) * commonRatio)
 
+// 		str.append`	--size-${9 + i}00: ${value}px;`
+// 		i++;
+// 	}
 
+// 	str.append`}`
+// 	return str.output
 
-		let proximity = calculateProximityPercentage(value, baseNumber, commonRatio)
-		let suffix = getHighestNValue(value, baseNumber, commonRatio) + 1
-		let steps = calculateSteps(value, baseNumber, commonRatio)
+// }
 
-		// if (i > 0) {
-		// 	steps += "0"
-		// }
+// export default (theme) => {
+// 	let str = new Str();
+// 	str.append`:where(html) {`;
 
-		console.log(calculateProximityPercentage(value, 16, commonRatio), steps)
+// 	let totalSteps = 5; // We need exactly 8 variables
+// 	let startValue = 0; // The first value is 0px
+// 	let endValue = 128; // The final value should be 800px
+// 	let commonRatio = 2; // Modify this ratio as needed
 
-		str.append`	--size-${suffix}${proximity}: ${value}px;`
-		i++;
+// 	// Calculate the geometric progression scale factor
+// 	let scale = endValue / (Math.pow(commonRatio, totalSteps - 1));
+
+// 	// Generate the values
+// 	for (let i = 0; i < totalSteps; i++) {
+// 		let value = i === 0 ? startValue : scale * (Math.pow(commonRatio, i));
+// 		str.append`	--size-${(i)}00: ${Math.ceil(value)}px;`;
+// 	}
+
+// 	str.append`}`;
+// 	return str.output;
+// }
+
+// export default (theme) => {
+// 	let str = new Str();
+// 	str.append`:where(html) {`;
+
+// 	let totalSteps = 4; // We need exactly 8 variables
+// 	let startValue = 0; // The first value is 0px
+// 	let endValue = 128; // The final value should be 800px
+// 	let commonRatio = 2; // Modify this ratio as needed
+// 	let shift = 0
+
+// 	// Calculate the geometric progression scale factor
+// 	let scale = (endValue - shift) / (Math.pow(commonRatio, totalSteps));
+
+// 	// Generate the values
+// 	for (let i = 0; i < totalSteps + 1; i++) {
+// 		let value = i === 0 ? startValue : (scale * (Math.pow(commonRatio, i)));
+// 		str.append`	--size-${(i)}00: ${shift + Math.ceil(value)}px;`;
+// 	}
+
+// 	str.append`}`;
+// 	return str.output;
+// }
+
+function output({ steps, start = 0, ratio, total = null, end = null, shift = 0 }) {
+	let str = new Str();
+	str.append`:where(html) {`;
+
+	let scale;
+
+	let totalSteps = steps;
+
+	if (start > 0) {
+		steps = steps - 1; // Reduce the number of totalSteps if startValue is 0
 	}
 
-	str.append`}`
-	// return str.output
+	if (total !== null) {
+		// Adjust the total sum to consider the range from startValue to totalSum
+		let availableSum = total - start;
+		let sumOfSeries = (Math.pow(ratio, steps) - 1) / (ratio - 1);
+
+		// Scale based on the available sum
+		scale = availableSum / sumOfSeries;
+	} else if (end !== null) {
+		// Calculate the scale to fit the range from startValue to endValue
+		scale = (end - start) / (Math.pow(ratio, steps - 1));
+	} else {
+		throw new Error("Either totalSum or endValue must be provided");
+	}
+
+	// Generate the values
+	for (let i = 0; i <= steps; i++) {
+		let value;
+		if (i === 0) {
+			value = start; // Fixed start value
+		} else {
+			value = start + Math.ceil(scale * Math.pow(ratio, i - 1));
+		}
+
+		let a = i
+		if (start > 0) {
+			a = i + 1
+		}
+		str.append`	--size-${a}00: ${shift + value}px;`;
+	}
+
+	str.append`}`;
+	return str.output;
+}
+
+
+
+
+export default (theme) => {
+
+	return output({
+		steps: 8,
+		ratio: 1.5,
+		start: 0,
+		total: 510
+	})
 
 }
+
+
+
+
+
+

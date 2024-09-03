@@ -11,16 +11,18 @@
 		<slot />
 	</main>
 
-	<Box
-		padding="var(--rem-6) var(--rem-0) var(--rem-0)"
-		display="flex"
-		justifyContent="space-between">
-		<Box><small>Copyright 2024 © Gavin McFarland</small></Box>
-		<Box>
-			<small class="Header_Link"
-				><a href="https://twitter.com/gavinmcfarland">@gavinmcfarland</a></small>
+	<div class="fullwidth">
+		<Box
+			padding="var(--size-em-8) var(--rem-0) var(--rem-0)"
+			display="flex"
+			justifyContent="space-between">
+			<Box><small>Copyright 2024 © Gavin McFarland</small></Box>
+			<Box>
+				<small class="Header_Link"
+					><a href="https://twitter.com/gavinmcfarland">@gavinmcfarland</a></small>
+			</Box>
 		</Box>
-	</Box>
+	</div>
 </div>
 
 <style>

@@ -1,59 +1,82 @@
+const express = require('express');
+const http = require('http');
+const WebSocket = require('ws');
+const path = require('path');
+const { v4: uuidv4 } = require('uuid'); // Import UUID for unique client IDs
 
-// File not currently used
+const PORT = 9001;
 
-const express = require('express')
-const http = require('http')
-const WebSocket = require('ws')
-const path = require('path')
-
-const PORT = 9001
-
-const app = express()
-
-// app.use(express.static(path.join(__dirname, 'dist/ui.html')));
+const app = express();
 
 app.get('/', (req, res) => {
-	res.sendFile(path.join(process.cwd() + '/dist/ui.html'));
-	// res.status(200).send('working')
-})
+	res.sendFile(path.join(process.cwd() + '/dist/ui.html')); // Serve the main HTML page
+});
 
-//initialize a simple http server
+// Initialize a simple HTTP server
 const server = http.createServer(app);
 
-//initialize the WebSocket server instance
+// Initialize the WebSocket server instance
 const wss = new WebSocket.Server({ server });
+
+// Map to store clients with their unique IDs
+const clients = new Map();
+
 wss.on('connection', (ws) => {
+	const clientId = uuidv4(); // Generate a unique ID for the client
+	clients.set(clientId, ws); // Store the WebSocket connection with its unique ID
+
+	// Log the new connection
+	console.log(`New client connected: ${clientId}`);
+
+	// Set up initial client state
 	ws.isAlive = true;
+	ws.clientId = clientId; // Assign clientId to ws object for easy access
+
 	ws.on('pong', () => {
-		ws.isAlive = true;
-	})
+		ws.isAlive = true; // Update client status on pong response
+	});
 
-	//connection is up, let's add a simple simple event
+	// Handle incoming messages from this client
 	ws.on('message', (message, isBinary) => {
+		const textMessage = isBinary ? message : message.toString();
 
-		// Convert to string
-		message = isBinary ? message : message.toString();
+		// Here you can decide how to handle messages, such as broadcasting to other clients
+		broadcastMessage(textMessage, clientId);
+	});
 
-		//send back the message to the other clients
-		wss.clients.forEach(client => {
-			if (client != ws) {
-				client.send(JSON.stringify({ message, src: 'server' }));
-			}
-		});
-	})
+	// Optionally, send a welcome message or the client's ID
+	ws.send(JSON.stringify({ message: 'Connected to WebSocket server', clientId }));
 
-	//send immediatly a feedback to the incoming connection
-	// ws.send('Hi there, I am a WebSocket server');
-})
+	ws.on('close', () => {
+		clients.delete(clientId); // Remove the client on disconnect
+		console.log(`Client ${clientId} disconnected`);
+	});
+});
 
+// Function to broadcast messages to clients except the sender
+function broadcastMessage(message, senderId) {
+	clients.forEach((client, clientId) => {
+
+		if (clientId !== senderId && client.readyState === WebSocket.OPEN) {
+			console.log("---clientId:", clientId, senderId)
+			console.log("---message", message)
+			client.send(JSON.stringify({ message, src: 'server' }));
+		}
+	});
+}
+
+// Check connection status and send pings every 10 seconds
 setInterval(() => {
 	wss.clients.forEach(ws => {
-		if (!ws.isAlive) return ws.terminate();
+		if (!ws.isAlive) {
+			console.log(`Terminating connection ${ws.clientId}`);
+			return ws.terminate();
+		}
 		ws.isAlive = false;
-		// ws.ping(null, false, true);
-	})
+		ws.ping(); // Send ping to check if the connection is still alive
+	});
 }, 10000);
 
 server.listen(PORT, () => {
-	console.log(`Preview at http://localhost:${PORT}`)
-})
+	console.log(`Server is running at http://localhost:${PORT}`);
+});

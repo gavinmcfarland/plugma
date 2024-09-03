@@ -1,4 +1,3 @@
-const ws = {};
 let isConnected;
 
 function throttle(mainFunction, delay) {
@@ -17,45 +16,62 @@ function throttle(mainFunction, delay) {
   };
 }
 
+const ws = { current: null };
+
 function onWindowMsg(msg) {
   if (msg.data.pluginMessage) {
     const message = JSON.stringify(msg.data.pluginMessage);
 
-    if (ws.current.readyState === 1) {
-      // console.log("sent", message);
+    // Check if ws.current is initialized and in OPEN state
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(message);
-    } else {
+    } else if (ws.current && ws.current.readyState !== WebSocket.OPEN) {
+      // Retry sending the message after some delay if WebSocket isn't open yet
       setTimeout(() => {
         onWindowMsg(msg);
       }, 1000);
+    } else {
+      console.warn("WebSocket is not initialized or is in an invalid state.");
     }
   }
 }
 
 function startWebSocketServer() {
-  console.log("start web socket");
-  ws.current = new WebSocket("ws://localhost:9001/ws");
-  ws.current.onopen = () => {
-    console.log("ws opened");
-    // setIsConnected(true);
-    // isConnected.textContent = "Is connected";
-  };
-  ws.current.onclose = () => {
-    console.log("ws closed");
-    // setIsConnected(false);
-    // isConnected.textContent = "Not connected";
+  if (
+    ws.current &&
+    (ws.current.readyState === WebSocket.CONNECTING ||
+      ws.current.readyState === WebSocket.OPEN)
+  ) {
+    // console.log("WebSocket is already open or connecting");
+    return;
+  }
 
+  ws.current = new WebSocket("ws://localhost:9001/ws");
+
+  ws.current.onopen = () => {
+    // console.log("WebSocket connected ---");
+    // ws.pingInterval = setInterval(() => {
+    //     if (ws.current.readyState === WebSocket.OPEN) {
+    //         ws.current.send(JSON.stringify({ type: 'ping' }));
+    //     }
+    // }, 5000);
+  };
+
+  ws.current.onclose = () => {
+    // console.log("WebSocket closed, attempting to reconnect...");
     setTimeout(() => {
       startWebSocketServer();
     }, 3000);
   };
 
-  // Throttle the event because it's causing plugin window to crash/slow down
-  ws.current.onmessage = throttle((event) => {
+  ws.current.onerror = (error) => {
+    console.error("WebSocket error:", error);
+  };
+
+  ws.current.onmessage = (event) => {
     try {
       let msg = JSON.parse(event.data);
 
-      // Pass messages received from Figma main to local server
       if (msg.src === "server") {
         let temp = JSON.parse(msg.message);
         window.parent.postMessage(
@@ -67,11 +83,11 @@ function startWebSocketServer() {
         );
       }
     } catch (err) {
-      console.error("not a valid message", err);
+      console.error("Invalid WebSocket message:", err);
     }
-    // return false;
-  }, 1000);
+  };
 
+  window.removeEventListener("message", onWindowMsg);
   window.addEventListener("message", onWindowMsg);
 
   return () => {

@@ -9,6 +9,8 @@
 @import './components.css';
 @import './syntax-highlighting.css';
 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
 /* Type settings */
 
 :root {
@@ -26,7 +28,7 @@
 	--letter-spacing-body: 0;
 	--letter-spacing-heading: -0.04em;
 	--font-family-body: 'Helvetica Neue', sans-serif;
-	--font-family-heading: Akkurat-Regular, 'Helvetica Neue', sans-serif;
+	--font-family-heading: 'Poppins', sans-serif;
 	--font-family-code: 'Andale Mono', monospace;
 	--font-weight-heading: 500;
 }
@@ -36,7 +38,7 @@
 :root {
 	--font-size-body: var(--font-size-0);
 	--font-size-h1: var(--font-size-6);
-	--font-size-h2: var(--font-size-3);
+	--font-size-h2: var(--font-size-5);
 	--font-size-h3: var(--font-size-2);
 	--font-size-h4: var(--font-size-0);
 	--font-size-h5: var(--font-size-0);
@@ -111,13 +113,6 @@ h5 {
 
 h6 {
 	margin-top: var(--em-2);
-}
-
-/* Text Colors */
-
-p,
-code {
-	color: var(--text-color-secondary);
 }
 
 /* Spacing */
@@ -206,4 +201,54 @@ svg {
 body {
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cg opacity='0.45'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M24 23H23V24H24V23ZM24 47H23V48H24V47ZM47 23H48V24H47V23ZM48 47H47V48H48V47Z' fill='currentColor'%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
 	background-repeat: repeat;
+}
+
+/* Components */
+
+.Button {
+	font-weight: inherit;
+	text-decoration: none;
+
+	display: inline-flex;
+	padding: 12px 22px;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
+
+	border-radius: 999px;
+	border: 2px solid #7725d2;
+	background: var(--brand, #7725d2);
+
+	/* text */
+	color: var(--text-onInverse, #fff);
+	font-size: 18px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: 24px; /* 133.333% */
+	letter-spacing: -0.18px;
+}
+
+/* Effects */
+
+.shadow {
+	display: flex;
+	overflow: hidden;
+	border-radius: 8px;
+	border: 1.342px solid rgba(0, 0, 0, 0.1);
+	background: #fff;
+	box-shadow: 0px 2.684px 18.788px 0px rgba(0, 0, 0, 0.15);
+}
+
+.box {
+	border-radius: 8px;
+	border: 1px solid #bbb;
+}
+
+.fullwidth {
+	max-width: none !important;
+	width: 100vw;
+	box-sizing: border-box;
+	position: relative;
+	left: 50%;
+	transform: translate(-50vw);
 }

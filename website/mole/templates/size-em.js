@@ -12,7 +12,7 @@ export default (theme) => {
 	while (i < range(-2, 15).length - 2) {
 		let mod = i < 0 ? "0".repeat(i * -1) : i + 1
 		let value = 1 * Math.round(Math.pow(theme.number['major second'], i) * 100) / 100
-		str.append`	--size-em-${mod}: ${value}em;`
+		str.append`	--size-em-${mod}: ${value}px;`
 		i++;
 	}
 
