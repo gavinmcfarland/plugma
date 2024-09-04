@@ -127,6 +127,31 @@ You can either place a `manifest.json` file in the root of the project or add a 
 }
 ``` -->
 
+## Troubleshooting
+
+### Posting messages
+
+You may see the following warning.
+
+```shell
+Message from plugin UI ignored due to missing pluginId in message.
+```
+
+This occurs because Plugma redirects the plugin UI to a local dev server during development. Figma needs a `pluginId` in messages from the plugin UI when coming from an external URL.
+
+To fix this, use a wildcard as the `pluginId` in your message:
+
+```js
+// ui
+parent.postmessage({
+    {
+        pluginMessage: "Your message",
+        pluginId: "*"
+    },
+    "*"
+})
+```
+
 ## How does it work?
 
 Plugma uses Vite to bundle Figma plugins and is configured to inline all styles and scripts into one file. It uses a local server for development, that passes messages from Figma's main thread to the local server using web sockets.
