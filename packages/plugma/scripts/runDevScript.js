@@ -340,8 +340,21 @@ async function buildUI(data, callback, NODE_ENV, options) {
 }
 
 async function getFiles() {
-	let pkg = await getJsonFile(resolve('./package.json'));
-	let figmaManifest = await getJsonFile(resolve('./manifest.json')) || pkg["plugma"]["manifest"];
+
+
+	let rootManifest = await getJsonFile(`./manifest.json`)
+	let pkg = await getJsonFile(resolve(`./package.json`));
+	let figmaManifest = rootManifest || pkg.plugma?.manifest;
+
+
+
+
+	// Check if name missing from manifest in package or package.json
+	if (!pkg.plugma?.manifest?.name && !rootManifest?.name) {
+		console.warn(`Plugma: Using package name as plugin name will be depreciated. Please specify the name in the manifest.
+
+Example: \`{ name: "My Plugin" }\``)
+	}
 
 	return {
 		figmaManifest,
@@ -383,9 +396,11 @@ async function writeManifestFile(data, callback) {
 		callback();
 	}
 
+	let pluginName = data.figmaManifest.name ? data.figmaManifest.name : data.pkg.name
+
 	let newManifest = {
 		...data.figmaManifest, ...{
-			"name": `${data.pkg.name}`,
+			"name": `${pluginName}`,
 			"api": "1.0.0",
 			"main": "main.js",
 			"ui": "ui.html",
