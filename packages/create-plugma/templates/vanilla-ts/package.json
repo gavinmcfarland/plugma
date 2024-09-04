@@ -1,5 +1,4 @@
 {
-  "name": "<%- name %>",
   "private": true,
   "type": "module",
   "scripts": {
@@ -18,6 +17,7 @@
   "plugma": {
     "manifest": {
       "id": "<%- name %>",
+      "name": "<%- name %>",
       "main": "src/main.ts",
       "ui": "src/ui.ts",
       "editorType": [

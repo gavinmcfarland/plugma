@@ -31,7 +31,7 @@ const createDirectoryContents = (templatePath, newProjectPath, answers) => {
 			let data = Object.assign(answers, {
 				id: slugify(answers['name']),
 				versions: {
-					plugma: "0.0.39"
+					plugma: "0.0.40"
 				}
 			})
 
