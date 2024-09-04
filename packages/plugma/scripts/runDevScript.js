@@ -223,6 +223,16 @@ async function startViteServer(data, options) {
 				{
 					name: 'html-transform-1',
 					transformIndexHtml(html) {
+						// 					// if (options._[0] === "dev" && options.preview) {
+						// 					let iframeString = `
+						// 						<iframe id="myIframe"></iframe>
+						// 						<script>
+						// 	const iframe = document.getElementById('myIframe');
+						// 	iframe.srcdoc = ""
+						// </script>`
+						// 					// }
+
+						// 					html = html.replace('<body>', `<body>${iframeString}`)
 						return html.replace('id="entry" src="(.+?)"', `src="${data.figmaManifest.ui}"`);
 					},
 				},
@@ -266,7 +276,7 @@ async function startViteServer(data, options) {
 
 
 		// Run a web socket server so postMessage works between browser and Figma. And so Figma theme works in browser
-		const childProcess = exec('node node_modules/plugma/lib/server.cjs');
+		// const childProcess = exec('node node_modules/plugma/lib/server.cjs');
 		// childProcess.stderr.on('data', (data) => {
 		// 	console.error(`Script error: ${data}`);
 		// });

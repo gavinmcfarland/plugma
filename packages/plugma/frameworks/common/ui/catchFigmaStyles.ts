@@ -76,6 +76,7 @@ function catchFigmaStyles() {
   const onWindowMsg2 = (msg) => {
     // We listen for message to add figma styles during development
     const message = msg.data.pluginMessage;
+	console.log("---- message")
 
     if (message && message.event === "pass-figma-stylesheet") {
       //   document.styleSheets[0].insertRule(message.styles);

@@ -21,6 +21,7 @@ const wss = new WebSocket.Server({ server });
 // Map to store clients with their unique IDs
 const clients = new Map();
 
+
 wss.on('connection', (ws) => {
 	const clientId = uuidv4(); // Generate a unique ID for the client
 	clients.set(clientId, ws); // Store the WebSocket connection with its unique ID
@@ -38,14 +39,15 @@ wss.on('connection', (ws) => {
 
 	// Handle incoming messages from this client
 	ws.on('message', (message, isBinary) => {
+
 		const textMessage = isBinary ? message : message.toString();
 
 		// Here you can decide how to handle messages, such as broadcasting to other clients
 		broadcastMessage(textMessage, clientId);
 	});
 
-	// Optionally, send a welcome message or the client's ID
-	ws.send(JSON.stringify({ message: 'Connected to WebSocket server', clientId }));
+	// // Optionally, send a welcome message or the client's ID
+	// ws.send(JSON.stringify({ message: 'Connected to WebSocket server', clientId }));
 
 	ws.on('close', () => {
 		clients.delete(clientId); // Remove the client on disconnect
@@ -58,7 +60,8 @@ function broadcastMessage(message, senderId) {
 	clients.forEach((client, clientId) => {
 
 		if (clientId !== senderId && client.readyState === WebSocket.OPEN) {
-			client.send(JSON.stringify({ message, src: 'server' }));
+			console.log(`--message from main ${new Date()}:`, message)
+			client.send(JSON.stringify({ webSocketMessage: message, clientId }));
 		}
 	});
 }
