@@ -2,24 +2,57 @@
 
 <head>
 	<meta charset="UTF-8" />
-	<!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
 	<link rel="icon" href="favicon.svg" sizes="any" type="image/svg+xml">
 
 	<meta name="theme-color" content="#ffffff">
-	<!-- <link rel="icon" href="vite.svg"> -->
 	<link rel="mask-icon" href="favicon.svg" color="#000000">
-	<!-- <link rel="apple-touch-icon" href="apple-touch-icon.png"> -->
-	<!-- <link rel="manifest" href="manifest.json"> -->
-
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>
-		<%= name %>
-	</title>
+	<title>Your Page Title</title>
 </head>
 
 <body>
-	<div id="app"></div>
-	<script type="module" id="entry" src="<%= input %>"></script>
+	<iframe id="myIframe" style="width: 100%; height: 100vh; border: none;"></iframe>
+
+	<script>
+		function isRunningInFigmaUI() {
+			// Check if the window is running in an iframe
+			const isIframe = window.parent !== window;
+
+			// Check for Figma-specific markers in the user agent
+			const isFigmaUserAgent = navigator.userAgent.includes("Figma");
+
+			return isIframe && isFigmaUserAgent;
+		}
+
+		// Get the iframe element
+		let iframe = document.getElementById('myIframe');
+
+		// Create a basic HTML structure and include the script
+		let iframeContent = `<div id="app">This is inside the iframe!</div>
+		<script type="module" src="<%= input %>"><\/script>`;
+
+		// Write the content to the iframe's document
+		let doc = iframe.contentWindow.document;
+		doc.open();
+		doc.write(iframeContent);
+		doc.close();
+
+		if (isRunningInFigmaUI()) {
+			window.addEventListener('message', (event) => {
+				parent.postMessage(
+					{
+						pluginMessage: event.data.pluginMessage,
+						pluginId: event.data.pluginId,
+					},
+					"*",
+				);
+
+			});
+		}
+
+	</script>
+
+
 </body>
 
 </html>
