@@ -11,63 +11,63 @@ import lodashTemplate from 'lodash.template'
 const CURR_DIR = process.cwd();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-function createBuildConfig() {
+// function createBuildConfig() {
 
-	let data = fs.readFileSync(resolve('./package.json'), 'utf8')
+// 	let data = fs.readFileSync(resolve('./package.json'), 'utf8')
 
-	data = JSON.parse(data)
+// 	data = JSON.parse(data)
 
-	// Loop though ui field
-	let object = {}
+// 	// Loop though ui field
+// 	let object = {}
 
-	if (typeof data["plugma"]["manifest"].ui === "string") {
-		Object.assign(object, {
-			"index": data["plugma"]["manifest"].ui
-		})
-	}
-	else {
-		Object.assign(object, data["plugma"]["manifest"].ui)
-	}
+// 	if (typeof data["plugma"]["manifest"].ui === "string") {
+// 		Object.assign(object, {
+// 			"index": data["plugma"]["manifest"].ui
+// 		})
+// 	}
+// 	else {
+// 		Object.assign(object, data["plugma"]["manifest"].ui)
+// 	}
 
-	// Create folders
+// 	// Create folders
 
-	let viteObject = {}
+// 	let viteObject = {}
 
-	for (const [key, value] of Object.entries(object)) {
+// 	for (const [key, value] of Object.entries(object)) {
 
-		// Remove src form value
-		let newValue = value.replace('src/', '')
-		// Replace extension with .html
-		newValue = newValue.replace('.ts', '.html')
+// 		// Remove src form value
+// 		let newValue = value.replace('src/', '')
+// 		// Replace extension with .html
+// 		newValue = newValue.replace('.ts', '.html')
 
-		// Create file from template
-		let template = fs.readFileSync(`${__dirname}/../templates/index.html`, 'utf8');
-		let filePath = join(`${__dirname}/../tmp/${key}`)
+// 		// Create file from template
+// 		let template = fs.readFileSync(`${__dirname}/../templates/index.html`, 'utf8');
+// 		let filePath = join(`${__dirname}/../tmp/${key}`)
 
-		let comptempl = lodashTemplate(template)
+// 		let comptempl = lodashTemplate(template)
 
-		// FIX ME: This is not doing anything at the moment. This should probably happen in the build/dev script instead?
-		let templateData = {
-			name: "figma",
-			input: "/" + value
-		}
+// 		// FIX ME: This is not doing anything at the moment. This should probably happen in the build/dev script instead?
+// 		let templateData = {
+// 			name: "figma",
+// 			input: "/" + value
+// 		}
 
-		if (key === 'index') {
-			filePath = join(`${__dirname}/../tmp/`)
-		}
+// 		if (key === 'index') {
+// 			filePath = join(`${__dirname}/../tmp/`)
+// 		}
 
 
 
-		template = comptempl(templateData)
+// 		template = comptempl(templateData)
 
-		// FIX ME: Add exception if index, then just output index.html
-		createFileWithDirectory(filePath, 'index.html', template);
-		viteObject["input"] = join(filePath, 'index.html')
-	}
+// 		// FIX ME: Add exception if index, then just output index.html
+// 		createFileWithDirectory(filePath, 'index.html', template);
+// 		viteObject["input"] = join(filePath, 'index.html')
+// 	}
 
-	return viteObject
+// 	return viteObject
 
-}
+// }
 
 function createFileWithDirectory(filePath, fileName, fileContent, callback) {
 
@@ -100,6 +100,7 @@ function createFileWithDirectory(filePath, fileName, fileContent, callback) {
 
 
 // https://vitejs.dev/config/
+
 export default defineConfig({
 	plugins: [
 

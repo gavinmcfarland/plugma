@@ -11,47 +11,6 @@
 </head>
 
 <body>
-	<iframe id="myIframe" style="width: 100%; height: 100vh; border: none;"></iframe>
-
-	<script>
-		function isRunningInFigmaUI() {
-			// Check if the window is running in an iframe
-			const isIframe = window.parent !== window;
-
-			// Check for Figma-specific markers in the user agent
-			const isFigmaUserAgent = navigator.userAgent.includes("Figma");
-
-			return isIframe && isFigmaUserAgent;
-		}
-
-		// Get the iframe element
-		let iframe = document.getElementById('myIframe');
-
-		// Create a basic HTML structure and include the script
-		let iframeContent = `<div id="app">This is inside the iframe!</div>
-		<script type="module" src="/src/ui.ts"><\/script>`;
-
-		// Write the content to the iframe's document
-		let doc = iframe.contentWindow.document;
-		doc.open();
-		doc.write(iframeContent);
-		doc.close();
-
-		if (isRunningInFigmaUI()) {
-			window.addEventListener('message', (event) => {
-				parent.postMessage(
-					{
-						pluginMessage: event.data.pluginMessage,
-						pluginId: event.data.pluginId,
-					},
-					"*",
-				);
-
-			});
-		}
-
-	</script>
-
 
 </body>
 

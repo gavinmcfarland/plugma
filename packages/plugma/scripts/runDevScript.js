@@ -210,45 +210,56 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 }
 
 async function startViteServer(data, options) {
+
 	try {
 
 		// Surpress console logs created by vite
-		const originalConsoleLog = console.log;
-		console.log = function () { };
+		// const originalConsoleLog = console.log;
+		// console.log = function () { };
 
 		// Create Vite server
+
+
 		const server = await createServer({
 			// Rewrite index html file to point to ui file specified in manifest
 			plugins: [
-				{
-					name: 'html-transform-1',
-					transformIndexHtml(html) {
-						// 					// if (options._[0] === "dev" && options.preview) {
-						// 					let iframeString = `
-						// 						<iframe id="myIframe"></iframe>
-						// 						<script>
-						// 	const iframe = document.getElementById('myIframe');
-						// 	iframe.srcdoc = ""
-						// </script>`
-						// 					// }
+				// {
+				// 	name: 'html-transform-1',
+				// 	transformIndexHtml(html) {
 
-						// 					html = html.replace('<body>', `<body>${iframeString}`)
-						return html.replace('id="entry" src="(.+?)"', `src="${data.figmaManifest.ui}"`);
-					},
-				},
+				// 		// 					// if (options._[0] === "dev" && options.preview) {
+				// 		// 					let iframeString = `
+				// 		// 						<iframe id="myIframe"></iframe>
+				// 		// 						<script>
+				// 		// 	const iframe = document.getElementById('myIframe');
+				// 		// 	iframe.srcdoc = ""
+				// 		// </script>`
+				// 		// 					// }
+
+				// 		// 					html = html.replace('<body>', `<body>${iframeString}`)
+				// 		return html.replace('id="entry" src="(.+?)"', `src="${data.figmaManifest.ui}"`);
+				// 	},
+				// },
 				{
 					// Insert catchFigmaStyles and startWebSocketServer
 					name: 'html-transform',
 					transformIndexHtml(html) {
-						const scriptTag = `<script type="module" src="/node_modules/plugma/frameworks/common/ui/catchFigmaStyles.ts"></script>
-					<script type="module" src="/node_modules/plugma/frameworks/common/ui/startWebSocketServer.ts"></script>`;
-						html = html.replace('</body>', `</body>${scriptTag}`)
+						let iframe = fs.readFileSync(`${__dirname}/../templates/iframe.html`, 'utf8');
 
-						if (options._[0] === "dev" && options.toolbar) {
-							let devToolbarFile = fs.readFileSync(resolve(`${__dirname}/../frameworks/common/main/devToolbar.html`), 'utf-8')
+						html = html.replace('<body>', `</body>${iframe}`)
 
-							html = html.replace('<body>', `<body>${devToolbarFile}`)
-						}
+						html = html.replace('id="entry" src="<%= input %>"', `src="${data.figmaManifest.ui}"`)
+
+						// console.log("--- html", html)
+						// const scriptTag = `<script type="module" src="/node_modules/plugma/frameworks/common/ui/catchFigmaStyles.ts"></script>
+						// <script type="module" src="/node_modules/plugma/frameworks/common/ui/startWebSocketServer.ts"></script>`;
+						// html = html.replace('</body>', `</body>${scriptTag}`)
+
+						// if (options._[0] === "dev" && options.toolbar) {
+						// 	let devToolbarFile = fs.readFileSync(resolve(`${__dirname}/../frameworks/common/main/devToolbar.html`), 'utf-8')
+
+						// 	html = html.replace('<body>', `<body>${devToolbarFile}`)
+						// }
 
 						return html;
 					},
@@ -272,7 +283,7 @@ async function startViteServer(data, options) {
 
 		await server.listen(); // Start the Vite server
 
-		console.log = originalConsoleLog
+		// console.log = originalConsoleLog
 
 
 		// Run a web socket server so postMessage works between browser and Figma. And so Figma theme works in browser
@@ -528,10 +539,10 @@ ${chalk.blue.bold('Plugma')} ${chalk.grey('v0.0.1')}
 
 
 
-			if (options._[0] === 'dev') {
-				console.log(`
+
+			console.log(`
   ➜  Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan(options.port)}${chalk.cyan('/')}`)
-			}
+
 
 
 			await startViteServer(data, options)
