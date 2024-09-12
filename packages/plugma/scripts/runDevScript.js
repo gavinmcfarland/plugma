@@ -121,7 +121,7 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 
 		function writeTempFile(fileName) {
 			const tempFilePath = join(os.tmpdir(), fileName);
-			const modifiedContent = `import { saveFigmaStyles } from "${CURR_DIR}/node_modules/plugma/frameworks/common/main/saveFigmaStyles";
+			const modifiedContent = `import { saveFigmaStyles } from "${CURR_DIR}/node_modules/plugma/templates/saveFigmaStyles";
 			import main from "${CURR_DIR}/${data.figmaManifest.main}";
 			saveFigmaStyles();
 			main();`;
@@ -223,37 +223,15 @@ async function startViteServer(data, options) {
 		const server = await createServer({
 			// Rewrite index html file to point to ui file specified in manifest
 			plugins: [
-				// {
-				// 	name: 'html-transform-1',
-				// 	transformIndexHtml(html) {
-
-				// 		// 					// if (options._[0] === "dev" && options.preview) {
-				// 		// 					let iframeString = `
-				// 		// 						<iframe id="myIframe"></iframe>
-				// 		// 						<script>
-				// 		// 	const iframe = document.getElementById('myIframe');
-				// 		// 	iframe.srcdoc = ""
-				// 		// </script>`
-				// 		// 					// }
-
-				// 		// 					html = html.replace('<body>', `<body>${iframeString}`)
-				// 		return html.replace('id="entry" src="(.+?)"', `src="${data.figmaManifest.ui}"`);
-				// 	},
-				// },
 				{
 					// Insert catchFigmaStyles and startWebSocketServer
 					name: 'html-transform',
 					transformIndexHtml(html) {
-						let iframe = fs.readFileSync(`${__dirname}/../templates/iframe.html`, 'utf8');
+						let iframe = fs.readFileSync(`${__dirname}/../templates/appIframe.html`, 'utf8');
 
 						html = html.replace('<body>', `</body>${iframe}`)
 
 						html = html.replace('id="entry" src="<%= input %>"', `src="${data.figmaManifest.ui}"`)
-
-						// console.log("--- html", html)
-						// const scriptTag = `<script type="module" src="/node_modules/plugma/frameworks/common/ui/catchFigmaStyles.ts"></script>
-						// <script type="module" src="/node_modules/plugma/frameworks/common/ui/startWebSocketServer.ts"></script>`;
-						// html = html.replace('</body>', `</body>${scriptTag}`)
 
 						// if (options._[0] === "dev" && options.toolbar) {
 						// 	let devToolbarFile = fs.readFileSync(resolve(`${__dirname}/../frameworks/common/main/devToolbar.html`), 'utf-8')
@@ -287,7 +265,7 @@ async function startViteServer(data, options) {
 
 
 		// Run a web socket server so postMessage works between browser and Figma. And so Figma theme works in browser
-		// const childProcess = exec('node node_modules/plugma/lib/server.cjs');
+		// const childProcess = exec('node node_modules/plugma/lib/startWebSocketsServer.cjs');
 		// childProcess.stderr.on('data', (data) => {
 		// 	console.error(`Script error: ${data}`);
 		// });
@@ -347,7 +325,7 @@ async function buildUI(data, callback, NODE_ENV, options) {
 
 	if (options._[0] === 'dev') {
 		// We don't need to bundle the UI because when developing it needs to point to the dev server. So instead we create a placeholder ui file that points to a server
-		let devHtmlString = fs.readFileSync(`${__dirname}/../frameworks/common/main/devHtmlString.html`, 'utf8');
+		let devHtmlString = fs.readFileSync(`${__dirname}/../templates/devHtmlString.html`, 'utf8');
 
 
 

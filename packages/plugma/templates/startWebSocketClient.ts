@@ -35,6 +35,8 @@ if (isRunningInFigmaUI()) {
 
 let clientId = Date.now(); // Unique client ID for the browser session
 
+console.log("---- websocket client running");
+
 function onWindowMsg(msg) {
   if (msg.data.pluginMessage) {
     const message = JSON.stringify({
@@ -57,7 +59,7 @@ function onWindowMsg(msg) {
   }
 }
 
-function startWebSocketServer() {
+function startWebSocketClient() {
   if (
     ws.current &&
     (ws.current.readyState === WebSocket.CONNECTING ||
@@ -97,7 +99,7 @@ function startWebSocketServer() {
     try {
       let msg = JSON.parse(event.data);
 
-      //   console.log("-----msg", msg)
+      console.log("-----msg", msg);
 
       // Check if the message originated from the current browser session
       if (msg.clientId !== clientId) {
@@ -163,7 +165,7 @@ function startWebSocketServer() {
   };
 }
 
-startWebSocketServer();
+// startWebSocketClient();
 
 // Backup the original console.error function
 // const originalConsoleError = console.error;
@@ -171,4 +173,4 @@ startWebSocketServer();
 // Don't forget to restore the original console.error when appropriate
 // console.error = originalConsoleError;
 
-export { startWebSocketServer };
+export { startWebSocketClient };

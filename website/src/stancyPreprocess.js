@@ -21,7 +21,6 @@ export function preprocess(type, callback) {
 
 export function _process(data, callback) {
 	// data = JSON.parse(data);
-	// console.log('---cb', callback);
 	if (callback.preprocess) {
 		if (callback.preprocess[0] === 'content') {
 			if (Array.isArray(data)) {

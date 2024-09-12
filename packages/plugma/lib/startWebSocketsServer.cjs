@@ -59,10 +59,10 @@ wss.on('connection', (ws) => {
 function broadcastMessage(message, senderId) {
 	clients.forEach((client, clientId) => {
 
-		if (clientId !== senderId && client.readyState === WebSocket.OPEN) {
-			console.log(`--message from main ${new Date()}:`, message)
-			client.send(JSON.stringify({ webSocketMessage: message, clientId }));
-		}
+		// if (clientId !== senderId && client.readyState === WebSocket.OPEN) {
+		console.log(`--message from main ${new Date()}:`, message)
+		client.send(JSON.stringify({ webSocketMessage: message, clientId }));
+		// }
 	});
 }
 
