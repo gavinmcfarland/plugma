@@ -1,11 +1,10 @@
 <h1 id="plugma-web-server-status">Yo</h1>
-<iframe id="plugma-app-iframe" name="plugma-inner-iframe" style="width: 100%; height: 100vh; border: none;"></iframe>
+<iframe id="plugma-app-iframe" style="width: 100%; height: 100vh; border: none;"></iframe>
 <script type="module">
-
 	import { nanoid } from '/node_modules/nanoid'
+
 	const html = document.querySelector('html');
-
-
+	const status = document.getElementById('plugma-web-server-status');
 
 	function isRunningInFigmaUI() {
 		// Check if the window is running in an iframe
@@ -22,16 +21,16 @@
 		return nanoid()
 	}
 
+	// Write to iframe so that Vite app can be mounted
 	let iframe = document.getElementById("plugma-app-iframe");
 	let doc = iframe.contentWindow.document;
 	doc.open();
 	doc.write(`<%- include("iframe.html").replace(/\\/g, '\\\\').replace(/\//g, '\\/') %>`);
 	doc.close();
 
-	let status = document.getElementById('plugma-web-server-status');
-	let ws; // Declare WebSocket variable outside the function scope
-	let reconnectInterval = 2000; // Set the reconnection attempt interval
 
+	// Start web socket client
+	let ws; // Declare WebSocket variable outside the function scope
 
 	function isWebSocketOpen() {
 		return ws.readyState === WebSocket.OPEN;
@@ -61,19 +60,12 @@
 			status.textContent = 'Server is not running. Reconnecting...';
 			setTimeout(function () {
 				connectWebSocket(); // Attempt to reconnect
-			}, reconnectInterval);
+			}, 2000);
 		};
 	}
 
 	// Initial WebSocket connection
 	connectWebSocket();
-
-	// // Periodically check WebSocket state
-	// setInterval(function () {
-	// 	if (ws.readyState === WebSocket.CLOSED) {
-	// 		status.textContent = 'Server is not running';
-	// 	}
-	// }, 1000);
 
 
 	// Any messages sent from UI need to pass up to the parent (main code), but not if running headless in browser

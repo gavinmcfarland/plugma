@@ -10,11 +10,7 @@
 	const newUrl = new URL("http://localhost:5173");
 	pluginWindowIframe.src = newUrl.href;
 
-	// window.parent.onmessage = (event) => {
-	// 	console.log(event.data)
-	// }
 	// pass messages between parent and plugin window wrapper iframe
-	// pluginWindowIframe.onload = () => {
 	window.onmessage = (event) => {
 		// Forward up to parent if it comes from "plugma-inner-iframe"
 		if (event.origin !== "https://www.figma.com") {
@@ -45,12 +41,10 @@
 		});
 
 		// Start observing the element
-		// pluginWindowIframe.onload = () => {
 		observer.observe(html, {
 			attributes: true,  // Watch for attribute changes
 			attributeFilter: ['class']  // Specifically watch the 'class' attribute
 		});
-		// }
 	}
 
 	function postFigmaStyles() {
@@ -84,8 +78,7 @@
 		postUpdatedStyles();
 	}
 
-
-
+	// Wait for the iframe to be mounted
 	pluginWindowIframe.onload = () => {
 		postFigmaClasses()
 		postFigmaStyles()
