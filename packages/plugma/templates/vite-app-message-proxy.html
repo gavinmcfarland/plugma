@@ -25,7 +25,7 @@
 	let iframe = document.getElementById("plugma-app-iframe");
 	let doc = iframe.contentWindow.document;
 	doc.open();
-	doc.write(`<%- include("iframe.html").replace(/\\/g, '\\\\').replace(/\//g, '\\/') %>`);
+	doc.write(`<%- include("vite-app-iframe.html").replace(/\\/g, '\\\\').replace(/\//g, '\\/') %>`);
 	doc.close();
 
 

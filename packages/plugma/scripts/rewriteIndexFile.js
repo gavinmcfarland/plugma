@@ -50,7 +50,8 @@ async function writeIndexFile() {
 
 	// let newIndexPath = `${CURR_DIR}/${projectName}/node_modules/plugma/index.html`;
 
-	let indexTemplatePath = `${__dirname}/../templates/index.html`
+	let indexTemplatePath = `${__dirname}/../templates/vite-app-input.html`
+	// Rewrite using os.tmpdir(), but to work, rewriteIndexFile needs to output file location to vite config
 	let newIndexPath = `${__dirname}/../tmp/index.html`
 
 	// Need to use process.env.INIT_CWD because otherwise package is referenced from the module and not the users project <- not sure this is true

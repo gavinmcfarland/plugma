@@ -27,7 +27,7 @@ const __filename = fileURLToPath(import.meta.url);
 
 
 const files = {
-	pluginWrapper: fs.readFileSync(path.join(__dirname, '../templates/plugin-wrapper.html'), 'utf8'),
+	pluginWrapper: fs.readFileSync(path.join(__dirname, '../templates/vite-app-message-proxy.html'), 'utf8'),
 	devToolbarFile: fs.readFileSync(resolve(`${__dirname}/../frameworks/common/main/devToolbar.html`), 'utf-8')
 }
 
@@ -217,7 +217,7 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 
 		function writeTempFile(fileName) {
 			const tempFilePath = join(os.tmpdir(), fileName);
-			const modifiedContent = `import { saveFigmaStyles } from "${CURR_DIR}/node_modules/plugma/templates/saveFigmaStyles";
+			const modifiedContent = `import { saveFigmaStyles } from "${CURR_DIR}/node_modules/plugma/frameworks/common/main/saveFigmaStyles";
 			import main from "${CURR_DIR}/${data.figmaManifest.main}";
 			saveFigmaStyles();
 			main();`;
@@ -422,7 +422,7 @@ async function buildUI(data, callback, NODE_ENV, options) {
 
 	if (options._[0] === 'dev') {
 		// We don't need to bundle the UI because when developing it needs to point to the dev server. So instead we create a placeholder ui file that points to a server
-		let devHtmlString = fs.readFileSync(`${__dirname}/../templates/plugin-window-wrapper-dev.html`, 'utf8');
+		let devHtmlString = fs.readFileSync(`${__dirname}/../templates/figma-plugin-window-dev.html`, 'utf8');
 
 
 
