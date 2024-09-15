@@ -1,7 +1,9 @@
 <iframe id="myIframe" name="plugma-inner-iframe" style="width: 100%; height: 100vh; border: none;"></iframe>
 
-<script type="module">
+<script id="script" type="module">
 	// import { startWebSocketClient } from "/node_modules/plugma/templates/startWebSocketClient.ts"
+	import { nanoid } from '/node_modules/nanoid'
+
 	function isRunningInFigmaUI() {
 		// Check if the window is running in an iframe
 		const isIframe = window.parent !== window;
@@ -12,17 +14,20 @@
 		return isIframe && isFigmaUserAgent;
 	}
 
+	// Function to generate a unique message ID
+	function generateMessageId(data) {
+		return nanoid()
+	}
+
 	// Get the iframe element
 	let iframe = document.getElementById('myIframe');
 
-	// Create a basic HTML structure and include the scripts
-	let iframeContent = `
-		<div id="app"></div>
-		<script type="module" src="/node_modules/plugma/templates/catchFigmaStyles.ts"><\/script>
-		<script type="module" id="entry" src="<%= input %>"><\/script>
-	`;
+	let input = '<%= input %>'
 
-	// Write the content to the iframe's document
+	// // Create a basic HTML structure and include the scripts
+	let iframeContent = `<%= iframeContent %>`;
+
+	// // Write the content to the iframe's document
 	let doc = iframe.contentWindow.document;
 	doc.open();
 	doc.write(iframeContent);
@@ -37,11 +42,6 @@
 
 		// Track messages that have already been processed
 		const processedMessages = new Set();
-
-		// Function to generate a unique message ID
-		function generateMessageId(data) {
-			return JSON.stringify(data) + Date.now(); // Or use a more complex hash if needed
-		}
 
 		function isWebSocketOpen() {
 			return ws.readyState === WebSocket.OPEN;
@@ -69,8 +69,6 @@
 
 				const messageData = event.data;
 				const messageId = generateMessageId(messageData); // Use the same ID generation function
-
-				console.log("from main", event.data)
 
 				// Check if this message has already been processed
 				// if (!processedMessages.has(messageId)) {
@@ -113,11 +111,6 @@
 
 		// Track messages that have already been processed
 		const processedMessages = new Set();
-
-		// Function to generate a unique message ID
-		function generateMessageId(data) {
-			return JSON.stringify(data) + Date.now(); // Or use a more complex hash if needed
-		}
 
 		// Listen for messages from iframe
 		window.onmessage = (event) => {

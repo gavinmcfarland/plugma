@@ -11,10 +11,101 @@ import { fileURLToPath } from 'url';
 import nodeCleanup from 'node-cleanup';
 import lodashTemplate from 'lodash.template'
 import writeIndexFile from './rewriteIndexFile.js'
+import * as cheerio from 'cheerio';
+import pretty from 'pretty';
+
+import path from 'path'
 // import { option } from 'yargs';
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const files = {
+	iframe: fs.readFileSync(path.join(__dirname, '../templates/appIframe.html'), 'utf8'),
+	iframeContent: fs.readFileSync(path.join(__dirname, '../templates/iframeContent.html'), 'utf8'),
+	devToolbarFile: fs.readFileSync(resolve(`${__dirname}/../frameworks/common/main/devToolbar.html`), 'utf-8')
+}
+
+function escapeClosingTags(html) {
+	// Safely escape closing tags to prevent issues with injected HTML, especially script tags.
+	return html
+		.replace(/<\/script>/g, '<\\/script>')
+		.replace(/<\/style>/g, '<\\/style>');
+}
+
+export function loadTemplate(htmlString) {
+	// Load the initial HTML string using cheerio
+	let $ = cheerio.load(htmlString);
+
+	function createNestedElement(selector) {
+		// Get the selected element from cheerio
+		const cheerioElement = $(selector);
+
+		// Create a proxy to wrap the cheerio element and allow access to all its methods
+		return new Proxy(cheerioElement, {
+			get(target, prop) {
+				// If the property is "nest", we create a nested structure
+				if (prop === 'nest') {
+					return (callback) => {
+						const nestedSelector = createNestedElement(selector);
+						callback(nestedSelector);
+					};
+				}
+
+				// If the property is "apply", we define the custom apply method for placeholders
+				if (prop === 'apply') {
+					return (data) => {
+						target.each((_, el) => {
+							let elementHtml = $.html(el);
+							const updatedHtml = elementHtml.replace(/<%= (.*?) %>/g, (_, key) => {
+								return data[key] || '';
+							});
+							$(el).replaceWith(updatedHtml);
+						});
+					};
+				}
+
+				// Custom method to simulate content injection via script tag and escape closing tags
+				if (prop === 'write') {
+					return (htmlContent) => {
+						const escapedContent = escapeClosingTags(htmlContent);
+						// Insert a script tag after the iframe that simulates the document.open/write/close sequence
+						target.after(
+							`<script>
+								(function() {
+									let iframe = document.getElementById('${target.attr('id')}');
+								let iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+								iframeDoc.open();
+								iframeDoc.write(\${escapedContent}\);
+								iframeDoc.close();
+				  })();
+							</script>`
+						);
+					};
+				}
+
+				// For all other properties, fall back to the cheerio API
+				return target[prop];
+			}
+		});
+	}
+
+	// Main function to handle selection and nesting
+	function selector(selector) {
+		return createNestedElement(selector);
+	}
+
+	// Add a method to return the prettified HTML
+	selector.html = () => pretty($.html());
+
+	return selector;
+}
+
+
+
+
+
+
 
 var root
 
@@ -227,19 +318,23 @@ async function startViteServer(data, options) {
 					// Insert catchFigmaStyles and startWebSocketServer
 					name: 'html-transform',
 					transformIndexHtml(html) {
-						let iframe = fs.readFileSync(`${__dirname}/../templates/appIframe.html`, 'utf8');
 
-						html = html.replace('<body>', `</body>${iframe}`)
+						let $ = loadTemplate(html);
 
-						html = html.replace('id="entry" src="<%= input %>"', `src="${data.figmaManifest.ui}"`)
+						$('body').append(files.iframe);
+
+						$('#script').apply({
+							input: data.figmaManifest.ui,
+							iframeContent: escapeClosingTags(files.iframeContent)
+						});
+
 
 						// if (options._[0] === "dev" && options.toolbar) {
-						// 	let devToolbarFile = fs.readFileSync(resolve(`${__dirname}/../frameworks/common/main/devToolbar.html`), 'utf-8')
 
-						// 	html = html.replace('<body>', `<body>${devToolbarFile}`)
+						// 	html = html.replace('<body>', `<body>${files.devToolbarFile}`)
 						// }
 
-						return html;
+						return $.html();
 					},
 					apply: 'serve'
 				},
