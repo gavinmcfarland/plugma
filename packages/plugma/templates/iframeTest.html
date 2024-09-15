@@ -1,0 +1,9 @@
+<iframe></iframe>
+<script>
+	let input = `<%= input %>`
+	let iframe = document.getElementById("iframe");
+	iframe.open();
+	iframe.write(`<%- include("iframeContentTest.html").replace(/<\/script>/g, "<\\/script>") %>`);
+
+	iframe.close();
+</script>

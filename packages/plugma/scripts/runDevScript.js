@@ -13,12 +13,18 @@ import lodashTemplate from 'lodash.template'
 import writeIndexFile from './rewriteIndexFile.js'
 import * as cheerio from 'cheerio';
 import pretty from 'pretty';
+import ejs from 'ejs';
+// import { renderTemplate } from './nunchucksTemplate.js'
+import { renderTemplate } from './ejsTemplate.js'
 
 import path from 'path'
 // import { option } from 'yargs';
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
+
+
 
 const files = {
 	iframe: fs.readFileSync(path.join(__dirname, '../templates/appIframe.html'), 'utf8'),
@@ -319,22 +325,18 @@ async function startViteServer(data, options) {
 					name: 'html-transform',
 					transformIndexHtml(html) {
 
-						let $ = loadTemplate(html);
-
-						$('body').append(files.iframe);
-
-						$('#script').apply({
-							input: data.figmaManifest.ui,
-							iframeContent: escapeClosingTags(files.iframeContent)
-						});
-
+						// Example usage for testing purposes
+						const basePath = path.resolve(__dirname, '../templates'); // You can set the base path where the files are located
+						const data = { name: "My Test App", options };
+						const renderedOutput = renderTemplate('testFile.html', basePath, data);
+						console.log(renderedOutput);
 
 						// if (options._[0] === "dev" && options.toolbar) {
 
 						// 	html = html.replace('<body>', `<body>${files.devToolbarFile}`)
 						// }
 
-						return $.html();
+						return html;
 					},
 					apply: 'serve'
 				},
