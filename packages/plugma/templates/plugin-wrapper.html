@@ -1,6 +1,11 @@
-<script id="script" type="module">
+<h1 id="plugma-web-server-status">Yo</h1>
+<iframe id="plugma-app-iframe" name="plugma-inner-iframe" style="width: 100%; height: 100vh; border: none;"></iframe>
+<script type="module">
 
 	import { nanoid } from '/node_modules/nanoid'
+	const html = document.querySelector('html');
+
+
 
 	function isRunningInFigmaUI() {
 		// Check if the window is running in an iframe
@@ -17,36 +22,113 @@
 		return nanoid()
 	}
 
-	// Get the iframe element
-	let iframe = document.getElementById('plugma-inner-iframe');
+	let iframe = document.getElementById("plugma-app-iframe");
+	let doc = iframe.contentWindow.document;
+	doc.open();
+	doc.write(`<%- include("iframe.html").replace(/\\/g, '\\\\').replace(/\//g, '\\/') %>`);
+	doc.close();
+
+	let status = document.getElementById('plugma-web-server-status');
+	let ws; // Declare WebSocket variable outside the function scope
+	let reconnectInterval = 2000; // Set the reconnection attempt interval
+
+
+	function isWebSocketOpen() {
+		return ws.readyState === WebSocket.OPEN;
+	}
+
+	function connectWebSocket() {
+		ws = new WebSocket('ws://localhost:9001/ws');
+
+		// WebSocket open event
+		ws.onopen = function () {
+			status.textContent = 'Server is running';
+			if (isRunningInFigmaUI()) {
+				iframe.style.display = "none"
+			}
+			else {
+				status.style.display = "none"
+			}
+		};
+
+		// Handle WebSocket errors
+		ws.onerror = function () {
+			status.textContent = 'Error connecting to server';
+		};
+
+		// Handle WebSocket closure and try to reconnect
+		ws.onclose = function () {
+			status.textContent = 'Server is not running. Reconnecting...';
+			setTimeout(function () {
+				connectWebSocket(); // Attempt to reconnect
+			}, reconnectInterval);
+		};
+	}
+
+	// Initial WebSocket connection
+	connectWebSocket();
+
+	// // Periodically check WebSocket state
+	// setInterval(function () {
+	// 	if (ws.readyState === WebSocket.CLOSED) {
+	// 		status.textContent = 'Server is not running';
+	// 	}
+	// }, 1000);
+
 
 	// Any messages sent from UI need to pass up to the parent (main code), but not if running headless in browser
 	if (isRunningInFigmaUI()) {
 
 
 
-		const ws = new WebSocket('ws://localhost:9001/ws');
+		// Apply Figma styles to intermediate space
+		window.addEventListener('message', (event) => {
+			const message = event.data;
+
+			if (message.type === "FIGMA_HTML_CLASSES") {
+				// console.log('Message received:', message);
+				html.className = message.data
+			}
+			if (message.type === "FIGMA_STYLES") {
+				const styleSheet = document.createElement("style");
+				styleSheet.type = "text/css";
+				styleSheet.innerText = message.data;
+
+				// Append the style tag to the head
+				document.head.appendChild(styleSheet);
+			}
+
+			// Forward styles (and other messages) to plugin UI
+			if (event.origin === "null") {
+
+				iframe.contentWindow.postMessage({
+					pluginMessage: event.data
+				}, "*")
+			}
+		});
+
+
+
+
 
 		// Track messages that have already been processed
 		const processedMessages = new Set();
 
-		function isWebSocketOpen() {
-			return ws.readyState === WebSocket.OPEN;
-		}
+
 
 		window.onmessage = (event) => {
 
 			if (!isWebSocketOpen()) {
+
 				// Forward up to parent if it comes from "plugma-inner-iframe"
 				if (event.origin !== "https://www.figma.com") {
-					console.log("post upwards")
+					// console.log("post upwards")
 					parent.postMessage(event.data, "*")
 				}
 
-
 				// Forward down to inner iframe if it comes from "Inner Plugin Iframe"
 				if (event.origin === "https://www.figma.com") {
-					console.log("post downwards")
+					// console.log("post downwards")
 					iframe.contentWindow.postMessage(event.data, "*")
 				}
 			}
@@ -94,7 +176,7 @@
 	else {
 
 
-		const ws = new WebSocket('ws://localhost:9001/ws');
+		// const ws = new WebSocket('ws://localhost:9001/ws');
 
 		// Track messages that have already been processed
 		const processedMessages = new Set();
@@ -134,3 +216,10 @@
 		}
 	}
 </script>
+
+<style>
+	html {
+		/* keep background transparent to avoid flicker when changing theme in dev mode */
+		color: var(--figma-color-text);
+	}
+</style>

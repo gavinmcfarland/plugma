@@ -1,0 +1,118 @@
+<iframe id="plugma-window-iframe" style="width: 100%; height: 100vh; border: none;"></iframe>
+
+<script>
+
+	const pluginFrame = document.getElementById("app")
+	const pluginWindowIframe = document.getElementById("plugma-window-iframe")
+	const html = document.querySelector('html');
+
+	// redirect plugin window wrapper url
+	const newUrl = new URL("http://localhost:5173");
+	pluginWindowIframe.src = newUrl.href;
+
+	// window.parent.onmessage = (event) => {
+	// 	console.log(event.data)
+	// }
+	// pass messages between parent and plugin window wrapper iframe
+	// pluginWindowIframe.onload = () => {
+	window.onmessage = (event) => {
+		// Forward up to parent if it comes from "plugma-inner-iframe"
+		if (event.origin !== "https://www.figma.com") {
+			console.log("post upwards")
+			parent.postMessage(event.data, "*")
+			// console.log("--- event", event)
+		} else {
+			console.log("post downwards")
+			pluginWindowIframe.contentWindow.postMessage(event.data, "*")
+		}
+	}
+	// }
+
+	// Post Figma classes
+	function postFigmaClasses() {
+		const observer = new MutationObserver((mutationsList) => {
+			for (let mutation of mutationsList) {
+				if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+					// Post the message to the iframe
+					pluginWindowIframe.contentWindow.postMessage({
+						type: 'FIGMA_HTML_CLASSES',
+						data: html.className,
+						origin: "figma.com"
+					}, "*");  // '*' allows messages to be sent regardless of origin. It's safer to specify the iframe's origin if known.
+
+				}
+			}
+		});
+
+		// Start observing the element
+		// pluginWindowIframe.onload = () => {
+		observer.observe(html, {
+			attributes: true,  // Watch for attribute changes
+			attributeFilter: ['class']  // Specifically watch the 'class' attribute
+		});
+		// }
+	}
+
+	function postFigmaStyles() {
+		// Assuming the stylesheet is the first one in the document
+
+		const styleSheetElement = document.getElementById('figma-style'); // Find the corresponding <style> or <link> element
+
+		// Function to send the updated CSS rules
+		function postUpdatedStyles() {
+			// Post the message to the iframe
+			pluginWindowIframe.contentWindow.postMessage({
+				type: 'FIGMA_STYLES',
+				data: styleSheetElement.innerHTML,
+				origin: "figma.com"
+			}, "*");
+		}
+
+		// Create a MutationObserver to watch for changes in the style element
+		const observer = new MutationObserver(() => {
+			postUpdatedStyles(); // Post the updated styles when a change is detected
+		});
+
+		// Start observing the <style> or <link> element for changes
+		observer.observe(styleSheetElement, {
+			attributes: true,
+			childList: true,
+			subtree: true
+		});
+
+		// Optionally, call postUpdatedStyles immediately to send the initial styles
+		postUpdatedStyles();
+	}
+
+
+
+	pluginWindowIframe.onload = () => {
+		postFigmaClasses()
+		postFigmaStyles()
+	}
+
+
+</script>
+
+<style>
+	body {
+		padding: 0;
+		margin: 0;
+	}
+</style>
+
+<!-- <style>
+	:root {
+		color: var(--figma-color-text);
+		font-family: Inter, system-ui, Helvetica, Arial, sans-serif;
+		font-display: optional;
+		font-size: 68.75%;
+		/* 11/16 */
+	}
+
+	body {
+		margin: 16px;
+		background-color: var(--figma-color-bg);
+		color: var(--figma-color-text);
+	}
+</style> -->

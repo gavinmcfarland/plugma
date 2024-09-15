@@ -27,7 +27,7 @@ const __filename = fileURLToPath(import.meta.url);
 
 
 const files = {
-	body: fs.readFileSync(path.join(__dirname, '../templates/body.html'), 'utf8'),
+	pluginWrapper: fs.readFileSync(path.join(__dirname, '../templates/plugin-wrapper.html'), 'utf8'),
 	devToolbarFile: fs.readFileSync(resolve(`${__dirname}/../frameworks/common/main/devToolbar.html`), 'utf-8')
 }
 
@@ -325,7 +325,7 @@ async function startViteServer(data, options) {
 					transformIndexHtml(html) {
 
 						// Can't use template with ejs template directly, so we have to add our file to it first
-						html = html.replace('<body>', `<body>${files.body}`)
+						html = html.replace('<body>', `<body>${files.pluginWrapper}`)
 
 
 						const basePath = path.resolve(__dirname, '../templates'); // You can set the base path where the files are located
@@ -422,7 +422,7 @@ async function buildUI(data, callback, NODE_ENV, options) {
 
 	if (options._[0] === 'dev') {
 		// We don't need to bundle the UI because when developing it needs to point to the dev server. So instead we create a placeholder ui file that points to a server
-		let devHtmlString = fs.readFileSync(`${__dirname}/../templates/devHtmlString.html`, 'utf8');
+		let devHtmlString = fs.readFileSync(`${__dirname}/../templates/plugin-window-wrapper-dev.html`, 'utf8');
 
 
 
