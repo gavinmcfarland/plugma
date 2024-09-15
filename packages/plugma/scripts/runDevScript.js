@@ -27,8 +27,7 @@ const __filename = fileURLToPath(import.meta.url);
 
 
 const files = {
-	iframe: fs.readFileSync(path.join(__dirname, '../templates/appIframe.html'), 'utf8'),
-	iframeContent: fs.readFileSync(path.join(__dirname, '../templates/iframeContent.html'), 'utf8'),
+	body: fs.readFileSync(path.join(__dirname, '../templates/body.html'), 'utf8'),
 	devToolbarFile: fs.readFileSync(resolve(`${__dirname}/../frameworks/common/main/devToolbar.html`), 'utf-8')
 }
 
@@ -325,18 +324,19 @@ async function startViteServer(data, options) {
 					name: 'html-transform',
 					transformIndexHtml(html) {
 
-						// Example usage for testing purposes
+						// Can't use template with ejs template directly, so we have to add our file to it first
+						html = html.replace('<body>', `<body>${files.body}`)
+
+
 						const basePath = path.resolve(__dirname, '../templates'); // You can set the base path where the files are located
-						const data = { name: "My Test App", options };
-						const renderedOutput = renderTemplate('testFile.html', basePath, data);
-						console.log(renderedOutput);
+
 
 						// if (options._[0] === "dev" && options.toolbar) {
 
 						// 	html = html.replace('<body>', `<body>${files.devToolbarFile}`)
 						// }
 
-						return html;
+						return renderTemplate(html, basePath, { name: "My Test App", options, input: data.figmaManifest.ui });;
 					},
 					apply: 'serve'
 				},

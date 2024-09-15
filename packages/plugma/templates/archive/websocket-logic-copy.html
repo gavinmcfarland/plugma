@@ -1,0 +1,136 @@
+<script id="script" type="module">
+	// import { startWebSocketClient } from "/node_modules/plugma/templates/startWebSocketClient.ts"
+	import { nanoid } from '/node_modules/nanoid'
+
+	function isRunningInFigmaUI() {
+		// Check if the window is running in an iframe
+		const isIframe = window.parent !== window;
+
+		// Check for Figma-specific markers in the user agent
+		const isFigmaUserAgent = navigator.userAgent.includes("Figma");
+
+		return isIframe && isFigmaUserAgent;
+	}
+
+	// Function to generate a unique message ID
+	function generateMessageId(data) {
+		return nanoid()
+	}
+
+	// Get the iframe element
+	let iframe = document.getElementById('myIframe');
+
+	// Any messages sent from UI need to pass up to the parent (main code), but not if running headless in browser
+	if (isRunningInFigmaUI()) {
+
+
+
+		const ws = new WebSocket('ws://localhost:9001/ws');
+
+		// Track messages that have already been processed
+		const processedMessages = new Set();
+
+		function isWebSocketOpen() {
+			return ws.readyState === WebSocket.OPEN;
+		}
+
+		window.onmessage = (event) => {
+
+			if (!isWebSocketOpen()) {
+				// Forward up to parent if it comes from "plugma-inner-iframe"
+				if (event.origin !== "https://www.figma.com") {
+					console.log("post upwards")
+					parent.postMessage(event.data, "*")
+				}
+
+
+				// Forward down to inner iframe if it comes from "Inner Plugin Iframe"
+				if (event.origin === "https://www.figma.com") {
+					console.log("post downwards")
+					iframe.contentWindow.postMessage(event.data, "*")
+				}
+			}
+			else {
+				// Listen for messages from parent and forward to web socket server
+				// ws.send(JSON.stringify(event.data));
+
+				const messageData = event.data;
+				const messageId = generateMessageId(messageData); // Use the same ID generation function
+
+				// Check if this message has already been processed
+				// if (!processedMessages.has(messageId)) {
+				// Add message to the processed set
+				processedMessages.add(messageId);
+
+				// Forward the message to WebSocket server
+				if (ws.readyState === WebSocket.OPEN) {
+					ws.send(JSON.stringify({ messageId, data: messageData }));
+				}
+				// }
+			}
+
+
+		};
+
+		// Forward up to parent if it comes from web socket server
+		ws.onmessage = (wsEvent) => {
+			const serverMessage = JSON.parse(wsEvent.data);
+			const webSocketMessage = JSON.parse(serverMessage.webSocketMessage)
+
+
+			// Check if this message has already been processed
+			if (!processedMessages.has(webSocketMessage.messageId)) {
+
+				// Add the message to the processed set
+				processedMessages.add(webSocketMessage.messageId);
+
+				// Forward the message to the parent
+				parent.postMessage(webSocketMessage.data, "*");
+			}
+		};
+
+
+	}
+	else {
+
+
+		const ws = new WebSocket('ws://localhost:9001/ws');
+
+		// Track messages that have already been processed
+		const processedMessages = new Set();
+
+		// Listen for messages from iframe
+		window.onmessage = (event) => {
+			// Forward the message to websocket server
+			const messageData = event.data;
+			const messageId = generateMessageId(messageData);
+
+
+
+			// Check if this message has already been processed
+			if (!processedMessages.has(messageId)) {
+				// Add message to the processed set
+
+
+				if (!processedMessages.has(messageId)) {
+					processedMessages.add(messageId);
+					// Forward the message to WebSocket server
+					if (ws.readyState === WebSocket.OPEN) {
+						ws.send(JSON.stringify({ messageId, data: messageData }));
+					} else {
+						console.warn("WebSocket connection is not open");
+					}
+				}
+			}
+
+		};
+
+		ws.onmessage = (event) => {
+			let message = JSON.parse(event.data)
+			let webSocketMessage = JSON.parse(message.webSocketMessage)
+			if (!processedMessages.has(webSocketMessage.messageId)) {
+				iframe.contentWindow.postMessage(webSocketMessage.data, "*")
+			}
+		}
+	}
+</script>

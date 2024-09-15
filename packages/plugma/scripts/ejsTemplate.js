@@ -12,23 +12,33 @@ function escapeScriptTags(content) {
 	return content.replace(/<\/script>/g, '<\\/script>');
 }
 
-export function renderTemplate(filePath, basePath, data = {}) {
-	const absoluteFilePath = path.join(basePath, filePath);
-	const template = fs.readFileSync(absoluteFilePath, 'utf-8');
+export function renderTemplate(templateOrFilePath, basePath, data = {}) {
+	let template;
 
-	// Pass the file function with an optional data and escape argument
+	// Check if the input is a file or a string
+	if (fs.existsSync(path.join(basePath, templateOrFilePath))) {
+		// If it's a file, read from the file system
+		const absoluteFilePath = path.join(basePath, templateOrFilePath);
+		template = fs.readFileSync(absoluteFilePath, 'utf-8');
+	} else {
+		// Otherwise, treat it as a template string
+		template = templateOrFilePath;
+	}
+
+	// Pass the include function with an optional data and escape argument
 	return ejs.render(template, {
-		...data,
+		...data, // Merge base data
 		include: (file, options = {}) => {
-			const { escape = false, additionalData = {} } = options;  // Destructure escape and additionalData
-			const content = renderTemplate(file, basePath, { ...data, ...options });  // Merge additional data
+			const { escape = false } = options;  // Destructure escape and additionalData
+			const mergedData = { ...data, ...options };  // Merge parent data with additionalData
+			const content = renderTemplate(file, basePath, mergedData);  // Pass merged data to the child template
 			return escape ? escapeScriptTags(content) : content;
 		}
 	});
 }
 
-// Example usage for testing purposes
-// const basePath = path.resolve(__dirname, 'templates'); // You can set the base path where the files are located
-// const data = { name: "My Test App" };
-// const renderedOutput = renderTemplate('testFile.html', basePath, data);
-// console.log(renderedOutput);
+// Example usage:
+
+// Rendering from a file
+// const renderedFromFile = renderTemplate('templateFile.html', basePath, data);
+// console.log(renderedFromFile);

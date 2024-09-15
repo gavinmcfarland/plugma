@@ -1,0 +1,8 @@
+<iframe id="plugma-inner-iframe" name="plugma-inner-iframe" style="width: 100%; height: 100vh; border: none;"></iframe>
+<script>
+	let iframe = document.getElementById("plugma-inner-iframe");
+	let doc = iframe.contentWindow.document;
+	doc.open();
+	doc.write(`<%- include("iframe-content.html").replace(/<\/script>/g, "<\\/script>") %>`);
+	doc.close();
+</script>

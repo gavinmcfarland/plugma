@@ -1,7 +1,5 @@
-<iframe id="myIframe" name="plugma-inner-iframe" style="width: 100%; height: 100vh; border: none;"></iframe>
-
 <script id="script" type="module">
-	// import { startWebSocketClient } from "/node_modules/plugma/templates/startWebSocketClient.ts"
+
 	import { nanoid } from '/node_modules/nanoid'
 
 	function isRunningInFigmaUI() {
@@ -20,18 +18,7 @@
 	}
 
 	// Get the iframe element
-	let iframe = document.getElementById('myIframe');
-
-	let input = '<%= input %>'
-
-	// // Create a basic HTML structure and include the scripts
-	let iframeContent = `<%= iframeContent %>`;
-
-	// // Write the content to the iframe's document
-	let doc = iframe.contentWindow.document;
-	doc.open();
-	doc.write(iframeContent);
-	doc.close();
+	let iframe = document.getElementById('plugma-inner-iframe');
 
 	// Any messages sent from UI need to pass up to the parent (main code), but not if running headless in browser
 	if (isRunningInFigmaUI()) {
