@@ -1,0 +1,10 @@
+<iframe id="plugma-app-iframe" style="width: 100%; height: 100vh; border: none;"></iframe>
+
+<script>
+	// Write to iframe so that Vite app can be mounted
+	let iframe = document.getElementById("plugma-app-iframe");
+	let doc = iframe.contentWindow.document;
+	doc.open();
+	doc.write(`{include('vite-app.html')}`);
+	doc.close();
+</script>

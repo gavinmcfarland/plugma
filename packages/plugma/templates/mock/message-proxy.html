@@ -1,0 +1,14 @@
+<script>
+  function isRunningInFigmaUI() {
+    const isIframe = window.parent !== window;
+    const isFigmaUserAgent = navigator.userAgent.includes("Figma");
+    return isIframe && isFigmaUserAgent;
+  }
+</script>
+
+<!-- svelte-ignore missing-declaration -->
+{#if isRunningInFigmaUI()}
+  {include("websocket-relay.html")}
+{:else}
+  {include("iframe-preview.html")}
+{/if}

@@ -16,6 +16,7 @@ import pretty from 'pretty';
 import ejs from 'ejs';
 // import { renderTemplate } from './nunchucksTemplate.js'
 import { renderTemplate } from './ejsTemplate.js'
+import { wisp } from 'wisp'
 
 import path from 'path'
 // import { option } from 'yargs';
@@ -27,7 +28,6 @@ const __filename = fileURLToPath(import.meta.url);
 
 
 const files = {
-	pluginWrapper: fs.readFileSync(path.join(__dirname, '../templates/vite-app-message-proxy.html'), 'utf8'),
 	devToolbarFile: fs.readFileSync(resolve(`${__dirname}/../frameworks/common/main/devToolbar.html`), 'utf-8')
 }
 
@@ -325,8 +325,9 @@ async function startViteServer(data, options) {
 					transformIndexHtml(html) {
 
 						// Can't use template with ejs template directly, so we have to add our file to it first
-						html = html.replace('<body>', `<body>${files.pluginWrapper}`)
+						const viteAppProxyDev = fs.readFileSync(path.join(__dirname, '../../apps/dist/ViteAppProxyDev.html'), 'utf8')
 
+						html = html.replace('<body>', `<body>${viteAppProxyDev}`)
 
 						const basePath = path.resolve(__dirname, '../templates'); // You can set the base path where the files are located
 
@@ -422,7 +423,7 @@ async function buildUI(data, callback, NODE_ENV, options) {
 
 	if (options._[0] === 'dev') {
 		// We don't need to bundle the UI because when developing it needs to point to the dev server. So instead we create a placeholder ui file that points to a server
-		let devHtmlString = fs.readFileSync(`${__dirname}/../templates/figma-plugin-window-dev.html`, 'utf8');
+		let devHtmlString = fs.readFileSync(`${__dirname}/../../apps/dist/PluginWindow.html`, 'utf8');
 
 
 
