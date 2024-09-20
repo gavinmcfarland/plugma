@@ -58,9 +58,8 @@ wss.on('connection', (ws) => {
 // Function to broadcast messages to clients except the sender
 function broadcastMessage(message, senderId) {
 	clients.forEach((client, clientId) => {
-
 		// if (clientId !== senderId && client.readyState === WebSocket.OPEN) {
-		console.log(`--message from main ${new Date()}:`, message)
+		console.log(`--message ${new Date()}:`, message)
 		client.send(JSON.stringify({ webSocketMessage: message, clientId }));
 		// }
 	});
