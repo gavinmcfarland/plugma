@@ -1,24 +1,19 @@
 {
-  "name": "vite-multiple-sites-single-vite-config",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite --mode devToolbar",
-    "build": "node clean-dist.js && vite build",
-    "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json",
-    "build:all": "node build-all.js"
-  },
-  "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^3.1.1",
-    "@tsconfig/svelte": "^5.0.4",
-    "@types/node": "^22.5.0",
-    "svelte": "^4.2.18",
-    "svelte-check": "^3.8.5",
-    "tslib": "^2.6.3",
-    "typescript": "^5.5.3",
-    "vite": "^5.4.1",
-    "vite-plugin-singlefile": "^2.0.2"
-  }
+    "name": "testing-vite",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "node build-all.js",
+        "build1": "vite build --mode TestApp",
+        "build2": "vite build --mode TestApp2",
+        "preview": "vite preview"
+    },
+    "devDependencies": {
+        "@sveltejs/vite-plugin-svelte": "^3.1.1",
+        "svelte": "^4.2.18",
+        "vite": "^5.4.1",
+        "vite-plugin-singlefile": "^2.0.2"
+    }
 }

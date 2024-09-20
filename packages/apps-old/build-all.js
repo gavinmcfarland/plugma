@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const baseDir = path.resolve(__dirname, 'src/apps');
+const baseDir = path.resolve(__dirname, 'lib');
 const distDir = path.resolve(__dirname, 'dist'); // Adjust if your dist directory is elsewhere
 
 const runCommand = (command) => {
@@ -50,8 +50,11 @@ const buildApplications = () => {
 		.filter(dirent => dirent.isDirectory())
 		.map(dirent => dirent.name);
 
+	console.log("---", folders)
 	// Clean the dist directory before building
 	cleanDist();
+
+
 
 	folders.forEach(folder => {
 		console.log(`Building ${folder}...`);

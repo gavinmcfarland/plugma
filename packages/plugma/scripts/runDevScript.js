@@ -320,16 +320,24 @@ async function startViteServer(data, options) {
 			// Rewrite index html file to point to ui file specified in manifest
 			plugins: [
 				{
+					name: 'html-transform-1',
+					transformIndexHtml(html) {
+						return html.replace('id="entry" src="(.+?)"', `src="${data.figmaManifest.ui}"`);
+					},
+				},
+				{
 					// Insert catchFigmaStyles and startWebSocketServer
 					name: 'html-transform',
 					transformIndexHtml(html) {
 
 						// Can't use template with ejs template directly, so we have to add our file to it first
-						const viteAppProxyDev = fs.readFileSync(path.join(__dirname, '../../apps/dist/ViteAppProxyDev.html'), 'utf8')
+						const viteAppProxyDev = fs.readFileSync(path.join(__dirname, '../../apps/dist/ViteApp.html'), 'utf8')
 
+						// Apply Vite App scripts n stuff
 						html = html.replace('<body>', `<body>${viteAppProxyDev}`)
 
-						const basePath = path.resolve(__dirname, '../templates'); // You can set the base path where the files are located
+						// // Add app div and script to bottom
+						// html = html.replace('id="entry" src="/main.js"', `src="${data.figmaManifest.ui}"`);
 
 
 						// if (options._[0] === "dev" && options.toolbar) {
@@ -337,7 +345,7 @@ async function startViteServer(data, options) {
 						// 	html = html.replace('<body>', `<body>${files.devToolbarFile}`)
 						// }
 
-						return renderTemplate(html, basePath, { name: "My Test App", options, input: data.figmaManifest.ui });;
+						return html;
 					},
 					apply: 'serve'
 				},
@@ -387,8 +395,8 @@ async function buildUI(data, callback, NODE_ENV, options) {
 	}
 
 	// Surpress console logs created by vite
-	const originalConsoleLog = console.log;
-	console.log = function () { };
+	// const originalConsoleLog = console.log;
+	// console.log = function () { };
 
 	// {
 	// 	root: path.resolve(__dirname, './project'),
@@ -421,11 +429,12 @@ async function buildUI(data, callback, NODE_ENV, options) {
 
 	}
 
+
 	if (options._[0] === 'dev') {
 		// We don't need to bundle the UI because when developing it needs to point to the dev server. So instead we create a placeholder ui file that points to a server
+
+
 		let devHtmlString = fs.readFileSync(`${__dirname}/../../apps/dist/PluginWindow.html`, 'utf8');
-
-
 
 		// Replace the port number in the template
 		devHtmlString = devHtmlString.replace("5173", `${options.port}`)
@@ -433,7 +442,7 @@ async function buildUI(data, callback, NODE_ENV, options) {
 		createFileWithDirectory(`${CURR_DIR}/dist`, 'ui.html', devHtmlString)
 	}
 
-	console.log = originalConsoleLog;
+	// console.log = originalConsoleLog;
 }
 
 async function getFiles() {

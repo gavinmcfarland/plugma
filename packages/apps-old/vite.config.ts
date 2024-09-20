@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
 			{
 				name: 'replace app id',
 				transformIndexHtml(html) {
-					return html.replace('id="app"', `id="${mode}"`)
+					return html.replace('id="replace"', `id="${mode}"`)
 				},
 			},
 			viteSingleFile(),

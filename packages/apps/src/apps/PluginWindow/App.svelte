@@ -1,8 +1,8 @@
-<script type="module">
+<script>
 	import { onMount } from 'svelte'
 	let pluginWindowIframe
 	const figmaOrigin = 'https://www.figma.com'
-	const html = document.querySelector('html');
+	const html = document.querySelector('html')
 
 	function postMessage(type, data, target) {
 		target.postMessage(
@@ -76,13 +76,33 @@
 		}
 	}
 
-
-
+	// Remove padding and margin because app has it's own body tag
+	function setBodyStyles() {
+		document.body.style.padding = 0
+		document.body.style.margin = 0
+	}
 
 	onMount(() => {
+		const height = window.innerHeight
+		const width = window.innerWidth
+
+		console.log(height, width)
+
 		redirectIframe()
 		relayMessages()
 		observeChanges()
+		setBodyStyles()
+
+		const resizeObserver = new ResizeObserver((entries) => {
+			for (let entry of entries) {
+				// Access the size of the entry (the window in this case)
+				const { width, height } = entry.contentRect
+				console.log(`Window size changed. Width: ${width}, Height: ${height}`)
+			}
+		})
+
+		// Observe changes on the body or any element related to the window size
+		resizeObserver.observe(document.body)
 	})
 </script>
 
