@@ -108,6 +108,6 @@
 	}
 
 	catchFigmaStyles()
-	overrideMessageEvent()
+	// overrideMessageEvent()
 	interceptPostMessage()
 </script>
