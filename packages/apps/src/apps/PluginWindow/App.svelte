@@ -4,7 +4,7 @@
 	const figmaOrigin = 'https://www.figma.com'
 	const html = document.querySelector('html')
 
-	function postMessage(type, data, target) {
+	function postMessage(type, data, target, ws) {
 		target.postMessage(
 			{
 				type,
@@ -12,6 +12,15 @@
 			},
 			'*',
 		)
+
+		// ws.send(
+		// 	JSON.stringify({
+		// 		data: {
+		// 			type,
+		// 			data,
+		// 		},
+		// 	}),
+		// )
 	}
 
 	// Redirect iframe to a new URL
@@ -20,24 +29,55 @@
 	}
 
 	// Pass messages between parent and plugin window wrapper iframe
-	function relayMessages() {
+	function relayFigmaMessages() {
 		window.onmessage = (event) => {
 			if (event.origin === 'https://www.figma.com') {
 				console.log('post downwards')
-				// pluginWindowIframe.contentWindow.postMessage(event.data, "*")
+				pluginWindowIframe.contentWindow.postMessage(event.data, '*')
 			} else {
 				console.log('post upwards')
 				parent.postMessage(event.data, '*')
 			}
 		}
 	}
+
+	function relayWebSocketMessages() {
+		let ws = new WebSocket('ws://localhost:9001/ws')
+
+		function isWebSocketOpen() {
+			return ws.readyState === WebSocket.OPEN
+		}
+
+		ws.onopen = function () {
+			console.log('------- websocket open')
+			// wss -> figma main
+			ws.onmessage = (event) => {
+				const message = JSON.parse(event.data)
+
+				const webSocketMessage = JSON.parse(message.webSocketMessage)
+				console.log(`main <-- wss <-- ${webSocketMessage.clientType}`, webSocketMessage.data)
+				parent.postMessage(webSocketMessage.data, '*')
+			}
+
+			// figma main -> wss
+			window.addEventListener('message', (event) => {
+				if (event.origin === 'https://www.figma.com') {
+					console.log('main --> wss --> browser', event.data)
+					ws.send(JSON.stringify({ clientType: 'pluginWindow', data: event.data }))
+				}
+			})
+		}
+	}
+
 	function observeChanges() {
+		let ws = new WebSocket('ws://localhost:9001/ws')
+
 		function postFigmaClasses() {
 			const observer = new MutationObserver((mutationsList) => {
 				for (let mutation of mutationsList) {
 					if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
 						// Post the message to the iframe
-						postMessage('FIGMA_HTML_CLASSES', html.className, pluginWindowIframe.contentWindow)
+						postMessage('FIGMA_HTML_CLASSES', html.className, pluginWindowIframe.contentWindow, ws)
 					}
 				}
 			})
@@ -55,7 +95,7 @@
 
 			// Create a MutationObserver to watch for changes in the style element
 			const observer = new MutationObserver(() => {
-				postMessage('FIGMA_STYLES', styleSheetElement.innerHTML, pluginWindowIframe.contentWindow)
+				postMessage('FIGMA_STYLES', styleSheetElement.innerHTML, pluginWindowIframe.contentWindow, ws)
 			})
 
 			// Start observing the <style> or <link> element for changes
@@ -66,7 +106,7 @@
 			})
 
 			// Optionally, call postUpdatedStyles immediately to send the initial styles
-			postMessage('FIGMA_STYLES', styleSheetElement.innerHTML, pluginWindowIframe.contentWindow)
+			postMessage('FIGMA_STYLES', styleSheetElement.innerHTML, pluginWindowIframe.contentWindow, ws)
 		}
 
 		// Wait for the iframe to be mounted
@@ -82,17 +122,8 @@
 		document.body.style.margin = 0
 	}
 
-	onMount(() => {
-		const height = window.innerHeight
-		const width = window.innerWidth
-
-		console.log(height, width)
-
-		redirectIframe()
-		relayMessages()
-		observeChanges()
-		setBodyStyles()
-
+	function resizePluginWindow() {
+		// Experiment to listen for changes to window size
 		const resizeObserver = new ResizeObserver((entries) => {
 			for (let entry of entries) {
 				// Access the size of the entry (the window in this case)
@@ -103,6 +134,15 @@
 
 		// Observe changes on the body or any element related to the window size
 		resizeObserver.observe(document.body)
+	}
+
+	onMount(() => {
+		redirectIframe()
+		relayFigmaMessages()
+		observeChanges()
+		relayWebSocketMessages()
+		setBodyStyles()
+		// resizePluginWindow()
 	})
 </script>
 
