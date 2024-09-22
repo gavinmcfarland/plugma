@@ -41,6 +41,7 @@
 		send()
 	}
 
+	// FIXME: Does this need changing so styles are applied as soon as url is changed, and the rest of the stuff loads when the iframe loads?
 	async function redirectIframe() {
 		return new Promise((resolve, reject) => {
 			// Set the iframe source
@@ -167,13 +168,14 @@
 	}
 
 	onMount(async () => {
+		setBodyStyles()
 		await redirectIframe()
 		// overrideMessageEvent()
 
 		relayFigmaMessages()
 		observeChanges()
 		// relayWebSocketMessages()
-		setBodyStyles()
+
 		// resizePluginWindow()
 		// relayMessages()
 		sendFigmaClassesAndStyles()
