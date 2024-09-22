@@ -1,11 +1,29 @@
 <script>
 	import { nanoid } from 'nanoid'
+	import ServerStatus from './lib/ServerStatus.svelte'
 
 	import { onMount } from 'svelte'
 	let pluginWindowIframe
 	const html = document.querySelector('html')
 
 	let ws = new WebSocket('ws://localhost:9001/ws')
+
+	let isServerActive = true
+
+	function checkUrlStatus(url) {
+		return fetch(url)
+			.then((response) => {
+				// Check if the response status is within the range 200-299
+				if (response.ok) {
+					return 'URL is active'
+				} else {
+					throw new Error('URL is not active')
+				}
+			})
+			.catch((error) => {
+				return 'Error: ' + error.message
+			})
+	}
 
 	function sendWsMessage(ws, message) {
 		const waitForOpenConnection = () => {
@@ -169,20 +187,34 @@
 
 	onMount(async () => {
 		setBodyStyles()
+		let res = await checkUrlStatus('http://localhost:5173')
+
+		if (res !== 'URL is active') {
+			isServerActive = false
+		}
 		await redirectIframe()
-		// overrideMessageEvent()
 
 		relayFigmaMessages()
 		observeChanges()
-		// relayWebSocketMessages()
 
 		// resizePluginWindow()
-		// relayMessages()
 		sendFigmaClassesAndStyles()
+
+		setInterval(async () => {
+			let res = await checkUrlStatus('http://localhost:5173')
+
+			if (res !== 'URL is active') {
+				isServerActive = false
+			}
+		}, 1000)
 	})
 </script>
 
-<iframe title="" id="vite-app-host" bind:this={pluginWindowIframe}></iframe>
+{#if isServerActive}
+	<iframe title="" id="vite-app-host" bind:this={pluginWindowIframe}></iframe>
+{:else}
+	<ServerStatus></ServerStatus>
+{/if}
 
 <style>
 	#vite-app-host {
