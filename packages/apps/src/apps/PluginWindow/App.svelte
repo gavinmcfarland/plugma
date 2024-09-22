@@ -1,125 +1,155 @@
 <script>
+	import { nanoid } from 'nanoid'
+
 	import { onMount } from 'svelte'
 	let pluginWindowIframe
-	const figmaOrigin = 'https://www.figma.com'
 	const html = document.querySelector('html')
 
-	function postMessage(type, data, target, ws) {
-		target.postMessage(
-			{
+	let ws = new WebSocket('ws://localhost:9001/ws')
+
+	function sendWsMessage(ws, message) {
+		const waitForOpenConnection = () => {
+			return new Promise((resolve, reject) => {
+				const maxRetries = 10 // Maximum number of retries
+				let retries = 0
+
+				const interval = setInterval(() => {
+					if (ws.readyState === WebSocket.OPEN) {
+						clearInterval(interval)
+						resolve()
+					} else if (retries >= maxRetries) {
+						clearInterval(interval)
+						reject(new Error('WebSocket connection failed to open.'))
+					}
+					retries++
+				}, 100) // Check every 100ms
+			})
+		}
+
+		const send = async () => {
+			try {
+				if (ws.readyState !== WebSocket.OPEN) {
+					await waitForOpenConnection()
+				}
+				ws.send(JSON.stringify(message))
+				// console.log('Message sent:', message)
+			} catch (error) {
+				console.error('Failed to send message:', error)
+			}
+		}
+
+		send()
+	}
+
+	async function redirectIframe() {
+		return new Promise((resolve, reject) => {
+			// Set the iframe source
+			pluginWindowIframe.src = new URL('http://localhost:5173').href
+
+			// Listen for the iframe's load event
+			pluginWindowIframe.onload = function () {
+				console.log('Iframe successfully redirected to:', pluginWindowIframe.src)
+
+				// Resolve the promise when the iframe is successfully loaded
+				resolve('Iframe successfully redirected')
+			}
+
+			// Set a timeout in case the iframe fails to load after a certain time
+			setTimeout(() => {
+				reject(new Error('Iframe redirection timeout or failed'))
+			}, 5000) // You can adjust the timeout duration as necessary
+		})
+	}
+
+	function postToIframeAndWebSocket(type, data) {
+		const message = {
+			pluginMessage: {
 				type,
 				data,
 			},
-			'*',
-		)
-
-		// ws.send(
-		// 	JSON.stringify({
-		// 		data: {
-		// 			type,
-		// 			data,
-		// 		},
-		// 	}),
-		// )
-	}
-
-	// Redirect iframe to a new URL
-	function redirectIframe() {
-		pluginWindowIframe.src = new URL('http://localhost:5173').href
+		}
+		pluginWindowIframe.contentWindow.postMessage(message, '*')
+		sendWsMessage(ws, message)
 	}
 
 	// Pass messages between parent and plugin window wrapper iframe
 	function relayFigmaMessages() {
 		window.onmessage = (event) => {
 			if (event.origin === 'https://www.figma.com') {
-				console.log('post downwards')
+				// forward to iframe and browser
 				pluginWindowIframe.contentWindow.postMessage(event.data, '*')
+				// console.log('main --> ui')
+				sendWsMessage(ws, event.data)
 			} else {
-				console.log('post upwards')
+				// forward to main
+				// console.log('main <-- ui', event.data)
 				parent.postMessage(event.data, '*')
 			}
 		}
+
+		ws.onmessage = (event) => {
+			// forward to main
+			const message = JSON.parse(event.data)
+			// console.log('main <-- ui', JSON.parse(message))
+
+			parent.postMessage(JSON.parse(message), '*')
+		}
 	}
 
-	function relayWebSocketMessages() {
-		let ws = new WebSocket('ws://localhost:9001/ws')
+	function sendFigmaClassesAndStyles() {
+		const styleSheetElement = document.getElementById('figma-style')
 
-		function isWebSocketOpen() {
-			return ws.readyState === WebSocket.OPEN
-		}
+		ws.addEventListener('message', (event) => {
+			const message = JSON.parse(JSON.parse(event.data)).pluginMessage
 
-		ws.onopen = function () {
-			console.log('------- websocket open')
-			// wss -> figma main
-			ws.onmessage = (event) => {
-				const message = JSON.parse(event.data)
-
-				const webSocketMessage = JSON.parse(message.webSocketMessage)
-				console.log(`main <-- wss <-- ${webSocketMessage.clientType}`, webSocketMessage.data)
-				parent.postMessage(webSocketMessage.data, '*')
+			if (message.type === 'GET_FIGMA_CLASSES_AND_STYLES') {
+				postToIframeAndWebSocket('FIGMA_HTML_CLASSES', html.className)
+				postToIframeAndWebSocket('FIGMA_STYLES', styleSheetElement.innerHTML)
 			}
-
-			// figma main -> wss
-			window.addEventListener('message', (event) => {
-				if (event.origin === 'https://www.figma.com') {
-					console.log('main --> wss --> browser', event.data)
-					ws.send(JSON.stringify({ clientType: 'pluginWindow', data: event.data }))
-				}
-			})
-		}
+		})
 	}
 
 	function observeChanges() {
-		let ws = new WebSocket('ws://localhost:9001/ws')
-
-		function postFigmaClasses() {
+		function observeFigmaClasses() {
 			const observer = new MutationObserver((mutationsList) => {
 				for (let mutation of mutationsList) {
 					if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-						// Post the message to the iframe
-						postMessage('FIGMA_HTML_CLASSES', html.className, pluginWindowIframe.contentWindow, ws)
+						postToIframeAndWebSocket('FIGMA_HTML_CLASSES', html.className)
 					}
 				}
 			})
 
-			// Start observing the element
 			observer.observe(html, {
-				attributes: true, // Watch for attribute changes
-				attributeFilter: ['class'], // Specifically watch the 'class' attribute
+				attributes: true,
+				attributeFilter: ['class'],
 			})
 		}
 
-		function postFigmaStyles() {
-			// Assuming the stylesheet is the first one in the document
-			const styleSheetElement = document.getElementById('figma-style') // Find the corresponding <style> or <link> element
+		function observeFigmaStyles() {
+			const styleSheetElement = document.getElementById('figma-style')
 
-			// Create a MutationObserver to watch for changes in the style element
 			const observer = new MutationObserver(() => {
-				postMessage('FIGMA_STYLES', styleSheetElement.innerHTML, pluginWindowIframe.contentWindow, ws)
+				postToIframeAndWebSocket('FIGMA_STYLES', styleSheetElement.innerHTML)
 			})
 
-			// Start observing the <style> or <link> element for changes
 			observer.observe(styleSheetElement, {
 				attributes: true,
 				childList: true,
 				subtree: true,
 			})
 
-			// Optionally, call postUpdatedStyles immediately to send the initial styles
-			postMessage('FIGMA_STYLES', styleSheetElement.innerHTML, pluginWindowIframe.contentWindow, ws)
+			// Send initial styles immediately
+			postToIframeAndWebSocket('FIGMA_STYLES', styleSheetElement.innerHTML)
 		}
 
-		// Wait for the iframe to be mounted
-		pluginWindowIframe.onload = () => {
-			postFigmaClasses()
-			postFigmaStyles()
-		}
+		observeFigmaClasses()
+		observeFigmaStyles()
 	}
 
 	// Remove padding and margin because app has it's own body tag
 	function setBodyStyles() {
-		document.body.style.padding = 0
-		document.body.style.margin = 0
+		document.body.style.padding = '0'
+		document.body.style.margin = '0'
 	}
 
 	function resizePluginWindow() {
@@ -136,13 +166,17 @@
 		resizeObserver.observe(document.body)
 	}
 
-	onMount(() => {
-		redirectIframe()
+	onMount(async () => {
+		await redirectIframe()
+		// overrideMessageEvent()
+
 		relayFigmaMessages()
 		observeChanges()
-		relayWebSocketMessages()
+		// relayWebSocketMessages()
 		setBodyStyles()
 		// resizePluginWindow()
+		// relayMessages()
+		sendFigmaClassesAndStyles()
 	})
 </script>
 

@@ -62,7 +62,7 @@ function broadcastMessage(message, senderId) {
 		// console.log(`--- check client ID and sender ID`, clientId, senderId)
 		if (clientId !== senderId && client.readyState === WebSocket.OPEN) {
 			console.log(`--forward message ${new Date()}:`, message)
-			client.send(JSON.stringify({ webSocketMessage: message, clientId }));
+			client.send(JSON.stringify(message, clientId));
 		}
 	});
 }

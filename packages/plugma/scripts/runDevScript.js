@@ -371,7 +371,7 @@ async function startViteServer(data, options) {
 
 
 		// Run a web socket server so postMessage works between browser and Figma. And so Figma theme works in browser
-		// const childProcess = exec('node node_modules/plugma/lib/startWebSocketsServer.cjs');
+		const childProcess = exec('node node_modules/plugma/lib/startWebSocketsServer.cjs');
 		// childProcess.stderr.on('data', (data) => {
 		// 	console.error(`Script error: ${data}`);
 		// });
