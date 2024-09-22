@@ -3,8 +3,15 @@
 	import ServerStatus from './lib/ServerStatus.svelte'
 
 	import { onMount } from 'svelte'
+
+	let myVar
+	let anotherVar
+	let port
+
 	let pluginWindowIframe
 	const html = document.querySelector('html')
+	// @ts-ignore
+	let url = `http://localhost:${window.runtimeData.port}`
 
 	let ws = new WebSocket('ws://localhost:9001/ws')
 
@@ -63,7 +70,7 @@
 	async function redirectIframe() {
 		return new Promise((resolve, reject) => {
 			// Set the iframe source
-			pluginWindowIframe.src = new URL('http://localhost:5173').href
+			pluginWindowIframe.src = new URL(url).href
 
 			// Listen for the iframe's load event
 			pluginWindowIframe.onload = function () {
@@ -169,6 +176,8 @@
 	function setBodyStyles() {
 		document.body.style.padding = '0'
 		document.body.style.margin = '0'
+		document.body.style.color = 'var(--figma-color-text)'
+		document.body.style.fontFamily = 'Inter, system-ui, Helvetica, Arial, sans-serif'
 	}
 
 	function resizePluginWindow() {
@@ -187,7 +196,7 @@
 
 	onMount(async () => {
 		setBodyStyles()
-		let res = await checkUrlStatus('http://localhost:5173')
+		let res = await checkUrlStatus(url)
 
 		if (res !== 'URL is active') {
 			isServerActive = false
@@ -201,7 +210,7 @@
 		sendFigmaClassesAndStyles()
 
 		setInterval(async () => {
-			let res = await checkUrlStatus('http://localhost:5173')
+			let res = await checkUrlStatus(url)
 
 			if (res !== 'URL is active') {
 				isServerActive = false

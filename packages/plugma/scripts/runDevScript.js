@@ -436,8 +436,17 @@ async function buildUI(data, callback, NODE_ENV, options) {
 
 		let devHtmlString = fs.readFileSync(`${__dirname}/../../apps/dist/PluginWindow.html`, 'utf8');
 
-		// Replace the port number in the template
-		devHtmlString = devHtmlString.replace("5173", `${options.port}`)
+		let runtimeData = `<script>
+	// Global variables defined on the window object
+	window.runtimeData = {
+		port: ${options.port}
+	};
+</script>`
+
+		devHtmlString = devHtmlString.replace(/^/, runtimeData)
+
+		// // Replace the port number in the template
+		// devHtmlString = devHtmlString.replace("5173", `${options.port}`)
 
 		createFileWithDirectory(`${CURR_DIR}/dist`, 'ui.html', devHtmlString)
 	}
