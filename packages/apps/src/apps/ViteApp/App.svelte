@@ -1,5 +1,6 @@
 <script>
 	import { nanoid } from 'nanoid'
+	import { onMount } from 'svelte'
 
 	const html = document.querySelector('html')
 
@@ -7,6 +8,7 @@
 	const isInsideFigma = typeof figma !== 'undefined'
 
 	let ws = new WebSocket('ws://localhost:9001/ws')
+
 	const processedMessages = new Set()
 
 	function sendWsMessage(ws, message) {
@@ -67,15 +69,13 @@
 	}
 
 	function getFigmaStyles() {
-		parent.postMessage(
-			{
-				pluginMessage: {
-					type: 'GET_FIGMA_CLASSES_AND_STYLES',
-				},
-				pluginId: '*',
+		let message = {
+			pluginMessage: {
+				type: 'GET_FIGMA_CLASSES_AND_STYLES',
 			},
-			'*',
-		)
+			pluginId: '*',
+		}
+		parent.postMessage(message, '*')
 	}
 
 	function overrideMessageEvent() {
@@ -139,8 +139,6 @@
 	}
 
 	function interceptPostMessage() {
-		// Store if messages have already been sent
-
 		// Store the original postMessage function
 		const originalPostMessage = window.postMessage
 
@@ -152,6 +150,7 @@
 				// Check if this message has already been processed
 				if (!processedMessages.has(messageId)) {
 					processedMessages.add(messageId)
+					console.log('POST MESSAGE', message)
 					sendWsMessage(ws, message)
 				}
 
@@ -215,5 +214,18 @@
 	interceptPostMessage()
 	overrideMessageEvent()
 	listenForFigmaStyles()
-	getFigmaStyles()
+
+	ws.onopen = () => {
+		console.log('get figma styles')
+		getFigmaStyles()
+	}
+	onMount(async () => {
+		parent.postMessage(
+			{
+				pluginMessage: { type: 'VITE_APP_MOUNTED' },
+				pluginId: '*',
+			},
+			'*',
+		)
+	})
 </script>

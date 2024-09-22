@@ -15,5 +15,9 @@
         "svelte": "^4.2.18",
         "vite": "^5.4.1",
         "vite-plugin-singlefile": "^2.0.2"
+    },
+    "dependencies": {
+        "reconnecting-websocket": "^4.4.0",
+        "ws": "^8.18.0"
     }
 }

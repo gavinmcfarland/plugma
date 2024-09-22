@@ -1,35 +1,85 @@
 <script>
 	import { nanoid } from 'nanoid'
+	import { tick } from 'svelte'
 	import ServerStatus from './lib/ServerStatus.svelte'
+	// import ReconnectingWebSocket from 'reconnecting-websocket'
 
 	import { onMount } from 'svelte'
-
-	let myVar
-	let anotherVar
-	let port
+	// import { setupWebSocket } from '../../shared/setupWebSocket'
 
 	let pluginWindowIframe
 	const html = document.querySelector('html')
+
+	let webSocketsEnabled = true
 	// @ts-ignore
 	let url = `http://localhost:${window.runtimeData.port}`
 
-	let ws = new WebSocket('ws://localhost:9001/ws')
-
+	let ws
+	let isReconnecting = false
 	let isServerActive = true
+	let iframeLoaded = false
 
-	function checkUrlStatus(url) {
-		return fetch(url)
-			.then((response) => {
-				// Check if the response status is within the range 200-299
-				if (response.ok) {
-					return 'URL is active'
-				} else {
-					throw new Error('URL is not active')
+	function connectWebSocket() {
+		ws = new WebSocket('ws://localhost:9001/ws')
+
+		ws.onopen = () => {
+			console.log('WebSocket Connected...')
+			if (isReconnecting) {
+				isReconnecting = false // Reset reconnection flag
+			}
+			handleConnect()
+		}
+
+		ws.onmessage = (message) => {
+			console.log('Received:', message.data)
+		}
+
+		ws.onclose = () => {
+			console.log('WS Disconnected, retrying...')
+			isReconnecting = true
+			setTimeout(connectWebSocket, 1000) // Retry connection after 1 second
+		}
+
+		ws.onerror = (error) => {
+			console.error('WebSocket error:', error)
+		}
+	}
+
+	function handleConnect() {
+		console.log('WebSocket reconnected! Running post-reconnect logic...')
+		observeChanges()
+
+		// setInterval(() => {
+		// 	observeChanges()
+		// }, 1000)
+	}
+
+	if (webSocketsEnabled) {
+		connectWebSocket()
+	}
+
+	function monitorUrl(url, interval = 1000) {
+		async function checkUrl() {
+			try {
+				const response = await fetch(url)
+				if (isServerActive !== response.ok) {
+					isServerActive = response.ok
+					await tick() // Ensures the DOM updates when `isServerActive` changes
 				}
-			})
-			.catch((error) => {
-				return 'Error: ' + error.message
-			})
+			} catch {
+				if (isServerActive !== false) {
+					isServerActive = false
+					await tick()
+				}
+			}
+			pluginWindowIframe.style.display = isServerActive ? 'block' : 'none'
+		}
+
+		// Check the URL immediately
+		checkUrl()
+
+		// Continue checking at the specified interval
+		setInterval(checkUrl, interval)
 	}
 
 	function sendWsMessage(ws, message) {
@@ -70,15 +120,25 @@
 	async function redirectIframe() {
 		return new Promise((resolve, reject) => {
 			// Set the iframe source
+
 			pluginWindowIframe.src = new URL(url).href
 
-			// Listen for the iframe's load event
-			pluginWindowIframe.onload = function () {
+			function onIframeLoad() {
 				console.log('Iframe successfully redirected to:', pluginWindowIframe.src)
 
 				// Resolve the promise when the iframe is successfully loaded
 				resolve('Iframe successfully redirected')
+				pluginWindowIframe.removeEventListener('load', onIframeLoad)
 			}
+			// Listen for the iframe's load event
+			pluginWindowIframe.addEventListener('load', onIframeLoad) // Remove the listener after it's called
+			// pluginWindowIframe.onload = function () {
+			// 	iframeLoaded = true
+			// 	console.log('Iframe successfully redirected to:', pluginWindowIframe.src)
+
+			// 	// Resolve the promise when the iframe is successfully loaded
+			// 	resolve('Iframe successfully redirected')
+			// }
 
 			// Set a timeout in case the iframe fails to load after a certain time
 			setTimeout(() => {
@@ -95,7 +155,9 @@
 			},
 		}
 		pluginWindowIframe.contentWindow.postMessage(message, '*')
-		sendWsMessage(ws, message)
+		if (webSocketsEnabled) {
+			sendWsMessage(ws, message)
+		}
 	}
 
 	// Pass messages between parent and plugin window wrapper iframe
@@ -105,7 +167,9 @@
 				// forward to iframe and browser
 				pluginWindowIframe.contentWindow.postMessage(event.data, '*')
 				// console.log('main --> ui')
-				sendWsMessage(ws, event.data)
+				if (webSocketsEnabled) {
+					sendWsMessage(ws, event.data)
+				}
 			} else {
 				// forward to main
 				// console.log('main <-- ui', event.data)
@@ -113,16 +177,18 @@
 			}
 		}
 
-		ws.onmessage = (event) => {
-			// forward to main
-			const message = JSON.parse(event.data)
-			// console.log('main <-- ui', JSON.parse(message))
+		if (webSocketsEnabled) {
+			ws.onmessage = (event) => {
+				// forward to main
+				const message = JSON.parse(event.data)
+				// console.log('main <-- ui', JSON.parse(message))
 
-			parent.postMessage(JSON.parse(message), '*')
+				parent.postMessage(JSON.parse(message), '*')
+			}
 		}
 	}
 
-	function sendFigmaClassesAndStyles() {
+	function sendFigmaClassesAndStylesToWebSocket() {
 		const styleSheetElement = document.getElementById('figma-style')
 
 		ws.addEventListener('message', (event) => {
@@ -149,6 +215,9 @@
 				attributes: true,
 				attributeFilter: ['class'],
 			})
+
+			// Send class initially
+			postToIframeAndWebSocket('FIGMA_HTML_CLASSES', html.className)
 		}
 
 		function observeFigmaStyles() {
@@ -194,34 +263,34 @@
 		resizeObserver.observe(document.body)
 	}
 
-	onMount(async () => {
-		setBodyStyles()
-		let res = await checkUrlStatus(url)
+	$: console.log('----- iframe loaded', iframeLoaded)
 
-		if (res !== 'URL is active') {
-			isServerActive = false
-		}
+	onMount(async () => {
+		monitorUrl(url)
+		setBodyStyles()
+
+		// if (!iframeLoaded) {
 		await redirectIframe()
 
+		// pluginWindowIframe.onload = () => {
+		// }
+		// FIXME: iframe needs to be loaded before these are run, but unkown issue with websockets when this happens, its almost like it needs to be when iframe loaded, or when receive websocket
 		relayFigmaMessages()
+
 		observeChanges()
 
 		// resizePluginWindow()
-		sendFigmaClassesAndStyles()
-
-		setInterval(async () => {
-			let res = await checkUrlStatus(url)
-
-			if (res !== 'URL is active') {
-				isServerActive = false
-			}
-		}, 1000)
+		if (webSocketsEnabled) {
+			sendFigmaClassesAndStylesToWebSocket()
+		}
+		// }
 	})
 </script>
 
-{#if isServerActive}
-	<iframe title="" id="vite-app-host" bind:this={pluginWindowIframe}></iframe>
-{:else}
+<iframe title="" id="vite-app-host" bind:this={pluginWindowIframe}></iframe>
+
+<!-- should dev server status be in VITE_APP?-->
+{#if !isServerActive}
 	<ServerStatus></ServerStatus>
 {/if}
 
