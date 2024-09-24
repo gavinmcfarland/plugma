@@ -31,87 +31,6 @@ const files = {
 	devToolbarFile: fs.readFileSync(resolve(`${__dirname}/../frameworks/common/main/devToolbar.html`), 'utf-8')
 }
 
-function escapeClosingTags(html) {
-	// Safely escape closing tags to prevent issues with injected HTML, especially script tags.
-	return html
-		.replace(/<\/script>/g, '<\\/script>')
-		.replace(/<\/style>/g, '<\\/style>');
-}
-
-export function loadTemplate(htmlString) {
-	// Load the initial HTML string using cheerio
-	let $ = cheerio.load(htmlString);
-
-	function createNestedElement(selector) {
-		// Get the selected element from cheerio
-		const cheerioElement = $(selector);
-
-		// Create a proxy to wrap the cheerio element and allow access to all its methods
-		return new Proxy(cheerioElement, {
-			get(target, prop) {
-				// If the property is "nest", we create a nested structure
-				if (prop === 'nest') {
-					return (callback) => {
-						const nestedSelector = createNestedElement(selector);
-						callback(nestedSelector);
-					};
-				}
-
-				// If the property is "apply", we define the custom apply method for placeholders
-				if (prop === 'apply') {
-					return (data) => {
-						target.each((_, el) => {
-							let elementHtml = $.html(el);
-							const updatedHtml = elementHtml.replace(/<%= (.*?) %>/g, (_, key) => {
-								return data[key] || '';
-							});
-							$(el).replaceWith(updatedHtml);
-						});
-					};
-				}
-
-				// Custom method to simulate content injection via script tag and escape closing tags
-				if (prop === 'write') {
-					return (htmlContent) => {
-						const escapedContent = escapeClosingTags(htmlContent);
-						// Insert a script tag after the iframe that simulates the document.open/write/close sequence
-						target.after(
-							`<script>
-								(function() {
-									let iframe = document.getElementById('${target.attr('id')}');
-								let iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-								iframeDoc.open();
-								iframeDoc.write(\${escapedContent}\);
-								iframeDoc.close();
-				  })();
-							</script>`
-						);
-					};
-				}
-
-				// For all other properties, fall back to the cheerio API
-				return target[prop];
-			}
-		});
-	}
-
-	// Main function to handle selection and nesting
-	function selector(selector) {
-		return createNestedElement(selector);
-	}
-
-	// Add a method to return the prettified HTML
-	selector.html = () => pretty($.html());
-
-	return selector;
-}
-
-
-
-
-
-
-
 var root
 
 if (process.env.PWD.endsWith("bin")) {
@@ -331,7 +250,16 @@ async function startViteServer(data, options) {
 					transformIndexHtml(html) {
 
 						// Can't use template with ejs template directly, so we have to add our file to it first
-						const viteAppProxyDev = fs.readFileSync(path.join(__dirname, '../../apps/dist/ViteApp.html'), 'utf8')
+						let viteAppProxyDev = fs.readFileSync(path.join(__dirname, '../../apps/dist/ViteApp.html'), 'utf8')
+
+						let runtimeData = `<script>
+	// Global variables defined on the window object
+	window.runtimeData = {
+		port: ${options.port}
+	};
+</script>`
+
+						viteAppProxyDev = viteAppProxyDev.replace(/^/, runtimeData)
 
 						// Apply Vite App scripts n stuff
 						html = html.replace('<body>', `<body>${viteAppProxyDev}`)
@@ -362,8 +290,41 @@ async function startViteServer(data, options) {
 					},
 				},
 			],
-			server: { port: options.port }, // Specify the port you want to use
+			// server: {
+			// 	port: options.port,
+			// 	host: 'localhost',
+			// 	cors: {
+			// 		origin: '*', // Specify the allowed origin, can be '*' or a specific domain
+			// 		credentials: true,
+			// 	}
+			// } // Specify the port you want to use
+
+			// configureServer: (server) => {
+			// 	server.middlewares.use((req, res, next) => {
+			// 		res.setHeader('Access-Control-Allow-Private-Network', true);
+			// 		next(); // Continue to the next middleware or request handler
+			// 	});
+			// },
+			server: {
+				port: options.port
+			}
 		});
+
+		// server.middlewares.use((req, res, next) => {
+		// 	res.setHeader('Access-Control-Allow-Origin', '*'); // Adjust according to your security requirements
+		// 	res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+		// 	res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+		// 	res.setHeader('Access-Control-Allow-Credentials', 'true');
+		// 	res.setHeader('Access-Control-Allow-Private-Network', 'true'); // Enable access to private network
+
+		// 	// Handle preflight requests (OPTIONS requests)
+		// 	if (req.method === 'OPTIONS') {
+		// 		res.statusCode = 204; // No Content
+		// 		res.end();
+		// 	} else {
+		// 		next(); // Proceed to the next middleware
+		// 	}
+		// });
 
 		await server.listen(); // Start the Vite server
 

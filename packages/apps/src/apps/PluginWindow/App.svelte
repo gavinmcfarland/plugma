@@ -1,293 +1,120 @@
 <script>
 	import { nanoid } from 'nanoid'
-	import { tick } from 'svelte'
 	import ServerStatus from './lib/ServerStatus.svelte'
-	// import ReconnectingWebSocket from 'reconnecting-websocket'
+	import { monitorUrl } from '../../shared/monitorUrl'
+	import { setBodyStyles } from '../../shared/setBodyStyles'
+	import { redirectIframe } from '../../shared/redirectIframe'
+	import { resizePluginWindow } from '../../shared/resizePluginWindow'
+	import { setupWebSocket } from '../../shared/setupWebSocket'
 
 	import { onMount } from 'svelte'
-	// import { setupWebSocket } from '../../shared/setupWebSocket'
 
-	let pluginWindowIframe
+	let iframe
 	const html = document.querySelector('html')
 
-	let webSocketsEnabled = true
 	// @ts-ignore
 	let url = `http://localhost:${window.runtimeData.port}`
 
-	let ws
-	let isReconnecting = false
 	let isServerActive = true
-	let iframeLoaded = false
-
-	function connectWebSocket() {
-		ws = new WebSocket('ws://localhost:9001/ws')
-
-		ws.onopen = () => {
-			console.log('WebSocket Connected...')
-			if (isReconnecting) {
-				isReconnecting = false // Reset reconnection flag
-			}
-			handleConnect()
-		}
-
-		ws.onmessage = (message) => {
-			console.log('Received:', message.data)
-		}
-
-		ws.onclose = () => {
-			console.log('WS Disconnected, retrying...')
-			isReconnecting = true
-			setTimeout(connectWebSocket, 1000) // Retry connection after 1 second
-		}
-
-		ws.onerror = (error) => {
-			console.error('WebSocket error:', error)
-		}
-	}
-
-	function handleConnect() {
-		console.log('WebSocket reconnected! Running post-reconnect logic...')
-		observeChanges()
-
-		// setInterval(() => {
-		// 	observeChanges()
-		// }, 1000)
-	}
-
-	if (webSocketsEnabled) {
-		connectWebSocket()
-	}
-
-	function monitorUrl(url, interval = 1000) {
-		async function checkUrl() {
-			try {
-				const response = await fetch(url)
-				if (isServerActive !== response.ok) {
-					isServerActive = response.ok
-					await tick() // Ensures the DOM updates when `isServerActive` changes
-				}
-			} catch {
-				if (isServerActive !== false) {
-					isServerActive = false
-					await tick()
-				}
-			}
-			pluginWindowIframe.style.display = isServerActive ? 'block' : 'none'
-		}
-
-		// Check the URL immediately
-		checkUrl()
-
-		// Continue checking at the specified interval
-		setInterval(checkUrl, interval)
-	}
-
-	function sendWsMessage(ws, message) {
-		const waitForOpenConnection = () => {
-			return new Promise((resolve, reject) => {
-				const maxRetries = 10 // Maximum number of retries
-				let retries = 0
-
-				const interval = setInterval(() => {
-					if (ws.readyState === WebSocket.OPEN) {
-						clearInterval(interval)
-						resolve()
-					} else if (retries >= maxRetries) {
-						clearInterval(interval)
-						reject(new Error('WebSocket connection failed to open.'))
-					}
-					retries++
-				}, 100) // Check every 100ms
-			})
-		}
-
-		const send = async () => {
-			try {
-				if (ws.readyState !== WebSocket.OPEN) {
-					await waitForOpenConnection()
-				}
-				ws.send(JSON.stringify(message))
-				// console.log('Message sent:', message)
-			} catch (error) {
-				console.error('Failed to send message:', error)
-			}
-		}
-
-		send()
-	}
-
-	// FIXME: Does this need changing so styles are applied as soon as url is changed, and the rest of the stuff loads when the iframe loads?
-	async function redirectIframe() {
-		return new Promise((resolve, reject) => {
-			// Set the iframe source
-
-			pluginWindowIframe.src = new URL(url).href
-
-			function onIframeLoad() {
-				console.log('Iframe successfully redirected to:', pluginWindowIframe.src)
-
-				// Resolve the promise when the iframe is successfully loaded
-				resolve('Iframe successfully redirected')
-				pluginWindowIframe.removeEventListener('load', onIframeLoad)
-			}
-			// Listen for the iframe's load event
-			pluginWindowIframe.addEventListener('load', onIframeLoad) // Remove the listener after it's called
-			// pluginWindowIframe.onload = function () {
-			// 	iframeLoaded = true
-			// 	console.log('Iframe successfully redirected to:', pluginWindowIframe.src)
-
-			// 	// Resolve the promise when the iframe is successfully loaded
-			// 	resolve('Iframe successfully redirected')
-			// }
-
-			// Set a timeout in case the iframe fails to load after a certain time
-			setTimeout(() => {
-				reject(new Error('Iframe redirection timeout or failed'))
-			}, 5000) // You can adjust the timeout duration as necessary
-		})
-	}
-
-	function postToIframeAndWebSocket(type, data) {
-		const message = {
-			pluginMessage: {
-				type,
-				data,
-			},
-		}
-		pluginWindowIframe.contentWindow.postMessage(message, '*')
-		if (webSocketsEnabled) {
-			sendWsMessage(ws, message)
-		}
-	}
 
 	// Pass messages between parent and plugin window wrapper iframe
-	function relayFigmaMessages() {
-		window.onmessage = (event) => {
+	function relayFigmaMessages(ws) {
+		ws.on((event) => {
 			if (event.origin === 'https://www.figma.com') {
 				// forward to iframe and browser
-				pluginWindowIframe.contentWindow.postMessage(event.data, '*')
-				// console.log('main --> ui')
-				if (webSocketsEnabled) {
-					sendWsMessage(ws, event.data)
-				}
+				ws.post(event.data, ['iframe', 'ws'])
 			} else {
 				// forward to main
-				// console.log('main <-- ui', event.data)
-				parent.postMessage(event.data, '*')
+				ws.post(event.data, ['parent', 'ws'])
 			}
-		}
+		}, 'window')
 
-		if (webSocketsEnabled) {
-			ws.onmessage = (event) => {
-				// forward to main
-				const message = JSON.parse(event.data)
-				// console.log('main <-- ui', JSON.parse(message))
-
-				parent.postMessage(JSON.parse(message), '*')
-			}
-		}
+		ws.on((event) => {
+			console.log('---- on ws', event.data)
+			ws.post(event.data, 'parent')
+		}, 'ws')
 	}
 
-	function sendFigmaClassesAndStylesToWebSocket() {
+	function getClassesAndStyles(ws) {
 		const styleSheetElement = document.getElementById('figma-style')
 
-		ws.addEventListener('message', (event) => {
-			const message = JSON.parse(JSON.parse(event.data)).pluginMessage
+		ws.on((event) => {
+			const message = event.data.pluginMessage
 
 			if (message.type === 'GET_FIGMA_CLASSES_AND_STYLES') {
-				postToIframeAndWebSocket('FIGMA_HTML_CLASSES', html.className)
-				postToIframeAndWebSocket('FIGMA_STYLES', styleSheetElement.innerHTML)
+				const messages = [
+					{
+						pluginMessage: {
+							type: 'FIGMA_HTML_CLASSES',
+							data: html.className,
+						},
+					},
+					{
+						pluginMessage: {
+							type: 'FIGMA_STYLES',
+							data: styleSheetElement.innerHTML,
+						},
+					},
+				]
+				ws.post(messages, ['iframe', 'ws'])
 			}
-		})
+		}, 'ws')
 	}
 
-	function observeChanges() {
-		function observeFigmaClasses() {
-			const observer = new MutationObserver((mutationsList) => {
-				for (let mutation of mutationsList) {
-					if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-						postToIframeAndWebSocket('FIGMA_HTML_CLASSES', html.className)
-					}
-				}
-			})
-
-			observer.observe(html, {
-				attributes: true,
-				attributeFilter: ['class'],
-			})
-
-			// Send class initially
-			postToIframeAndWebSocket('FIGMA_HTML_CLASSES', html.className)
+	function observeChanges(ws) {
+		function postMessage(type, data) {
+			ws.post(
+				{
+					pluginMessage: {
+						type,
+						data,
+					},
+					pluginId: '*',
+				},
+				['iframe', 'ws'],
+			)
 		}
 
-		function observeFigmaStyles() {
-			const styleSheetElement = document.getElementById('figma-style')
+		function createObserver(target, messageType, getData) {
+			// Post initial data
+			postMessage(messageType, getData())
 
 			const observer = new MutationObserver(() => {
-				postToIframeAndWebSocket('FIGMA_STYLES', styleSheetElement.innerHTML)
+				postMessage(messageType, getData())
 			})
 
-			observer.observe(styleSheetElement, {
+			observer.observe(target, {
 				attributes: true,
 				childList: true,
 				subtree: true,
 			})
-
-			// Send initial styles immediately
-			postToIframeAndWebSocket('FIGMA_STYLES', styleSheetElement.innerHTML)
 		}
 
-		observeFigmaClasses()
-		observeFigmaStyles()
+		const styleSheetElement = document.getElementById('figma-style')
+		createObserver(html, 'FIGMA_HTML_CLASSES', () => html.className)
+		createObserver(styleSheetElement, 'FIGMA_STYLES', () => styleSheetElement.innerHTML)
 	}
-
-	// Remove padding and margin because app has it's own body tag
-	function setBodyStyles() {
-		document.body.style.padding = '0'
-		document.body.style.margin = '0'
-		document.body.style.color = 'var(--figma-color-text)'
-		document.body.style.fontFamily = 'Inter, system-ui, Helvetica, Arial, sans-serif'
-	}
-
-	function resizePluginWindow() {
-		// Experiment to listen for changes to window size
-		const resizeObserver = new ResizeObserver((entries) => {
-			for (let entry of entries) {
-				// Access the size of the entry (the window in this case)
-				const { width, height } = entry.contentRect
-				console.log(`Window size changed. Width: ${width}, Height: ${height}`)
-			}
-		})
-
-		// Observe changes on the body or any element related to the window size
-		resizeObserver.observe(document.body)
-	}
-
-	$: console.log('----- iframe loaded', iframeLoaded)
 
 	onMount(async () => {
-		monitorUrl(url)
+		monitorUrl(url, iframe, (isActive) => {
+			isServerActive = isActive
+		})
 		setBodyStyles()
 
-		// if (!iframeLoaded) {
-		await redirectIframe()
+		await redirectIframe(iframe, url)
 
-		// pluginWindowIframe.onload = () => {
-		// }
-		// FIXME: iframe needs to be loaded before these are run, but unkown issue with websockets when this happens, its almost like it needs to be when iframe loaded, or when receive websocket
-		relayFigmaMessages()
+		let ws = setupWebSocket(iframe)
 
-		observeChanges()
-
-		// resizePluginWindow()
-		if (webSocketsEnabled) {
-			sendFigmaClassesAndStylesToWebSocket()
-		}
-		// }
+		ws.open(() => {
+			console.log('----- ws reconnecting')
+			relayFigmaMessages(ws)
+			observeChanges(ws)
+			getClassesAndStyles(ws)
+		})
 	})
 </script>
 
-<iframe title="" id="vite-app-host" bind:this={pluginWindowIframe}></iframe>
+<iframe title="" id="vite-app-host" bind:this={iframe}></iframe>
 
 <!-- should dev server status be in VITE_APP?-->
 {#if !isServerActive}

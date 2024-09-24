@@ -8,6 +8,7 @@
 	const isInsideFigma = typeof figma !== 'undefined'
 
 	let ws = new WebSocket('ws://localhost:9001/ws')
+	let url = `http://localhost:${window.runtimeData.port}`
 
 	const processedMessages = new Set()
 
@@ -35,6 +36,7 @@
 				if (ws.readyState !== WebSocket.OPEN) {
 					await waitForOpenConnection()
 				}
+				console.log('---- sending message.....', message)
 				ws.send(JSON.stringify(message))
 				// console.log('Message sent:', message)
 			} catch (error) {
