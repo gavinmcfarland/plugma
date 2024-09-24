@@ -146,15 +146,15 @@ export function setupWebSocket(iframeTarget = null, enableWebSocket = true): Ext
 	}
 
 	ws.onclose = () => {
-		setupWebSocket(enableWebSocket, iframeTarget)
-		setTimeout(() => {
-			setupWebSocket(enableWebSocket, iframeTarget)
-		}, 100)
+		// setupWebSocket(enableWebSocket, iframeTarget)
+		// setTimeout(() => {
+		// 	setupWebSocket(enableWebSocket, iframeTarget)
+		// }, 100)
 	}
 
-	ws.onerror = (error) => {
-		console.error('WebSocket error:', error)
-	}
+	// ws.onerror = (error) => {
+	// 	console.error('WebSocket error:', error)
+	// }
 
 	return ws
 }

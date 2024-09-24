@@ -19,13 +19,16 @@
 
 	// Pass messages between parent and plugin window wrapper iframe
 	function relayFigmaMessages(ws) {
+		// window.addEventListener('message', (event) => {
+		// 	console.log('------- iiii', event.data)
+		// })
 		ws.on((event) => {
 			if (event.origin === 'https://www.figma.com') {
 				// forward to iframe and browser
 				ws.post(event.data, ['iframe', 'ws'])
 			} else {
 				// forward to main
-				ws.post(event.data, ['parent', 'ws'])
+				ws.post(event.data, ['parent'])
 			}
 		}, 'window')
 
@@ -96,27 +99,28 @@
 	}
 
 	onMount(async () => {
+		// NOTE: Messaging must be setup first so that it's ready to receive messages from iframe
+		let ws = setupWebSocket(iframe)
+		relayFigmaMessages(ws)
+
 		monitorUrl(url, iframe, (isActive) => {
 			isServerActive = isActive
 		})
 		setBodyStyles()
-
 		await redirectIframe(iframe, url)
-
-		let ws = setupWebSocket(iframe)
 
 		ws.open(() => {
 			console.log('----- ws reconnecting')
-			relayFigmaMessages(ws)
+
 			observeChanges(ws)
 			getClassesAndStyles(ws)
 		})
 	})
 </script>
 
-<iframe title="" id="vite-app-host" bind:this={iframe}></iframe>
+<iframe title="" id="vite-app-host" bind:this={iframe} sandbox="allow-scripts allow-same-origin"></iframe>
 
-<!-- should dev server status be in VITE_APP?-->
+<!-- needs to be in both PluginWindow and ViteApp, because if ViteApp hasn't loaded, then no way to report error-->
 {#if !isServerActive}
 	<ServerStatus></ServerStatus>
 {/if}

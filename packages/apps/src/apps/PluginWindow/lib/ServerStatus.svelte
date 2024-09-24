@@ -12,7 +12,7 @@
 				fill-opacity="0.8"
 			/>
 		</svg>
-		<p>Dev server not active</p>
+		<p>Dev server inactive</p>
 	</div>
 </div>
 

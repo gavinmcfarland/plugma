@@ -2,6 +2,10 @@
 	import { nanoid } from 'nanoid'
 	import { onMount } from 'svelte'
 
+	import { monitorUrl } from '../../shared/monitorUrl'
+	import ServerStatus from '../PluginWindow/lib/ServerStatus.svelte'
+	import app from './main'
+
 	const html = document.querySelector('html')
 
 	const isInsideIframe = window.self !== window.top
@@ -141,20 +145,20 @@
 	}
 
 	function interceptPostMessage() {
-		// Store the original postMessage function
-		const originalPostMessage = window.postMessage
-
 		// Override postMessage if not inside iframe or Figma
 		if (!(isInsideIframe || isInsideFigma)) {
+			// Store the original postMessage function
+			const originalPostMessage = window.postMessage
+
 			window.postMessage = function (message, targetOrigin, transfer) {
 				// Intercept and log the message
 				let messageId = nanoid()
 				// Check if this message has already been processed
-				if (!processedMessages.has(messageId)) {
-					processedMessages.add(messageId)
-					console.log('POST MESSAGE', message)
-					sendWsMessage(ws, message)
-				}
+				// if (!processedMessages.has(messageId)) {
+				// processedMessages.add(messageId)
+				console.log('POST MESSAGE', message)
+				sendWsMessage(ws, message)
+				// }
 
 				return null
 				// // Call the original postMessage to maintain functionality
@@ -221,6 +225,13 @@
 		console.log('get figma styles')
 		getFigmaStyles()
 	}
+
+	let isServerActive = true
+
+	$: monitorUrl(url, null, (isActive) => {
+		isServerActive = isActive
+	})
+
 	onMount(async () => {
 		parent.postMessage(
 			{
@@ -231,3 +242,8 @@
 		)
 	})
 </script>
+
+<!-- so it only appears in browser, because don't want overlap with one in PluginWindow-->
+{#if !isServerActive && !(isInsideIframe || isInsideFigma)}
+	<ServerStatus></ServerStatus>
+{/if}

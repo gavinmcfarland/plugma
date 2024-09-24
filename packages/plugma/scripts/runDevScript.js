@@ -136,18 +136,11 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 
 		function writeTempFile(fileName) {
 			const tempFilePath = join(os.tmpdir(), fileName);
-			const modifiedContent = `import { saveFigmaStyles } from "${CURR_DIR}/node_modules/plugma/frameworks/common/main/saveFigmaStyles";
-			import main from "${CURR_DIR}/${data.figmaManifest.main}";
-			saveFigmaStyles();
-			main();`;
-			const modifiedContent2 = `import main from "${CURR_DIR}/${data.figmaManifest.main}";
-			main();`;
-			if (NODE_ENV === "development") {
-				fs.writeFileSync(tempFilePath, modifiedContent);
-			}
-			else {
-				fs.writeFileSync(tempFilePath, modifiedContent2);
-			}
+			const modifiedContent = `import main from "${CURR_DIR}/${data.figmaManifest.main}";
+			main();`
+			// if (NODE_ENV === "development") {
+			fs.writeFileSync(tempFilePath, modifiedContent);
+			// }
 			return tempFilePath
 		}
 
@@ -306,7 +299,8 @@ async function startViteServer(data, options) {
 			// 	});
 			// },
 			server: {
-				port: options.port
+				port: options.port,
+				logLevel: 'silent'
 			}
 		});
 
