@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 
-import cli from '../scripts/run-script.js'
+import cli from '../scripts/run-script.js';
+import runRelease from '../scripts/run-release.js';
 import _yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
@@ -52,6 +53,48 @@ yargs.command('dev', 'Start a server to develop your plugin', function (yargs) {
 			"Creates a build in production mode"
 		)
 		.argv;
-})
+}).command('release', 'Prepare a release for your plugin', function (yargs) {
+	yargs
+		.option('v', {
+			alias: 'version',
+			description: 'Specify the version to release (can be "alpha", "beta", "stable", or a whole integer)',
+			type: 'string', // Now accepting both string and number as a string
+			demandOption: true
+		})
+		.example(
+			"$0 release --version alpha",
+			"Releases an alpha version of the plugin"
+		)
+		.example(
+			"$0 release --version 27",
+			"Manually sets the plugin version to 27"
+		)
+		.argv;
+});
 
-cli(yargs.argv);
+// Call the appropriate function based on the command
+if (yargs.argv._[0] === 'release') {
+	const { version } = yargs.argv;
+
+	// Define valid release types
+	const validReleaseTypes = ['alpha', 'beta', 'stable'];
+
+	let releaseOptions = {};
+
+	// Check if the provided version is a valid release type or a manual version number
+	if (validReleaseTypes.includes(version)) {
+		// It's a release type like 'alpha', 'beta', or 'stable'
+		releaseOptions.type = version;
+	} else if (/^\d+$/.test(version)) {
+		// It's a whole integer version number (e.g., 27)
+		releaseOptions.version = version;
+	} else {
+		console.error('Invalid version: must be a whole integer or a release type (alpha, beta, stable)');
+		process.exit(1);
+	}
+
+	// Call runRelease with the appropriate options
+	runRelease(releaseOptions);
+} else {
+	cli(yargs.argv);
+}
