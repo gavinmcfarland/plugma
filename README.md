@@ -65,6 +65,7 @@ Currently, the only framework supported is `Svelte`. -->
     -   `--port`, `-p`: Specify a port number for the plugin preview.
     -   `--toolbar`, `-t`: Show the developer toolbar within the plugin UI.
     -   `--mode`, `-m`: Specify the mode (development, production, test).
+    -   `--websockets`, `-ws`: Enable websockets to preview in browser.
 
 -   ### plugma build
 
@@ -74,6 +75,14 @@ Currently, the only framework supported is `Svelte`. -->
 
     -   `--watch`, `-w`: Watch for changes and rebuild automatically.
     -   `--mode`, `-m`: Specify the mode (development, production, test).
+
+-   ### plugma preview
+
+    Preview the plugin in a browser preview.
+
+    **Options**
+
+    -   `--port`, `-p`: Specify a port number for the plugin preview.
 
 -   ### plugma release
 
