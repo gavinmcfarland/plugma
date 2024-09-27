@@ -70,7 +70,7 @@ Start a server to develop your plugin.
 
 ### plugma build
 
-Create a build ready for publishing.
+Create a build before publishing.
 
 #### Options
 
