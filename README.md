@@ -28,14 +28,6 @@ npm create plugma@latest
 
 The frameworks currently supported are `React`, `Svelte`, `Vue` and vanilla `JavaScript`.
 
-## Install
-
-To install the CLI globally.
-
-```
-npm install plugma -g
-```
-
 <!-- ## Create plugin from template
 
 ```shell
@@ -56,7 +48,7 @@ Follow the on-screen instructions to create a plugin from a template.
 
 Currently, the only framework supported is `Svelte`. -->
 
--   ### plugma dev
+-   ### dev
 
     Start a server to develop your plugin.
 
@@ -67,7 +59,7 @@ Currently, the only framework supported is `Svelte`. -->
     -   `--mode`, `-m`: Specify the mode (development, production, test).
     -   `--websockets`, `-ws`: Enable websockets to preview in browser.
 
--   ### plugma build
+-   ### build
 
     Create a build before publishing.
 
@@ -76,7 +68,7 @@ Currently, the only framework supported is `Svelte`. -->
     -   `--watch`, `-w`: Watch for changes and rebuild automatically.
     -   `--mode`, `-m`: Specify the mode (development, production, test).
 
--   ### plugma preview
+-   ### preview
 
     Preview the plugin in a browser preview.
 
@@ -84,13 +76,21 @@ Currently, the only framework supported is `Svelte`. -->
 
     -   `--port`, `-p`: Specify a port number for the plugin preview.
 
--   ### plugma release
+-   ### release
 
     Build the plugin and release to github.
 
     **Options**
 
     -   `--version`, `-v`: Specify the version (alpha, beta, stable, or a whole integer).
+
+## Install
+
+To install the CLI globally.
+
+```
+npm install plugma -g
+```
 
 <!-- ## Folder structure
 
