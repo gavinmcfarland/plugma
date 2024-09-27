@@ -48,7 +48,7 @@ Currently, the only framework supported is `Svelte`. -->
 
 ## Commands
 
-_To use these with the pre-made template just pass the arguments with `--`, for example `node run dev -- -p`._
+_When using these with npm scripts you need to pass the arguments with `--`, for example `node run dev -- -p`._
 
 <!-- ### `plugma init`
 
@@ -56,34 +56,32 @@ Follow the on-screen instructions to create a plugin from a template.
 
 Currently, the only framework supported is `Svelte`. -->
 
-### plugma dev
+-   ### plugma dev
 
-Start a server to develop your plugin.
+    Start a server to develop your plugin.
 
-#### Options
+    **Options**
 
-<!-- - `--websockets=off`, `-ws=off`: Turn off websockets. -->
+    -   `--port`, `-p`: Specify a port number for the plugin preview.
+    -   `--toolbar`, `-t`: Show the developer toolbar within the plugin UI.
+    -   `--mode`, `-m`: Specify the mode (development, production, test).
 
--   `--port`, `-p`: Specify a port number for the plugin preview.
--   `--toolbar`, `-t`: Show the developer toolbar within the plugin UI.
--   `--mode`, `-m`: Specify the mode (development, production, test).
+-   ### plugma build
 
-### plugma build
+    Create a build before publishing.
 
-Create a build before publishing.
+    **Options**
 
-#### Options
+    -   `--watch`, `-w`: Watch for changes and rebuild automatically.
+    -   `--mode`, `-m`: Specify the mode (development, production, test).
 
--   `--watch`, `-w`: Watch for changes and rebuild automatically.
--   `--mode`, `-m`: Specify the mode (development, production, test).
+-   ### plugma release
 
-### plugma release
+    Build the plugin and release to github.
 
-Build the plugin and release to github.
+    **Options**
 
-#### Options
-
--   `--version`, `-v`: Specify the version (alpha, beta, stable, or a whole integer).
+    -   `--version`, `-v`: Specify the version (alpha, beta, stable, or a whole integer).
 
 <!-- ## Folder structure
 
