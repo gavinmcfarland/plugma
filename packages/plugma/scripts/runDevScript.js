@@ -1,5 +1,6 @@
 import { createServer } from 'vite';
 import esbuild from 'esbuild';
+import { config } from 'dotenv';
 import { exec } from 'child_process';
 import { dirname, resolve, parse, join } from 'path';
 import fs from 'fs';
@@ -17,6 +18,7 @@ import ejs from 'ejs';
 // import { renderTemplate } from './nunchucksTemplate.js'
 import { renderTemplate } from './ejsTemplate.js'
 import { wisp } from 'wisp'
+import envfilePlugin from '../lib/esbuild-plugins/esbuild-plugin-envfile.js';
 
 import path from 'path'
 // import { option } from 'yargs';
@@ -126,7 +128,30 @@ async function getManifest() {
 	});
 }
 
-async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
+async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV, options) {
+
+	// Load environment variables from the .env file
+	config({ path: '.env.test' });
+
+
+	// Automatically map existing environment variables from process.env
+	const envVars = Object.keys(process.env).reduce((acc, key) => {
+		acc[`process.env.${key}`] = JSON.stringify(process.env[key]);
+		return acc;
+	}, {});
+
+
+	// Because if we don't define a proxy, it crashes in Figma. globalThis is used because window doesn't exist in Figma
+	// The Proxy code to simulate `process.env` in any environment (using globalThis)
+	const proxyCode = `
+  globalThis.process = globalThis.process || {};
+  globalThis.process.env = new Proxy(globalThis.process.env || {}, {
+    get: (target, prop) => {
+      return prop in target ? target[prop] : undefined;
+    }
+  });
+`;
+
 
 	if (callback && typeof (callback) === "function") {
 		callback();
@@ -148,7 +173,7 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 		let tempFilePath = writeTempFile(fileName)
 
 
-		if (NODE_ENV === "development" || shouldWatch) {
+		if (options._[0] === "dev" || (options._[0] === "build" && options.watch)) {
 
 
 			let ctx = await esbuild.context({
@@ -157,37 +182,46 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 				format: 'esm',
 				bundle: true,
 				target: 'es2016',
-				plugins: [{
-					name: 'rebuild-notify',
-					setup(build) {
-						// build.onLoad({ filter: /\.txt$/ }, async (args) => {
-						// 	let text = await fs.promises.readFile(args.path, 'utf8')
-						// 	return {
-						// 		contents: JSON.stringify(text.split(/\s+/)),
-						// 		loader: 'json',
-						// 	}
-						// })
-						// build.onStart(() => {
-						// 	tempFilePath = writeTempFile(fileName)
-						// 	console.log('build started')
-						// })
-						// build.onStart(() => {
-						// 	console.log('Rebuilding...');
-						// });
-						build.onEnd(async result => {
-							console.log(`${chalk.grey(formatTime())} ${chalk.cyan.bold('[esbuild]')} ${chalk.green('rebuilt')} ${chalk.grey('/dist/main.js')}`)
-							// console.log(`main.ts built with ${result.errors.length} errors`);
-							// HERE: somehow restart the server from here, e.g., by sending a signal that you trap and react to inside the server.
-							// await fs.unlink(tempFilePath, (err => {
-							// 	if (err) console.log(err);
-							// }));
-						})
-					}
-					,
+				define: {
+					'process.env.NODE_ENV': JSON.stringify(options.mode),
 				},
-				replace({
-					'__buildVersion': '"1.0.0"',
-				})
+				plugins: [
+					envfilePlugin({
+						envPath: '.env',
+						envTestPath: '.env.test',
+						envDevelopmentPath: '.env.development',
+					}),
+					{
+						name: 'rebuild-notify',
+						setup(build) {
+							// build.onLoad({ filter: /\.txt$/ }, async (args) => {
+							// 	let text = await fs.promises.readFile(args.path, 'utf8')
+							// 	return {
+							// 		contents: JSON.stringify(text.split(/\s+/)),
+							// 		loader: 'json',
+							// 	}
+							// })
+							// build.onStart(() => {
+							// 	tempFilePath = writeTempFile(fileName)
+							// 	console.log('build started')
+							// })
+							// build.onStart(() => {
+							// 	console.log('Rebuilding...');
+							// });
+							build.onEnd(async result => {
+								console.log(`${chalk.grey(formatTime())} ${chalk.cyan.bold('[esbuild]')} ${chalk.green('rebuilt')} ${chalk.grey('/dist/main.js')}`)
+								// console.log(`main.ts built with ${result.errors.length} errors`);
+								// HERE: somehow restart the server from here, e.g., by sending a signal that you trap and react to inside the server.
+								// await fs.unlink(tempFilePath, (err => {
+								// 	if (err) console.log(err);
+								// }));
+							})
+						}
+						,
+					},
+					replace({
+						'__buildVersion': '"1.0.0"',
+					})
 				],
 			});
 			await ctx.watch();
@@ -204,8 +238,15 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV) {
 				bundle: true,
 				target: 'es2016',
 				define: {
-					'process.env.NODE_ENV': JSON.stringify(NODE_ENV),
+					'process.env.NODE_ENV': JSON.stringify(options.mode),
 				},
+				plugins: [
+					envfilePlugin({
+						envPath: '.env',
+						envTestPath: '.env.test',
+						envDevelopmentPath: '.env.development',
+					}),
+				]
 			});
 		}
 
@@ -229,6 +270,10 @@ async function startViteServer(data, options) {
 
 
 		const server = await createServer({
+			mode: options.mode,
+			define: {
+				'process.env.NODE_ENV': JSON.stringify(options.mode),
+			},
 			// Rewrite index html file to point to ui file specified in manifest
 			plugins: [
 				{
@@ -372,6 +417,10 @@ async function buildUI(data, callback, NODE_ENV, options) {
 
 		if (options.watch) {
 			await build({
+				mode: options.mode,
+				define: {
+					'process.env.NODE_ENV': JSON.stringify(options.mode),
+				},
 				build: {
 					watch: {},
 					emptyOutDir: false,
@@ -379,7 +428,12 @@ async function buildUI(data, callback, NODE_ENV, options) {
 			})
 		}
 		else {
-			await build()
+			await build({
+				mode: options.mode,
+				define: {
+					'process.env.NODE_ENV': JSON.stringify(mode),
+				},
+			})
 		}
 
 	}
@@ -506,6 +560,13 @@ function getRandomNumber() {
 
 export default function cli(options) {
 
+	// Allow CLI to set NODE_ENV
+	if (options.mode) {
+		process.env.NODE_ENV = options.mode
+	} else {
+		process.env.NODE_ENV = 'development'
+	}
+
 	options.port = options.port || getRandomNumber()
 
 	if (options._[0] === "build") {
@@ -529,7 +590,7 @@ ${chalk.blue.bold('Plugma')} ${chalk.grey("0.0.30")}
 			})
 			await bundleMainWithEsbuild(data, options.watch, () => {
 				console.log(`  main.js file created!`)
-			}, 'production')
+			}, 'production', options)
 
 			console.log(`
 Watching for changes...`)
@@ -583,7 +644,7 @@ ${chalk.blue.bold('Plugma')} ${chalk.grey('v0.0.1')}
 			})
 			await bundleMainWithEsbuild(data, true, () => {
 				console.log(`  main.js file created!`)
-			}, 'development')
+			}, 'development', options)
 
 
 
