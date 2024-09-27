@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-import cli from '../scripts/runDevScript.js'
+import cli from '../scripts/runScript.js'
 import _yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 

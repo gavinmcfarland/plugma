@@ -1,22 +1,11 @@
-// Todo: Add check to see if url active before loading the rest of plugin main code
 
-function saveFigmaStyles() {
+function mainListeners() {
 	if (
 		process.env.NODE_ENV === "development" ||
 		process.env.NODE_ENV === "server"
 	) {
 		figma.ui.on("message", async (msg) => {
-			// figma.ui.onmessage = async (msg) => {
-			if (msg.event === "save-figma-stylesheet") {
-				figma.clientStorage.setAsync("figma-stylesheet", msg.data);
-			}
-			if (msg.event === "get-figma-stylesheet") {
-				let data = await figma.clientStorage.getAsync("figma-stylesheet");
-				figma.ui.postMessage({
-					event: "pass-figma-stylesheet",
-					data,
-				});
-			}
+
 			if (msg.event === "plugma-delete-file-storage") {
 				let pluginDataKeys = figma.root.getPluginDataKeys();
 				for (let i = 0; i < pluginDataKeys.length; i++) {
@@ -37,19 +26,6 @@ function saveFigmaStyles() {
 				}
 				figma.notify("ClientStorage deleted");
 			}
-			//   if (msg.event === "plugma-save-on-run-message") {
-			//     let data = await figma.clientStorage.getAsync("plugma-on-run-messages");
-			//     console.log("----- check data before", data);
-			//     if (typeof data === "undefined") {
-			//       data = [];
-			//     }
-
-			//     data.push(msg.data);
-
-			//     console.log("----- check data after", data);
-			//     // console.log("-- save messages", data);
-			//     figma.clientStorage.setAsync("plugma-on-run-messages", data);
-			//   }
 			if (msg.event === "plugma-save-on-run-messages") {
 				figma.clientStorage.setAsync("plugma-on-run-messages", msg.data);
 			}
@@ -65,4 +41,4 @@ function saveFigmaStyles() {
 	}
 }
 
-export { saveFigmaStyles };
+export { mainListeners };
