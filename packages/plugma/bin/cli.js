@@ -57,10 +57,13 @@ yargs.command('dev', 'Start a server to develop your plugin', function (yargs) {
 	yargs
 		.option('v', {
 			alias: 'version',
-			description: 'Specify the version to release (can be "alpha", "beta", "stable", or a whole integer)',
+			description: 'Specify the version (alpha, beta, stable, or a whole integer)',
 			type: 'string', // Now accepting both string and number as a string
-			demandOption: true
 		})
+		.example(
+			"$0 release",
+			"Releases the next version of the plugin"
+		)
 		.example(
 			"$0 release --version alpha",
 			"Releases an alpha version of the plugin"

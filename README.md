@@ -77,6 +77,14 @@ Create a build ready for publishing.
 -   `--watch`, `-w`: Watch for changes and rebuild automatically.
 -   `--mode`, `-m`: Specify the mode (development, production, test).
 
+### plugma release
+
+Build the plugin and release to github.
+
+#### Options
+
+-   `--version`, `-v`: Specify the version (alpha, beta, stable, or a whole integer).
+
 <!-- ## Folder structure
 
 Depending on which framework you choose, the files might vary slightly, but the file structure will remain the same.
