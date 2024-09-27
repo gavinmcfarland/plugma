@@ -19,8 +19,11 @@ import ejs from 'ejs';
 import { renderTemplate } from './ejsTemplate.js'
 import { wisp } from 'wisp'
 import envfilePlugin from '../lib/esbuild-plugins/esbuild-plugin-envfile.js';
+import htmlTransform from '../lib/vite-plugins/vite-plugin-html-transform.js';
+import replaceMainInput from '../lib/vite-plugins/vite-plugin-replace-main-input.js';
 
 import path from 'path'
+import deepIndex from '../lib/vite-plugins/vite-plugin-replace-main-input.js';
 // import { option } from 'yargs';
 
 const CURR_DIR = process.cwd();
@@ -276,57 +279,11 @@ async function startViteServer(data, options) {
 			},
 			// Rewrite index html file to point to ui file specified in manifest
 			plugins: [
-				{
-					name: 'html-transform-1',
-					transformIndexHtml(html) {
-						return html.replace('id="entry" src="(.+?)"', `src="${data.figmaManifest.ui}"`);
-					},
-				},
-				{
-					// Insert catchFigmaStyles and startWebSocketServer
-					name: 'html-transform',
-					transformIndexHtml(html) {
-
-						// Can't use template with ejs template directly, so we have to add our file to it first
-						let viteAppProxyDev = fs.readFileSync(path.join(__dirname, '../../apps/dist/ViteApp.html'), 'utf8')
-
-						let runtimeData = `<script>
-	// Global variables defined on the window object
-	window.runtimeData = {
-		port: ${options.port}
-	};
-</script>`
-
-						viteAppProxyDev = viteAppProxyDev.replace(/^/, runtimeData)
-
-						// Apply Vite App scripts n stuff
-						html = html.replace('<body>', `<body>${viteAppProxyDev}`)
-
-						// // Add app div and script to bottom
-						// html = html.replace('id="entry" src="/main.js"', `src="${data.figmaManifest.ui}"`);
-
-
-						// if (options._[0] === "dev" && options.toolbar) {
-
-						// 	html = html.replace('<body>', `<body>${files.devToolbarFile}`)
-						// }
-
-						return html;
-					},
-					apply: 'serve'
-				},
-				{
-					// Point / to index.html
-					name: "deep-index",
-					configureServer(server) {
-						server.middlewares.use((req, res, next) => {
-							if (req.url === "/") {
-								req.url = "/node_modules/plugma/tmp/index.html";
-							}
-							next();
-						});
-					},
-				},
+				replaceMainInput({
+					input: data.figmaManifest.ui
+				}),
+				htmlTransform(options),
+				deepIndex()
 			],
 			// server: {
 			// 	port: options.port,
