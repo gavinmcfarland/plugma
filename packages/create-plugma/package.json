@@ -1,25 +1,26 @@
 {
-  "name": "create-plugma",
-  "version": "0.0.62",
-  "description": "",
-  "main": "create-plugma.js",
-  "type": "module",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "bin": {
-    "create-plugma": "./create-plugma.js"
-  },
-  "files": [
-    "templates",
-    "scripts"
-  ],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@sindresorhus/slugify": "^2.2.1",
-    "inquirer": "^10.1.0",
-    "lodash.merge": "^4.5.0",
-    "lodash.template": "^4.5.0"
-  }
+	"name": "create-plugma",
+	"version": "0.0.62",
+	"description": "",
+	"main": "create-plugma.js",
+	"type": "module",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"postversion": "node scripts/bump-plugma-version.js"
+	},
+	"bin": {
+		"create-plugma": "./create-plugma.js"
+	},
+	"files": [
+		"templates",
+		"scripts"
+	],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@sindresorhus/slugify": "^2.2.1",
+		"inquirer": "^10.1.0",
+		"lodash.merge": "^4.5.0",
+		"lodash.template": "^4.5.0"
+	}
 }

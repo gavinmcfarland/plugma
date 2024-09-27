@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import slugify from '@sindresorhus/slugify'
-import createDirectoryContents from './scripts/createDirectoryContents.js';
+import createDirectoryContents from './scripts/create-directory-contents.js';
 import { exec } from 'node:child_process'
 import lodashTemplate from 'lodash.template'
 import path from 'path';
