@@ -23,8 +23,8 @@ npm create plugma@latest
 
 #### Requirements
 
-- [Node.js](https://nodejs.org/en)
-- [Figma desktop app](https://www.figma.com/downloads/)
+-   [Node.js](https://nodejs.org/en)
+-   [Figma desktop app](https://www.figma.com/downloads/)
 
 The frameworks currently supported are `React`, `Svelte`, `Vue` and vanilla `JavaScript`.
 
@@ -56,7 +56,7 @@ Follow the on-screen instructions to create a plugin from a template.
 
 Currently, the only framework supported is `Svelte`. -->
 
-### `plugma dev`
+### plugma dev
 
 Start a server to develop your plugin.
 
@@ -64,16 +64,18 @@ Start a server to develop your plugin.
 
 <!-- - `--websockets=off`, `-ws=off`: Turn off websockets. -->
 
-- `--port`, `-p`: Specify a port number for the plugin preview.
-- `--toolbar`, `-t`: Show the developer toolbar within the plugin UI.
+-   `--port`, `-p`: Specify a port number for the plugin preview.
+-   `--toolbar`, `-t`: Show the developer toolbar within the plugin UI.
+-   `--mode`, `-m`: Specify the mode (development, production, test).
 
-### `plugma build`
+### plugma build
 
 Create a build ready for publishing.
 
 #### Options
 
-- `--watch`, `-w`: Watch for changes and rebuild automatically.
+-   `--watch`, `-w`: Watch for changes and rebuild automatically.
+-   `--mode`, `-m`: Specify the mode (development, production, test).
 
 <!-- ## Folder structure
 
