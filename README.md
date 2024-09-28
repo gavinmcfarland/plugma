@@ -11,7 +11,7 @@
 > [!WARNING]
 > Plugma is currently in alpha. Your feedback is greatly appreciated!
 
-Plugma simplifies Figma plugin development.
+Figma plugin development with browser previews, faster debuging and zero boilerplate.
 
 ## Start from a template
 
