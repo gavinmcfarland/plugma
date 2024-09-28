@@ -4,6 +4,14 @@ import process from 'process';
 import path from 'path';
 
 export async function runRelease(options) {
+	// Check if the current directory is a Git repository
+	try {
+		execSync('git rev-parse --is-inside-work-tree', { stdio: 'ignore' });
+	} catch (err) {
+		console.error('Error: This is not a Git repository. Please initialize a Git repository before proceeding.');
+		process.exit(1);
+	}
+
 	// Check if a manual version is provided, otherwise fallback to releaseType
 	const manualVersion = options.version;
 	const releaseType = options.type || 'stable';

@@ -9,6 +9,7 @@ const yargs = _yargs(hideBin(process.argv));
 
 yargs.scriptName("plugma")
 	.usage('Usage: $0 <cmd> [opts]')
+	.version(false)
 
 yargs.command('dev', 'Start a server to develop your plugin', function (yargs) {
 	yargs
@@ -24,14 +25,18 @@ yargs.command('dev', 'Start a server to develop your plugin', function (yargs) {
 		})
 		.option('m', {
 			alias: 'mode',
-			description: 'Specify the mode (development, production, test)',
+			description: 'Specify the mode',
 			type: 'string',
 			choices: ['development', 'production', 'test'],
 			default: 'development'
 		})
 		.example(
-			"$0 dev -p 3000 --mode development",
-			"Runs a dev server on port 3000 in development mode"
+			"$0 dev --port 3000",
+			"Runs a dev server on port 3000"
+		)
+		.example(
+			"$0 dev --mode test",
+			"Runs a dev server in test mode"
 		)
 		.argv;
 }).command('build', 'Create a build ready for publishing', function (yargs) {
@@ -43,7 +48,7 @@ yargs.command('dev', 'Start a server to develop your plugin', function (yargs) {
 		})
 		.option('m', {
 			alias: 'mode',
-			description: 'Specify the mode (development, production, test)',
+			description: 'Specify the mode',
 			type: 'string',
 			choices: ['development', 'production', 'test'],
 			default: 'production'
@@ -55,14 +60,16 @@ yargs.command('dev', 'Start a server to develop your plugin', function (yargs) {
 		.argv;
 }).command('release', 'Prepare a release for your plugin', function (yargs) {
 	yargs
+		.version(false)
 		.option('v', {
 			alias: 'version',
-			description: 'Specify the version (alpha, beta, stable, or a whole integer)',
+			description: 'Specify the version',
+			choices: ['alpha', 'beta', 'stable', '<integer>'],
 			type: 'string', // Now accepting both string and number as a string
 		})
 		.example(
 			"$0 release",
-			"Releases the next version of the plugin"
+			"Releases the next stable version of the plugin"
 		)
 		.example(
 			"$0 release --version alpha",
@@ -77,7 +84,8 @@ yargs.command('dev', 'Start a server to develop your plugin', function (yargs) {
 
 // Call the appropriate function based on the command
 if (yargs.argv._[0] === 'release') {
-	const { version } = yargs.argv;
+	// Extract version or set to 'stable' by default
+	const { version = 'stable' } = yargs.argv;
 
 	// Define valid release types
 	const validReleaseTypes = ['alpha', 'beta', 'stable'];
