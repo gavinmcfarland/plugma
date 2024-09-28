@@ -8,7 +8,10 @@
 		"plugma": "./bin/cli.js"
 	},
 	"scripts": {
-		"test": "echo \"Error: no test specified\""
+		"test": "echo \"Error: no test specified\"",
+		"build-apps": "cd ../apps && npm run build",
+		"copy-apps": "node scripts/copy-files.js",
+		"prepublishOnly": "npm run build-apps && npm run copy-apps"
 	},
 	"author": "",
 	"license": "ISC",
@@ -16,6 +19,7 @@
 		"async-exit-hook": "^2.0.1",
 		"chalk": "^5.3.0",
 		"cli": "^1.0.1",
+		"dotenv": "^16.4.5",
 		"esbuild-plugin-replace": "^1.4.0",
 		"express": "^4.18.2",
 		"fs-extra": "^11.2.0",

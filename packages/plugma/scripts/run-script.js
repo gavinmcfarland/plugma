@@ -91,7 +91,8 @@ async function runDevTask(options, data, devViteConfig, pkg) {
 
 		// ----- build ui.html
 		// We don't need to bundle the UI because when developing it needs to point to the dev server. So instead we create a placeholder ui file that points to a server
-		let devHtmlString = fs.readFileSync(`${__dirname}/../../apps/dist/PluginWindow.html`, 'utf8');
+
+		let devHtmlString = fs.readFileSync(resolve(`${__dirname}/../apps/PluginWindow.html`), 'utf8');
 
 		let runtimeData = `<script>
 		// Global variables defined on the window object

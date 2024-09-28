@@ -13,7 +13,7 @@ export default function htmlTransform(options = {}) {
 		transformIndexHtml(html) {
 
 			// Can't use template with ejs template directly, so we have to add our file to it first
-			let viteAppProxyDev = fs.readFileSync(path.join(__dirname, '../../../apps/dist/ViteApp.html'), 'utf8')
+			let viteAppProxyDev = fs.readFileSync(path.join(__dirname, '../apps/ViteApp.html'), 'utf8')
 
 			let runtimeData = `<script>
 // Global variables defined on the window object
