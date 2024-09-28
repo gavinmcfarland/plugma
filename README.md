@@ -13,13 +13,6 @@
 
 Plugma simplifies Figma plugin development.
 
-#### Requirements
-
--   [Node.js](https://nodejs.org/en)
--   [Figma desktop app](https://www.figma.com/downloads/)
-
-The frameworks currently supported are `React`, `Svelte`, `Vue` and vanilla `JavaScript`.
-
 ## Start from a template
 
 Create a plugin from a template using the following:
@@ -27,6 +20,8 @@ Create a plugin from a template using the following:
 ```shell
 npm create plugma@latest
 ```
+
+The frameworks currently supported are `React`, `Svelte`, `Vue` and vanilla `JavaScript`.
 
 <!-- ## Create plugin from template
 
@@ -172,6 +167,11 @@ parent.postmessage({
 ## How does it work?
 
 Plugma uses Vite to bundle Figma plugins and is configured to inline all styles and scripts into one file. It uses a local server for development, that passes messages from Figma's main thread to the local server using web sockets.
+
+## Requirements
+
+-   [Node.js](https://nodejs.org/en)
+-   [Figma desktop app](https://www.figma.com/downloads/)
 
 ## Acknowledgments
 
