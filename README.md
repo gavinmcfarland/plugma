@@ -13,6 +13,13 @@
 
 Plugma simplifies Figma plugin development.
 
+#### Requirements
+
+-   [Node.js](https://nodejs.org/en)
+-   [Figma desktop app](https://www.figma.com/downloads/)
+
+The frameworks currently supported are `React`, `Svelte`, `Vue` and vanilla `JavaScript`.
+
 ## Start from a template
 
 Create a plugin from a template using the following:
@@ -20,13 +27,6 @@ Create a plugin from a template using the following:
 ```shell
 npm create plugma@latest
 ```
-
-#### Requirements
-
--   [Node.js](https://nodejs.org/en)
--   [Figma desktop app](https://www.figma.com/downloads/)
-
-The frameworks currently supported are `React`, `Svelte`, `Vue` and vanilla `JavaScript`.
 
 <!-- ## Create plugin from template
 
