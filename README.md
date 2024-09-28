@@ -35,7 +35,7 @@ Currently, the only framework supported is `Svelte`. -->
 
 ## Commands
 
-_When using these with npm run you need to pass the arguments with a double dash `--`, for example `node run dev -- -p`._
+_When using these with npm run you need to pass the arguments with a double dash `--`, for example `npm run dev -- -p`._
 
 <!-- ### `plugma init`
 
