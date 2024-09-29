@@ -118,7 +118,7 @@
 	})
 </script>
 
-<iframe title="" id="vite-app-host" bind:this={iframe} sandbox="allow-scripts allow-same-origin"></iframe>
+<iframe title="" id="vite-app-host" bind:this={iframe}></iframe>
 
 <!-- needs to be in both PluginWindow and ViteApp, because if ViteApp hasn't loaded, then no way to report error-->
 {#if !isServerActive}
