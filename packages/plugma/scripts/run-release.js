@@ -126,6 +126,7 @@ export async function runRelease(options) {
 		const changes = execSync('git diff --cached --name-only', { encoding: 'utf8' }).trim();
 		if (changes) {
 			// Commit and tag
+			execSync(`git add .`, { stdio: 'inherit' });
 			execSync(`git commit -m "Release ${newTag}"`, { stdio: 'inherit' });
 			execSync(`git tag ${newTag}`, { stdio: 'inherit' });
 			execSync('git push', { stdio: 'inherit' });
