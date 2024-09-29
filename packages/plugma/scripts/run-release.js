@@ -2,8 +2,7 @@ import { execSync } from 'child_process';
 import { promises as fs } from 'fs';
 import process from 'process';
 import path from 'path';
-
-import { fileURLToPath } from "url";
+import { fileURLToPath } from 'url';
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
@@ -26,6 +25,7 @@ export async function runRelease(options) {
 	// Ensure the template is copied from `templates/github/` to `.github/` if not present
 	const templateDir = path.join(__dirname, '../templates', 'github', 'workflows'); // Path to template in npm package
 	const githubDir = path.join(process.cwd(), '.github', 'workflows'); // Path to user's .github/ folder
+	const releaseFile = path.join(githubDir, 'plugma-create-release.yml');
 
 	try {
 		const templateExists = await fs.stat(templateDir);
@@ -39,6 +39,20 @@ export async function runRelease(options) {
 			await copyDirectory(templateDir, githubDir);
 			console.log('Templates copied successfully.');
 		}
+
+		// Check if `plugma-create-release.yml` was added and create a separate commit
+		const releaseFileExists = await fs.stat(releaseFile).catch(() => null);
+		if (releaseFileExists) {
+			try {
+				execSync('git add .github/workflows/plugma-create-release.yml', { stdio: 'inherit' });
+				execSync('git commit -m "Add plugma-create-release.yml"', { stdio: 'inherit' });
+				console.log('plugma-create-release.yml added and committed.');
+			} catch (err) {
+				console.error('Error committing plugma-create-release.yml:', err);
+				process.exit(1);
+			}
+		}
+
 	} catch (err) {
 		console.error(`Error copying GitHub templates: ${err.message}`);
 		process.exit(1);
@@ -127,16 +141,4 @@ export async function runRelease(options) {
 		if (changes) {
 			// Commit and tag
 			execSync(`git add .`, { stdio: 'inherit' });
-			execSync(`git commit -m "Release ${newTag}"`, { stdio: 'inherit' });
-			execSync(`git tag ${newTag}`, { stdio: 'inherit' });
-			execSync('git push', { stdio: 'inherit' });
-			execSync(`git push origin ${newTag}`, { stdio: 'inherit' });
-			console.log(`Successfully committed, tagged, and pushed: ${newTag}`);
-		} else {
-			console.log('No changes to commit.');
-		}
-	} catch (err) {
-		console.error('Error committing or pushing to Git:', err);
-		process.exit(1);
-	}
-}
+			execSync(`git commit -m "Release ${newTag}"`, { stdio:
