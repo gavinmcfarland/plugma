@@ -22,6 +22,20 @@ async function copyDirectory(src, dest) {
 }
 
 export async function runRelease(options) {
+	// Check if the working directory is dirty
+	try {
+		const uncommittedChanges = execSync('git diff --name-only', { encoding: 'utf8' }).trim();
+		const stagedChanges = execSync('git diff --name-only --cached', { encoding: 'utf8' }).trim();
+
+		if (uncommittedChanges || stagedChanges) {
+			console.error('Error: Working directory has uncommitted changes. Please commit or stash them before proceeding.');
+			process.exit(1);
+		}
+	} catch (err) {
+		console.error('Error checking Git status:', err);
+		process.exit(1);
+	}
+
 	// Ensure the template is copied from `templates/github/` to `.github/` if not present
 	const templateDir = path.join(__dirname, '../templates', 'github', 'workflows'); // Path to template in npm package
 	const githubDir = path.join(process.cwd(), '.github', 'workflows'); // Path to user's .github/ folder
@@ -147,10 +161,19 @@ export async function runRelease(options) {
 			// Commit and tag
 			execSync(`git add .`, { stdio: 'inherit' });
 			execSync(`git commit -m "Release ${newTag}"`, { stdio: 'inherit' });
-			execSync(`git tag ${newTag}`, { stdio: 'inherit' });
-			execSync('git push', { stdio: 'inherit' });
-			execSync(`git push origin ${newTag}`, { stdio: 'inherit' });
-			console.log(`Successfully committed, tagged, and pushed: ${newTag}`);
+
+			// Try pushing the changes
+			try {
+				execSync(`git tag ${newTag}`, { stdio: 'inherit' });
+				execSync('git push', { stdio: 'inherit' });
+				execSync(`git push origin ${newTag}`, { stdio: 'inherit' });
+				console.log(`Successfully committed, tagged, and pushed: ${newTag}`);
+			} catch (err) {
+				console.error('Error during git push, reverting the last commit...', err);
+				// Revert the last commit
+				execSync('git reset --hard HEAD^', { stdio: 'inherit' });
+				process.exit(1);
+			}
 		} else {
 			console.log('No changes to commit.');
 		}
