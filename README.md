@@ -70,10 +70,11 @@ Currently, the only framework supported is `Svelte`. -->
     **Options**
 
     -   `--port`, `-p`: Specify a port number for the plugin preview.
+    -   `--mode`, `-m`: Specify the mode (development, production, test).
 
 -   ### release
 
-    Build the plugin and release to github.
+    Build the plugin and release to GitHub.
 
     **Options**
 
