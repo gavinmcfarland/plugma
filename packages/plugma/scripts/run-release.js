@@ -40,13 +40,18 @@ export async function runRelease(options) {
 			console.log('Templates copied successfully.');
 		}
 
-		// Check if `plugma-create-release.yml` was added and create a separate commit
+		// Check if `plugma-create-release.yml` was added or updated and create a separate commit
 		const releaseFileExists = await fs.stat(releaseFile).catch(() => null);
 		if (releaseFileExists) {
 			try {
-				execSync('git add .github/workflows/plugma-create-release.yml', { stdio: 'inherit' });
-				execSync('git commit -m "Add plugma-create-release.yml"', { stdio: 'inherit' });
-				console.log('plugma-create-release.yml added and committed.');
+				// Check if there are any staged changes for the release file
+				const releaseFileChanges = execSync(`git diff --name-only --staged ${releaseFile}`, { encoding: 'utf8' }).trim();
+
+				if (releaseFileChanges) {
+					execSync('git add .github/workflows/plugma-create-release.yml', { stdio: 'inherit' });
+					execSync('git commit -m "Add or update plugma-create-release.yml"', { stdio: 'inherit' });
+					console.log('plugma-create-release.yml added or updated and committed.');
+				}
 			} catch (err) {
 				console.error('Error committing plugma-create-release.yml:', err);
 				process.exit(1);
@@ -141,4 +146,16 @@ export async function runRelease(options) {
 		if (changes) {
 			// Commit and tag
 			execSync(`git add .`, { stdio: 'inherit' });
-			execSync(`git commit -m "Release ${newTag}"`, { stdio:
+			execSync(`git commit -m "Release ${newTag}"`, { stdio: 'inherit' });
+			execSync(`git tag ${newTag}`, { stdio: 'inherit' });
+			execSync('git push', { stdio: 'inherit' });
+			execSync(`git push origin ${newTag}`, { stdio: 'inherit' });
+			console.log(`Successfully committed, tagged, and pushed: ${newTag}`);
+		} else {
+			console.log('No changes to commit.');
+		}
+	} catch (err) {
+		console.error('Error committing or pushing to Git:', err);
+		process.exit(1);
+	}
+}
