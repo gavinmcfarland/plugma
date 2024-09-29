@@ -32,7 +32,7 @@
 		color: var(--figma-color-text);
 		font-family: Inter, system-ui, Helvetica, Arial, sans-serif;
 		font-display: optional;
-		font-size: 68.75%;
+		font-size: 12px;
 		box-sizing: border-box;
 		/* 11/16 */
 		justify-content: center;
