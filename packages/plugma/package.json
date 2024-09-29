@@ -1,6 +1,6 @@
 {
 	"name": "plugma",
-	"version": "1.0.0-0",
+	"version": "1.0.0-1",
 	"description": "",
 	"main": "index.js",
 	"type": "module",
@@ -11,7 +11,8 @@
 		"test": "echo \"Error: no test specified\"",
 		"build-apps": "cd ../apps && npm run build",
 		"copy-apps": "node scripts/copy-files.js",
-		"prepublishOnly": "npm run build-apps && npm run copy-apps"
+		"prepublishOnly": "npm run build-apps && npm run copy-apps",
+		"copy-workflows": "cp -r ./templates/github/ .github/"
 	},
 	"author": "",
 	"license": "ISC",

@@ -1,0 +1,72 @@
+name: Create release
+
+on:
+    push:
+        tags:
+            - 'v*' # Trigger on tags starting with 'v'
+
+permissions:
+    contents: write # Allow the workflow to push tags
+
+jobs:
+    release:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+              with:
+                  ref: main # Ensure you're checking out the main branch
+
+            - name: Install dependencies
+              run: npm ci # Use 'npm ci' for clean installation of dependencies
+
+            - name: Determine release type and prerelease status
+              id: determine_release_type
+              run: |
+                  TAG_NAME="${{ github.ref }}"
+                  TAG_NAME=${TAG_NAME#refs/tags/}  # Strip refs/tags/ from tag
+                  NEW_VERSION=$TAG_NAME
+
+                  # Check if the tag contains 'alpha' or 'beta'
+                  if [[ $NEW_VERSION == *"-alpha"* || $NEW_VERSION == *"-beta"* ]]; then
+                    echo "This is a pre-release version: $NEW_VERSION"
+                    echo "IS_PRERELEASE=true" >> $GITHUB_ENV
+                  else
+                    echo "This is a stable release version: $NEW_VERSION"
+                    echo "IS_PRERELEASE=false" >> $GITHUB_ENV
+                  fi  # Close the if statement
+
+                  echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+            - name: Check if tag exists
+              run: git tag -l
+
+            - name: Build project
+              run: npm run build # Now that dependencies are installed, this should work
+
+            - name: Zip dist folder
+              run: zip -r dist.zip dist
+
+            - name: Create GitHub Release
+              id: create_release
+              uses: actions/create-release@v1 # Use v3 of the action for Node.js 16 compatibility
+              with:
+                  tag_name: ${{ env.NEW_VERSION }} # Use the new version tag
+                  release_name: ${{ env.NEW_VERSION }} # Name the release after the new version
+                  body: |
+                      Release version ${{ env.NEW_VERSION }}
+                  draft: false
+                  prerelease: ${{ env.IS_PRERELEASE }} # Mark prerelease if alpha/beta
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Upload release asset
+              uses: actions/upload-release-asset@v1 # Use v3 of the action for Node.js 16 compatibility
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: ./dist.zip
+                  asset_name: dist.zip
+                  asset_content_type: application/zip
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
