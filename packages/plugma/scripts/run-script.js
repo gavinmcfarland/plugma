@@ -122,7 +122,9 @@ async function runDevTask(command, options, data, devViteConfig, pkg, log) {
 			log.format({ indent: 1 }).text(`main.js file created!`)
 		}, 'development', options)
 
-		log.format({ indent: 1 }).text(`Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan(options.port)}${chalk.cyan('/')}`)
+		if (options.websockets) {
+			log.format({ indent: 1 }).text(`Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan(options.port)}${chalk.cyan('/')}`)
+		}
 
 		log.text(`\nWatching for changes...`)
 
