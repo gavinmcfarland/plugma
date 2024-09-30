@@ -78,7 +78,7 @@ Currently, the only framework supported is `Svelte`. -->
 
     **Version**
 
-    -   `version`: alpha, beta, stable or integer (optional)
+    -   `alpha`, `beta`, `stable` or an integer (optional)
 
     **Options**
 
