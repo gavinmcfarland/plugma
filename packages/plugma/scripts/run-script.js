@@ -101,7 +101,8 @@ async function runDevTask(options, data, devViteConfig, pkg, log) {
 		// Global variables defined on the window object
 		window.runtimeData = {
 			port: ${options.port},
-			debug: ${options.debug}
+			debug: ${options.debug},
+			websockets: ${options.websockets}
 		};
 	</script>`
 

@@ -99,7 +99,7 @@
 
 	onMount(async () => {
 		// NOTE: Messaging must be setup first so that it's ready to receive messages from iframe
-		let ws = setupWebSocket(iframe)
+		let ws = setupWebSocket(iframe, window.runtimeData.websockets)
 		relayFigmaMessages(ws)
 
 		monitorUrl(url, iframe, (isActive) => {
@@ -108,8 +108,11 @@
 		setBodyStyles()
 		await redirectIframe(iframe, url)
 
+		// Needs to occur without waiting for websocket to open
+		observeChanges(ws)
+
 		ws.open(() => {
-			observeChanges(ws)
+			// observeChanges(ws)
 			getClassesAndStyles(ws)
 		})
 	})

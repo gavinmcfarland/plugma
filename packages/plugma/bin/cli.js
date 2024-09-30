@@ -1,4 +1,4 @@
-#! /usr/bin/env node
+#!/usr/bin/env node
 
 import cli from '../scripts/run-script.js';
 import { runRelease } from '../scripts/run-release.js';
@@ -29,42 +29,83 @@ const handleDebug = (argv) => {
 
 yargs.command('dev', 'Start a server to develop your plugin', function (yargs) {
 	yargs
-		.option('p', {
-			alias: 'port',
+		.option('port', {
+			alias: 'p',
 			description: 'Specify a port number for the plugin preview',
 			type: 'number'
 		})
-		.option('t', {
-			alias: 'toolbar',
+		.option('toolbar', {
+			alias: 't',
 			description: 'Display the developer toolbar within the plugin UI',
 			type: 'boolean'
 		})
-		.option('m', {
-			alias: 'mode',
+		.option('mode', {
+			alias: 'm',
 			description: 'Specify the mode',
 			type: 'string',
 			choices: ['development', 'production', 'test'],
 			default: 'development'
 		})
+		.option('websockets', {
+			alias: 'ws',
+			description: 'Enable websockets',
+			type: 'boolean',
+			default: false
+		})
 		.option('debug', debugOption)
 		.example(
-			"$0 dev --port 3000",
-			"Runs a dev server on port 3000"
+			"$0 dev --port 3000 --websockets",
+			"Runs a dev server on port 3000 with websockets enabled"
 		)
 		.example(
 			"$0 dev --mode test",
 			"Runs a dev server in test mode"
 		)
 		.argv;
+}).command('preview', 'Preview your plugin', function (yargs) {
+	yargs
+		.option('port', {
+			alias: 'p',
+			description: 'Specify a port number for the plugin preview',
+			type: 'number'
+		})
+		.option('toolbar', {
+			alias: 't',
+			description: 'Display the developer toolbar within the plugin UI',
+			type: 'boolean'
+		})
+		.option('mode', {
+			alias: 'm',
+			description: 'Specify the mode',
+			type: 'string',
+			choices: ['development', 'production', 'test'],
+			default: 'development'
+		})
+		.option('websockets', {
+			alias: 'ws',
+			description: 'Enable websockets',
+			type: 'boolean',
+			default: true
+		})
+		.option('debug', debugOption)
+		.example(
+			"$0 preview --port 3000",
+			"Previews the plugin on port 3000 with websockets enabled by default"
+		)
+		.example(
+			"$0 preview --mode production --no-websockets",
+			"Previews the plugin in production mode without websockets"
+		)
+		.argv;
 }).command('build', 'Create a build ready for publishing', function (yargs) {
 	yargs
-		.option('w', {
-			alias: 'watch',
+		.option('watch', {
+			alias: 'w',
 			description: 'Watch for changes and rebuild automatically',
 			type: 'boolean'
 		})
-		.option('m', {
-			alias: 'mode',
+		.option('mode', {
+			alias: 'm',
 			description: 'Specify the mode',
 			type: 'string',
 			choices: ['development', 'production', 'test'],

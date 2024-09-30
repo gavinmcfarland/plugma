@@ -19,7 +19,8 @@ export default function htmlTransform(options = {}) {
 // Global variables defined on the window object
 window.runtimeData = {
 port: ${options.port},
-debug: ${options.debug}
+debug: ${options.debug},
+websockets: ${options.websockets}
 };
 </script>`
 

@@ -34,16 +34,16 @@ export function setupWebSocket(iframeTarget = null, enableWebSocket = true): Ext
 			}
 		},
 		open: (callback) => {
-			console.warn('WebSocket is disabled, cannot trigger open.')
+			// console.warn('WebSocket is disabled, cannot trigger open.')
 		},
 		close: () => {
-			console.warn('WebSocket is disabled, no connection to close.')
+			// console.warn('WebSocket is disabled, no connection to close.')
 		},
 		addEventListener: (type, listener) => {
-			console.warn(`WebSocket is disabled, cannot add event listener for ${type}.`)
+			// console.warn(`WebSocket is disabled, cannot add event listener for ${type}.`)
 		},
 		removeEventListener: (type, listener) => {
-			console.warn(`WebSocket is disabled, cannot remove event listener for ${type}.`)
+			// console.warn(`WebSocket is disabled, cannot remove event listener for ${type}.`)
 		},
 		onmessage: null,
 		onopen: null,
@@ -66,11 +66,14 @@ export function setupWebSocket(iframeTarget = null, enableWebSocket = true): Ext
 		} else if (via === 'parent' && window.parent) {
 			window.parent.postMessage(message, '*')
 		} else if (via === 'ws') {
-			if (ws.readyState === WebSocket.OPEN) {
-				ws.send(JSON.stringify(message))
+			if (!enableWebSocket || !ws || ws.readyState !== WebSocket.OPEN) {
+				if (enableWebSocket) {
+					// console.log(!enableWebSocket, !ws, ws.readyState !== WebSocket.OPEN)
+					console.warn('WebSocket is disabled or not open, queuing message:', message)
+					messageQueue.push({ message, via }) // Queue the message if WebSocket is not open
+				}
 			} else {
-				console.warn('WebSocket is not open, queuing message:', message)
-				messageQueue.push({ message, via }) // Queue the message if WebSocket is not open
+				ws.send(JSON.stringify(message))
 			}
 		} else {
 			console.warn(`Cannot send message via ${via}.`)
@@ -86,7 +89,7 @@ export function setupWebSocket(iframeTarget = null, enableWebSocket = true): Ext
 					callback(event)
 				}
 			})
-		} else if (via === 'ws') {
+		} else if (via === 'ws' && enableWebSocket) {
 			ws.addEventListener('message', (event) => {
 				try {
 					const parsedData = JSON.parse(JSON.parse(event.data))
@@ -98,7 +101,9 @@ export function setupWebSocket(iframeTarget = null, enableWebSocket = true): Ext
 				}
 			})
 		} else {
-			console.warn(`Cannot add message listener via ${via}.`)
+			if (enableWebSocket) {
+				console.warn(`Cannot add message listener via ${via}.`)
+			}
 		}
 	}
 
@@ -133,33 +138,28 @@ export function setupWebSocket(iframeTarget = null, enableWebSocket = true): Ext
 		}
 	}
 
-	const handleOnOpen = () => {
-		// Execute all queued callbacks
-		openCallbacks.forEach((cb) => cb())
+	if (enableWebSocket) {
+		const handleOnOpen = () => {
+			// Execute all queued callbacks
+			openCallbacks.forEach((cb) => cb())
 
-		// Send any queued messages
-		while (messageQueue.length > 0) {
-			const { message, via } = messageQueue.shift() // Dequeue a message
-			sendMessageToTargets(message, via)
+			// Send any queued messages
+			while (messageQueue.length > 0) {
+				const { message, via } = messageQueue.shift() // Dequeue a message
+				sendMessageToTargets(message, via)
+			}
+		}
+
+		ws.onopen = handleOnOpen
+
+		ws.onmessage = (message) => {
+			log.info('--- ws received', message.data)
+		}
+
+		ws.onclose = () => {
+			// handle WebSocket close logic if necessary
 		}
 	}
-
-	ws.onopen = handleOnOpen
-
-	ws.onmessage = (message) => {
-		log.info('--- ws received', message.data)
-	}
-
-	ws.onclose = () => {
-		// setupWebSocket(enableWebSocket, iframeTarget)
-		// setTimeout(() => {
-		// 	setupWebSocket(enableWebSocket, iframeTarget)
-		// }, 100)
-	}
-
-	// ws.onerror = (error) => {
-	// 	console.error('WebSocket error:', error)
-	// }
 
 	return ws
 }
