@@ -47,7 +47,7 @@ Currently, the only framework supported is `Svelte`. -->
 
     Start a server to develop your plugin.
 
-    **Options**
+    **Flags**
 
     -   `--port`, `-p`: Specify a port number for the plugin preview.
     -   `--toolbar`, `-t`: Show the developer toolbar within the plugin UI.
@@ -58,7 +58,7 @@ Currently, the only framework supported is `Svelte`. -->
 
     Create a build before publishing.
 
-    **Options**
+    **Flags**
 
     -   `--watch`, `-w`: Watch for changes and rebuild automatically.
     -   `--mode`, `-m`: Specify the mode (development, production, test).
@@ -67,18 +67,21 @@ Currently, the only framework supported is `Svelte`. -->
 
     Preview the plugin in a browser preview.
 
-    **Options**
+    **Flags**
 
     -   `--port`, `-p`: Specify a port number for the plugin preview.
     -   `--mode`, `-m`: Specify the mode (development, production, test).
 
--   ### release
+-   ### release <version>
 
     Build the plugin and release to GitHub.
 
-    **Options**
+    - `version`: alpha, beta, stable or integer (optional)
 
-    -   `--version`, `-v`: Specify the version (alpha, beta, stable, or a whole integer).
+    **Flags**
+
+    -   `--title`, `-t`: Provide a custom title
+    -   `--notes`< `-n`: Provide release notes.
 
 ## Install
 
