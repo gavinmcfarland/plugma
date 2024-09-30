@@ -50,8 +50,16 @@ export async function runRelease(options) {
 		const githubExists = await fs.stat(githubDir).catch(() => null); // Check if .github/ exists
 		if (!githubExists) {
 			console.log(`.github/ directory not found. Copying templates to ${githubDir}...`);
-			await copyDirectory(templateDir, githubDir);
+			await copyDirectory(templateDir, githubDir); // Ensure entire directory is copied
 			console.log('Templates copied successfully.');
+		} else {
+			// Check each template file for updates and copy if necessary
+			const files = await fs.readdir(templateDir);
+			for (const file of files) {
+				const sourceFile = path.join(templateDir, file);
+				const destinationFile = path.join(githubDir, file);
+				await copyIfOutOfDate(sourceFile, destinationFile);
+			}
 		}
 
 		// Check if `plugma-create-release.yml` was added or updated and create a separate commit
@@ -171,7 +179,6 @@ export async function runRelease(options) {
 			// Commit changes to package to repo
 			execSync(`git add .`, { stdio: 'inherit' });
 			execSync(`git commit -m "Plugin version updated"`, { stdio: 'inherit' });
-			execSync('git reset --soft HEAD^', { stdio: 'inherit' });
 
 			// Try pushing the changes
 			try {
@@ -223,4 +230,21 @@ async function setGitHubEnv(key, value) {
 		console.error('GITHUB_ENV is not defined.');
 		process.exit(1);
 	}
+}
+
+async function copyIfOutOfDate(source, destination) {
+	try {
+		const sourceStats = await fs.stat(source);
+		const destinationStats = await fs.stat(destination).catch(() => null);
+
+		if (!destinationStats || sourceStats.mtime > destinationStats.mtime) {
+			console.log(`Copying template from ${source} to ${destination}...`);
+			await fs.copyFile(source, destination);
+			console.log(`Template copied successfully: ${path.basename(source)}`);
+			return true; // File was copied or updated
+		}
+	} catch (err) {
+		console.error(`Error copying file from ${source} to ${destination}:`, err);
+	}
+	return false; // No update
 }
