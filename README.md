@@ -43,45 +43,47 @@ Follow the on-screen instructions to create a plugin from a template.
 
 Currently, the only framework supported is `Svelte`. -->
 
--   ### dev
+-   ### dev [options]
 
     Start a server to develop your plugin.
 
-    **Flags**
+    **Options**
 
-    -   `--port`, `-p`: Specify a port number for the plugin preview.
-    -   `--toolbar`, `-t`: Show the developer toolbar within the plugin UI.
-    -   `--mode`, `-m`: Specify the mode (development, production, test).
-    -   `--websockets`, `-ws`: Enable websockets to preview in browser.
+    -   `-p`, `--port`: Specify a port number for the plugin preview.
+    -   `-m`, `--mode`: Specify the mode (development, production, test).
+    -   `-t`, `--toolbar`: Show the developer toolbar within the plugin UI.
+    -   `-ws`, `--websockets`: Enable websockets to preview in browser.
 
--   ### build
+-   ### build [options]
 
     Create a build before publishing.
 
-    **Flags**
+    **Options**
 
-    -   `--watch`, `-w`: Watch for changes and rebuild automatically.
-    -   `--mode`, `-m`: Specify the mode (development, production, test).
+    -   `-w`, `--watch`: Watch for changes and rebuild automatically.
+    -   `-m`, `--mode`: Specify the mode (development, production, test).
 
--   ### preview
+-   ### preview [options] <mark>Coming soon!</mark>
 
     Preview the plugin in a browser preview.
 
-    **Flags**
+    **Options**
 
-    -   `--port`, `-p`: Specify a port number for the plugin preview.
-    -   `--mode`, `-m`: Specify the mode (development, production, test).
+    -   `-p`, `--port`: Specify a port number for the plugin preview.
+    -   `-m`, `--mode`: Specify the mode (development, production, test).
 
--   ### release [version]
+-   ### release [version] [options]
 
     Build the plugin and release to GitHub.
 
-    - `version`: alpha, beta, stable or integer (optional)
+    **Version**
 
-    **Flags**
+    -   `version`: alpha, beta, stable or integer (optional)
 
-    -   `--title`, `-t`: Provide a custom title
-    -   `--notes`, `-n`: Provide release notes.
+    **Options**
+
+    -   `-t`, `--title`: Provide a custom title
+    -   `-n`, `--notes`: Provide release notes.
 
 ## Install
 
