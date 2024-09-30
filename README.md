@@ -81,7 +81,7 @@ Currently, the only framework supported is `Svelte`. -->
     **Flags**
 
     -   `--title`, `-t`: Provide a custom title
-    -   `--notes`< `-n`: Provide release notes.
+    -   `--notes`, `-n`: Provide release notes.
 
 ## Install
 
