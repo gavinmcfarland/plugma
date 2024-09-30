@@ -168,9 +168,9 @@ export async function runRelease(options) {
 		// Check if there are changes to commit
 		const changes = execSync('git diff --cached --name-only', { encoding: 'utf8' }).trim();
 		if (changes) {
-			// // Commit and tag
-			// execSync(`git add .`, { stdio: 'inherit' });
-			// execSync(`git commit -m "Release ${newTag} - ${releaseTitle}"`, { stdio: 'inherit' });
+			// Commit changes to package to repo
+			execSync(`git add .`, { stdio: 'inherit' });
+			execSync(`git commit -m "Release created by Plugma"`, { stdio: 'inherit' });
 
 			// Try pushing the changes
 			try {
