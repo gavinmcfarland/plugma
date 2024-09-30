@@ -21,7 +21,7 @@ async function copyDirectory(src, dest) {
 	}
 }
 
-export async function runRelease(options) {
+export async function runRelease(command, options) {
 	// Check if the working directory is dirty
 	try {
 		const uncommittedChanges = execSync('git diff --name-only', { encoding: 'utf8' }).trim();

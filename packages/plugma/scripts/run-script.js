@@ -23,7 +23,7 @@ const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const __filename = fileURLToPath(import.meta.url);
 
-export default async function cli(options) {
+export default async function cli(command, options) {
 	const log = new Log({
 		debug: options.debug
 	})
@@ -36,23 +36,23 @@ export default async function cli(options) {
 	const data = await getFiles();
 	const viteConfigs = createViteConfigs(options, data);
 
-	switch (options._[0]) {
+	switch (command) {
 		case 'build':
-			await runBuildTask(options, data, viteConfigs.build, pkg, log)
+			await runBuildTask(command, options, data, viteConfigs.build, pkg, log)
 			break;
 
 		case 'dev':
-			await runDevTask(options, data, viteConfigs.dev, pkg, log)
+			await runDevTask(command, options, data, viteConfigs.dev, pkg, log)
 			break;
 
 		default:
-			console.error(`Unknown command: ${options._[0]}`);
+			console.error(`Unknown command: ${command}`);
 			process.exit(1);
 	}
 }
 
-async function runBuildTask(options, data, buildViteConfig, pkg, log) {
-	if (options._[0] === "build") {
+async function runBuildTask(command, options, data, buildViteConfig, pkg, log) {
+	if (command === "build") {
 
 		log.text(`${chalk.blue.bold('Plugma')} ${chalk.grey("v" + pkg.version)}`)
 
@@ -66,9 +66,9 @@ async function runBuildTask(options, data, buildViteConfig, pkg, log) {
 		// ----- build main.js
 		await bundleMainWithEsbuild(data, options.watch, () => {
 			log.format({ indent: 1 }).text(`main.js file created!`)
-		}, 'production', options)
+		}, 'production', options, command)
 
-		log.text(`Watching for changes...`)
+		log.text(`\nWatching for changes...`)
 
 		// ----- build ui.html (no server needed)
 
@@ -85,8 +85,8 @@ async function runBuildTask(options, data, buildViteConfig, pkg, log) {
 	}
 }
 
-async function runDevTask(options, data, devViteConfig, pkg, log) {
-	if (options._[0] === "dev") {
+async function runDevTask(command, options, data, devViteConfig, pkg, log) {
+	if (command === "dev") {
 
 		log.text(`${chalk.blue.bold('Plugma')} ${chalk.grey("v" + pkg.version)}`);
 
@@ -122,9 +122,9 @@ async function runDevTask(options, data, devViteConfig, pkg, log) {
 			log.format({ indent: 1 }).text(`main.js file created!`)
 		}, 'development', options)
 
-		log.format({ indent: 1 }).text(`Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan(options.port)}${chalk.cyan('/')}\n`)
+		log.format({ indent: 1 }).text(`Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan(options.port)}${chalk.cyan('/')}`)
 
-		log.text(`Watching for changes...`)
+		log.text(`\nWatching for changes...`)
 
 		// ----- run vite app server
 		try {
@@ -234,7 +234,7 @@ function formatTime() {
 	return formattedTime;
 }
 
-async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV, options) {
+async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV, options, command) {
 
 
 	if (callback && typeof (callback) === "function") {
@@ -257,7 +257,7 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV, opti
 		let tempFilePath = writeTempFile(fileName)
 
 
-		if (options._[0] === "dev" || (options._[0] === "build" && options.watch)) {
+		if (command === "dev" || (command === "build" && options.watch)) {
 
 
 			let ctx = await esbuild.context({
