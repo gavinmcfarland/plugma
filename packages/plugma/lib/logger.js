@@ -1,18 +1,85 @@
 import chalk from 'chalk';
 
 class Log {
-	static log(message, indentLevel = 0, type) {
-		const indent = ' '.repeat(indentLevel * 2); // 2 spaces per indent level
+	constructor(options = {}) {
+		this.options = {
+			defaultIndentLevel: 0,
+			showTimestamp: false,
+			timestampFormat: 'YYYY-MM-DD HH:mm:ss',
+			debug: false, // Default is false, disable logging in production
+			...options, // Merge default options with user-provided options
+		};
 
-		const prefix = this.getPrefix(type);
-		const formattedMessage = `${indent}${prefix}${message}`;
-
-		console.log(formattedMessage);
+		this.isProd = process.env.NODE_ENV === 'production';
+		this.currentIndent = this.options.defaultIndentLevel; // Store current indent
+		this.currentType = null; // Store current log type
+		this.forceLog = false; // Track whether to force logging
 	}
 
-	static getPrefix(type) {
+	// Method to apply formatting options (e.g., indentation)
+	format(options = {}) {
+		this.currentIndent = options.indent || this.options.defaultIndentLevel; // Set new indent level
+		return this; // Return the instance for chaining
+	}
+
+	// Store the log arguments and prepare to log later
+	log(args, type = null, force = false) {
+		// Skip logging if not in debug mode, except forced logs
+		if (!this.options.debug && this.isProd && !force) {
+			return;
+		}
+
+		// Format the first argument (message) with indentation and type
+		const formattedMessage = this.formatLog(args[0], this.currentIndent, type);
+
+		// Replace the first argument with the formatted message
+		const newArgs = [formattedMessage, ...args.slice(1)];
+
+		// Add timestamp if required
+		if (this.options.showTimestamp) {
+			const timestamp = new Date().toISOString();
+			console.log(`[${timestamp}]`, ...newArgs);
+		} else {
+			console.log(...newArgs);
+		}
+	}
+
+	// Logging methods
+	text(...args) {
+		this.log(args, null, true);
+		return this; // Return the instance for chaining
+	}
+
+	info(...args) {
+		this.log(args, 'info');
+		return this; // Return the instance for chaining
+	}
+
+	success(...args) {
+		this.log(args, 'success');
+		return this; // Return the instance for chaining
+	}
+
+	error(...args) {
+		this.log(args, 'error', true);
+		return this; // Return the instance for chaining
+	}
+
+	warning(...args) {
+		this.log(args, 'warning', true);
+		return this; // Return the instance for chaining
+	}
+
+	// Format log with indent and prefix
+	formatLog(message, indentLevel = 0, type) {
+		const indent = ' '.repeat(indentLevel * 2); // 2 spaces per indent level
+		const prefix = this.getPrefix(type);
+		return `${indent}${prefix}${message}`;
+	}
+
+	getPrefix(type) {
 		switch (type) {
-			case 'info ':
+			case 'info':
 				return chalk.blue.bold('INFO: ');
 			case 'success':
 				return chalk.green.bold('SUCCESS: ');
@@ -21,28 +88,8 @@ class Log {
 			case 'warning':
 				return chalk.yellow.bold('WARNING: ');
 			default:
-				return "";
+				return '';
 		}
-	}
-
-	static text(message, indentLevel = 0) {
-		this.log(message, indentLevel);
-	}
-
-	static info(message, indentLevel = 0) {
-		this.log(message, indentLevel, 'info',);
-	}
-
-	static success(message, indentLevel = 0) {
-		this.log(message, indentLevel, 'success');
-	}
-
-	static error(message, indentLevel = 0) {
-		this.log(message, indentLevel, 'error');
-	}
-
-	static warning(message, indentLevel = 0) {
-		this.log(message, indentLevel, 'warning');
 	}
 }
 

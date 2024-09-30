@@ -1,4 +1,9 @@
 import ReconnectingWebSocket from 'reconnecting-websocket'
+import { Log } from '../../../plugma/lib/logger'
+
+const log = new Log({
+	debug: window.runtimeData.debug,
+})
 
 interface ExtendedWebSocket extends ReconnectingWebSocket {
 	post: (messages: any, via: any) => void
@@ -55,7 +60,7 @@ export function setupWebSocket(iframeTarget = null, enableWebSocket = true): Ext
 	}
 
 	function postMessageVia(via, message) {
-		console.log(`--- ws post, ${via}`, message)
+		log.info(`--- ws post, ${via}`, message)
 		if (via === 'iframe' && iframeTarget && iframeTarget.contentWindow.postMessage) {
 			iframeTarget.contentWindow.postMessage(message, '*')
 		} else if (via === 'parent' && window.parent) {
@@ -142,7 +147,7 @@ export function setupWebSocket(iframeTarget = null, enableWebSocket = true): Ext
 	ws.onopen = handleOnOpen
 
 	ws.onmessage = (message) => {
-		console.log('--- ws received', message.data)
+		log.info('--- ws received', message.data)
 	}
 
 	ws.onclose = () => {

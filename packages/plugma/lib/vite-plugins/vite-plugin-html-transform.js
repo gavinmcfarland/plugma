@@ -18,7 +18,8 @@ export default function htmlTransform(options = {}) {
 			let runtimeData = `<script>
 // Global variables defined on the window object
 window.runtimeData = {
-port: ${options.port}
+port: ${options.port},
+debug: ${options.debug}
 };
 </script>`
 

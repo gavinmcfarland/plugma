@@ -1,3 +1,9 @@
+import { Log } from '../../../plugma/lib/logger'
+
+const log = new Log({
+	debug: window.runtimeData.debug
+})
+
 // FIXME: Does this need changing so styles are applied as soon as url is changed, and the rest of the stuff loads when the iframe loads?
 export async function redirectIframe(iframe, url) {
 	return new Promise((resolve, reject) => {
@@ -6,7 +12,7 @@ export async function redirectIframe(iframe, url) {
 		iframe.src = new URL(url).href
 
 		function onIframeLoad() {
-			console.log('Iframe successfully redirected to:', iframe.src)
+			log.info(`Iframe successfully redirected to: ${iframe.src}`)
 
 			// Resolve the promise when the iframe is successfully loaded
 			resolve('Iframe successfully redirected')

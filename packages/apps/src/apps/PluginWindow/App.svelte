@@ -110,8 +110,6 @@
 		await redirectIframe(iframe, url)
 
 		ws.open(() => {
-			console.log('----- ws reconnecting')
-
 			observeChanges(ws)
 			getClassesAndStyles(ws)
 		})

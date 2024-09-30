@@ -24,6 +24,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const __filename = fileURLToPath(import.meta.url);
 
 export default async function cli(options) {
+	const log = new Log({
+		debug: options.debug
+	})
 
 	// Allow CLI to set NODE_ENV
 	process.env.NODE_ENV = options.mode || 'development';
@@ -35,11 +38,11 @@ export default async function cli(options) {
 
 	switch (options._[0]) {
 		case 'build':
-			await runBuildTask(options, data, viteConfigs.build, pkg)
+			await runBuildTask(options, data, viteConfigs.build, pkg, log)
 			break;
 
 		case 'dev':
-			await runDevTask(options, data, viteConfigs.dev, pkg)
+			await runDevTask(options, data, viteConfigs.dev, pkg, log)
 			break;
 
 		default:
@@ -48,24 +51,24 @@ export default async function cli(options) {
 	}
 }
 
-async function runBuildTask(options, data, buildViteConfig, pkg) {
+async function runBuildTask(options, data, buildViteConfig, pkg, log) {
 	if (options._[0] === "build") {
 
-		Log.text(`${chalk.blue.bold('Plugma')} ${chalk.grey("v" + pkg.version)}`, 0)
+		log.text(`${chalk.blue.bold('Plugma')} ${chalk.grey("v" + pkg.version)}`)
 
 		await writeIndexFile()
 
 		// ----- build manifest.json
 		await writeManifestFile(data, () => {
-			Log.text(`manifest.json file created!`, 1)
+			log.text(`manifest.json file created!`, 1)
 		})
 
 		// ----- build main.js
 		await bundleMainWithEsbuild(data, options.watch, () => {
-			Log.text(`main.js file created!`, 1)
+			log.format({ indent: 1 }).text(`main.js file created!`)
 		}, 'production', options)
 
-		Log.text(`Watching for changes...`, 0)
+		log.text(`Watching for changes...`)
 
 		// ----- build ui.html (no server needed)
 
@@ -82,10 +85,10 @@ async function runBuildTask(options, data, buildViteConfig, pkg) {
 	}
 }
 
-async function runDevTask(options, data, devViteConfig, pkg) {
+async function runDevTask(options, data, devViteConfig, pkg, log) {
 	if (options._[0] === "dev") {
 
-		Log.text(`${chalk.blue.bold('Plugma')} ${chalk.grey("v" + pkg.version)}`, 0);
+		log.text(`${chalk.blue.bold('Plugma')} ${chalk.grey("v" + pkg.version)}`);
 
 		await writeIndexFile()
 
@@ -97,7 +100,8 @@ async function runDevTask(options, data, devViteConfig, pkg) {
 		let runtimeData = `<script>
 		// Global variables defined on the window object
 		window.runtimeData = {
-			port: ${options.port}
+			port: ${options.port},
+			debug: ${options.debug}
 		};
 	</script>`
 
@@ -105,21 +109,21 @@ async function runDevTask(options, data, devViteConfig, pkg) {
 
 		createFileWithDirectory(`${CURR_DIR}/dist`, 'ui.html', devHtmlString)
 
-		Log.text(`ui.html file created!`, 1)
+		log.format({ indent: 1 }).text(`ui.html file created!`)
 
 		// ----- build manifest.json
 		await writeManifestFile(data, () => {
-			Log.text(`manifest.json file created!`, 1)
+			log.format({ indent: 1 }).text(`manifest.json file created!`)
 		})
 
 		// ----- build main.js
 		await bundleMainWithEsbuild(data, true, () => {
-			Log.text(`main.js file created!`, 1)
+			log.format({ indent: 1 }).text(`main.js file created!`)
 		}, 'development', options)
 
-		Log.text(`Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan(options.port)}${chalk.cyan('/')}\n`)
+		log.text(`Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan(options.port)}${chalk.cyan('/')}\n`)
 
-		Log.text(`Watching for changes...`)
+		log.text(`Watching for changes...`)
 
 		// ----- run vite app server
 		try {

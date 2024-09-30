@@ -222,7 +222,6 @@
 	listenForFigmaStyles()
 
 	ws.onopen = () => {
-		console.log('get figma styles')
 		getFigmaStyles()
 	}
 

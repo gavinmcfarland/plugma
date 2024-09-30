@@ -11,6 +11,22 @@ yargs.scriptName("plugma")
 	.usage('Usage: $0 <cmd> [opts]')
 	.version(false);
 
+const debugOption = {
+	alias: 'd',
+	description: 'Enable debug mode',
+	type: 'boolean',
+	default: false,
+};
+
+// Handle global debug logging
+const handleDebug = (argv) => {
+	if (argv.debug) {
+		console.log('Debug mode enabled');
+		console.log('Command:', argv._);
+		console.log('Arguments:', argv);
+	}
+};
+
 yargs.command('dev', 'Start a server to develop your plugin', function (yargs) {
 	yargs
 		.option('p', {
@@ -30,6 +46,7 @@ yargs.command('dev', 'Start a server to develop your plugin', function (yargs) {
 			choices: ['development', 'production', 'test'],
 			default: 'development'
 		})
+		.option('debug', debugOption)
 		.example(
 			"$0 dev --port 3000",
 			"Runs a dev server on port 3000"
@@ -53,6 +70,7 @@ yargs.command('dev', 'Start a server to develop your plugin', function (yargs) {
 			choices: ['development', 'production', 'test'],
 			default: 'production'
 		})
+		.option('debug', debugOption)
 		.example(
 			"$0 build --mode production",
 			"Creates a build in production mode"
@@ -78,6 +96,7 @@ yargs.command('dev', 'Start a server to develop your plugin', function (yargs) {
 			type: 'string',
 			default: ''
 		})
+		.option('debug', debugOption)
 		.example(
 			"$0 release",
 			"Releases the next stable version of the plugin"
@@ -92,7 +111,7 @@ yargs.command('dev', 'Start a server to develop your plugin', function (yargs) {
 // Call the appropriate function based on the command
 if (yargs.argv._[0] === 'release') {
 	// Extract version, title, and notes from arguments
-	const { version = 'stable', title = '', notes = '' } = yargs.argv;
+	const { version = 'stable', title = '', notes = '', debug = false } = yargs.argv;
 
 	// Define valid release types
 	const validReleaseTypes = ['alpha', 'beta', 'stable'];
@@ -116,6 +135,12 @@ if (yargs.argv._[0] === 'release') {
 
 	// Call runRelease with the appropriate options
 	runRelease(releaseOptions);
+
+	// Handle debug mode
+	handleDebug(yargs.argv);
 } else {
 	cli(yargs.argv);
+
+	// Handle debug mode for other commands
+	handleDebug(yargs.argv);
 }
