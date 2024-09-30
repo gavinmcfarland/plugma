@@ -14,6 +14,12 @@
 	let ws = new WebSocket('ws://localhost:9001/ws')
 	let url = `http://localhost:${window.runtimeData.port}`
 
+	import { Log } from '../../../../plugma/lib/logger'
+
+	const log = new Log({
+		debug: window.runtimeData.debug,
+	})
+
 	const processedMessages = new Set()
 
 	function sendWsMessage(ws, message) {

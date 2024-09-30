@@ -42,6 +42,9 @@ class Log {
 		} else {
 			console.log(...newArgs);
 		}
+
+		// Reset formatting after logging
+		this.resetFormatting();
 	}
 
 	// Logging methods
@@ -75,6 +78,12 @@ class Log {
 		const indent = ' '.repeat(indentLevel * 2); // 2 spaces per indent level
 		const prefix = this.getPrefix(type);
 		return `${indent}${prefix}${message}`;
+	}
+
+	// Reset formatting to default values
+	resetFormatting() {
+		this.currentIndent = this.options.defaultIndentLevel;
+		this.currentType = null;
 	}
 
 	getPrefix(type) {

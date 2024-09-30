@@ -33,7 +33,6 @@
 		}, 'window')
 
 		ws.on((event) => {
-			console.log('---- on ws', event.data)
 			ws.post(event.data, 'parent')
 		}, 'ws')
 	}

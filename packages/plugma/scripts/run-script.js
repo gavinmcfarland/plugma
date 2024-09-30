@@ -60,7 +60,7 @@ async function runBuildTask(options, data, buildViteConfig, pkg, log) {
 
 		// ----- build manifest.json
 		await writeManifestFile(data, () => {
-			log.text(`manifest.json file created!`, 1)
+			log.format({ indent: 1 }).text(`manifest.json file created!`)
 		})
 
 		// ----- build main.js
@@ -121,7 +121,7 @@ async function runDevTask(options, data, devViteConfig, pkg, log) {
 			log.format({ indent: 1 }).text(`main.js file created!`)
 		}, 'development', options)
 
-		log.text(`Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan(options.port)}${chalk.cyan('/')}\n`)
+		log.format({ indent: 1 }).text(`Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan(options.port)}${chalk.cyan('/')}\n`)
 
 		log.text(`Watching for changes...`)
 
