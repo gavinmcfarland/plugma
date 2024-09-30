@@ -170,7 +170,8 @@ export async function runRelease(options) {
 		if (changes) {
 			// Commit changes to package to repo
 			execSync(`git add .`, { stdio: 'inherit' });
-			execSync(`git commit -m "Release created by Plugma"`, { stdio: 'inherit' });
+			execSync(`git commit -m "Plugin version updated"`, { stdio: 'inherit' });
+			execSync('git reset --soft HEAD^', { stdio: 'inherit' });
 
 			// Try pushing the changes
 			try {
