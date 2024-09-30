@@ -88,11 +88,15 @@ export async function runRelease(options) {
 	// Check if a manual version is provided, otherwise fallback to releaseType
 	const manualVersion = options.version;
 	const releaseType = options.type || 'stable';
+	const releaseTitle = options.title
+	const releaseNotes = options.notes
+
+
 
 	// Locate the package.json file
 	const packageJsonPath = path.resolve(process.cwd(), 'package.json');
 	let version;
-	let newTag;  // Ensure newTag is declared here at the top-level scope
+	let newTag;
 
 	try {
 		const packageJsonData = await fs.readFile(packageJsonPath, 'utf8');
@@ -109,28 +113,34 @@ export async function runRelease(options) {
 
 		version = packageJson.plugma.pluginVersion;
 
-		// Determine the new version tag
+		// For alpha or beta releases
+		let baseVersion = version;
+
 		if (manualVersion) {
 			newTag = `v${manualVersion}`;
 		} else if (releaseType === 'stable') {
 			const newVersion = parseInt(version) + 1;
 			newTag = `v${newVersion}`;
 		} else {
-			const existingTags = execSync(`git tag -l "v${version}-${releaseType}.*"`, { encoding: 'utf8' })
-				.split('\n')
-				.filter(Boolean)
-				.sort();
-
-			let subVersion = 0;
-			if (existingTags.length > 0) {
-				const lastTag = existingTags[existingTags.length - 1];
-				const match = lastTag.match(/-(alpha|beta)\.(\d+)$/);
-				if (match && match[2]) {
-					subVersion = parseInt(match[2]) + 1;
-				}
+			// Extract the base version and sub-version
+			const existingTagMatch = version.match(/^(.*?)-(alpha|beta)\.(\d+)$/);
+			if (existingTagMatch) {
+				baseVersion = existingTagMatch[1]; // Get the base version (e.g., '6')
 			}
 
-			newTag = `v${version}-${releaseType}.${subVersion}`;
+			// Increment subversion based on the current package.json `plugma.pluginVersion`
+			const versionParts = version.split('-');
+			let subVersion = 0;
+
+			if (versionParts.length === 2) {
+				const [base, suffix] = versionParts;
+				const [releaseType, subVersionStr] = suffix.split('.');
+				subVersion = parseInt(subVersionStr, 10) + 1; // Increment subversion
+				newTag = `v${base}-${releaseType}.${subVersion}`;
+			} else {
+				// If there is no subversion, start from 0
+				newTag = `v${baseVersion}-${releaseType}.0`;
+			}
 		}
 
 		// Update version in package.json before committing
@@ -140,7 +150,7 @@ export async function runRelease(options) {
 			packageJson.plugma.pluginVersion = `${parseInt(version) + 1}`;
 		} else {
 			const subVersion = newTag.match(/-(alpha|beta)\.(\d+)$/)[2];
-			packageJson.plugma.pluginVersion = `${version}-${releaseType}.${subVersion}`;
+			packageJson.plugma.pluginVersion = `${baseVersion}-${releaseType}.${subVersion}`;
 		}
 
 		await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2), 'utf8');
@@ -158,16 +168,37 @@ export async function runRelease(options) {
 		// Check if there are changes to commit
 		const changes = execSync('git diff --cached --name-only', { encoding: 'utf8' }).trim();
 		if (changes) {
-			// Commit and tag
-			execSync(`git add .`, { stdio: 'inherit' });
-			execSync(`git commit -m "Release ${newTag}"`, { stdio: 'inherit' });
+			// // Commit and tag
+			// execSync(`git add .`, { stdio: 'inherit' });
+			// execSync(`git commit -m "Release ${newTag} - ${releaseTitle}"`, { stdio: 'inherit' });
 
 			// Try pushing the changes
 			try {
-				execSync(`git tag ${newTag}`, { stdio: 'inherit' });
+
+				// Build the tag message conditionally with markers
+				let tagMessage = '';
+				if (releaseTitle) {
+					tagMessage += `TITLE: ${releaseTitle}`; // Add TITLE marker
+				}
+				if (releaseNotes) {
+					if (tagMessage) {
+						tagMessage += '\n\n'; // Add space between title and notes if both are present
+					}
+					tagMessage += `NOTES: ${releaseNotes}`; // Add NOTES marker
+				}
+
+				// Run the git tag command
+				if (tagMessage) {
+					execSync(`git tag ${newTag} -m "${tagMessage}"`, { stdio: 'inherit' });
+				} else {
+					// Create the tag without a message if no title or notes are provided
+					execSync(`git tag ${newTag}`, { stdio: 'inherit' });
+				}
+
 				execSync('git push', { stdio: 'inherit' });
 				execSync(`git push origin ${newTag}`, { stdio: 'inherit' });
 				console.log(`Successfully committed, tagged, and pushed: ${newTag}`);
+
 			} catch (err) {
 				console.error('Error during git push, reverting the last commit...', err);
 				// Revert the last commit
@@ -179,6 +210,16 @@ export async function runRelease(options) {
 		}
 	} catch (err) {
 		console.error('Error committing or pushing to Git:', err);
+		process.exit(1);
+	}
+}
+
+async function setGitHubEnv(key, value) {
+	const githubEnvPath = process.env.GITHUB_ENV; // Get the path to GITHUB_ENV file
+	if (githubEnvPath) {
+		await fs.appendFile(githubEnvPath, `${key}=${value}\n`);
+	} else {
+		console.error('GITHUB_ENV is not defined.');
 		process.exit(1);
 	}
 }

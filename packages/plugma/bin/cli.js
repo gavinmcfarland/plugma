@@ -9,7 +9,7 @@ const yargs = _yargs(hideBin(process.argv));
 
 yargs.scriptName("plugma")
 	.usage('Usage: $0 <cmd> [opts]')
-	.version(false)
+	.version(false);
 
 yargs.command('dev', 'Start a server to develop your plugin', function (yargs) {
 	yargs
@@ -58,39 +58,49 @@ yargs.command('dev', 'Start a server to develop your plugin', function (yargs) {
 			"Creates a build in production mode"
 		)
 		.argv;
-}).command('release', 'Prepare a release for your plugin', function (yargs) {
+}).command('release [version]', 'Prepare a release for your plugin', function (yargs) {
 	yargs
-		.version(false)
-		.option('v', {
-			alias: 'version',
-			description: 'Specify the version',
-			choices: ['alpha', 'beta', 'stable', '<integer>'],
-			type: 'string', // Now accepting both string and number as a string
+		.positional('version', {
+			describe: 'Specify the version type or version number',
+			choices: ['alpha', 'beta', 'stable'],
+			default: 'stable',
+			type: 'string'
+		})
+		.option('title', {
+			alias: 't',
+			description: 'Specify a title for the release',
+			type: 'string',
+			default: ''
+		})
+		.option('notes', {
+			alias: 'n',
+			description: 'Specify release notes',
+			type: 'string',
+			default: ''
 		})
 		.example(
 			"$0 release",
 			"Releases the next stable version of the plugin"
 		)
 		.example(
-			"$0 release --version alpha",
-			"Releases an alpha version of the plugin"
-		)
-		.example(
-			"$0 release --version 27",
-			"Manually sets the plugin version to 27"
+			"$0 release alpha --title 'Alpha Release' --notes 'Initial alpha release'",
+			"Releases an alpha version of the plugin with title and notes"
 		)
 		.argv;
 });
 
 // Call the appropriate function based on the command
 if (yargs.argv._[0] === 'release') {
-	// Extract version or set to 'stable' by default
-	const { version = 'stable' } = yargs.argv;
+	// Extract version, title, and notes from arguments
+	const { version = 'stable', title = '', notes = '' } = yargs.argv;
 
 	// Define valid release types
 	const validReleaseTypes = ['alpha', 'beta', 'stable'];
 
-	let releaseOptions = {};
+	let releaseOptions = {
+		title,
+		notes
+	};
 
 	// Check if the provided version is a valid release type or a manual version number
 	if (validReleaseTypes.includes(version)) {
