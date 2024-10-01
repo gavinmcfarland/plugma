@@ -120,7 +120,7 @@ async function runDevTask(command, options, data, devViteConfig, pkg, log) {
 		// ----- build main.js
 		await bundleMainWithEsbuild(data, true, () => {
 			log.format({ indent: 1 }).text(`main.js file created!`)
-		}, 'development', options)
+		}, 'development', options, command)
 
 		if (options.websockets) {
 			log.format({ indent: 1 }).text(`Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan(options.port)}${chalk.cyan('/')}`)
@@ -258,6 +258,7 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV, opti
 		const fileName = `temp_${Date.now()}.js`
 		let tempFilePath = writeTempFile(fileName)
 
+		console.log("command -----", command)
 
 		if (command === "dev" || (command === "build" && options.watch)) {
 
