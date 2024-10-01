@@ -258,8 +258,6 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV, opti
 		const fileName = `temp_${Date.now()}.js`
 		let tempFilePath = writeTempFile(fileName)
 
-		console.log("command -----", command)
-
 		if (command === "dev" || (command === "build" && options.watch)) {
 
 
