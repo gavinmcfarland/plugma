@@ -63,6 +63,9 @@
 
 			if (message.type === 'FIGMA_HTML_CLASSES') {
 				html.className = message.data
+
+				// Save styles because they are lost when VITE server resets
+				localStorage.setItem('figmaHtmlClasses', message.data)
 			}
 			if (message.type === 'FIGMA_STYLES') {
 				const styleSheet = document.createElement('style')
@@ -71,6 +74,9 @@
 
 				// Append the style tag to the head
 				document.head.appendChild(styleSheet)
+
+				// Save styles because they are lost when VITE server resets
+				localStorage.setItem('figmaStyles', message.data)
 
 				// Optionally remove the listener once the style is applied
 				// window.removeEventListener('message', handleMessage)
@@ -88,6 +94,22 @@
 			pluginId: '*',
 		}
 		parent.postMessage(message, '*')
+	}
+
+	function applyStoredStyles() {
+		const storedClasses = localStorage.getItem('figmaHtmlClasses')
+		console.log('---->', storedClasses)
+		if (storedClasses) {
+			html.className = storedClasses
+		}
+
+		const storedStyles = localStorage.getItem('figmaStyles')
+		if (storedStyles) {
+			const styleSheet = document.createElement('style')
+			styleSheet.type = 'text/css'
+			styleSheet.innerText = storedStyles
+			document.head.appendChild(styleSheet)
+		}
 	}
 
 	function overrideMessageEvent() {
@@ -226,6 +248,7 @@
 	interceptPostMessage()
 	overrideMessageEvent()
 	listenForFigmaStyles()
+	applyStoredStyles()
 
 	ws.onopen = () => {
 		getFigmaStyles()
