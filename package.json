@@ -3,5 +3,8 @@
     "dotenv": "^16.4.5",
     "esbuild-envfile-plugin": "^1.0.7",
     "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@dotenv-run/esbuild": "^1.4.0"
   }
 }

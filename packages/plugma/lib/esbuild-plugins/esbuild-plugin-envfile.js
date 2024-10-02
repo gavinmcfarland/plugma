@@ -2,13 +2,21 @@ import { readFileSync, existsSync } from 'fs';
 import dotenv from 'dotenv';
 import path from 'path';
 
+// Need this code because globalThis is not available in developer VM
 const proxyCode = `
-globalThis.process = globalThis.process || {};
-globalThis.process.env = new Proxy(globalThis.process.env || {}, {
-  get: (target, prop) => {
-    return prop in target ? target[prop] : undefined;
-  }
-});
+(function() {
+  const globalRef =
+    typeof globalThis !== 'undefined' ? globalThis :
+    (typeof self !== 'undefined' ? self :
+    (typeof this !== 'undefined' ? this : {}));
+
+  globalRef.process = globalRef.process || {};
+  globalRef.process.env = new Proxy(globalRef.process.env || {}, {
+    get: (target, prop) => {
+      return prop in target ? target[prop] : undefined;
+    }
+  });
+})();
 `;
 
 const envfilePlugin = (options = {}) => {
