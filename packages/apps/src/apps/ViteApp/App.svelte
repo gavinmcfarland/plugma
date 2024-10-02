@@ -14,8 +14,8 @@
 	const isInsideIframe = window.self !== window.top
 	const isInsideFigma = typeof figma !== 'undefined'
 
-	let ws = new WebSocket('ws://localhost:9001/ws')
-	// let ws = setupWebSocket(iframe, window.runtimeData.websockets)
+	// let ws = new WebSocket('ws://localhost:9001/ws')
+	let ws = setupWebSocket(null, window.runtimeData.websockets)
 	let url = `http://localhost:${window.runtimeData.port}`
 
 	const log = new Log({
@@ -23,41 +23,6 @@
 	})
 
 	const processedMessages = new Set()
-
-	function sendWsMessage(ws, message) {
-		const waitForOpenConnection = () => {
-			return new Promise((resolve, reject) => {
-				const maxRetries = 10 // Maximum number of retries
-				let retries = 0
-
-				const interval = setInterval(() => {
-					if (ws.readyState === WebSocket.OPEN) {
-						clearInterval(interval)
-						resolve()
-					} else if (retries >= maxRetries) {
-						clearInterval(interval)
-						reject(new Error('WebSocket connection failed to open.'))
-					}
-					retries++
-				}, 100) // Check every 100ms
-			})
-		}
-
-		const send = async () => {
-			try {
-				if (ws.readyState !== WebSocket.OPEN) {
-					await waitForOpenConnection()
-				}
-				console.log('---- sending message.....', message)
-				ws.send(JSON.stringify(message))
-				// console.log('Message sent:', message)
-			} catch (error) {
-				console.error('Failed to send message:', error)
-			}
-		}
-
-		send()
-	}
 
 	function listenForFigmaStyles() {
 		const handleMessage = (event) => {
@@ -85,7 +50,7 @@
 			}
 		}
 
-		window.addEventListener('message', handleMessage)
+		ws.on(handleMessage, 'window')
 	}
 
 	function getFigmaStyles() {
@@ -100,7 +65,7 @@
 
 	function applyStoredStyles() {
 		const storedClasses = localStorage.getItem('figmaHtmlClasses')
-		console.log('---->', storedClasses)
+
 		if (storedClasses) {
 			html.className = storedClasses
 		}
@@ -141,13 +106,10 @@
 			}
 
 			// Intercept WebSocket messages and pass them to the stored message listeners
-			ws.onmessage = (wsEvent) => {
-				const message = JSON.parse(wsEvent.data)
-				const event = { data: JSON.parse(message) }
-
+			ws.on((event) => {
 				// Trigger all registered message listeners
 				triggerMessageListeners(event)
-			}
+			}, 'ws')
 
 			// Override window.onmessage using Object.defineProperty
 			Object.defineProperty(window, 'onmessage', {
@@ -157,9 +119,9 @@
 				set: function (handler) {
 					originalOnMessageHandler = handler
 					// Ensure WebSocket's onmessage works with the new handler
-					ws.onmessage = (wsEvent) => {
-						const message = JSON.parse(wsEvent.data)
-						const event = { data: JSON.parse(message) }
+					ws.on((event) => {
+						// const message = JSON.parse(wsEvent.data)
+						// const event = { data: JSON.parse(message) }
 
 						// Trigger the new handler
 						if (originalOnMessageHandler) {
@@ -168,7 +130,7 @@
 
 						// Also trigger all stored listeners
 						triggerMessageListeners(event)
-					}
+					}, 'ws')
 				},
 			})
 		}
@@ -187,25 +149,12 @@
 				// if (!processedMessages.has(messageId)) {
 				// processedMessages.add(messageId)
 				console.log('POST MESSAGE', message)
-				sendWsMessage(ws, message)
+				ws.post(message, 'ws')
 				// }
 
 				return null
 				// // Call the original postMessage to maintain functionality
 				// originalPostMessage.call(window, message, targetOrigin, transfer)
-			}
-		}
-	}
-
-	function listenForWebSocketMessage() {
-		if (!(isInsideIframe || isInsideFigma)) {
-			ws.onmessage = (event) => {
-				const message = JSON.parse(event.data)
-
-				const webSocketMessage = JSON.parse(message.webSocketMessage)
-
-				console.log(`main <-- wss <-- ${webSocketMessage.clientType}`, webSocketMessage.data)
-				// parent.postMessage(webSocketMessage.data, '*')
 			}
 		}
 	}
@@ -252,9 +201,9 @@
 	listenForFigmaStyles()
 	applyStoredStyles()
 
-	ws.onopen = () => {
+	ws.open(() => {
 		getFigmaStyles()
-	}
+	})
 
 	let isServerActive = true
 
