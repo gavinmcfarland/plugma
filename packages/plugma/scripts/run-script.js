@@ -136,11 +136,13 @@ async function runDevTask(command, options, data, devViteConfig, pkg, log) {
 			await server.listen(); // Start the Vite server
 
 
-			// Run a web socket server so postMessage works between browser and Figma. And so Figma theme works in browser
-			const childProcess = exec('node node_modules/plugma/lib/start-web-sockets-server.cjs');
-			// childProcess.stderr.on('data', (data) => {
-			// 	console.error(`Script error: ${data}`);
-			// });
+			if (options.websockets) {
+				// Run a web socket server so postMessage works between browser and Figma. And so Figma theme works in browser
+				const childProcess = exec('node node_modules/plugma/lib/start-web-sockets-server.cjs');
+				// childProcess.stderr.on('data', (data) => {
+				// 	console.error(`Script error: ${data}`);
+				// });
+			}
 
 			// return server
 
