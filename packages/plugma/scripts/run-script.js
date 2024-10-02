@@ -311,6 +311,18 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV, opti
 			});
 			await ctx.watch();
 
+			// const envFiles = ['.env', '.env.test', '.env.development'].filter(file => fs.existsSync(file));
+			// envFiles.forEach(file => {
+			// 	fs.watch(file, async (eventType) => {
+			// 		if (eventType === 'change') {
+			// 			console.log(`${file} has changed. Rebuilding...`);
+
+			// 			// Manually reload environment variables
+			// 			await ctx.rebuild().catch((err) => console.error(err));
+			// 		}
+			// 	});
+			// });
+
 
 
 		} else {
