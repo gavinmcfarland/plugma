@@ -108,7 +108,7 @@ export function setupWebSocket(iframeTarget = null, enableWebSocket = true): Ext
 	}
 
 	if (!enableWebSocket || !('WebSocket' in window)) {
-		console.warn('WebSocket is disabled or not supported, using mock WebSocket.')
+		// console.warn('WebSocket is disabled or not supported, using mock WebSocket.')
 		return mockWebSocket
 	}
 
