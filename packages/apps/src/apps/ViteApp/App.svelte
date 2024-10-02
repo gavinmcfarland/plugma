@@ -6,15 +6,17 @@
 	import ServerStatus from '../PluginWindow/lib/ServerStatus.svelte'
 	import app from './main'
 
+	import { Log } from '../../../../plugma/lib/logger'
+	import { setupWebSocket } from '../../shared/setupWebSocket'
+
 	const html = document.querySelector('html')
 
 	const isInsideIframe = window.self !== window.top
 	const isInsideFigma = typeof figma !== 'undefined'
 
 	let ws = new WebSocket('ws://localhost:9001/ws')
+	// let ws = setupWebSocket(iframe, window.runtimeData.websockets)
 	let url = `http://localhost:${window.runtimeData.port}`
-
-	import { Log } from '../../../../plugma/lib/logger'
 
 	const log = new Log({
 		debug: window.runtimeData.debug,
