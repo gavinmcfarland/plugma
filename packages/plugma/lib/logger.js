@@ -68,7 +68,7 @@ class Log {
 		return this; // Return the instance for chaining
 	}
 
-	warning(...args) {
+	warn(...args) {
 		this.log(args, 'warning', true);
 		return this; // Return the instance for chaining
 	}

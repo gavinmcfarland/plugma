@@ -1,5 +1,7 @@
 import ReconnectingWebSocket from 'reconnecting-websocket'
 import { Log } from '../../../plugma/lib/logger'
+import { localClientConnected, remoteClients, localClientId } from './stores' // Import the Svelte stores
+import { get } from 'svelte/store'
 
 const log = new Log({
 	debug: window.runtimeData.debug,
@@ -9,11 +11,19 @@ interface ExtendedWebSocket extends ReconnectingWebSocket {
 	post: (messages: any, via: any) => void
 	on: (callback: any, via: any) => void
 	open: (callback: () => void) => void
+	close: (callback?: () => void) => void
 }
 
-export function setupWebSocket(iframeTarget = null, enableWebSocket = true): ExtendedWebSocket | typeof mockWebSocket {
-	const messageQueue: any[] = [] // Queue to hold messages until WebSocket is open
-	let openCallbacks: (() => void)[] = [] // Store callbacks to execute on WebSocket open
+export function setupWebSocket(
+	iframeTarget = null,
+	enableWebSocket = true,
+	isInsideIframe = false,
+	isInsideFigma = false
+): ExtendedWebSocket | typeof mockWebSocket {
+	const messageQueue: any[] = []
+	let openCallbacks: (() => void)[] = []
+	let closeCallbacks: (() => void)[] = []
+	let pingInterval: number
 
 	const mockWebSocket = {
 		send: (data) => {
@@ -33,18 +43,15 @@ export function setupWebSocket(iframeTarget = null, enableWebSocket = true): Ext
 				addMessageListener(via, callback)
 			}
 		},
-		open: (callback) => {
-			// console.warn('WebSocket is disabled, cannot trigger open.')
+		open: (callback) => {},
+		close: (callback) => {
+			console.warn('WebSocket is disabled, no connection to close.')
+			if (callback) {
+				callback()
+			}
 		},
-		close: () => {
-			// console.warn('WebSocket is disabled, no connection to close.')
-		},
-		addEventListener: (type, listener) => {
-			// console.warn(`WebSocket is disabled, cannot add event listener for ${type}.`)
-		},
-		removeEventListener: (type, listener) => {
-			// console.warn(`WebSocket is disabled, cannot remove event listener for ${type}.`)
-		},
+		addEventListener: (type, listener) => {},
+		removeEventListener: (type, listener) => {},
 		onmessage: null,
 		onopen: null,
 		onclose: null,
@@ -67,11 +74,8 @@ export function setupWebSocket(iframeTarget = null, enableWebSocket = true): Ext
 			window.parent.postMessage(message, '*')
 		} else if (via === 'ws') {
 			if (!enableWebSocket || !ws || ws.readyState !== WebSocket.OPEN) {
-				if (enableWebSocket) {
-					// console.log(!enableWebSocket, !ws, ws.readyState !== WebSocket.OPEN)
-					console.warn('WebSocket is disabled or not open, queuing message:', message)
-					messageQueue.push({ message, via }) // Queue the message if WebSocket is not open
-				}
+				console.warn('WebSocket is disabled or not open, queuing message:', message)
+				messageQueue.push({ message, via })
 			} else {
 				ws.send(JSON.stringify(message))
 			}
@@ -92,7 +96,7 @@ export function setupWebSocket(iframeTarget = null, enableWebSocket = true): Ext
 		} else if (via === 'ws' && enableWebSocket) {
 			ws.addEventListener('message', (event) => {
 				try {
-					const parsedData = JSON.parse(JSON.parse(event.data))
+					const parsedData = JSON.parse(event.data)
 					const newEvent = { ...event, data: parsedData }
 					callback(newEvent)
 				} catch (error) {
@@ -101,14 +105,11 @@ export function setupWebSocket(iframeTarget = null, enableWebSocket = true): Ext
 				}
 			})
 		} else {
-			if (enableWebSocket) {
-				console.warn(`Cannot add message listener via ${via}.`)
-			}
+			console.warn(`Cannot add message listener via ${via}.`)
 		}
 	}
 
 	if (!enableWebSocket || !('WebSocket' in window)) {
-		// console.warn('WebSocket is disabled or not supported, using mock WebSocket.')
 		return mockWebSocket
 	}
 
@@ -130,34 +131,148 @@ export function setupWebSocket(iframeTarget = null, enableWebSocket = true): Ext
 		}
 	}
 
-	// Expose an open function for external triggering
 	ws.open = (callback: () => void) => {
-		openCallbacks.push(callback) // Always store callback
+		openCallbacks.push(callback)
 		if (ws.readyState === WebSocket.OPEN) {
-			callback() // Trigger callback immediately if WebSocket is already open
+			callback()
+		}
+	}
+
+	ws.close = (callback?: () => void) => {
+		closeCallbacks.push(callback)
+		if (ws.readyState === WebSocket.OPEN) {
+			ws.addEventListener('close', () => {
+				clearInterval(pingInterval)
+				closeCallbacks.forEach((cb) => cb && cb())
+			})
+			ws.close()
+		} else {
+			console.warn('WebSocket is not open, nothing to close.')
+			if (callback) {
+				callback()
+			}
 		}
 	}
 
 	if (enableWebSocket) {
-		const handleOnOpen = () => {
-			// Execute all queued callbacks
+		ws.onopen = () => {
 			openCallbacks.forEach((cb) => cb())
-
-			// Send any queued messages
 			while (messageQueue.length > 0) {
-				const { message, via } = messageQueue.shift() // Dequeue a message
+				const { message, via } = messageQueue.shift()
 				sendMessageToTargets(message, via)
+			}
+
+			// Handle local client connection (not inside iframe or Figma)
+			if (!(isInsideIframe || isInsideFigma)) {
+				localClientConnected.set(true)
+			}
+
+			pingInterval = window.setInterval(() => {
+				if (ws.readyState === WebSocket.OPEN) {
+					ws.send(
+						JSON.stringify({
+							pluginMessage: { event: 'ping' },
+							pluginId: '*',
+						})
+					)
+					console.log('Ping sent to the server')
+				}
+			}, 10000)
+		}
+
+		ws.onmessage = (event) => {
+			try {
+				log.info('Received raw WebSocket message:', event.data)
+
+				if (!event.data) {
+					log.warn('Received empty message')
+					return
+				}
+
+				let message
+				try {
+					message = JSON.parse(event.data)
+				} catch (error) {
+					log.warn('Failed to parse WebSocket message:', event.data)
+					return
+				}
+
+				if (message.pluginMessage) {
+					if (message.pluginMessage.event === 'ping') {
+						ws.send(
+							JSON.stringify({
+								pluginMessage: { event: 'pong' },
+								pluginId: '*',
+							})
+						)
+						console.log('Pong sent to the server')
+					}
+
+					// Handle the response for the list of currently connected clients
+					// if (message.pluginMessage.event === 'list_connected_clients_response') {
+					// 	if (!(isInsideIframe || isInsideFigma)) {
+					// 		const connectedClients = message.pluginMessage.clients || []
+
+					// 		console.log('local client', get(localClientId))
+
+					// 		// Filter out the local client's ID from the list of remote clients
+					// 		const filteredClients = connectedClients.filter(
+					// 			(clientId) => clientId !== get(localClientId)
+					// 		)
+
+					// 		// Update the remoteClients store
+					// 		remoteClients.set(filteredClients)
+					// 	}
+					// }
+
+					if (message.pluginMessage.event === 'client_list') {
+						if (!(isInsideIframe || isInsideFigma)) {
+							const connectedClients = message.pluginMessage.clients || []
+							remoteClients.set(connectedClients) // Set the connected clients
+						}
+					}
+
+					// Handle remote client connection and disconnection events
+					if (message.pluginMessage.event === 'client_connected') {
+						console.log(`Client connected: ${message.pluginMessage.clientId}`)
+
+						// How can I set the localClientId if it doesn't exist?
+						if (!get(localClientId)) {
+							if (!(isInsideIframe || isInsideFigma)) {
+								localClientId.set(message.pluginMessage.clientId)
+							}
+						}
+
+						// Handle remote clients only when inside iframe or Figma
+						if (!(isInsideIframe || isInsideFigma)) {
+							remoteClients.update((clients) => [...clients, message.pluginMessage.clientId])
+						}
+					} else if (message.pluginMessage.event === 'client_disconnected') {
+						console.log(`Client disconnected: ${message.pluginMessage.clientId}`)
+
+						// Handle remote clients only when inside iframe or Figma
+						if (!(isInsideIframe || isInsideFigma)) {
+							remoteClients.update((clients) =>
+								clients.filter((clientId) => clientId !== message.pluginMessage.clientId)
+							)
+						}
+					}
+				}
+			} catch (error) {
+				log.error('Error in message listener:', error)
 			}
 		}
 
-		ws.onopen = handleOnOpen
-
-		ws.onmessage = (message) => {
-			log.info('--- ws received', message.data)
-		}
-
 		ws.onclose = () => {
-			// handle WebSocket close logic if necessary
+			clearInterval(pingInterval)
+			closeCallbacks.forEach((cb) => cb && cb())
+
+			// Handle local client disconnection (not inside iframe or Figma)
+			if (!(isInsideIframe || isInsideFigma)) {
+				localClientConnected.set(false)
+			}
+
+			console.warn('WebSocket connection closed')
 		}
 	}
 

@@ -1,0 +1,157 @@
+name: Create release
+
+on:
+  push:
+    tags:
+      - "v*" # Trigger on tags starting with 'v'
+
+permissions:
+  contents: write # Allow the workflow to push tags
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    outputs:
+      NEW_VERSION: ${{ steps.determine_release_type.outputs.new_version }} # Define NEW_VERSION as output
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: main # Ensure you're checking out the main branch
+          tags: true
+
+      - name: Fetch specific tag
+        run: |
+          TAG_NAME="${{ github.ref }}"
+          TAG_NAME=${TAG_NAME#refs/tags/}
+          git fetch origin "refs/tags/$TAG_NAME:refs/tags/$TAG_NAME" # Fetch only the specific tag
+
+      - name: Install dependencies
+        run: npm ci # Use 'npm ci' for clean installation of dependencies
+
+      - name: Determine release type and prerelease status
+        id: determine_release_type
+        run: |
+          TAG_NAME="${{ github.ref }}"
+          TAG_NAME=${TAG_NAME#refs/tags/}  # Strip refs/tags/ from tag
+          NEW_VERSION=$TAG_NAME
+
+          # Check if the tag contains 'alpha' or 'beta'
+          if [[ $NEW_VERSION == *"-alpha"* || $NEW_VERSION == *"-beta"* ]]; then
+            echo "This is a pre-release version: $NEW_VERSION"
+            echo "IS_PRERELEASE=true" >> $GITHUB_ENV
+          else
+            echo "This is a stable release version: $NEW_VERSION"
+            echo "IS_PRERELEASE=false" >> $GITHUB_ENV
+          fi
+
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "::set-output name=new_version::$NEW_VERSION" # Set NEW_VERSION as output for later steps
+
+      - name: Check if tag exists
+        run: git tag -l
+
+      - name: Build project
+        run: npm run build
+
+      - name: Zip dist folder
+        run: zip -r dist.zip dist
+
+      - name: Extract Release Title and Notes from Tag
+        id: extract_tag_message
+        run: |
+          TAG_NAME="${{ github.ref }}"
+          TAG_NAME=${TAG_NAME#refs/tags/}
+          TAG_MESSAGE=$(git tag -l --format='%(contents)' $TAG_NAME)
+
+          # Assuming the first line is the release title, and the rest is release notes
+          # Extract the release title and notes using markers
+          RELEASE_TITLE=$(echo "$TAG_MESSAGE" | sed -n 's/^TITLE: //p')
+          RELEASE_NOTES=$(echo "$TAG_MESSAGE" | sed -n '/^NOTES: /,$p' | sed 's/^NOTES: //')
+
+          # Fallback if no title or notes are found
+          if [ -z "$RELEASE_TITLE" ]; then
+            RELEASE_TITLE=$TAG_NAME
+          fi
+
+          if [ -z "$RELEASE_NOTES" ]; then
+            RELEASE_NOTES="No release notes added."
+          fi
+
+          echo "Tag message is: $TAG_MESSAGE"
+          echo "Release title is: $RELEASE_TITLE"
+          echo "Release notes is: $RELEASE_NOTES"
+
+          echo "RELEASE_TITLE=$RELEASE_TITLE" >> $GITHUB_ENV
+          echo "RELEASE_NOTES=$RELEASE_NOTES" >> $GITHUB_ENV
+
+      - name: Clear Tag Message with Lightweight Tag
+        run: |
+          TAG_NAME="${{ github.ref }}"
+          TAG_NAME=${TAG_NAME#refs/tags/}
+
+          # Delete the annotated tag locally
+          git tag -d $TAG_NAME
+
+          # Recreate the tag as a lightweight tag (no message)
+          git tag $TAG_NAME
+
+          # Force push the updated lightweight tag
+          git push --force origin $TAG_NAME
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ env.NEW_VERSION }}
+          release_name: ${{ env.RELEASE_TITLE }}
+          body: ${{ env.RELEASE_NOTES }}
+          draft: false
+          prerelease: ${{ env.IS_PRERELEASE }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist.zip
+          asset_name: dist.zip
+          asset_content_type: application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  rollback:
+    runs-on: ubuntu-latest
+    needs: release # Ensures rollback runs only after release job completes
+    if: ${{ failure() }} # Check if release job failed
+    env:
+      NEW_VERSION: ${{ needs.release.outputs.NEW_VERSION }} # Pass the new version from the release step
+    steps:
+      - name: Checkout repository with full history
+        uses: actions/checkout@v3
+        with:
+          ref: main # Make sure we are on the main branch
+          fetch-depth: 0 # Fetch all history so we can perform the reset
+
+      - name: Show NEW_VERSION value
+        run: |
+          echo "NEW_VERSION is set to: ${{ env.NEW_VERSION }}"
+
+      - name: Reset version bump commit
+        run: |
+          echo "Rolling back version bump commit due to workflow failure..."
+          git reset --hard HEAD^1
+          git push origin main --force
+
+      - name: Delete the tag locally
+        run: |
+          echo "Deleting tag: ${{ env.NEW_VERSION }}"
+          git tag -d "${{ env.NEW_VERSION }}" # Deletes the tag locally
+
+      - name: Delete the tag on remote
+        run: |
+          echo "Deleting remote tag: ${{ env.NEW_VERSION }}"
+          git push origin :refs/tags/${{ env.NEW_VERSION }} # Deletes the tag on the remote

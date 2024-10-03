@@ -1,4 +1,5 @@
 <script lang="ts">
+	export let message: string | null = null
 </script>
 
 <div id="plugma-status">
@@ -12,12 +13,17 @@
 				fill-opacity="0.8"
 			/>
 		</svg>
-		<p>Dev server inactive</p>
+		{#if message}
+			{message}
+		{:else}
+			<p>Dev server inactive</p>
+		{/if}
 	</div>
 </div>
 
 <style>
 	#plugma-status {
+		z-index: 1;
 		display: flex;
 		position: absolute;
 		top: 0;

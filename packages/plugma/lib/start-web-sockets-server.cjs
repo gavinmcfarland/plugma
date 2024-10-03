@@ -21,13 +21,33 @@ const wss = new WebSocket.Server({ server });
 // Map to store clients with their unique IDs
 const clients = new Map();
 
-
 wss.on('connection', (ws) => {
 	const clientId = uuidv4(); // Generate a unique ID for the client
 	clients.set(clientId, ws); // Store the WebSocket connection with its unique ID
 
 	// Log the new connection
 	console.log(`New client connected: ${clientId}`);
+
+	// Send a list of all connected clients, excluding the new client
+	const otherClients = Array.from(clients.keys()).filter(id => id !== clientId);
+	ws.send(JSON.stringify({
+		pluginMessage: {
+			event: 'client_list',
+			message: 'List of connected clients',
+			clients: otherClients,
+		},
+		pluginId: "*"
+	}));
+
+	// Broadcast the new connection to all other clients
+	broadcastMessage(JSON.stringify({
+		pluginMessage: {
+			event: 'client_connected',
+			message: `Client ${clientId} connected`,
+			clientId,
+		},
+		pluginId: "*"
+	}), clientId);
 
 	// Set up initial client state
 	ws.isAlive = true;
@@ -39,30 +59,34 @@ wss.on('connection', (ws) => {
 
 	// Handle incoming messages from this client
 	ws.on('message', (message, isBinary) => {
-
 		const textMessage = isBinary ? message : message.toString();
-
-		// Here you can decide how to handle messages, such as broadcasting to other clients
+		// Here you can decide how to handle other messages, such as broadcasting to other clients
 		broadcastMessage(textMessage, clientId);
 	});
-
-	// // Optionally, send a welcome message or the client's ID
-	// ws.send(JSON.stringify({ message: 'Connected to WebSocket server', clientId }));
 
 	ws.on('close', () => {
 		clients.delete(clientId); // Remove the client on disconnect
 		console.log(`Client ${clientId} disconnected`);
+
+		let message = JSON.stringify({
+			pluginMessage: {
+				event: 'client_disconnected',
+				message: `Client ${clientId} disconnected`,
+				clientId,
+			},
+			pluginId: "*"
+		});
+		console.log("----- textmessage on close", message);
+		// Broadcast the disconnection to all remaining clients
+		broadcastMessage(message, clientId);
 	});
 });
 
 // Function to broadcast messages to clients except the sender
 function broadcastMessage(message, senderId) {
-
 	clients.forEach((client, clientId) => {
-		// console.log(`--- check client ID and sender ID`, clientId, senderId)
 		if (clientId !== senderId && client.readyState === WebSocket.OPEN) {
-			console.log(`--forward message ${new Date()}:`, message)
-			client.send(JSON.stringify(message, clientId));
+			client.send(message);
 		}
 	});
 }

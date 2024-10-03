@@ -5,6 +5,7 @@
 	import { monitorUrl } from '../../shared/monitorUrl'
 	import ServerStatus from '../PluginWindow/lib/ServerStatus.svelte'
 	import app from './main'
+	import { localClientConnected, remoteClients } from '../../shared/stores'
 
 	import { Log } from '../../../../plugma/lib/logger'
 	import { setupWebSocket } from '../../shared/setupWebSocket'
@@ -13,6 +14,10 @@
 
 	const isInsideIframe = window.self !== window.top
 	const isInsideFigma = typeof figma !== 'undefined'
+
+	let message = null
+	let isWebsocketServerActive = false
+	let isWebsocketsEnabled = window.runtimeData.websockets || false
 
 	// let ws = new WebSocket('ws://localhost:9001/ws')
 	let ws = setupWebSocket(null, window.runtimeData.websockets)
@@ -148,7 +153,6 @@
 				// Check if this message has already been processed
 				// if (!processedMessages.has(messageId)) {
 				// processedMessages.add(messageId)
-				console.log('POST MESSAGE', message)
 				ws.post(message, 'ws')
 				// }
 
@@ -202,7 +206,12 @@
 	applyStoredStyles()
 
 	ws.open(() => {
+		isWebsocketServerActive = true
 		getFigmaStyles()
+	})
+
+	ws.close(() => {
+		isWebsocketServerActive = false
 	})
 
 	let isServerActive = true
@@ -210,6 +219,8 @@
 	$: monitorUrl(url, null, (isActive) => {
 		isServerActive = isActive
 	})
+
+	$: console.log($localClientConnected, $remoteClients)
 
 	onMount(async () => {
 		parent.postMessage(
@@ -223,6 +234,21 @@
 </script>
 
 <!-- so it only appears in browser, because don't want overlap with one in PluginWindow-->
-{#if !isServerActive && !(isInsideIframe || isInsideFigma)}
-	<ServerStatus></ServerStatus>
+
+{#if !(isInsideIframe || isInsideFigma)}
+	{#if !isWebsocketsEnabled}
+		<ServerStatus message="Websockets disababled"></ServerStatus>
+	{/if}
+
+	{#if !isWebsocketServerActive}
+		<ServerStatus message="Websocket server inactive"></ServerStatus>
+	{/if}
+
+	{#if !($remoteClients.length > 0)}
+		<ServerStatus message="Open plugin inside Figma"></ServerStatus>
+	{/if}
+
+	{#if !isServerActive}
+		<ServerStatus></ServerStatus>
+	{/if}
 {/if}
