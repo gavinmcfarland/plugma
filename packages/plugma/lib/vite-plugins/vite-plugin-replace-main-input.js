@@ -6,6 +6,10 @@ export default function replaceMainInput(options = {}) {
 			enforce: 'pre',
 			transform(html, { mode }) {
 				// Modify the script tag's src in the HTML template
+				if (options.pluginName) {
+					html = html.replace('{pluginName}', options.pluginName)
+				}
+
 				return html.replace(
 					'<script type="module" id="entry" src="/src/ui.ts"></script>',
 					`<script type="module" id="entry" src="/${options.input}"></script>`

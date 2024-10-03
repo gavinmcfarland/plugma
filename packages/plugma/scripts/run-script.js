@@ -166,8 +166,6 @@ function createViteConfigs(options, data) {
 		}),
 	];
 
-	console.log("--- input", data.figmaManifest.ui)
-
 	const devConfig = {
 		mode: options.mode,
 		define: {
@@ -175,6 +173,7 @@ function createViteConfigs(options, data) {
 		},
 		plugins: [
 			replaceMainInput({
+				pluginName: data.figmaManifest.name,
 				input: data.figmaManifest.ui,
 			}),
 			htmlTransform(options),
