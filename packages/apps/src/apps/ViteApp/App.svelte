@@ -236,19 +236,15 @@
 <!-- so it only appears in browser, because don't want overlap with one in PluginWindow-->
 
 {#if !(isInsideIframe || isInsideFigma)}
-	{#if !isWebsocketsEnabled}
-		<ServerStatus message="Websockets disababled"></ServerStatus>
-	{/if}
-
-	{#if !isWebsocketServerActive}
-		<ServerStatus message="Websocket server inactive"></ServerStatus>
-	{/if}
-
-	{#if !($remoteClients.length > 0)}
-		<ServerStatus message="Open plugin inside Figma"></ServerStatus>
-	{/if}
-
-	{#if !isServerActive}
+	{#if isServerActive}
+		{#if !isWebsocketsEnabled}
+			<ServerStatus message="Websockets disababled"></ServerStatus>
+		{:else if !isWebsocketServerActive}
+			<ServerStatus message="Connecting to websocket server..."></ServerStatus>
+		{:else if !($remoteClients.length > 0)}
+			<ServerStatus message="Open plugin inside Figma"></ServerStatus>
+		{/if}
+	{:else}
 		<ServerStatus></ServerStatus>
 	{/if}
 {/if}
