@@ -25,7 +25,7 @@
 
 <style>
 	#plugma-status {
-		z-index: 1;
+		z-index: 999999;
 		position: absolute;
 		top: 0;
 		bottom: 0;
