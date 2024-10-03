@@ -1,4 +1,4 @@
-export default function replaceMainInput(options = {}) {
+export default function deepIndex(options = {}) {
 	return {
 		name: "deep-index",
 		configureServer(server) {
@@ -9,6 +9,6 @@ export default function replaceMainInput(options = {}) {
 				next();
 			});
 		},
-	},
+	}
 }
 

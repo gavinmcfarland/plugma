@@ -12,7 +12,7 @@ import { fileURLToPath } from 'url';
 import envfilePlugin from '../lib/esbuild-plugins/esbuild-plugin-envfile.js';
 import htmlTransform from '../lib/vite-plugins/vite-plugin-html-transform.js';
 import replaceMainInput from '../lib/vite-plugins/vite-plugin-replace-main-input.js';
-import deepIndex from '../lib/vite-plugins/vite-plugin-replace-main-input.js';
+import deepIndex from '../lib/vite-plugins/vite-plugin-deep-index.js';
 import viteCopyDirectoryPlugin from '../lib/vite-plugins/vite-plugin-copy-dir.js';
 import { viteSingleFile } from "vite-plugin-singlefile";
 import _ from 'lodash';
@@ -165,6 +165,8 @@ function createViteConfigs(options, data) {
 		}),
 	];
 
+	console.log("--- input", data.figmaManifest.ui)
+
 	const devConfig = {
 		mode: options.mode,
 		define: {
@@ -180,7 +182,7 @@ function createViteConfigs(options, data) {
 		],
 		server: {
 			port: options.port,
-			logLevel: 'silent',
+			// logLevel: 'silent',
 		},
 	};
 
