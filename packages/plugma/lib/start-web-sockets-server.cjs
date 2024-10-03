@@ -3,6 +3,7 @@ const http = require('http');
 const WebSocket = require('ws');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid'); // Import UUID for unique client IDs
+const url = require('url'); // Used to parse query parameters
 
 const PORT = 9001;
 
@@ -18,23 +19,34 @@ const server = http.createServer(app);
 // Initialize the WebSocket server instance
 const wss = new WebSocket.Server({ server });
 
-// Map to store clients with their unique IDs
+// Map to store clients with their unique IDs and other info
 const clients = new Map();
 
-wss.on('connection', (ws) => {
+wss.on('connection', (ws, req) => {
 	const clientId = uuidv4(); // Generate a unique ID for the client
-	clients.set(clientId, ws); // Store the WebSocket connection with its unique ID
 
-	// Log the new connection
-	console.log(`New client connected: ${clientId}`);
+	// Extract the query parameters, specifically the "source" (e.g., "plugin-window")
+	const queryParams = url.parse(req.url, true).query;
+	const clientSource = queryParams.source || 'unknown'; // Default to 'unknown' if no source provided
+
+	// Store the WebSocket connection and the client source
+	clients.set(clientId, { ws, source: clientSource });
+
+	// Log the new connection with its source
+	console.log(`New client connected: ${clientId} (Source: ${clientSource}), ${req.url}`);
 
 	// Send a list of all connected clients, excluding the new client
-	const otherClients = Array.from(clients.keys()).filter(id => id !== clientId);
+	// const otherClients = Array.from(clients.keys()).filter(id => id !== clientId);
+	const otherClients = Array.from(clients.entries())
+		.filter(([id, client]) => id !== clientId && client.source === 'plugin-window') // Filter by both clientId and source
+		.map(([id]) => id); // Return only the IDs of the filtered clients
+
 	ws.send(JSON.stringify({
 		pluginMessage: {
 			event: 'client_list',
 			message: 'List of connected clients',
 			clients: otherClients,
+			source: clientSource, // Add the source to the message
 		},
 		pluginId: "*"
 	}));
@@ -45,6 +57,7 @@ wss.on('connection', (ws) => {
 			event: 'client_connected',
 			message: `Client ${clientId} connected`,
 			clientId,
+			source: clientSource, // Include the source in the broadcast message
 		},
 		pluginId: "*"
 	}), clientId);
@@ -60,8 +73,16 @@ wss.on('connection', (ws) => {
 	// Handle incoming messages from this client
 	ws.on('message', (message, isBinary) => {
 		const textMessage = isBinary ? message : message.toString();
-		// Here you can decide how to handle other messages, such as broadcasting to other clients
-		broadcastMessage(textMessage, clientId);
+		const parsedMessage = JSON.parse(textMessage);
+
+		// Attach the source of the sender to the message
+		const messageWithSource = {
+			...parsedMessage,
+			source: clientSource // Include the client source in the outgoing message
+		};
+
+		// Broadcast the message with source to other clients
+		broadcastMessage(JSON.stringify(messageWithSource), clientId);
 	});
 
 	ws.on('close', () => {
@@ -73,10 +94,11 @@ wss.on('connection', (ws) => {
 				event: 'client_disconnected',
 				message: `Client ${clientId} disconnected`,
 				clientId,
+				source: clientSource, // Include the source in the disconnection message
 			},
 			pluginId: "*"
 		});
-		console.log("----- textmessage on close", message);
+
 		// Broadcast the disconnection to all remaining clients
 		broadcastMessage(message, clientId);
 	});
@@ -84,9 +106,9 @@ wss.on('connection', (ws) => {
 
 // Function to broadcast messages to clients except the sender
 function broadcastMessage(message, senderId) {
-	clients.forEach((client, clientId) => {
-		if (clientId !== senderId && client.readyState === WebSocket.OPEN) {
-			client.send(message);
+	clients.forEach(({ ws }, clientId) => {
+		if (clientId !== senderId && ws.readyState === WebSocket.OPEN) {
+			ws.send(message);
 		}
 	});
 }

@@ -7,6 +7,9 @@ const log = new Log({
 	debug: window.runtimeData.debug,
 })
 
+const isInsideIframe = window.self !== window.top
+const isInsideFigma = typeof figma !== 'undefined'
+
 interface ExtendedWebSocket extends ReconnectingWebSocket {
 	post: (messages: any, via: any) => void
 	on: (callback: any, via: any) => void
@@ -14,12 +17,7 @@ interface ExtendedWebSocket extends ReconnectingWebSocket {
 	close: (callback?: () => void) => void
 }
 
-export function setupWebSocket(
-	iframeTarget = null,
-	enableWebSocket = true,
-	isInsideIframe = false,
-	isInsideFigma = false
-): ExtendedWebSocket | typeof mockWebSocket {
+export function setupWebSocket(iframeTarget = null, enableWebSocket = true): ExtendedWebSocket | typeof mockWebSocket {
 	const messageQueue: any[] = []
 	let openCallbacks: (() => void)[] = []
 	let closeCallbacks: (() => void)[] = []
@@ -115,7 +113,17 @@ export function setupWebSocket(
 		return mockWebSocket
 	}
 
-	let ws = new ReconnectingWebSocket('ws://localhost:9001/ws') as ExtendedWebSocket
+	let source
+
+	console.log('is inside figma', isInsideIframe, isInsideFigma)
+
+	if (isInsideIframe || isInsideFigma) {
+		source = `?source=plugin-window`
+	} else {
+		source = `?source=browser'`
+	}
+
+	let ws = new ReconnectingWebSocket(`ws://localhost:9001/ws${source}`) as ExtendedWebSocket
 
 	ws.post = (messages, via = ['ws']) => {
 		if (Array.isArray(messages)) {
@@ -228,7 +236,10 @@ export function setupWebSocket(
 
 						// Handle remote clients only when inside iframe or Figma
 						if (!(isInsideIframe || isInsideFigma)) {
-							remoteClients.update((clients) => [...clients, message.pluginMessage.clientId])
+							console.log('----', message.pluginMessage.source)
+							if (message.pluginMessage.source === 'plugin-window') {
+								remoteClients.update((clients) => [...clients, message.pluginMessage.clientId])
+							}
 						}
 					} else if (message.pluginMessage.event === 'client_disconnected') {
 						console.log(`Client disconnected: ${message.pluginMessage.clientId}`)
