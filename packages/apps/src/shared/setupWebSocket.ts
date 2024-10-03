@@ -147,7 +147,7 @@ export function setupWebSocket(
 			})
 			ws.close()
 		} else {
-			console.warn('WebSocket is not open, nothing to close.')
+			log.info('WebSocket is not open, nothing to close.')
 			if (callback) {
 				callback()
 			}
@@ -175,7 +175,6 @@ export function setupWebSocket(
 							pluginId: '*',
 						})
 					)
-					console.log('Ping sent to the server')
 				}
 			}, 10000)
 		}
@@ -205,25 +204,7 @@ export function setupWebSocket(
 								pluginId: '*',
 							})
 						)
-						console.log('Pong sent to the server')
 					}
-
-					// Handle the response for the list of currently connected clients
-					// if (message.pluginMessage.event === 'list_connected_clients_response') {
-					// 	if (!(isInsideIframe || isInsideFigma)) {
-					// 		const connectedClients = message.pluginMessage.clients || []
-
-					// 		console.log('local client', get(localClientId))
-
-					// 		// Filter out the local client's ID from the list of remote clients
-					// 		const filteredClients = connectedClients.filter(
-					// 			(clientId) => clientId !== get(localClientId)
-					// 		)
-
-					// 		// Update the remoteClients store
-					// 		remoteClients.set(filteredClients)
-					// 	}
-					// }
 
 					if (message.pluginMessage.event === 'client_list') {
 						if (!(isInsideIframe || isInsideFigma)) {

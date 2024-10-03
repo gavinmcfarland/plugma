@@ -220,8 +220,6 @@
 		isServerActive = isActive
 	})
 
-	$: console.log($localClientConnected, $remoteClients)
-
 	onMount(async () => {
 		parent.postMessage(
 			{
