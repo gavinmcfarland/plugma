@@ -73,11 +73,13 @@ export function setupWebSocket(
 		} else if (via === 'parent' && window.parent) {
 			window.parent.postMessage(message, '*')
 		} else if (via === 'ws') {
-			if (!enableWebSocket || !ws || ws.readyState !== WebSocket.OPEN) {
-				console.warn('WebSocket is disabled or not open, queuing message:', message)
-				messageQueue.push({ message, via })
-			} else {
-				ws.send(JSON.stringify(message))
+			if (enableWebSocket) {
+				if (!ws || ws.readyState !== WebSocket.OPEN) {
+					console.warn('WebSocket is disabled or not open, queuing message:', message)
+					messageQueue.push({ message, via })
+				} else {
+					ws.send(JSON.stringify(message))
+				}
 			}
 		} else {
 			console.warn(`Cannot send message via ${via}.`)

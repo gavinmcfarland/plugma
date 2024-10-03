@@ -18,6 +18,7 @@ import { viteSingleFile } from "vite-plugin-singlefile";
 import _ from 'lodash';
 import { Log } from '../lib/logger.js'
 import lodashTemplate from 'lodash.template'
+import globalPolyfill from '../lib/esbuild-plugins/esbuild-plugin-global-polyfill.js';
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -271,10 +272,14 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV, opti
 				format: 'esm',
 				bundle: true,
 				target: 'es2016',
+				inject: [resolve(`${__dirname}/../lib/global-shim.js`)],
 				define: {
 					'process.env.NODE_ENV': JSON.stringify(options.mode),
+					'process': JSON.stringify({}),
 				},
+
 				plugins: [
+					globalPolyfill(),
 					envfilePlugin({
 						envPath: '.env',
 						envTestPath: '.env.test',
@@ -342,6 +347,7 @@ async function bundleMainWithEsbuild(data, shouldWatch, callback, NODE_ENV, opti
 					'process.env.NODE_ENV': JSON.stringify(options.mode),
 				},
 				plugins: [
+					globalPolyfill(),
 					envfilePlugin({
 						envPath: '.env',
 						envTestPath: '.env.test',
