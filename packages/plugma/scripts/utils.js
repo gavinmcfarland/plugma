@@ -138,11 +138,16 @@ export function createConfigs(options, userFiles) {
 }
 
 function notifyOnRebuild() {
+	let isInitialBuild = true;
+
 	return {
 		name: 'rebuild-notify',
 		setup(build) {
 			build.onEnd(() => {
-				console.log(`${chalk.grey(formatTime())} ${chalk.cyan.bold('[esbuild]')} ${chalk.green('rebuilt')} ${chalk.grey('/dist/main.js')}`);
+				if (!isInitialBuild) {
+					console.log(`${chalk.grey(formatTime())} ${chalk.cyan.bold('[esbuild]')} ${chalk.green('rebuilt')} ${chalk.grey('/dist/main.js')}`);
+				}
+				isInitialBuild = false; // Set to false after the first build
 			});
 		},
 	};

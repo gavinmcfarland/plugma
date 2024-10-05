@@ -1,13 +1,11 @@
-export class Task {
-	constructor(config = {}) {
-		this.tasks = config.tasks || {};
-		this.aliases = {};  // Store task aliases
-		this.$ = {
-			log: (message) => this.log(message),
-		};
+// taskrunner.js
+
+class TaskRunner {
+	constructor() {
+		this.tasks = {};
+		this.aliases = {};
 	}
 
-	// Logger helper function
 	log(message) {
 		console.log(message);
 	}
@@ -26,8 +24,8 @@ export class Task {
 				this.tasks[primaryTaskName] = taskFn;
 			} else {
 				// Wrap normal functions in a generator
-				this.tasks[primaryTaskName] = function* (task, opts) {
-					return taskFn(opts);  // Call the provided function and return its value
+				this.tasks[primaryTaskName] = function* (options) {
+					return taskFn(options);  // Call the provided function and return its value
 				};
 			}
 		} else {
@@ -51,7 +49,7 @@ export class Task {
 				throw new Error(`Task "${resolvedTaskName}" not found`);
 			}
 			const taskFn = this.tasks[resolvedTaskName];
-			const iterator = taskFn(this, opts);
+			const iterator = taskFn(opts);  // Pass options as the first parameter
 			let result = iterator.next();
 
 			// Keep progressing through the generator until done
@@ -69,13 +67,16 @@ export class Task {
 		}
 	}
 
-	// Run multiple tasks in serial and carry forward the updated `val`
+	// // old method
 	async serial(taskNames, opts = {}) {
-		let lastVal = opts.val;  // Initialize with opts.val
+		let result;
 		for (const name of taskNames) {
-			lastVal = await this.run(name, { ...opts, val: lastVal });  // Forward options and updated value
+			result = await this.run(name, opts);
+			if (result && typeof result === 'object') {
+				Object.assign(opts, result);  // Merge all properties returned by the task into opts
+			}
 		}
-		return lastVal;
+		return result;
 	}
 
 	// Run multiple tasks in parallel
@@ -86,19 +87,14 @@ export class Task {
 	}
 }
 
-// Updated main function to expose task, serial, and parallel methods
-export function taskCaller(callback) {
-	const taskRunner = new Task();
+// Create a singleton instance of the TaskRunner
+const taskRunnerInstance = new TaskRunner();
 
-	// Create a wrapper around task registration to also expose serial and parallel methods
-	function taskWrapper(taskNames, taskFn) {
-		taskRunner.task(taskNames, taskFn);
-	}
+// Expose the log function directly from the instance
+export const log = taskRunnerInstance.log.bind(taskRunnerInstance);
 
-	// Expose serial and parallel as part of the task function
-	taskWrapper.serial = taskRunner.serial.bind(taskRunner);
-	taskWrapper.parallel = taskRunner.parallel.bind(taskRunner);
-
-	// Pass task registration and run function to the callback
-	callback(taskWrapper, taskRunner.run.bind(taskRunner));
-}
+// Export individual functions from the task runner instance
+export const task = taskRunnerInstance.task.bind(taskRunnerInstance);
+export const run = taskRunnerInstance.run.bind(taskRunnerInstance);
+export const serial = taskRunnerInstance.serial.bind(taskRunnerInstance);
+export const parallel = taskRunnerInstance.parallel.bind(taskRunnerInstance);
