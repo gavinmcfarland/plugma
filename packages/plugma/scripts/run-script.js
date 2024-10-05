@@ -22,6 +22,10 @@ export async function runScript(command, options) {
 
 	const log = new Log({ debug: options.debug });
 
+	task('show-plugma-prompt', async ({ files, plugmaPkg }) => {
+		log.text(`${chalk.blue.bold('Plugma')} ${chalk.grey("v" + plugmaPkg.version)}\n`);
+	});
+
 	task('build-manifest', async ({ files }) => {
 		await fse.outputFile(
 			'./dist/manifest.json',
@@ -93,31 +97,30 @@ export async function runScript(command, options) {
 		const files = await getUserFiles();
 		const config = createConfigs(options, files)
 
-		log.text(`${chalk.blue.bold('Plugma')} ${chalk.grey("v" + plugmaPkg.version)}\n`);
-
 		switch (command) {
 			case 'dev':
 			case 'preview':
-
 				run((options) => {
 					serial([
+						'show-plugma-prompt',
 						'build-manifest',
 						'build-placeholder-ui',
 						'build-main',
 						'start-vite-server',
 						'start-websockets-server'
 					], options);
-				}, { command, options, files, config });
+				}, { command, options, files, config, plugmaPkg });
 				break;
 
 			case 'build':
 				run((options) => {
 					serial([
+						'show-plugma-prompt',
 						'build-manifest',
 						'build-ui',
 						'build-main',
 					], options);
-				}, { command, options, files, config });
+				}, { command, options, files, config, plugmaPkg });
 				break;
 		}
 	} catch (err) {
