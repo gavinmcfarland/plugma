@@ -3,8 +3,8 @@ export default function replaceMainInput(options = {}) {
 	return {
 		name: 'replace-js-input',
 		transformIndexHtml: {
-			enforce: 'pre',
-			transform(html, { mode }) {
+			order: 'pre',
+			handler(html, { mode }) {
 				// Modify the script tag's src in the HTML template
 				if (options.pluginName) {
 					html = html.replace('{pluginName}', options.pluginName)

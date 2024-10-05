@@ -66,16 +66,16 @@ program
 	.option('-p, --port <number>', 'Specify a port number for the plugin preview')
 	.option('-t, --toolbar', 'Display the developer toolbar within the plugin UI')
 	.option('-m, --mode <mode>', 'Specify the mode', 'development')
-	.option('-ws, --websockets', 'Enable websockets', true)
 	.option('-d, --debug', 'Enable debug mode', false)
 	.action(function (options) {
-		cli(this.name(), options); // Call your CLI function
 		handleDebug(this.name(), options);
+
+		options.websockets = true
+		cli(this.name(), options); // Call your CLI function
 	})
 	.addHelpText('after', `
     Examples:
       plugma preview --port 3000
-      plugma preview --mode production --websockets
   `);
 
 // Build Command

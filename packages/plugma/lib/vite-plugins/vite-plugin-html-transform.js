@@ -30,7 +30,7 @@ websockets: ${options.websockets}
 			html = html.replace('<body>', `<body>${viteAppProxyDev}`)
 
 			// // Add app div and script to bottom
-			// html = html.replace('id="entry" src="/main.js"', `src="${data.figmaManifest.ui}"`);
+			// html = html.replace('id="entry" src="/main.js"', `src="${data.manifest.ui}"`);
 
 
 			// if (options._[0] === "dev" && options.toolbar) {
