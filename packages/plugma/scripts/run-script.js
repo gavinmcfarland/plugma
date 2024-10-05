@@ -22,6 +22,14 @@ export async function runScript(command, options) {
 
 	const log = new Log({ debug: options.debug });
 
+	task('get-files', async ({ options }) => {
+		const plugmaPkg = await readJson(resolve(`${__dirname}/../package.json`));
+		const files = await getUserFiles();
+		const config = createConfigs(options, files);
+
+		return { plugmaPkg, files, config };
+	});
+
 	task('show-plugma-prompt', async ({ files, plugmaPkg }) => {
 		log.text(`${chalk.blue.bold('Plugma')} ${chalk.grey("v" + plugmaPkg.version)}\n`);
 	});
@@ -93,15 +101,16 @@ export async function runScript(command, options) {
 		process.env.NODE_ENV = options.mode || 'development';
 		options.port = options.port || getRandomNumber();
 
-		const plugmaPkg = await readJson(resolve(`${__dirname}/../package.json`));
-		const files = await getUserFiles();
-		const config = createConfigs(options, files)
+		// const plugmaPkg = await readJson(resolve(`${__dirname}/../package.json`));
+		// const files = await getUserFiles();
+		// const config = createConfigs(options, files)
 
 		switch (command) {
 			case 'dev':
 			case 'preview':
 				run((options) => {
 					serial([
+						'get-files',
 						'show-plugma-prompt',
 						'build-manifest',
 						'build-placeholder-ui',
@@ -109,18 +118,19 @@ export async function runScript(command, options) {
 						'start-vite-server',
 						'start-websockets-server'
 					], options);
-				}, { command, options, files, config, plugmaPkg });
+				}, { command, options });
 				break;
 
 			case 'build':
 				run((options) => {
 					serial([
+						'get-files',
 						'show-plugma-prompt',
 						'build-manifest',
 						'build-ui',
 						'build-main',
 					], options);
-				}, { command, options, files, config, plugmaPkg });
+				}, { command, options });
 				break;
 		}
 	} catch (err) {
