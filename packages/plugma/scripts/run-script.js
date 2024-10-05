@@ -22,7 +22,7 @@ export async function runScript(command, options) {
 
 	const log = new Log({ debug: options.debug });
 
-	task(['build-manifest', 'watch-manifest'], async ({ files }) => {
+	task('build-manifest', async ({ files }) => {
 		await fse.outputFile(
 			'./dist/manifest.json',
 			JSON.stringify(
@@ -45,11 +45,7 @@ export async function runScript(command, options) {
 
 		const runtimeData = `<script>
 	  // Global variables defined on the window object
-	  window.runtimeData = {
-	    port: ${options.port},
-	    debug: ${options.debug},
-	    websockets: ${options.websockets}
-	  };
+	  window.runtimeData = ${JSON.stringify(options)};
 	</script>`;
 
 		devHtmlString = devHtmlString.replace(/^/, runtimeData);
@@ -67,7 +63,7 @@ export async function runScript(command, options) {
 		}
 	});
 
-	task(['build-main', 'watch-main'], async ({ command, config }) => {
+	task('build-main', async ({ command, config }) => {
 		if (command === 'dev' || command === 'preview') {
 			const ctx = await esbuild.context(config.esbuild.dev);
 			await ctx.watch();
@@ -105,9 +101,9 @@ export async function runScript(command, options) {
 
 				run((options) => {
 					serial([
-						'watch-manifest',
+						'build-manifest',
 						'build-placeholder-ui',
-						'watch-main',
+						'build-main',
 						'start-vite-server',
 						'start-websockets-server'
 					], options);
