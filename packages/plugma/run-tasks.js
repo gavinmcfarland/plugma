@@ -59,12 +59,12 @@ main((task, run) => {
 
 		// Run a specific task by its name and forward options
 		case 'build':
-			run((opts) => {
+			run((options) => {
 				task.serial([
 					'build-manifest',
 					'build-ui',
 					'build-main',
-				], opts);  // Pass options explicitly
+				], options);  // Pass options explicitly
 			}, { command, val: 10 });
 			break;
 	}
