@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import cli from '../scripts/run-script.js';
+import { runScript } from '../scripts/run-script.js';
 import { runRelease } from '../scripts/run-release.js';
 import chalk from 'chalk'
 
@@ -50,7 +50,7 @@ program
 	.option('-ws, --websockets', 'Enable websockets', false)
 	.option('-d, --debug', 'Enable debug mode', false)
 	.action(function (options) {
-		cli(this.name(), options); // Call your CLI function
+		runScript(this.name(), options); // Call your CLI function
 		handleDebug(this.name(), options);
 	})
 	.addHelpText('after', `
@@ -69,9 +69,8 @@ program
 	.option('-d, --debug', 'Enable debug mode', false)
 	.action(function (options) {
 		handleDebug(this.name(), options);
-
 		options.websockets = true
-		cli(this.name(), options); // Call your CLI function
+		runScript(this.name(), options);
 	})
 	.addHelpText('after', `
     Examples:
@@ -86,7 +85,7 @@ program
 	.option('-m, --mode <mode>', 'Specify the mode', 'production')
 	.option('-d, --debug', 'Enable debug mode', false)
 	.action(function (options) {
-		cli(this.name(), options); // Call your CLI function
+		runScript(this.name(), options);
 		handleDebug(this.name(), options);
 	})
 	.addHelpText('after', `
