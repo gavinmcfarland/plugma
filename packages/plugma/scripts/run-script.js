@@ -1,5 +1,5 @@
 
-import fs from 'fs';
+import fs from 'fs/promises';
 import fse from 'fs-extra';
 import path, { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
@@ -17,6 +17,27 @@ import { task, run, serial } from '../task-runner/taskrunner.js';
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const __filename = fileURLToPath(import.meta.url);
+
+async function loadConfig() {
+	const configPath = path.resolve(process.cwd(), 'esbuild.config.js');
+
+	try {
+		// Check if the file exists using the promises API
+		await fs.access(configPath);
+
+		// Dynamically import the module if it exists
+		const configModule = await import(`${configPath}`);
+		return configModule.default;
+	} catch (error) {
+		// Handle the error if the file does not exist
+		if (error.code === 'ENOENT') {
+			console.warn(`Config file not found at ${configPath}. Using default config.`);
+			return {}; // Return an empty config or a default configuration object
+		}
+		// Re-throw the error if it's not related to the file not existing
+		throw error;
+	}
+}
 
 export async function runScript(command, options) {
 
@@ -53,7 +74,7 @@ export async function runScript(command, options) {
 
 	task('build-placeholder-ui', async ({ options }) => {
 		const devHtmlPath = resolve(`${__dirname}/../apps/PluginWindow.html`);
-		let devHtmlString = fs.readFileSync(devHtmlPath, 'utf8');
+		let devHtmlString = await fs.readFile(devHtmlPath, 'utf8');
 
 		const runtimeData = `<script>
 	  // Global variables defined on the window object
@@ -76,6 +97,11 @@ export async function runScript(command, options) {
 	});
 
 	task('build-main', async ({ command, config }) => {
+		const userEsConfig = await loadConfig();
+		if (userEsConfig) {
+			config.esbuild.dev = Object.assign(config.esbuild.dev, userEsConfig)
+			config.esbuild.build = Object.assign(config.esbuild.build, userEsConfig)
+		}
 		if (command === 'dev' || command === 'preview') {
 			const ctx = await esbuild.context(config.esbuild.dev);
 			await ctx.watch();
