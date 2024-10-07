@@ -141,7 +141,6 @@ export function createConfigs(options, userFiles) {
 			sourcemap: false,  // Set to true if you want source maps
 			minify: false,     // Set to true if you want minification
 			emptyOutDir: false,
-			// watch: {}
 		},
 	}
 
