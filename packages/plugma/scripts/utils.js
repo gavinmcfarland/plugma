@@ -5,11 +5,13 @@ import htmlTransform from '../lib/vite-plugins/vite-plugin-html-transform.js';
 import replaceMainInput from '../lib/vite-plugins/vite-plugin-replace-main-input.js';
 import deepIndex from '../lib/vite-plugins/vite-plugin-deep-index.js';
 import viteCopyDirectoryPlugin from '../lib/vite-plugins/vite-plugin-copy-dir.js';
+import dotEnvLoader from '../lib/vite-plugins/vite-plugin-dot-env-loader.js';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 import globalPolyfill from '../lib/esbuild-plugins/esbuild-plugin-global-polyfill.js';
 import os from 'os';
-import { fileURLToPath } from 'url';
 import chalk from 'chalk';
+import { fileURLToPath } from 'url';
+
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -105,7 +107,12 @@ export function createConfigs(options, userFiles) {
 				deepIndex(),
 				...commonVitePlugins,
 			],
-			server: { port: options.port },
+			server: {
+				port: options.port,
+				// watch: {
+				// 	ignored: ['**/*.env*'],
+				// },
+			},
 		},
 		build: {
 			build: {
@@ -122,6 +129,9 @@ export function createConfigs(options, userFiles) {
 		define: {
 			'process.env.NODE_ENV': JSON.stringify(options.mode),
 		},
+		plugins: [
+			dotEnvLoader(options)
+		],
 		build: {
 			lib: {
 				entry: tempFilePath, // Entry file for backend code
@@ -184,7 +194,8 @@ function notifyOnRebuild() {
 
 function writeTempFile(fileName, userFiles) {
 	const tempFilePath = join(os.tmpdir(), fileName);
-	const modifiedContent = `import main from "${CURR_DIR}/${userFiles.manifest.main}"; main();`;
+	const modifiedContent = `import main from "${CURR_DIR}/${userFiles.manifest.main}";
+	main();`;
 	fs.writeFileSync(tempFilePath, modifiedContent);
 	return tempFilePath;
 }
