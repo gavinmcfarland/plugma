@@ -97,16 +97,22 @@ export async function runScript(command, options) {
 	});
 
 	task('build-main', async ({ command, config }) => {
-		const userEsConfig = await loadConfig();
-		if (userEsConfig) {
-			config.esbuild.dev = Object.assign(config.esbuild.dev, userEsConfig)
-			config.esbuild.build = Object.assign(config.esbuild.build, userEsConfig)
-		}
-		if (command === 'dev' || command === 'preview') {
-			const ctx = await esbuild.context(config.esbuild.dev);
-			await ctx.watch();
+		// const userEsConfig = await loadConfig();
+		// if (userEsConfig) {
+		// 	config.esbuild.dev = Object.assign(config.esbuild.dev, userEsConfig)
+		// 	config.esbuild.build = Object.assign(config.esbuild.build, userEsConfig)
+		// }
+		// if (command === 'dev' || command === 'preview') {
+		// 	const ctx = await esbuild.context(config.esbuild.dev);
+		// 	await ctx.watch();
+		// } else {
+		// 	await esbuild.build(config.esbuild.build);
+		// }
+
+		if (command === 'dev' || options.watch) {
+			await viteBuild(_.merge({}, config.viteMain, { build: { watch: {} } }));
 		} else {
-			await esbuild.build(config.esbuild.build);
+			await viteBuild(config.viteMain);
 		}
 	});
 

@@ -116,6 +116,35 @@ export function createConfigs(options, userFiles) {
 		},
 	};
 
+	const viteConfigMain = {
+		config: false,
+		mode: options.mode,
+		define: {
+			'process.env.NODE_ENV': JSON.stringify(options.mode),
+		},
+		build: {
+			lib: {
+				entry: tempFilePath, // Entry file for backend code
+				formats: ['cjs'],    // Output format, CommonJS for Node.js
+			},
+			rollupOptions: {
+				output: {
+					dir: 'dist',               // Output directory
+					entryFileNames: 'main.js', // Name of the output file
+					inlineDynamicImports: true, // Inline all imports into one file
+				},
+			},
+			resolve: {
+				extensions: ['.ts', '.js'],  // Resolve TypeScript and JavaScript files
+			},
+			target: 'chrome58',
+			sourcemap: false,  // Set to true if you want source maps
+			minify: false,     // Set to true if you want minification
+			emptyOutDir: false,
+			// watch: {}
+		},
+	}
+
 	// Esbuild configuration
 	const esbuildConfig = {
 		dev: {
@@ -133,6 +162,7 @@ export function createConfigs(options, userFiles) {
 	// Return both configurations in a config object
 	return {
 		vite: viteConfig,
+		viteMain: viteConfigMain,
 		esbuild: esbuildConfig,
 	};
 }

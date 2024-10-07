@@ -9,9 +9,9 @@
 # Plugma
 
 > [!WARNING]
-> Plugma is currently in alpha. Your feedback is greatly appreciated!
+> The next release is still in progress, but comes with a lot of improved features including better web socket handling for browser preview and ability to configure the main thread using `esbuild.config.js`.
 
-Take Figma plugin development to the next level with browser previews, faster debuging and zero boilerplate.
+Take Figma plugin development to the next level with browser previews, faster debuging and minimal boilerplate.
 
 ## Start from a template
 
@@ -63,7 +63,7 @@ Currently, the only framework supported is `Svelte`. -->
     -   `-w`, `--watch`: Watch for changes and rebuild automatically.
     -   `-m`, `--mode`: Specify the mode (development, production, test).
 
--   ### preview [options] <mark>Coming soon!</mark>
+-   ### preview [options]
 
     Preview the plugin in a browser preview.
 
@@ -84,6 +84,11 @@ Currently, the only framework supported is `Svelte`. -->
 
     -   `-t`, `--title`: Provide a custom title
     -   `-n`, `--notes`: Provide release notes.
+
+## Configure
+
+-   Configure options for main code by creating a `esbuild.config.js`.
+-   Configure options for UI code by creating a `vite.config.js`.
 
 ## Install
 
