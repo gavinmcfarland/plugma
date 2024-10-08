@@ -18,7 +18,10 @@ Take Figma plugin development to the next level with browser previews, faster de
 Create a plugin from a template using the following:
 
 ```shell
-npm create plugma@latest
+# For the current stable release
+npm create plugma@lastest
+# For the next release in progress
+npm create plugma@next
 ```
 
 The frameworks currently supported are `React`, `Svelte`, `Vue` and vanilla `JavaScript`.
