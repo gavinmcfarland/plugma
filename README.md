@@ -128,7 +128,7 @@ You can either place a `manifest.json` file in the root of the project or add a 
 
 ## Configure Vite
 
-Vite used to bundle both the main code and the UI. To configure how this works you can can modify the `vite.config.js` file in the route of your project.
+Vite is used to bundle both the main code and the UI. To configure how this works you can can modify the `vite.config.js` file in the route of your project.
 
 <!-- ```jsonc
 // package.json
