@@ -88,11 +88,6 @@ Currently, the only framework supported is `Svelte`. -->
     -   `-t`, `--title`: Provide a custom title
     -   `-n`, `--notes`: Provide release notes.
 
-## Configure
-
--   Configure options for main code by creating a `esbuild.config.js`.
--   Configure options for UI code by creating a `vite.config.js`.
-
 ## Install
 
 To install the CLI globally.
@@ -138,6 +133,10 @@ Depending on which framework you choose, the files might vary slightly, but the 
 ## Manifest
 
 You can either place a `manifest.json` file in the root of the project or add a `plugma.manifest` field to the `package.json` file.
+
+## Configure Vite
+
+Vite used to bundle both the main code and the UI. To configure how this works you can can modify the `vite.config.js` file in the route of your project.
 
 <!-- ```jsonc
 // package.json
