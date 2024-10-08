@@ -88,14 +88,6 @@ Currently, the only framework supported is `Svelte`. -->
     -   `-t`, `--title`: Provide a custom title
     -   `-n`, `--notes`: Provide release notes.
 
-## Install
-
-To install the CLI globally.
-
-```
-npm install plugma -g
-```
-
 <!-- ## Folder structure
 
 Depending on which framework you choose, the files might vary slightly, but the file structure will remain the same.
@@ -151,6 +143,14 @@ Vite used to bundle both the main code and the UI. To configure how this works y
   }
 }
 ``` -->
+
+## Install
+
+To install the CLI globally.
+
+```
+npm install plugma -g
+```
 
 ## Troubleshooting
 
