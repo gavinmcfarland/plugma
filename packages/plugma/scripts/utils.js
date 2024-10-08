@@ -11,6 +11,7 @@ import globalPolyfill from '../lib/esbuild-plugins/esbuild-plugin-global-polyfil
 import os from 'os';
 import chalk from 'chalk';
 import { fileURLToPath } from 'url';
+import { svelte } from "@sveltejs/vite-plugin-svelte";
 
 
 const CURR_DIR = process.cwd();
@@ -76,6 +77,7 @@ export function createConfigs(options, userFiles) {
 			sourceDir: 'dist/node_modules/plugma/tmp/',
 			targetDir: 'dist/',
 		}),
+
 	];
 
 	const tempFilePath = writeTempFile(`temp_${Date.now()}.js`, userFiles);
@@ -98,6 +100,7 @@ export function createConfigs(options, userFiles) {
 
 	// Vite configuration
 	const viteConfig = {
+
 		dev: {
 			mode: options.mode,
 			define: { 'process.env.NODE_ENV': JSON.stringify(options.mode) },
@@ -119,7 +122,7 @@ export function createConfigs(options, userFiles) {
 				emptyOutDir: false,
 				rollupOptions: { input: 'node_modules/plugma/tmp/index.html' },
 			},
-			plugins: commonVitePlugins,
+			plugins: [...commonVitePlugins],
 		},
 	};
 
@@ -149,7 +152,6 @@ export function createConfigs(options, userFiles) {
 			},
 			target: 'chrome58',
 			sourcemap: false,  // Set to true if you want source maps
-			minify: false,     // Set to true if you want minification
 			emptyOutDir: false,
 		},
 	}

@@ -10,7 +10,7 @@ import { spawn } from 'child_process';
 import _ from 'lodash';
 import chalk from 'chalk';
 import esbuild from 'esbuild';
-import { build as viteBuild, createServer } from 'vite';
+import { build as viteBuild, createServer, mergeConfig } from 'vite';
 
 import { Log } from '../lib/logger.js';
 import { getRandomNumber, readJson, createConfigs, getUserFiles } from './utils.js';
@@ -20,8 +20,8 @@ const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const __filename = fileURLToPath(import.meta.url);
 
-async function loadConfig() {
-	const configPath = path.resolve(process.cwd(), 'esbuild.config.js');
+async function loadConfig(fileName) {
+	const configPath = path.resolve(process.cwd(), fileName);
 
 	try {
 		// Check if the file exists using the promises API
@@ -29,6 +29,20 @@ async function loadConfig() {
 
 		// Dynamically import the module if it exists
 		const configModule = await import(`${configPath}`);
+
+		// If the file name starts with 'vite.', call the function and return its result
+		if (fileName.startsWith('vite.')) {
+			if (typeof configModule.default === 'function') {
+				// Pass a mock context with the mode property set, e.g., 'development' or 'production'
+				const context = { mode: process.env.NODE_ENV || 'development' };
+				return await configModule.default(context);
+			} else {
+				console.warn(`The config file ${fileName} does not export a function as default.`);
+				return {};
+			}
+		}
+
+		// Otherwise, return the default export as-is
 		return configModule.default;
 	} catch (error) {
 		// Handle the error if the file does not exist
@@ -91,16 +105,17 @@ export async function runScript(command, options) {
 	});
 
 	task('build-ui', async ({ command, config, options }) => {
+		const userViteConfig = await loadConfig('vite.config.js');
 		if (command === 'dev' || options.watch) {
-			await viteBuild(_.merge({}, config.vite.build, { build: { watch: {} } }));
+			await viteBuild(mergeConfig(config.vite.build, { build: { watch: {} } }));
 		} else {
-			await viteBuild(config.vite.build);
+			await viteBuild(mergeConfig(config.vite.build));
 		}
 	});
 
 	task('build-main', async ({ command, config }) => {
 		if (options.mainBundler === "esbuild") {
-			const userEsConfig = await loadConfig();
+			const userEsConfig = await loadConfig('esbuild.config.js');
 			if (userEsConfig) {
 				config.esbuild.dev = Object.assign(config.esbuild.dev, userEsConfig)
 				config.esbuild.build = Object.assign(config.esbuild.build, userEsConfig)
@@ -113,6 +128,7 @@ export async function runScript(command, options) {
 			}
 		} else {
 
+			const userViteConfig = await loadConfig('vite.config.js');
 
 			// FIXME: Had to do all of this because of two issues:
 			// 1. Vite seems to be caching config when watching
@@ -138,9 +154,13 @@ export async function runScript(command, options) {
 					console.log('[vite-build] Starting the build...');
 					if (command === 'dev' || command === "build" && options.watch) {
 						// We disable watching env on main as it doesn't do anything anyway
-						await viteBuild(_.merge({}, config.viteMain));
+						let merged = mergeConfig({ minfiy: true }, config.viteMain)
+						console.log(merged)
+						await viteBuild(mergeConfig(merged, userViteConfig));
 					} else {
-						await viteBuild(config.viteMain);
+						let merged = mergeConfig({ minfiy: true }, config.viteMain)
+						console.log("---", userViteConfig)
+						await viteBuild(mergeConfig(merged, userViteConfig));
 					}
 					console.log('[vite-build] Build completed.');
 				} catch (error) {
