@@ -102,6 +102,7 @@ export function createConfigs(options, userFiles) {
 	const viteConfig = {
 
 		dev: {
+			config: false,
 			mode: options.mode,
 			define: { 'process.env.NODE_ENV': JSON.stringify(options.mode) },
 			plugins: [

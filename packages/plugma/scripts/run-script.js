@@ -106,10 +106,13 @@ export async function runScript(command, options) {
 
 	task('build-ui', async ({ command, config, options }) => {
 		const userViteConfig = await loadConfig('vite.config.js');
-		if (command === 'dev' || options.watch) {
-			await viteBuild(mergeConfig(config.vite.build, { build: { watch: {} } }));
+		// FIXME: Why won't userViteCofig run at this stage? Only works with vite.config.js
+		if (command === 'dev' || command === "build" && options.watch) {
+			let merged = mergeConfig({ build: { watch: {} } }, config.vite.build)
+			await viteBuild(mergeConfig(merged));
 		} else {
 			await viteBuild(mergeConfig(config.vite.build));
+			process.exit(1);
 		}
 	});
 
@@ -155,11 +158,9 @@ export async function runScript(command, options) {
 					if (command === 'dev' || command === "build" && options.watch) {
 						// We disable watching env on main as it doesn't do anything anyway
 						let merged = mergeConfig({ minfiy: true }, config.viteMain)
-						console.log(merged)
 						await viteBuild(mergeConfig(merged, userViteConfig));
 					} else {
 						let merged = mergeConfig({ minfiy: true }, config.viteMain)
-						console.log("---", userViteConfig)
 						await viteBuild(mergeConfig(merged, userViteConfig));
 					}
 					console.log('[vite-build] Build completed.');
@@ -205,7 +206,8 @@ export async function runScript(command, options) {
 	});
 
 	task('start-vite-server', async ({ config }) => {
-		const server = await createServer(config.vite.dev);
+		const userViteConfig = await loadConfig('vite.config.js');
+		const server = await createServer(mergeConfig(config.vite.dev), userViteConfig);
 		await server.listen();
 	});
 
