@@ -52,7 +52,7 @@ export default function dotEnvLoader(options = {}) {
 			const env = loadEnvFiles();
 
 			// Log the environment variables to verify they are being loaded correctly
-			console.log('[custom-env-loader] Loaded environment variables:');
+			// console.log('[custom-env-loader] Loaded environment variables:');
 
 			// Return the environment variables to be applied in the build configuration
 			return {

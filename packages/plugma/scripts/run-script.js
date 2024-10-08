@@ -137,6 +137,8 @@ export async function runScript(command, options) {
 			// 2. dotenv was also caching env files
 			let isBuilding = false;
 
+
+
 			const envFiles = [
 				path.resolve(process.cwd(), '.env'),
 				path.resolve(process.cwd(), '.env.local'),               // Default .env
@@ -154,7 +156,6 @@ export async function runScript(command, options) {
 				isBuilding = true; // Set the flag indicating a build is in progress
 
 				try {
-					console.log('[vite-build] Starting the build...');
 					if (command === 'dev' || command === "build" && options.watch) {
 						// We disable watching env on main as it doesn't do anything anyway
 						let merged = mergeConfig({ minfiy: true, build: { watch: {} } }, config.viteMain)
@@ -163,13 +164,15 @@ export async function runScript(command, options) {
 						let merged = mergeConfig({ minfiy: true }, config.viteMain)
 						await viteBuild(mergeConfig(merged, userViteConfig));
 					}
-					console.log('[vite-build] Build completed.');
+					// console.log('[vite-build] Build completed.');
 				} catch (error) {
 					console.error('[vite-build] Build failed:', error);
 				} finally {
 					isBuilding = false; // Reset the flag after the build completes
 				}
 			}
+
+
 
 			// Function to watch environment files and restart the build process when changes occur
 			function watchEnvFiles() {
@@ -184,8 +187,12 @@ export async function runScript(command, options) {
 			// Initial build run
 			runBuild();
 
-			// Start watching for changes in environment files
-			watchEnvFiles();
+
+
+			if (command === 'dev' || command === "build" && options.watch) {
+				// Start watching for changes in environment files
+				watchEnvFiles();
+			}
 
 			// if (command === 'dev' || command === "build" && options.watch) {
 			// 	// We disable watching env on main as it doesn't do anything anyway
