@@ -102,7 +102,7 @@ export function createConfigs(options, userFiles) {
 	const viteConfig = {
 
 		dev: {
-			config: false,
+			// configFile: false,
 			mode: options.mode,
 			define: { 'process.env.NODE_ENV': JSON.stringify(options.mode) },
 			plugins: [
@@ -119,6 +119,7 @@ export function createConfigs(options, userFiles) {
 			},
 		},
 		build: {
+			// configFile: false,
 			build: {
 				emptyOutDir: false,
 				rollupOptions: { input: 'node_modules/plugma/tmp/index.html' },
@@ -128,7 +129,7 @@ export function createConfigs(options, userFiles) {
 	};
 
 	const viteConfigMain = {
-		config: false,
+		// configFile: false,
 		mode: options.mode,
 		define: {
 			'process.env.NODE_ENV': JSON.stringify(options.mode),

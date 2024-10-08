@@ -112,7 +112,6 @@ export async function runScript(command, options) {
 			await viteBuild(mergeConfig(merged));
 		} else {
 			await viteBuild(mergeConfig(config.vite.build));
-			process.exit(1);
 		}
 	});
 
@@ -140,8 +139,9 @@ export async function runScript(command, options) {
 
 			const envFiles = [
 				path.resolve(process.cwd(), '.env'),
-				path.resolve(process.cwd(), `.env.${process.env.NODE_ENV}`),
-				path.resolve(process.cwd(), '.env.local')
+				path.resolve(process.cwd(), '.env.local'),               // Default .env
+				path.resolve(process.cwd(), `.env.${process.env.NODE_ENV}`), // Environment-specific .env (e.g., .env.development, .env.production)
+				path.resolve(process.cwd(), `.env.${process.env.NODE_ENV}.local`)             // Local overrides, if any
 			];
 
 			// Function to start the build
@@ -157,7 +157,7 @@ export async function runScript(command, options) {
 					console.log('[vite-build] Starting the build...');
 					if (command === 'dev' || command === "build" && options.watch) {
 						// We disable watching env on main as it doesn't do anything anyway
-						let merged = mergeConfig({ minfiy: true }, config.viteMain)
+						let merged = mergeConfig({ minfiy: true, build: { watch: {} } }, config.viteMain)
 						await viteBuild(mergeConfig(merged, userViteConfig));
 					} else {
 						let merged = mergeConfig({ minfiy: true }, config.viteMain)
