@@ -124,7 +124,10 @@ export function createConfigs(options, userFiles) {
 				emptyOutDir: false,
 				rollupOptions: { input: 'node_modules/plugma/tmp/index.html' },
 			},
-			plugins: [...commonVitePlugins],
+			plugins: [
+				replaceMainInput({ pluginName: userFiles.manifest.name, input: userFiles.manifest.ui }),
+				...commonVitePlugins
+			],
 		},
 	};
 
