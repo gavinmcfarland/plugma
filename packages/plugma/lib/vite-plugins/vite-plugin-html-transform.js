@@ -15,14 +15,10 @@ export default function htmlTransform(options = {}) {
 			// Can't use template with ejs template directly, so we have to add our file to it first
 			let viteAppProxyDev = fs.readFileSync(path.join(__dirname, '../../apps/ViteApp.html'), 'utf8')
 
-			let runtimeData = `<script>
-// Global variables defined on the window object
-window.runtimeData = {
-port: ${options.port},
-debug: ${options.debug},
-websockets: ${options.websockets}
-};
-</script>`
+			const runtimeData = `<script>
+	  // Global variables defined on the window object
+	  window.runtimeData = ${JSON.stringify(options)};
+	</script>`;
 
 			viteAppProxyDev = viteAppProxyDev.replace(/^/, runtimeData)
 
