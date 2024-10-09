@@ -11,7 +11,8 @@
 		"test": "echo \"Error: no test specified\"",
 		"build-apps": "cd ../apps && npm run build",
 		"copy-apps": "node scripts/copy-files.js",
-		"prepublishOnly": "npm run build-apps && npm run copy-apps",
+		"build-and-copy-apps": "npm run build-apps && npm run copy-apps",
+		"prepublishOnly": "npm run build-and-copy-apps",
 		"copy-workflows": "cp -r ./templates/github/ .github/"
 	},
 	"author": "",
@@ -35,7 +36,6 @@
 		"uuid": "^10.0.0",
 		"vite": "^5.0.4",
 		"vite-plugin-singlefile": "^0.13.5",
-		"ws": "^8.16.0",
-		"yargs": "^17.7.2"
+		"ws": "^8.16.0"
 	}
 }
