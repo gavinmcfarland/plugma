@@ -9,6 +9,7 @@
 
 	import { Log } from '../../../../plugma/lib/logger'
 	import { setupWebSocket } from '../../shared/setupWebSocket'
+	import { resizePluginWindow } from '../../shared/resizePluginWindow'
 
 	const html = document.querySelector('html')
 
@@ -28,6 +29,12 @@
 	})
 
 	const processedMessages = new Set()
+
+	console.log('from plugin window', window.runtimeData)
+	// @ts-ignore
+	// if (window.runtimeData.command === 'dev') {
+	// 	resizePluginWindow()
+	// }
 
 	function listenForFigmaStyles() {
 		const handleMessage = (event) => {

@@ -140,6 +140,25 @@ export function createConfigs(options, userFiles) {
 		plugins: [
 			dotEnvLoader(options)
 		],
+		esbuild: {
+			banner: `
+            function resizeWrapper(width, height) {
+                console.log('Custom resize: ' + width + 'x' + height);
+
+                // Call the original figma.ui.resize method if it exists
+                if (figma && figma.ui && typeof figma.ui.resize === 'function') {
+					// To avoid Vite replaceing figma.ui.resize and causing an infinite loop
+                    figma.ui['re' + 'size'](width, 100);
+                } else {
+                    console.warn('Figma UI resize method is not available.');
+                }
+            }
+        `
+		},
+		define: {
+			// Replace the global usage of `figma.ui.resize` with the function from globalManager
+			'figma.ui.resize': 'resizeWrapper'
+		},
 		build: {
 			lib: {
 				entry: tempFilePath, // Entry file for backend code
@@ -202,7 +221,9 @@ function notifyOnRebuild() {
 function writeTempFile(fileName, userFiles) {
 	const tempFilePath = join(os.tmpdir(), fileName);
 	const modifiedContent = `import main from "${CURR_DIR}/${userFiles.manifest.main}";
-	main();`;
+	import { mainListeners } from "${CURR_DIR}/node_modules/plugma/lib/mainListeners.js";
+	main();
+	mainListeners();`;
 	fs.writeFileSync(tempFilePath, modifiedContent);
 	return tempFilePath;
 }

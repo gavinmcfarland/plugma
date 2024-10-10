@@ -59,6 +59,9 @@ export async function runScript(command, options) {
 
 	const log = new Log({ debug: options.debug });
 
+	// Add command to options
+	options.command = command
+
 	task('get-files', async ({ options }) => {
 		const plugmaPkg = await readJson(resolve(`${__dirname}/../package.json`));
 		const files = await getUserFiles();

@@ -37,8 +37,20 @@ function mainListeners() {
 					figma.ui.postMessage(msg.pluginMessage);
 				}
 			}
+
+			if (msg.event === "PLUGMA_RESIZE_WINDOW") {
+				console.log("plugma resize window", msg.data)
+				figma.ui.resize(msg.data.width, msg.data.height);
+			}
 		});
 	}
+}
+
+export function customResize(width, height) {
+	console.log(`Custom resize: ${width}x${height}`);
+
+	// Call the original figma.ui.resize method
+	figma.ui.resize(width, height);
 }
 
 export { mainListeners };
