@@ -1,6 +1,6 @@
 import ReconnectingWebSocket from 'reconnecting-websocket'
 import { Log } from '../../../plugma/lib/logger'
-import { localClientConnected, remoteClients, localClientId } from './stores' // Import the Svelte stores
+import { localClientConnected, remoteClients, localClientId, pluginWindowClients } from './stores' // Import the Svelte stores
 import { get } from 'svelte/store'
 
 const log = new Log({
@@ -17,7 +17,11 @@ interface ExtendedWebSocket extends ReconnectingWebSocket {
 	close: (callback?: () => void) => void
 }
 
-export function setupWebSocket(iframeTarget = null, enableWebSocket = true): ExtendedWebSocket | typeof mockWebSocket {
+export function setupWebSocket(
+	iframeTarget = null,
+	enableWebSocket = true,
+	registerSource = false
+): ExtendedWebSocket | typeof mockWebSocket {
 	const messageQueue: any[] = []
 	let openCallbacks: (() => void)[] = []
 	let closeCallbacks: (() => void)[] = []
@@ -113,14 +117,16 @@ export function setupWebSocket(iframeTarget = null, enableWebSocket = true): Ext
 		return mockWebSocket
 	}
 
-	let source
+	let source = ''
 
 	console.log('is inside figma', isInsideIframe, isInsideFigma)
 
-	if (isInsideIframe || isInsideFigma) {
-		source = `?source=plugin-window`
-	} else {
-		source = `?source=browser'`
+	if (registerSource) {
+		if (isInsideIframe || isInsideFigma) {
+			source = `?source=plugin-window`
+		} else {
+			source = `?source=browser`
+		}
 	}
 
 	let ws = new ReconnectingWebSocket(`ws://localhost:9001/ws${source}`) as ExtendedWebSocket
@@ -173,9 +179,9 @@ export function setupWebSocket(iframeTarget = null, enableWebSocket = true): Ext
 			}
 
 			// Handle local client connection (not inside iframe or Figma)
-			if (!(isInsideIframe || isInsideFigma)) {
-				localClientConnected.set(true)
-			}
+			// if (!(isInsideIframe || isInsideFigma)) {
+			localClientConnected.set(true)
+			// }
 
 			pingInterval = window.setInterval(() => {
 				if (ws.readyState === WebSocket.OPEN) {
@@ -217,39 +223,47 @@ export function setupWebSocket(iframeTarget = null, enableWebSocket = true): Ext
 					}
 
 					if (message.pluginMessage.event === 'client_list') {
-						if (!(isInsideIframe || isInsideFigma)) {
-							const connectedClients = message.pluginMessage.clients || []
-							remoteClients.set(connectedClients) // Set the connected clients
-						}
+						// if (!(isInsideIframe || isInsideFigma)) {
+						const connectedClients = message.pluginMessage.clients || []
+						const browserClientsX = connectedClients.filter((client) => client.source === 'browser')
+						const pluginWindowClientsX = connectedClients.filter(
+							(client) => client.source === 'plugin-window'
+						)
+						remoteClients.set(browserClientsX) // Set the connected clients
+						pluginWindowClients.set(pluginWindowClientsX) // Set the connected clients
+						// }
 					}
 
 					// Handle remote client connection and disconnection events
 					if (message.pluginMessage.event === 'client_connected') {
-						console.log(`Client connected: ${message.pluginMessage.clientId}`)
-
-						// How can I set the localClientId if it doesn't exist?
-						if (!get(localClientId)) {
-							if (!(isInsideIframe || isInsideFigma)) {
-								localClientId.set(message.pluginMessage.clientId)
-							}
-						}
+						console.log(`Client connected:`, message.pluginMessage.client)
 
 						// Handle remote clients only when inside iframe or Figma
-						if (!(isInsideIframe || isInsideFigma)) {
-							console.log('----', message.pluginMessage.source)
-							if (message.pluginMessage.source === 'plugin-window') {
-								remoteClients.update((clients) => [...clients, message.pluginMessage.clientId])
-							}
+						// if (!(isInsideIframe || isInsideFigma)) {
+						// 	console.log('----', message.pluginMessage.source)
+						// 	// Only add browser
+						// 	if (message.pluginMessage.source === 'browser') {
+						if (message.pluginMessage.client.source === 'browser') {
+							remoteClients.update((clients) => [...clients, message.pluginMessage.client])
 						}
+
+						if (message.pluginMessage.client.source === 'plugin-window') {
+							pluginWindowClients.update((clients) => [...clients, message.pluginMessage.client])
+						}
+						// 	}
+						// }
 					} else if (message.pluginMessage.event === 'client_disconnected') {
-						console.log(`Client disconnected: ${message.pluginMessage.clientId}`)
+						console.log(`Client disconnected:`, message.pluginMessage.client)
 
 						// Handle remote clients only when inside iframe or Figma
-						if (!(isInsideIframe || isInsideFigma)) {
-							remoteClients.update((clients) =>
-								clients.filter((clientId) => clientId !== message.pluginMessage.clientId)
-							)
-						}
+						// if (!(isInsideIframe || isInsideFigma)) {
+						pluginWindowClients.update((clients) =>
+							clients.filter((client) => client.id !== message.pluginMessage.client.id)
+						)
+						remoteClients.update((clients) =>
+							clients.filter((client) => client.id !== message.pluginMessage.client.id)
+						)
+						// }
 					}
 				}
 			} catch (error) {
@@ -262,9 +276,9 @@ export function setupWebSocket(iframeTarget = null, enableWebSocket = true): Ext
 			closeCallbacks.forEach((cb) => cb && cb())
 
 			// Handle local client disconnection (not inside iframe or Figma)
-			if (!(isInsideIframe || isInsideFigma)) {
-				localClientConnected.set(false)
-			}
+			// if (!(isInsideIframe || isInsideFigma)) {
+			localClientConnected.set(false)
+			// }
 
 			console.warn('WebSocket connection closed')
 		}

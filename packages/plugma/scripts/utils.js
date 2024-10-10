@@ -140,24 +140,90 @@ export function createConfigs(options, userFiles) {
 		plugins: [
 			dotEnvLoader(options)
 		],
+		// TODO: Make two versions of viteConfigMain one for build and one for dev
 		esbuild: {
 			banner: `
-            function resizeWrapper(width, height) {
-                console.log('Custom resize: ' + width + 'x' + height);
+            let minimizeWindow = false;
+			let pluginWindowSize = {
+				width: 300,
+				height: 400
+			}
 
-                // Call the original figma.ui.resize method if it exists
-                if (figma && figma.ui && typeof figma.ui.resize === 'function') {
-					// To avoid Vite replaceing figma.ui.resize and causing an infinite loop
-                    figma.ui['re' + 'size'](width, 100);
-                } else {
-                    console.warn('Figma UI resize method is not available.');
-                }
-            }
+// Add the event listener
+let runtimeData = ${JSON.stringify(options)};
+
+if (runtimeData.command === "preview") {
+	minimizeWindow = true
+}
+
+figma.ui.on('message', (message) => {
+    // Check if the message type is "PLUGMA_MINIMISE_WINDOW"
+    if (message.event === 'PLUGMA_MINIMISE_WINDOW') {
+        minimizeWindow = true;
+		figma.ui['re' + 'size'](pluginWindowSize.width, 40)
+    }
+	if (message.event === 'PLUGMA_MAXIMISE_WINDOW') {
+        minimizeWindow = false;
+
+		figma.ui['re' + 'size'](pluginWindowSize.width, pluginWindowSize.height + 40)
+    }
+});
+
+function customResize(width, height) {
+	pluginWindowSize = {
+		width,
+		height
+	}
+    console.log('Custom resize: ' + width + 'x' + height);
+
+    // Check if the PLUGMA_MINIMIZE_WINDOW event was triggered
+    if (minimizeWindow) {
+        height = 40;
+    }
+
+    // Call the original figma.ui.resize method if it exists
+    if (figma && figma.ui && typeof figma.ui.resize === 'function') {
+        // To avoid Vite replacing figma.ui.resize and causing an infinite loop
+        figma.ui['re' + 'size'](width, height);
+    } else {
+        console.warn('Figma UI resize method is not available.');
+    }
+}
+
+function customShowUI(htmlString, options) {
+
+	if (options && options.height) {
+		pluginWindowSize.height = options.height
+	}
+
+	if (options && options.width) {
+		pluginWindowSize.width = options.width
+	}
+
+
+    // Check if the PLUGMA_MINIMIZE_WINDOW event was triggered
+    if (minimizeWindow) {
+        // Check if the options object exists and if it has a height property
+        if (options && options.height) {
+            // Override the height property
+            options.height = 40; // Set your desired height value here
+        }
+    }
+
+    console.log('Custom show UI', options);
+
+    if (figma && figma.showUI && typeof figma.showUI === 'function') {
+        figma['show' + 'UI'](htmlString, options);
+    } else {
+        console.warn('Figma showUI method is not available.');
+    }
+}
         `
 		},
 		define: {
 			// Replace the global usage of `figma.ui.resize` with the function from globalManager
-			'figma.ui.resize': 'resizeWrapper'
+			'figma.ui.resize': 'customResize',
+			'figma.showUI': 'customShowUI'
 		},
 		build: {
 			lib: {

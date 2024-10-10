@@ -6,6 +6,7 @@ export function resizePluginWindow() {
 		for (let entry of entries) {
 			// Access the size of the entry (the window in this case)
 			const { width, height } = entry.contentRect
+			console.log('|||||resize the window', width, height)
 			parent.postMessage({
 				pluginMessage: { event: 'PLUGMA_RESIZE_WINDOW', data: { width, height: 100 } },
 				pluginId: "*"

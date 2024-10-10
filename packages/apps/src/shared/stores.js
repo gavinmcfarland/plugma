@@ -6,3 +6,4 @@ export let localClientId = writable(false);
 
 // Store to track remote clients that are connected
 export const remoteClients = writable([]);
+export const pluginWindowClients = writable([]);

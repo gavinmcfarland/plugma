@@ -5,11 +5,12 @@
 	import { monitorUrl } from '../../shared/monitorUrl'
 	import ServerStatus from '../PluginWindow/lib/ServerStatus.svelte'
 	import app from './main'
-	import { localClientConnected, remoteClients } from '../../shared/stores'
+	import { localClientConnected, remoteClients, pluginWindowClients } from '../../shared/stores'
 
 	import { Log } from '../../../../plugma/lib/logger'
 	import { setupWebSocket } from '../../shared/setupWebSocket'
 	import { resizePluginWindow } from '../../shared/resizePluginWindow'
+	import Toolbar from '../PluginWindow/lib/Toolbar.svelte'
 
 	const html = document.querySelector('html')
 
@@ -21,20 +22,18 @@
 	let isWebsocketsEnabled = window.runtimeData.websockets || false
 
 	// let ws = new WebSocket('ws://localhost:9001/ws')
-	let ws = setupWebSocket(null, window.runtimeData.websockets)
+	let ws = setupWebSocket(null, window.runtimeData.websockets, true)
 	let url = `http://localhost:${window.runtimeData.port}`
+
+	// let isWindowResized = window.runtimeData.command === 'preview'
+
+	// console.log('command', isWindowResized)
 
 	const log = new Log({
 		debug: window.runtimeData.debug,
 	})
 
 	const processedMessages = new Set()
-
-	console.log('from plugin window', window.runtimeData)
-	// @ts-ignore
-	// if (window.runtimeData.command === 'dev') {
-	// 	resizePluginWindow()
-	// }
 
 	function listenForFigmaStyles() {
 		const handleMessage = (event) => {
@@ -227,8 +226,6 @@
 		isServerActive = isActive
 	})
 
-	$: console.log('remoteClients', $remoteClients)
-
 	onMount(async () => {
 		parent.postMessage(
 			{
@@ -242,13 +239,17 @@
 
 <!-- so it only appears in browser, because don't want overlap with one in PluginWindow-->
 
+<!-- {#if isWindowResized} -->
+<Toolbar />
+<!-- {/if} -->
+
 {#if !(isInsideIframe || isInsideFigma)}
 	{#if isServerActive}
 		{#if !isWebsocketsEnabled}
 			<ServerStatus message="Websockets disababled"></ServerStatus>
 		{:else if !isWebsocketServerActive}
 			<ServerStatus message="Connecting to websocket server..."></ServerStatus>
-		{:else if !($remoteClients.length > 0)}
+		{:else if $pluginWindowClients.length < 1}
 			<ServerStatus message="Open plugin inside Figma"></ServerStatus>
 		{/if}
 	{:else}

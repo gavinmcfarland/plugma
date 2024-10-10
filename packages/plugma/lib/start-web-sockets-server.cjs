@@ -37,30 +37,38 @@ wss.on('connection', (ws, req) => {
 
 	// Send a list of all connected clients, excluding the new client
 	// const otherClients = Array.from(clients.keys()).filter(id => id !== clientId);
-	const otherClients = Array.from(clients.entries())
-		.filter(([id, client]) => id !== clientId && client.source === 'plugin-window') // Filter by both clientId and source
-		.map(([id]) => id); // Return only the IDs of the filtered clients
+	// const otherClients = Array.from(clients.entries())
+	// 	.filter(([id, client]) =>
+	// 		client.source === 'browser'
+	// 	) // Filter by clientId and source 'browser'
+	// 	.map(([id, client]) => ({ id, source: client.source }));
 
 	ws.send(JSON.stringify({
 		pluginMessage: {
 			event: 'client_list',
 			message: 'List of connected clients',
-			clients: otherClients,
+			clients: Array.from(clients.entries()).map(([id, client]) => ({ id, source: client.source })),
 			source: clientSource, // Add the source to the message
 		},
 		pluginId: "*"
 	}));
 
 	// Broadcast the new connection to all other clients
+
 	broadcastMessage(JSON.stringify({
 		pluginMessage: {
 			event: 'client_connected',
 			message: `Client ${clientId} connected`,
-			clientId,
+			client: {
+				id: clientId,
+				source: clientSource
+			},
 			source: clientSource, // Include the source in the broadcast message
 		},
 		pluginId: "*"
 	}), clientId);
+
+
 
 	// Set up initial client state
 	ws.isAlive = true;
@@ -93,7 +101,10 @@ wss.on('connection', (ws, req) => {
 			pluginMessage: {
 				event: 'client_disconnected',
 				message: `Client ${clientId} disconnected`,
-				clientId,
+				client: {
+					id: clientId,
+					source: clientSource
+				},
 				source: clientSource, // Include the source in the disconnection message
 			},
 			pluginId: "*"
