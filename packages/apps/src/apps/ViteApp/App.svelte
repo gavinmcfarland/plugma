@@ -226,6 +226,31 @@
 		isServerActive = isActive
 	})
 
+	if (window.runtimeData.command === 'preview') {
+		window.addEventListener('DOMContentLoaded', () => {
+			const viteApp = document.getElementById('app')
+			console.log('--- vite app', viteApp)
+
+			// Select the target element where you want to inject the component
+			const targetElement = document.querySelector('#target-element')
+
+			const svelteContainer = document.createElement('div')
+			svelteContainer.id = 'svelte-container'
+
+			if (viteApp) {
+				// Prepend the svelteContainer to the viteApp
+				viteApp.insertBefore(svelteContainer, viteApp.firstChild)
+
+				// Instantiate the Svelte component and attach it to the target element
+				new Toolbar({
+					target: svelteContainer,
+				})
+			} else {
+				console.error('Target element not found!')
+			}
+		})
+	}
+
 	onMount(async () => {
 		parent.postMessage(
 			{
@@ -240,7 +265,7 @@
 <!-- so it only appears in browser, because don't want overlap with one in PluginWindow-->
 
 <!-- {#if isWindowResized} -->
-<Toolbar />
+<!-- <Toolbar /> -->
 <!-- {/if} -->
 
 {#if !(isInsideIframe || isInsideFigma)}

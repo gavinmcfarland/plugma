@@ -87,22 +87,21 @@
 
 <style>
 	.Toolbar-spacer {
-		height: 34px;
-		margin-bottom: 8px;
+		height: 41px;
 	}
 
 	.Toolbar {
 		background-color: var(--figma-color-bg-brand-tertiary);
 		/* background-color: var(--figma-color-bg); */
-		position: fixed;
+		/* position: fixed; */
 		display: flex;
-		/* top: 0; */
+		/* top: 0;
 		left: 0;
-		right: 0;
-		bottom: 0;
+		right: 0; */
+		/* bottom: 0; */
 		z-index: 9999;
 		padding: 8px;
-		border-top: 1px solid var(--figma-color-border);
+		border-bottom: 1px solid var(--figma-color-border);
 	}
 
 	.Button {
