@@ -53,8 +53,7 @@ Currently, the only framework supported is `Svelte`. -->
     **Options**
 
     -   `-p`, `--port`: Specify a port number for the plugin preview.
-    -   `-m`, `--mode`: Specify the mode (development, production, test).
-    -   `-t`, `--toolbar`: Show the developer toolbar within the plugin UI.
+    -   `-m`, `--mode`: Specify a mode.
     -   `-ws`, `--websockets`: Enable websockets to preview in browser.
 
 -   ### build [options]
@@ -64,7 +63,7 @@ Currently, the only framework supported is `Svelte`. -->
     **Options**
 
     -   `-w`, `--watch`: Watch for changes and rebuild automatically.
-    -   `-m`, `--mode`: Specify the mode (development, production, test).
+    -   `-m`, `--mode`: Specify a mode.
 
 -   ### preview [options]
 
@@ -73,7 +72,7 @@ Currently, the only framework supported is `Svelte`. -->
     **Options**
 
     -   `-p`, `--port`: Specify a port number for the plugin preview.
-    -   `-m`, `--mode`: Specify the mode (development, production, test).
+    -   `-m`, `--mode`: Specify a mode.
 
 -   ### release [version] [options]
 
@@ -122,13 +121,17 @@ Depending on which framework you choose, the files might vary slightly, but the 
 
 - `package.json` Contains the name of our plugin and Figma manifest details in the `plugma.manifest` field. -->
 
-## Manifest
+## Manifest Configuration
 
 You can either place a `manifest.json` file in the root of the project or add a `plugma.manifest` field to the `package.json` file.
 
-## Configure Vite
+## Blunding Options
 
 Vite is used to bundle both the main code and the UI. To configure how this works you can can modify the `vite.config.js` file in the route of your project.
+
+## Developer Tools
+
+Plugma comes with several developer tools to make developing plugins easier. You can enable them by using keyboard shortcut <kbd>opt + cmd + J</kbd>.
 
 <!-- ```jsonc
 // package.json
