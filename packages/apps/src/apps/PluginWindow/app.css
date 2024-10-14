@@ -4,3 +4,8 @@
 	color: var(--figma-color-text);
 	font-family: 'Inter, system-ui, Helvetica, Arial, sans-serif';
 } */
+
+#PluginWindow {
+	display: flex;
+	flex-direction: column;
+}

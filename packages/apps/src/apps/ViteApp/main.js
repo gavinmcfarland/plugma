@@ -5,7 +5,7 @@ if (!appName) {
 	throw new Error("VITE_APP_NAME environment variable is not defined");
 }
 
-// import './app.css'
+import './app.css'
 import App from './App.svelte'
 
 const app = new App({

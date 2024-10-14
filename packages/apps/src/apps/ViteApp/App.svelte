@@ -5,12 +5,18 @@
 	import { monitorUrl } from '../../shared/monitorUrl'
 	import ServerStatus from '../PluginWindow/lib/ServerStatus.svelte'
 	import app from './main'
-	import { localClientConnected, remoteClients, pluginWindowClients } from '../../shared/stores'
+	import {
+		localClientConnected,
+		remoteClients,
+		pluginWindowClients,
+		isDeveloperToolsActive,
+	} from '../../shared/stores'
 
 	import { Log } from '../../../../plugma/lib/logger'
 	import { setupWebSocket } from '../../shared/setupWebSocket'
 	import { resizePluginWindow } from '../../shared/resizePluginWindow'
 	import Toolbar from '../PluginWindow/lib/Toolbar.svelte'
+	import { triggerDeveloperTools } from '../../shared/triggerDeveloperTools'
 
 	const html = document.querySelector('html')
 
@@ -210,6 +216,7 @@
 	overrideMessageEvent()
 	listenForFigmaStyles()
 	applyStoredStyles()
+	triggerDeveloperTools()
 
 	ws.open(() => {
 		isWebsocketServerActive = true
@@ -226,30 +233,37 @@
 		isServerActive = isActive
 	})
 
-	if (window.runtimeData.command === 'preview') {
-		window.addEventListener('DOMContentLoaded', () => {
-			const viteApp = document.getElementById('app')
-			console.log('--- vite app', viteApp)
+	// window.addEventListener('load', function () {
+	// 	// Check if the window is not already focused
+	// 	if (!document.hasFocus()) {
+	// 		window.focus()
+	// 	}
+	// })
 
-			// Select the target element where you want to inject the component
-			const targetElement = document.querySelector('#target-element')
+	// if (window.runtimeData.command === 'preview') {
+	// 	window.addEventListener('DOMContentLoaded', () => {
+	// 		const viteApp = document.getElementById('app')
+	// 		console.log('--- vite app', viteApp)
 
-			const svelteContainer = document.createElement('div')
-			svelteContainer.id = 'svelte-container'
+	// 		// Select the target element where you want to inject the component
+	// 		const targetElement = document.querySelector('#target-element')
 
-			if (viteApp) {
-				// Prepend the svelteContainer to the viteApp
-				viteApp.insertBefore(svelteContainer, viteApp.firstChild)
+	// 		const svelteContainer = document.createElement('div')
+	// 		svelteContainer.id = 'svelte-container'
 
-				// Instantiate the Svelte component and attach it to the target element
-				new Toolbar({
-					target: svelteContainer,
-				})
-			} else {
-				console.error('Target element not found!')
-			}
-		})
-	}
+	// 		if (viteApp) {
+	// 			// Prepend the svelteContainer to the viteApp
+	// 			viteApp.insertBefore(svelteContainer, viteApp.firstChild)
+
+	// 			// Instantiate the Svelte component and attach it to the target element
+	// 			new Toolbar({
+	// 				target: svelteContainer,
+	// 			})
+	// 		} else {
+	// 			console.error('Target element not found!')
+	// 		}
+	// 	})
+	// }
 
 	onMount(async () => {
 		parent.postMessage(
@@ -265,7 +279,9 @@
 <!-- so it only appears in browser, because don't want overlap with one in PluginWindow-->
 
 <!-- {#if isWindowResized} -->
-<!-- <Toolbar /> -->
+<!-- {#if $isDeveloperToolsActive}
+	<Toolbar />
+{/if} -->
 <!-- {/if} -->
 
 {#if !(isInsideIframe || isInsideFigma)}

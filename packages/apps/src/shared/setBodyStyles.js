@@ -5,4 +5,5 @@ export function setBodyStyles() {
 	document.body.style.color = 'var(--figma-color-text)'
 	document.body.style.fontFamily = 'Inter, system-ui, Helvetica, Arial, sans-serif'
 	document.body.style.fontSize = '16px'
+	document.body.style.display = 'flex'
 }

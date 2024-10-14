@@ -8,6 +8,9 @@
 	import { setupWebSocket } from '../../shared/setupWebSocket'
 
 	import { onMount } from 'svelte'
+	import { isDeveloperToolsActive } from '../../shared/stores'
+	import Toolbar from './lib/Toolbar.svelte'
+	import { triggerDeveloperTools } from '../../shared/triggerDeveloperTools'
 
 	let iframe
 	const html = document.querySelector('html')
@@ -97,6 +100,8 @@
 		createObserver(styleSheetElement, 'FIGMA_STYLES', () => styleSheetElement.innerHTML)
 	}
 
+	triggerDeveloperTools()
+
 	onMount(async () => {
 		// NOTE: Messaging must be setup first so that it's ready to receive messages from iframe
 		let ws = setupWebSocket(iframe, window.runtimeData.websockets)
@@ -118,6 +123,10 @@
 	})
 </script>
 
+{#if $isDeveloperToolsActive}
+	<Toolbar />
+{/if}
+
 <iframe title="" id="vite-app-host" bind:this={iframe}></iframe>
 
 <!-- needs to be in both PluginWindow and ViteApp, because if ViteApp hasn't loaded, then no way to report error-->
@@ -128,7 +137,8 @@
 <style>
 	#vite-app-host {
 		width: 100%;
-		height: 100vh;
+		/* height: 100vh; */
+		flex-grow: 1;
 		border: none;
 	}
 </style>

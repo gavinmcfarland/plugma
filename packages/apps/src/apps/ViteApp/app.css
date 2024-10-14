@@ -1,0 +1,16 @@
+.figma-dark {
+	--elevation-400-menu-panel: 0px 10px 16px rgba(0, 0, 0, 0.35), 0px 2px 5px rgba(0, 0, 0, 0.35),
+		inset 0px 0.5px 0px rgba(255, 255, 255, 0.08), inset 0px 0px 0.5px rgba(255, 255, 255, 0.35);
+}
+.figma-light {
+	--elevation-400-menu-panel: 0px 0px 0.5px rgba(0, 0, 0, 0.12), 0px 10px 16px rgba(0, 0, 0, 0.12),
+		0px 2px 5px rgba(0, 0, 0, 0.15);
+}
+:where(html) {
+	--radius-medium: 0.3125rem;
+	--radius-large: 0.8125rem;
+	--ramp-grey-900: #1e1e1e;
+	--ramp-grey-700: #383838;
+	--color-bg-menu: var(--ramp-grey-900);
+	--color-border-menu: var(--ramp-grey-700);
+}

@@ -31,6 +31,12 @@ export default defineConfig(({ mode }) => {
 
 		build: {
 			outDir: `dist/${mode}`,
+			minify: 'terser', // Switches to terser for minification
+			terserOptions: {
+				format: {
+					comments: false, // Removes all comments
+				},
+			},
 		},
 		// build: {
 		// 	cssCodeSplit: true,

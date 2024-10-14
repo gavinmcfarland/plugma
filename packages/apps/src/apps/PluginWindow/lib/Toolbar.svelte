@@ -1,5 +1,12 @@
 <script lang="ts">
+	import { onMount } from 'svelte'
 	import { remoteClients } from '../../../shared/stores'
+	import Button from './Button.svelte'
+	import Dropdown from './Dropdown.svelte'
+	import DropdownDivider from './DropdownDivider.svelte'
+	import DropdownItem from './DropdownItem.svelte'
+	import Icon from './Icon.svelte'
+	import Select from './Select.svelte'
 	export let options = null
 
 	let isWindowMinimised
@@ -8,35 +15,70 @@
 		isWindowMinimised = true
 	}
 
-	function handleWindowSize(event) {
-		console.log('button clicked')
+	// const dropdownWindow = window.open('', '', 'width=200,height=300')
+	// console.log(dropdownWindow)
+	// dropdownWindow.document.write('<html><body>Dropdown content here...</body></html>')
 
-		if (isWindowMinimised) {
-			parent.postMessage(
-				{
-					pluginMessage: { event: 'PLUGMA_MAXIMISE_WINDOW' },
-					pluginId: '*',
-				},
-				'*',
-			)
-		} else {
-			parent.postMessage(
-				{
-					pluginMessage: { event: 'PLUGMA_MINIMISE_WINDOW' },
-					pluginId: '*',
-				},
-				'*',
-			)
+	let selectedFruit = ''
+	let menuItems = [
+		{ value: 'MINIMIZE-WINDOW', label: 'Minimise window' },
+		// { isDivider: true }, // Divider here
+		{ value: 'DELETE-CLIENT-STORAGE', label: 'Delete client storage' },
+		{ value: 'DELETE-ROOT-PLUGIN-DATA', label: 'Delete root plugin data' },
+		// { isDivider: true }, // Divider here
+		{ value: 'HIDE-TOOLBAR', label: 'Hide toolbar' },
+	]
+
+	// This function updates the window action (maximize/minimize) in the menu items
+	function updateWindowAction() {
+		const maximizeItem = { value: 'MAXIMIZE-WINDOW', label: 'Maximize window' }
+		const minimizeItem = { value: 'MINIMIZE-WINDOW', label: 'Minimize window' }
+
+		// Remove any existing window actions first
+		menuItems = menuItems.filter((item) => item.value !== 'MAXIMIZE-WINDOW' && item.value !== 'MINIMIZE-WINDOW')
+
+		// Add the correct window action at a fixed position (e.g., index 2)
+		const windowAction = isWindowMinimised ? maximizeItem : minimizeItem
+		menuItems.splice(0, 0, windowAction) // Insert at index 2
+	}
+
+	function handleSelectChange(event) {
+		const selectedValue = event.target.value
+
+		// Handle window maximize/minimize logic based on the selected option
+		if (selectedValue === 'MAXIMIZE-WINDOW') {
+			isWindowMinimised = false
+		} else if (selectedValue === 'MINIMIZE-WINDOW') {
+			isWindowMinimised = true
 		}
 
-		isWindowMinimised = !isWindowMinimised
+		// Update the menu items after the change
+		updateWindowAction()
 	}
+
+	function openWindow() {
+		// Only if inside iframe
+		if (window.parent) {
+			window.open(`http://localhost:${window.runtimeData.port}`)
+		}
+	}
+
+	onMount(() => {
+		// updateWindowAction()
+	})
 </script>
 
 <!-- <div class="Toolbar-spacer"></div> -->
 <div class="Toolbar">
-	<button
-		class="Button"
+	<Button on:click={openWindow}>
+		{#if $remoteClients.length > 0}
+			<Icon svg="socket-connected" />
+		{:else}
+			<Icon svg="socket-disconnected" />
+		{/if}
+	</Button>
+
+	<!-- <Button
 		on:click={(event) => {
 			handleWindowSize(event)
 		}}
@@ -70,24 +112,58 @@
 				<rect x="5.5" y="5.5" width="13" height="13" rx="1" stroke="currentColor" stroke-linecap="round" />
 			</svg>
 		{/if}
-	</button>
+	</Button> -->
 
 	<div class="spacer"></div>
 
-	{#if $remoteClients.length > 0}
-		<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<rect x="8" y="10" width="8" height="4" rx="2" fill="#77C515" stroke="currentColor" />
-		</svg>
-	{:else}
-		<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<rect x="8" y="10" width="8" height="4" rx="2" stroke="currentColor" />
-		</svg>
-	{/if}
+	<div class="group">
+		<Select
+			label="Choose an option"
+			options={menuItems}
+			bind:selected={selectedFruit}
+			on:change={handleSelectChange}
+		/>
+
+		<!-- <Dropdown>
+
+			<svelte:fragment slot="trigger" let:isOpen>
+
+				<Button active={isOpen}>
+					<Icon svg="horizontal-ellipsis" />
+				</Button>
+			</svelte:fragment>
+			<div slot="content">
+				{#if isWindowMinimised}
+					<DropdownItem
+						on:click={(event) => {
+							handleWindowSize(event)
+						}}>Maximise plugin</DropdownItem
+					>
+				{:else}
+					<DropdownItem
+						on:click={(event) => {
+							handleWindowSize(event)
+						}}>Minimise plugin</DropdownItem
+					>
+				{/if}
+
+				<DropdownDivider />
+
+				<DropdownItem>Delete client storage</DropdownItem>
+				<DropdownItem>Delete plugin data</DropdownItem>
+
+				<DropdownDivider />
+
+				<DropdownItem>Hide toolbar</DropdownItem>
+			</div>
+		</Dropdown> -->
+	</div>
 </div>
 
 <style>
 	.Toolbar-spacer {
-		height: 41px;
+		padding-bottom: 1px;
+		margin-bottom: 40px;
 	}
 
 	.Toolbar {
@@ -104,43 +180,16 @@
 		border-bottom: 1px solid var(--figma-color-border);
 	}
 
-	.Button {
-		flex-grow: 0;
-		position: relative;
-		width: 24px;
-		height: 24px;
-		border-radius: 4px;
-		border: none;
-		padding: 0;
-		background-color: transparent;
-		color: inherit;
-	}
-
 	svg {
 		flex-grow: 0;
 	}
 
-	/* .Button:hover {
-		background-color: var(--figma-color-bg-secondary);
-	} */
-
-	.Button:hover::after {
-		display: block;
-		content: '';
-		background-color: var(--figma-color-bg-inverse);
-		opacity: 0.08;
-		width: 100%;
-		height: 100%;
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		z-index: 1;
-		border-radius: 4px;
-	}
-
 	.spacer {
 		flex-grow: 1;
+	}
+
+	.group {
+		display: flex;
+		gap: 4px;
 	}
 </style>

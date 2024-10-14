@@ -111,7 +111,17 @@ export async function runScript(command, options) {
 		const userViteConfig = await loadConfig('vite.config.js');
 		// FIXME: Why won't userViteCofig run at this stage? Only works with vite.config.js
 		if (command === 'dev' || command === "build" && options.watch) {
-			let merged = mergeConfig({ build: { watch: {} } }, config.vite.build)
+			let merged = mergeConfig({
+				build: {
+					watch: {},
+					minify: 'terser', // Switches to terser for minification
+					terserOptions: {
+						format: {
+							comments: false, // Removes all comments
+						},
+					},
+				},
+			}, config.vite.build)
 			await viteBuild(mergeConfig(merged));
 		} else {
 			await viteBuild(mergeConfig(config.vite.build));
@@ -161,7 +171,7 @@ export async function runScript(command, options) {
 				try {
 					if (command === 'dev' || command === "build" && options.watch) {
 						// We disable watching env on main as it doesn't do anything anyway
-						let merged = mergeConfig({ minfiy: true, build: { watch: {} } }, config.viteMain)
+						let merged = mergeConfig({ minfiy: false, build: { watch: {} } }, config.viteMain)
 						await viteBuild(mergeConfig(merged, userViteConfig));
 					} else {
 						let merged = mergeConfig({ minfiy: true }, config.viteMain)
