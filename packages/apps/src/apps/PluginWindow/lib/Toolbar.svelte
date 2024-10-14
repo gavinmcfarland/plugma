@@ -167,7 +167,7 @@
 	}
 
 	.Toolbar {
-		background-color: var(--figma-color-bg-brand-tertiary);
+		/* background-color: var(--figma-color-bg-brand-tertiary); */
 		/* background-color: var(--figma-color-bg); */
 		/* position: fixed; */
 		display: flex;

@@ -32,14 +32,9 @@
 	{/if}
 
 	{#if svg === 'socket-connected'}
-		<svg
-			style:width={sizePx}
-			style:height={sizePx}
-			viewBox="0 0 24 24"
-			fill="none"
-			xmlns="http://www.w3.org/2000/svg"
-		>
-			<rect x="8" y="10" width="8" height="4" rx="2" fill="#77C515" stroke={color} fill-opacity={opacity} />
+		<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<rect x="7.5" y="9.5" width="9" height="5" rx="2.5" fill="#77C515" />
+			<!-- <rect x="8" y="10" width="8" height="4" rx="2" stroke="black" stroke-opacity="0.2" /> -->
 		</svg>
 	{/if}
 

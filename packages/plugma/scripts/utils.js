@@ -135,8 +135,37 @@ export function createConfigs(options, userFiles) {
 
 	const injectedCode = bannerCode.replace('let runtimeData', `let runtimeData = ${JSON.stringify(options)};`);
 
+	const viteConfigMainBuild = {
+		// configFile: false,
+		mode: options.mode,
+		define: {
+			'process.env.NODE_ENV': JSON.stringify(options.mode),
+		},
+		plugins: [
+			dotEnvLoader(options)
+		],
+		build: {
+			lib: {
+				entry: tempFilePath, // Entry file for backend code
+				formats: ['cjs'],    // Output format, CommonJS for Node.js
+			},
+			rollupOptions: {
+				output: {
+					dir: 'dist',               // Output directory
+					entryFileNames: 'main.js', // Name of the output file
+					inlineDynamicImports: true, // Inline all imports into one file
+				},
+			},
+			resolve: {
+				extensions: ['.ts', '.js'],  // Resolve TypeScript and JavaScript files
+			},
+			target: 'chrome58',
+			sourcemap: false,  // Set to true if you want source maps
+			emptyOutDir: false,
+		},
+	}
 
-	const viteConfigMain = {
+	const viteConfigMainDev = {
 		// configFile: false,
 		mode: options.mode,
 		define: {
@@ -192,7 +221,10 @@ export function createConfigs(options, userFiles) {
 	// Return both configurations in a config object
 	return {
 		vite: viteConfig,
-		viteMain: viteConfigMain,
+		viteMain: {
+			dev: viteConfigMainDev,
+			build: viteConfigMainBuild
+		},
 		esbuild: esbuildConfig,
 	};
 }
