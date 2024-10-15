@@ -10,7 +10,7 @@
 	function handleChange(event) {
 		selected = event.target.value
 
-		if (selected === 'MINIMIZE-WINDOW') {
+		if (selected === 'MINIMIZE_WINDOW') {
 			parent.postMessage(
 				{
 					pluginMessage: { event: 'PLUGMA_MINIMISE_WINDOW', toolbarHeight: 40 },
@@ -20,7 +20,7 @@
 			)
 		}
 
-		if (selected === 'MAXIMIZE-WINDOW') {
+		if (selected === 'MAXIMIZE_WINDOW') {
 			parent.postMessage(
 				{
 					pluginMessage: { event: 'PLUGMA_MAXIMISE_WINDOW', toolbarHeight: 40 },
@@ -30,10 +30,10 @@
 			)
 		}
 
-		if (selected === 'DELETE-CLIENT-STORAGE') {
+		if (selected === 'DELETE_CLIENT_STORAGE') {
 			parent.postMessage(
 				{
-					pluginMessage: { event: 'PLUGMA-DELETE-CLIENT-STORAGE' },
+					pluginMessage: { event: 'PLUGMA_DELETE_CLIENT_STORAGE' },
 					pluginId: '*',
 				},
 				'*',
@@ -42,10 +42,10 @@
 			selected = 'select-an-option'
 		}
 
-		if (selected === 'DELETE-ROOT-PLUGIN-DATA') {
+		if (selected === 'DELETE_ROOT_PLUGIN_DATA') {
 			parent.postMessage(
 				{
-					pluginMessage: { event: 'PLUGMA-DELETE-ROOT-PLUGIN-DATA' },
+					pluginMessage: { event: 'PLUGMA_DELETE_ROOT_PLUGIN_DATA' },
 					pluginId: '*',
 				},
 				'*',
@@ -64,7 +64,7 @@
 			)
 			// parent.postMessage(
 			// 	{
-			// 		pluginMessage: { event: 'PLUGMA-HIDE-TOOLBAR' },
+			// 		pluginMessage: { event: 'PLUGMA_HIDE_TOOLBAR' },
 			// 		pluginId: '*',
 			// 	},
 			// 	'*',

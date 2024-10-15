@@ -7,7 +7,6 @@
 	import DropdownItem from './DropdownItem.svelte'
 	import Icon from './Icon.svelte'
 	import Select from './Select.svelte'
-	export let options = null
 
 	let isWindowMinimised
 
@@ -21,21 +20,21 @@
 
 	let selectedFruit = ''
 	let menuItems = [
-		{ value: 'MINIMIZE-WINDOW', label: 'Minimise window' },
+		{ value: 'MINIMIZE_WINDOW', label: 'Minimise window' },
 		// { isDivider: true }, // Divider here
-		{ value: 'DELETE-CLIENT-STORAGE', label: 'Delete client storage' },
-		{ value: 'DELETE-ROOT-PLUGIN-DATA', label: 'Delete root plugin data' },
+		{ value: 'DELETE_CLIENT_STORAGE', label: 'Delete client storage' },
+		{ value: 'DELETE_ROOT_PLUGIN_DATA', label: 'Delete root plugin data' },
 		// { isDivider: true }, // Divider here
-		{ value: 'HIDE-TOOLBAR', label: 'Hide toolbar' },
+		{ value: 'HIDE_TOOLBAR', label: 'Hide toolbar' },
 	]
 
 	// This function updates the window action (maximize/minimize) in the menu items
 	function updateWindowAction() {
-		const maximizeItem = { value: 'MAXIMIZE-WINDOW', label: 'Maximize window' }
-		const minimizeItem = { value: 'MINIMIZE-WINDOW', label: 'Minimize window' }
+		const maximizeItem = { value: 'MAXIMIZE_WINDOW', label: 'Maximize window' }
+		const minimizeItem = { value: 'MINIMIZE_WINDOW', label: 'Minimize window' }
 
 		// Remove any existing window actions first
-		menuItems = menuItems.filter((item) => item.value !== 'MAXIMIZE-WINDOW' && item.value !== 'MINIMIZE-WINDOW')
+		menuItems = menuItems.filter((item) => item.value !== 'MAXIMIZE_WINDOW' && item.value !== 'MINIMIZE_WINDOW')
 
 		// Add the correct window action at a fixed position (e.g., index 2)
 		const windowAction = isWindowMinimised ? maximizeItem : minimizeItem
@@ -46,9 +45,9 @@
 		const selectedValue = event.target.value
 
 		// Handle window maximize/minimize logic based on the selected option
-		if (selectedValue === 'MAXIMIZE-WINDOW') {
+		if (selectedValue === 'MAXIMIZE_WINDOW') {
 			isWindowMinimised = false
-		} else if (selectedValue === 'MINIMIZE-WINDOW') {
+		} else if (selectedValue === 'MINIMIZE_WINDOW') {
 			isWindowMinimised = true
 		}
 

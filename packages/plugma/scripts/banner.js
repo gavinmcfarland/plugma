@@ -33,7 +33,7 @@ figma.ui.on('message', async (message) => {
 		figma.ui['re' + 'size'](plugmaPluginWindowSize.width, plugmaPluginWindowSize.height)
 	}
 
-	if (message.event === "PLUGMA-DELETE-ROOT-PLUGIN-DATA") {
+	if (message.event === "PLUGMA_DELETE_ROOT_PLUGIN_DATA") {
 		let pluginDataKeys = figma.root.getPluginDataKeys();
 		for (let i = 0; i < pluginDataKeys.length; i++) {
 			let key = pluginDataKeys[i];
@@ -43,7 +43,7 @@ figma.ui.on('message', async (message) => {
 		figma.notify("Root pluginData deleted");
 	}
 
-	if (message.event === "PLUGMA-DELETE-CLIENT-STORAGE") {
+	if (message.event === "PLUGMA_DELETE_CLIENT_STORAGE") {
 		let clientStorageKeys = await figma.clientStorage.keysAsync();
 		for (let i = 0; i < clientStorageKeys.length; i++) {
 			let key = clientStorageKeys[i];
@@ -61,11 +61,11 @@ function customResize(width, height) {
 		width,
 		height
 	}
-	console.log('Custom resize: ' + width + 'x' + height);
 
 	// Check if the PLUGMA_MINIMIZE_WINDOW event was triggered
 	if (minimizeWindow) {
 		height = 40;
+		width = 200
 	}
 
 	// Call the original figma.ui.resize method if it exists
@@ -90,14 +90,16 @@ function customShowUI(htmlString, options) {
 
 	// Check if the PLUGMA_MINIMIZE_WINDOW event was triggered
 	if (minimizeWindow) {
+
+		options = options || {}
+
 		// Check if the options object exists and if it has a height property
 		if (options && options.height) {
 			// Override the height property
-			options.height = 40; // Set your desired height value here
+			options.height = 40;
+			options.width = 200;
 		}
 	}
-
-	console.log('Custom show UI', options);
 
 	if (figma && figma.showUI && typeof figma.showUI === 'function') {
 		figma['show' + 'UI'](htmlString, options);

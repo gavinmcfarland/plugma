@@ -28,6 +28,7 @@
 		ws.on((event) => {
 			if (event.origin === 'https://www.figma.com') {
 				// forward to iframe and browser
+
 				ws.post(event.data, ['iframe', 'ws'])
 			} else {
 				// forward to main

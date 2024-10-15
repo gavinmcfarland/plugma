@@ -47,7 +47,7 @@ export function setupWebSocket(
 		},
 		open: (callback) => {},
 		close: (callback) => {
-			console.warn('WebSocket is disabled, no connection to close.')
+			// console.warn('WebSocket is disabled, no connection to close.')
 			if (callback) {
 				callback()
 			}
@@ -118,8 +118,6 @@ export function setupWebSocket(
 	}
 
 	let source = ''
-
-	console.log('is inside figma', isInsideIframe, isInsideFigma)
 
 	if (registerSource) {
 		if (isInsideIframe || isInsideFigma) {
@@ -236,7 +234,7 @@ export function setupWebSocket(
 
 					// Handle remote client connection and disconnection events
 					if (message.pluginMessage.event === 'client_connected') {
-						console.log(`Client connected:`, message.pluginMessage.client)
+						// console.log(`Client connected:`, message.pluginMessage.client)
 
 						// Handle remote clients only when inside iframe or Figma
 						// if (!(isInsideIframe || isInsideFigma)) {
@@ -253,7 +251,7 @@ export function setupWebSocket(
 						// 	}
 						// }
 					} else if (message.pluginMessage.event === 'client_disconnected') {
-						console.log(`Client disconnected:`, message.pluginMessage.client)
+						// console.log(`Client disconnected:`, message.pluginMessage.client)
 
 						// Handle remote clients only when inside iframe or Figma
 						// if (!(isInsideIframe || isInsideFigma)) {

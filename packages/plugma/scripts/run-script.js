@@ -110,7 +110,7 @@ export async function runScript(command, options) {
 	task('build-ui', async ({ command, config, options }) => {
 		const userViteConfig = await loadConfig('vite.config.js');
 		// FIXME: Why won't userViteCofig run at this stage? Only works with vite.config.js
-		if (command === 'dev' || command === "build" && options.watch) {
+		if (command === 'dev' || command === 'preview' || command === "build" && options.watch) {
 			let merged = mergeConfig({
 				build: {
 					watch: {},
@@ -135,7 +135,7 @@ export async function runScript(command, options) {
 				config.esbuild.dev = Object.assign(config.esbuild.dev, userEsConfig)
 				config.esbuild.build = Object.assign(config.esbuild.build, userEsConfig)
 			}
-			if (command === 'dev' || command === 'preview') {
+			if (command === 'dev' || command === 'preview' || command === "build" && options.watch) {
 				const ctx = await esbuild.context(config.esbuild.dev);
 				await ctx.watch();
 			} else {
@@ -169,7 +169,7 @@ export async function runScript(command, options) {
 				isBuilding = true; // Set the flag indicating a build is in progress
 
 				try {
-					if (command === 'dev' || command === "build" && options.watch) {
+					if (command === 'dev' || command === 'preview' || command === "build" && options.watch) {
 						// We disable watching env on main as it doesn't do anything anyway
 						let merged = mergeConfig({ build: { watch: {}, minfiy: false } }, config.viteMain.dev)
 						let mergedAgain = mergeConfig(merged, userViteConfig)
@@ -204,7 +204,7 @@ export async function runScript(command, options) {
 
 
 
-			if (command === 'dev' || command === "build" && options.watch) {
+			if (command === 'dev' || command === 'preview' || command === "build" && options.watch) {
 				// Start watching for changes in environment files
 				watchEnvFiles();
 			}

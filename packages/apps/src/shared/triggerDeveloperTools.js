@@ -11,11 +11,9 @@ export function triggerDeveloperTools() {
 		let message = event.data?.pluginMessage
 
 		if (message.event === "PLUGMA_HIDE_TOOLBAR") {
-			console.log("hide toolbar")
 			isDeveloperToolsActive.set(false)
 		}
 		if (message.event === "PLUGMA_SHOW_TOOLBAR") {
-			console.log("show toolbar")
 			isDeveloperToolsActive.set(true)
 		}
 	})
@@ -35,7 +33,6 @@ export function triggerDeveloperTools() {
 			event.preventDefault() // Prevent the default action if needed
 			// Add your custom functionality here
 			let devToolsActive = get(isDeveloperToolsActive)
-			console.log("developer tools toggled", devToolsActive)
 			isDeveloperToolsActive.set(!devToolsActive)
 
 			if (!devToolsActive) {

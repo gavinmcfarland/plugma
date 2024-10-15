@@ -9,7 +9,7 @@
 # Plugma
 
 > [!WARNING]
-> The next release is still in progress, but comes with a lot of improved features including better web socket handling for browser preview and ability to configure the main thread using `esbuild.config.js`.
+> The next release is still in progress, but comes with a lot of improved features including better web socket handling for browser preview and ability to configure the main thread using `vite.config.js`.
 
 Take Figma plugin development to the next level with browser previews, faster debuging and minimal boilerplate.
 
