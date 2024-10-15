@@ -9,32 +9,23 @@
 # Plugma
 
 > [!WARNING]
-> Plugma is currently in alpha. Your feedback is greatly appreciated!
+> The next release is still in progress, but comes with a lot of improved features including better web socket handling for browser preview and ability to configure the main thread using `vite.config.js`.
 
-Plugma simplifies Figma plugin development.
+Take Figma plugin development to the next level with browser previews, faster debuging and minimal boilerplate.
 
 ## Start from a template
 
 Create a plugin from a template using the following:
 
 ```shell
+# For the current stable release
 npm create plugma@latest
+
+# For the next release in progress
+npm create plugma@next
 ```
-
-#### Requirements
-
--   [Node.js](https://nodejs.org/en)
--   [Figma desktop app](https://www.figma.com/downloads/)
 
 The frameworks currently supported are `React`, `Svelte`, `Vue` and vanilla `JavaScript`.
-
-## Install
-
-To install the CLI globally.
-
-```
-npm install plugma -g
-```
 
 <!-- ## Create plugin from template
 
@@ -48,7 +39,7 @@ Currently, the only framework supported is `Svelte`. -->
 
 ## Commands
 
-_To use these with the pre-made template just pass the arguments with `--`, for example `node run dev -- -p`._
+_When using these with npm run you need to pass the arguments with a double dash `--`, for example `npm run dev -- -p`._
 
 <!-- ### `plugma init`
 
@@ -56,24 +47,46 @@ Follow the on-screen instructions to create a plugin from a template.
 
 Currently, the only framework supported is `Svelte`. -->
 
-### `plugma dev`
+-   ### dev [options]
 
-Start a server to develop your plugin.
+    Start a server to develop your plugin.
 
-#### Options
+    **Options**
 
-<!-- - `--websockets=off`, `-ws=off`: Turn off websockets. -->
+    -   `-p`, `--port`: Specify a port number for the plugin preview.
+    -   `-m`, `--mode`: Specify a mode.
+    -   `-ws`, `--websockets`: Enable websockets to preview in browser.
 
--   `--port`, `-p`: Specify a port number for the plugin preview.
--   `--toolbar`, `-t`: Show the developer toolbar within the plugin UI.
+-   ### build [options]
 
-### `plugma build`
+    Create a build before publishing.
 
-Create a build ready for publishing.
+    **Options**
 
-#### Options
+    -   `-w`, `--watch`: Watch for changes and rebuild automatically.
+    -   `-m`, `--mode`: Specify a mode.
 
--   `--watch`, `-w`: Watch for changes and rebuild automatically.
+-   ### preview [options]
+
+    Preview the plugin in a browser preview.
+
+    **Options**
+
+    -   `-p`, `--port`: Specify a port number for the plugin preview.
+    -   `-m`, `--mode`: Specify a mode.
+
+-   ### release [version] [options]
+
+    Build the plugin and release to GitHub.
+
+    **Version**
+
+    -   `alpha`, `beta`, `stable` or an integer (optional)
+
+    **Options**
+
+    -   `-t`, `--title`: Provide a custom title
+    -   `-n`, `--notes`: Provide release notes.
 
 <!-- ## Folder structure
 
@@ -109,9 +122,17 @@ Depending on which framework you choose, the files might vary slightly, but the 
 
 - `package.json` Contains the name of our plugin and Figma manifest details in the `plugma.manifest` field. -->
 
-## Manifest
+## Manifest Configuration
 
 You can either place a `manifest.json` file in the root of the project or add a `plugma.manifest` field to the `package.json` file.
+
+## Blunding Options
+
+Vite is used to bundle both the main code and the UI. To configure how this works you can can modify the `vite.config.js` file in the route of your project.
+
+## Developer Tools
+
+Plugma comes with several developer tools to make developing plugins easier. You can enable them by using keyboard shortcut <kbd>opt + cmd + J</kbd>.
 
 <!-- ```jsonc
 // package.json
@@ -126,6 +147,14 @@ You can either place a `manifest.json` file in the root of the project or add a 
   }
 }
 ``` -->
+
+## Install
+
+To install the CLI globally.
+
+```
+npm install plugma -g
+```
 
 ## Troubleshooting
 
@@ -155,6 +184,11 @@ parent.postmessage({
 ## How does it work?
 
 Plugma uses Vite to bundle Figma plugins and is configured to inline all styles and scripts into one file. It uses a local server for development, that passes messages from Figma's main thread to the local server using web sockets.
+
+## Requirements
+
+-   [Node.js](https://nodejs.org/en)
+-   [Figma desktop app](https://www.figma.com/downloads/)
 
 ## Acknowledgments
 
