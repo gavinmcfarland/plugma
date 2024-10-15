@@ -102,6 +102,7 @@ export function createConfigs(options, userFiles) {
 	const viteConfig = {
 
 		dev: {
+			// publicDir: path.resolve(`${__dirname}/../ public`),
 			// configFile: false,
 			mode: options.mode,
 			define: { 'process.env.NODE_ENV': JSON.stringify(options.mode) },
@@ -165,6 +166,7 @@ export function createConfigs(options, userFiles) {
 		},
 	}
 
+
 	const viteConfigMainDev = {
 		// configFile: false,
 		mode: options.mode,
@@ -208,7 +210,7 @@ export function createConfigs(options, userFiles) {
 	const esbuildConfig = {
 		dev: {
 			...commonEsbuildConfig,
-			inject: [resolve(`${__dirname}/../lib/global-shim.js`)],
+			inject: [resolve(`${__dirname} /../ lib / global - shim.js`)],
 			define: {
 				'process.env.NODE_ENV': JSON.stringify(options.mode),
 				process: JSON.stringify({}),
@@ -248,16 +250,16 @@ function notifyOnRebuild() {
 function writeTempFile(fileName, userFiles) {
 	const tempFilePath = join(os.tmpdir(), fileName);
 	const modifiedContent = `import main from "${CURR_DIR}/${userFiles.manifest.main}";
-	import { mainListeners } from "${CURR_DIR}/node_modules/plugma/lib/mainListeners.js";
-	main();
+		import { mainListeners } from "${CURR_DIR}/node_modules/plugma/lib/mainListeners.js";
+		main();
 	mainListeners();`;
 	fs.writeFileSync(tempFilePath, modifiedContent);
 	return tempFilePath;
 }
 
 export async function writeIndexFile() {
-	const indexTemplatePath = `${__dirname}/../templates/index.html`;
-	const newIndexPath = `${__dirname}/../tmp/index.html`;
+	const indexTemplatePath = `${__dirname}/../templates / index.html`;
+	const newIndexPath = `${__dirname} /../tmp / index.html`;
 	const contents = await fs.promises.readFile(indexTemplatePath, 'utf8');
 	const userPkg = await readJson(resolve(`${CURR_DIR}/package.json`));
 	const manifest = await readJson(resolve('./manifest.json')) || userPkg.plugma.manifest;

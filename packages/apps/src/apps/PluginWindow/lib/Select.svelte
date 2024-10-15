@@ -117,7 +117,7 @@
 		background-color: transparent;
 		border-radius: 5px;
 		color: #333;
-		cursor: pointer;
+		/* cursor: pointer; */
 		width: 24px;
 		height: 24px;
 		margin: 0;

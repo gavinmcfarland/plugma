@@ -46,7 +46,7 @@
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
 		>
-			<rect x="8" y="10" width="8" height="4" rx="2" stroke={color} fill-opacity={opacity} />
+			<rect x="8" y="10" width="8" height="4" rx="2" stroke={color} stroke-opacity="0.4" fill-opacity={opacity} />
 		</svg>
 	{/if}
 </div>
