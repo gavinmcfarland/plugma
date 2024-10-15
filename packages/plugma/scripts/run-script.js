@@ -174,7 +174,6 @@ export async function runScript(command, options) {
 						let merged = mergeConfig({ build: { watch: {}, minfiy: false } }, config.viteMain.dev)
 						let mergedAgain = mergeConfig(merged, userViteConfig)
 
-						console.log(mergedAgain)
 						await viteBuild(mergedAgain);
 					} else {
 						let merged = mergeConfig({ build: { minfiy: true } }, config.viteMain.build)

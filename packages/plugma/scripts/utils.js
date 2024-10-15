@@ -261,8 +261,6 @@ function writeTempFile(fileName, userFiles, options) {
 
 	fs.writeFileSync(tempFilePath, modifiedContent);
 
-	console.log(modifiedContent)
-
 	return tempFilePath;
 }
 

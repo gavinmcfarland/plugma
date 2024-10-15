@@ -15,7 +15,7 @@ figma.ui.on('message', async (message) => {
 	// Check if the message type is "PLUGMA_MINIMISE_WINDOW"
 	if (message.event === 'PLUGMA_MINIMISE_WINDOW') {
 		minimizeWindow = true;
-		figma.ui['re' + 'size'](plugmaPluginWindowSize.width, message.toolbarHeight)
+		figma.ui['re' + 'size'](200, message.toolbarHeight)
 	}
 	if (message.event === 'PLUGMA_MAXIMISE_WINDOW') {
 		minimizeWindow = false;

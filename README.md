@@ -19,7 +19,8 @@ Create a plugin from a template using the following:
 
 ```shell
 # For the current stable release
-npm create plugma@lastest
+npm create plugma@latest
+
 # For the next release in progress
 npm create plugma@next
 ```
