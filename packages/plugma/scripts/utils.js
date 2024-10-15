@@ -12,6 +12,7 @@ import os from 'os';
 import chalk from 'chalk';
 import { fileURLToPath } from 'url';
 import { svelte } from "@sveltejs/vite-plugin-svelte";
+import vitePluginInsertCustomFunctions from '../lib/vite-plugins/vite-plugin-insert-custom-functions.js';
 
 
 const CURR_DIR = process.cwd();
@@ -80,7 +81,7 @@ export function createConfigs(options, userFiles) {
 
 	];
 
-	const tempFilePath = writeTempFile(`temp_${Date.now()}.js`, userFiles);
+	const tempFilePath = writeTempFile(`temp_${Date.now()}.js`, userFiles, options);
 
 	const commonEsbuildConfig = {
 		entryPoints: [tempFilePath],
@@ -174,12 +175,15 @@ export function createConfigs(options, userFiles) {
 			'process.env.NODE_ENV': JSON.stringify(options.mode),
 		},
 		plugins: [
-			dotEnvLoader(options)
+			dotEnvLoader(options),
+			vitePluginInsertCustomFunctions({
+				codeToPrepend: injectedCode
+			})
 		],
 		// TODO: Make two versions of viteConfigMain one for build and one for dev
-		esbuild: {
-			banner: injectedCode
-		},
+		// esbuild: {
+		// 	banner: injectedCode,
+		// },
 		define: {
 			// Replace the global usage of `figma.ui.resize` with the function from globalManager
 			'figma.ui.resize': 'customResize',
@@ -247,13 +251,18 @@ function notifyOnRebuild() {
 	};
 }
 
-function writeTempFile(fileName, userFiles) {
+function writeTempFile(fileName, userFiles, options) {
 	const tempFilePath = join(os.tmpdir(), fileName);
-	const modifiedContent = `import main from "${CURR_DIR}/${userFiles.manifest.main}";
-		import { mainListeners } from "${CURR_DIR}/node_modules/plugma/lib/mainListeners.js";
-		main();
-	mainListeners();`;
+	const bannerCode = fs.readFileSync(`${__dirname}/banner.js`, 'utf8')
+	const injectedCode = bannerCode.replace('let runtimeData', `let runtimeData = ${JSON.stringify(options)};`);
+	const modifiedContent = `import plugmaMain from "${CURR_DIR}/${userFiles.manifest.main}";
+		plugmaMain();`;
+
+
 	fs.writeFileSync(tempFilePath, modifiedContent);
+
+	console.log(modifiedContent)
+
 	return tempFilePath;
 }
 

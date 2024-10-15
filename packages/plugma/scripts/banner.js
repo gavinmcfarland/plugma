@@ -1,5 +1,5 @@
 let minimizeWindow = false;
-let pluginWindowSize = {
+let plugmaPluginWindowSize = {
 	width: 300,
 	height: 400
 }
@@ -15,22 +15,22 @@ figma.ui.on('message', async (message) => {
 	// Check if the message type is "PLUGMA_MINIMISE_WINDOW"
 	if (message.event === 'PLUGMA_MINIMISE_WINDOW') {
 		minimizeWindow = true;
-		figma.ui['re' + 'size'](pluginWindowSize.width, message.toolbarHeight)
+		figma.ui['re' + 'size'](plugmaPluginWindowSize.width, message.toolbarHeight)
 	}
 	if (message.event === 'PLUGMA_MAXIMISE_WINDOW') {
 		minimizeWindow = false;
 
-		figma.ui['re' + 'size'](pluginWindowSize.width, pluginWindowSize.height + message.toolbarHeight)
+		figma.ui['re' + 'size'](plugmaPluginWindowSize.width, plugmaPluginWindowSize.height + message.toolbarHeight)
 	}
 	if (message.event === 'PLUGMA_INCREASE_WINDOW_HEIGHT') {
 		minimizeWindow = false;
 
-		figma.ui['re' + 'size'](pluginWindowSize.width, pluginWindowSize.height + message.toolbarHeight)
+		figma.ui['re' + 'size'](plugmaPluginWindowSize.width, plugmaPluginWindowSize.height + message.toolbarHeight)
 	}
 	if (message.event === 'PLUGMA_DECREASE_WINDOW_HEIGHT') {
 		minimizeWindow = false;
 
-		figma.ui['re' + 'size'](pluginWindowSize.width, pluginWindowSize.height)
+		figma.ui['re' + 'size'](plugmaPluginWindowSize.width, plugmaPluginWindowSize.height)
 	}
 
 	if (message.event === "PLUGMA-DELETE-ROOT-PLUGIN-DATA") {
@@ -57,7 +57,7 @@ figma.ui.on('message', async (message) => {
 });
 
 function customResize(width, height) {
-	pluginWindowSize = {
+	plugmaPluginWindowSize = {
 		width,
 		height
 	}
@@ -80,11 +80,11 @@ function customResize(width, height) {
 function customShowUI(htmlString, options) {
 
 	if (options && options.height) {
-		pluginWindowSize.height = options.height
+		plugmaPluginWindowSize.height = options.height
 	}
 
 	if (options && options.width) {
-		pluginWindowSize.width = options.width
+		plugmaPluginWindowSize.width = options.width
 	}
 
 

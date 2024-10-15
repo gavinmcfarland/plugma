@@ -171,10 +171,13 @@ export async function runScript(command, options) {
 				try {
 					if (command === 'dev' || command === "build" && options.watch) {
 						// We disable watching env on main as it doesn't do anything anyway
-						let merged = mergeConfig({ minfiy: false, build: { watch: {} } }, config.viteMain.dev)
-						await viteBuild(mergeConfig(merged, userViteConfig));
+						let merged = mergeConfig({ build: { watch: {}, minfiy: false } }, config.viteMain.dev)
+						let mergedAgain = mergeConfig(merged, userViteConfig)
+
+						console.log(mergedAgain)
+						await viteBuild(mergedAgain);
 					} else {
-						let merged = mergeConfig({ minfiy: true }, config.viteMain.build)
+						let merged = mergeConfig({ build: { minfiy: true } }, config.viteMain.build)
 						await viteBuild(mergeConfig(merged, userViteConfig));
 					}
 					// console.log('[vite-build] Build completed.');
