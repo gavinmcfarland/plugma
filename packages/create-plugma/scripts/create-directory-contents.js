@@ -3,9 +3,14 @@ import * as fs from 'fs';
 const CURR_DIR = process.cwd();
 import lodashTemplate from 'lodash.template'
 import path from 'path';
-import { dirname, resolve } from 'path';
+import { dirname, resolve, join } from 'path';
 import { fileURLToPath } from 'url';
-import versions from '../versions.json' assert { type: 'json' };
+
+const versionsPath = join(
+	dirname(fileURLToPath(import.meta.url)),
+	'../versions.json'
+);
+const versions = JSON.parse(fs.readFileSync(versionsPath, 'utf8'));
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -32,9 +37,7 @@ const createDirectoryContents = (templatePath, newProjectPath, answers) => {
 			// Need to manually update versions before publishing. Need a way to automate this. Issue is that this version belongs in a different package, so this doesn't work when user runs create plugma
 			let data = Object.assign(answers, {
 				id: slugify(answers['name']),
-				versions: {
-					plugma: versions.plugma
-				}
+				versions
 			})
 
 			if (file === "manifest.json" ||
