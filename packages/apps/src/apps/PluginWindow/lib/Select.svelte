@@ -54,7 +54,7 @@
 			selected = 'select-an-option'
 		}
 
-		if (selected === 'HIDE-TOOLBAR') {
+		if (selected === 'HIDE_TOOLBAR') {
 			parent.postMessage(
 				{
 					pluginMessage: { event: 'PLUGMA_DECREASE_WINDOW_HEIGHT', toolbarHeight: 40 },

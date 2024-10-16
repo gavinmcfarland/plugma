@@ -20,7 +20,7 @@
 
 	let selectedFruit = ''
 	let menuItems = [
-		{ value: 'MINIMIZE_WINDOW', label: 'Minimise window' },
+		{ value: 'MINIMIZE_WINDOW', label: 'Minimize window' },
 		// { isDivider: true }, // Divider here
 		{ value: 'DELETE_CLIENT_STORAGE', label: 'Delete client storage' },
 		{ value: 'DELETE_ROOT_PLUGIN_DATA', label: 'Delete root plugin data' },
