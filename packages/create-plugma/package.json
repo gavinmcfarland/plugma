@@ -5,7 +5,7 @@
 	"main": "create-plugma.js",
 	"type": "module",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
+		"test": "echo \"Error: no test specified\"",
 		"bump-versions": "node scripts/bump-plugma-version.js",
 		"postversion": "npm run bump-versions"
 	},
