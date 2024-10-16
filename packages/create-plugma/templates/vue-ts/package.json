@@ -1,44 +1,44 @@
 {
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "plugma dev",
-    "build": "plugma build"
-  },
-  "dependencies": {
-    "vue": "^3.4.31"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "@types/react-dom": "^18.3.0",
-    "@figma/plugin-typings": "^1.88.0",
-    "tslib": "^2.6.2",
-    "typescript": "^5.2.2",
-    "esbuild": "^0.19.9",
-    "plugma": "^<%- versions.plugma %>",
-    "@vitejs/plugin-vue": "^5.0.5",
-    "vite": "^5.3.4"
-  },
-  "plugma": {
-    "manifest": {
-      "id": "<%- name %>",
-      "name": "<%- name %>",
-      "main": "src/main.ts",
-      "ui": "src/ui.ts",
-      "editorType": [
-        "figma",
-        "figjam"
-      ],
-      "networkAccess": {
-        "allowedDomains": [
-          "none"
-        ],
-        "devAllowedDomains": [
-          "*"
-        ]
-      }
-    }
-  }
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "plugma dev",
+		"build": "plugma build"
+	},
+	"dependencies": {
+		"vue": "^3.4.31"
+	},
+	"devDependencies": {
+		"@vitejs/plugin-react": "^4.3.0",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
+		"@types/react-dom": "^18.3.0",
+		"@figma/plugin-typings": "^1.88.0",
+		"tslib": "^2.6.2",
+		"typescript": "^5.2.2",
+		"esbuild": "^0.19.9",
+		"plugma": "^<%- versions.plugmaNext %>",
+		"@vitejs/plugin-vue": "^5.0.5",
+		"vite": "^5.3.4"
+	},
+	"plugma": {
+		"manifest": {
+			"id": "<%- name %>",
+			"name": "<%- name %>",
+			"main": "src/main.ts",
+			"ui": "src/ui.ts",
+			"editorType": [
+				"figma",
+				"figjam"
+			],
+			"networkAccess": {
+				"allowedDomains": [
+					"none"
+				],
+				"devAllowedDomains": [
+					"*"
+				]
+			}
+		}
+	}
 }

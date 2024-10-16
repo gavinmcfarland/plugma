@@ -1,14 +1,10 @@
 /** @type {import('vite').UserConfig} */
 
-
-import baseConfig from 'plugma/lib/vite.config.js';
-import { defineConfig, mergeConfig } from "vite";
 import vue from '@vitejs/plugin-vue'
+import { defineConfig } from "vite";
 
-export default defineConfig(
-	mergeConfig(baseConfig, {
-		plugins: [vue()],
-	})
-);
-
-
+export default defineConfig(() => {
+	return {
+		plugins: [vue()]
+	}
+});
