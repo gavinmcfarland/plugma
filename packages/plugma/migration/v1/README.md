@@ -1,6 +1,6 @@
 # Migrating to v1
 
-Plugma v1 introduces a simpler way to manage Vite configurations. Before, you had to import and merge Plugma's config with your own, adding extra steps. Now, Plugma automatically applies its configuration, keeping your vite.config.js simpler and cleaner.
+Plugma v1 introduces a simpler way to manage Vite configurations. Before, you had to import and merge Plugma's config with your own, adding extra steps. Now, Plugma automatically applies its configuration, keeping your `vite.config.js` simpler and cleaner.
 
 Also, Plugma v1 uses Vite to bundle the main code, so you can configure both the main code and UI in the same vite.config.js.
 
