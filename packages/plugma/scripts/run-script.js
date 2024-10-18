@@ -108,23 +108,22 @@ export async function runScript(command, options) {
 	});
 
 	task('build-ui', async ({ command, config, options }) => {
-		const userViteConfig = await loadConfig('vite.config.js');
-		// FIXME: Why won't userViteCofig run at this stage? Only works with vite.config.js
-		if (command === 'dev' || command === 'preview' || command === "build" && options.watch) {
+		// const userViteConfig = await loadConfig('vite.config.js');
+		if (command === "build" && options.watch) {
 			let merged = mergeConfig({
 				build: {
 					watch: {},
-					minify: 'terser', // Switches to terser for minification
-					terserOptions: {
-						format: {
-							comments: false, // Removes all comments
-						},
-					},
+					minify: false
 				},
 			}, config.vite.build)
-			await viteBuild(mergeConfig(merged));
+
+			await viteBuild(merged);
 		} else {
-			await viteBuild(mergeConfig(config.vite.build));
+			await viteBuild(mergeConfig({
+				build: {
+					minify: true
+				},
+			}, config.vite.build));
 		}
 	});
 
@@ -170,14 +169,12 @@ export async function runScript(command, options) {
 
 				try {
 					if (command === 'dev' || command === 'preview' || command === "build" && options.watch) {
-						// We disable watching env on main as it doesn't do anything anyway
-						let merged = mergeConfig({ build: { watch: {}, minfiy: false } }, config.viteMain.dev)
-						let mergedAgain = mergeConfig(merged, userViteConfig)
-
-						await viteBuild(mergedAgain);
+						let merged = mergeConfig({ build: { watch: {}, minify: false } }, config.viteMain.dev)
+						// let mergedAgain = mergeConfig(merged, userViteConfig)
+						await viteBuild(merged);
 					} else {
-						let merged = mergeConfig({ build: { minfiy: true } }, config.viteMain.build)
-						await viteBuild(mergeConfig(merged, userViteConfig));
+						let merged = mergeConfig({ build: { minify: true } }, config.viteMain.build)
+						await viteBuild(merged);
 					}
 					// console.log('[vite-build] Build completed.');
 				} catch (error) {
@@ -228,8 +225,8 @@ export async function runScript(command, options) {
 	});
 
 	task('start-vite-server', async ({ config }) => {
-		const userViteConfig = await loadConfig('vite.config.js');
-		const server = await createServer(mergeConfig(config.vite.dev), userViteConfig);
+		// const userViteConfig = await loadConfig('vite.config.js');
+		const server = await createServer(config.vite.dev);
 		await server.listen();
 	});
 

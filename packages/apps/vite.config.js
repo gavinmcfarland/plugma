@@ -31,7 +31,8 @@ export default defineConfig(({ mode }) => {
 
 		build: {
 			outDir: `dist/${mode}`,
-			minify: 'terser', // Switches to terser for minification
+			// To remove legal comments from ReconnectingWebSocket which trips up Figma
+			minify: 'terser',
 			terserOptions: {
 				format: {
 					comments: false, // Removes all comments
