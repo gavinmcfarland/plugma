@@ -26,7 +26,7 @@ export default defineConfig(
 )
 ```
 
-### After (New Setup with Plugma v1.x.x):
+### After (New Setup with Plugma v1):
 
 You need to update it to the following in Plugma v1:
 
