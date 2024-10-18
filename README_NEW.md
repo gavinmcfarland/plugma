@@ -126,17 +126,17 @@ Depending on which framework you choose, the files might vary slightly, but the 
 
 ## Further features
 
-### Developer Tools
+-   ### Developer Tools
 
-Plugma comes with several developer tools to make developing plugins easier. You can enable them by using keyboard shortcut <kbd>Opt + Cmd + J</kbd>.
+    Plugma comes with several developer tools to make developing plugins easier. You can enable them by using keyboard shortcut <kbd>Opt + Cmd + J</kbd>.
 
-### Manifest Configuration
+-   ### Manifest Config
 
-You can either place a `manifest.json` file in the root of the project or add a `plugma.manifest` field to the `package.json` file.
+    You can either place a `manifest.json` file in the root of the project or add a `plugma.manifest` field to the `package.json` file.
 
-### Blunding Options
+-   ### Blunding Config
 
-Vite is used to bundle both the main code and the UI. To configure how this works you can can modify the `vite.config.js` file in the route of your project.
+    Vite is used to bundle both the main code and the UI. To configure how this works you can can modify the `vite.config.js` file in the route of your project.
 
 <!-- ```jsonc
 // package.json
@@ -152,13 +152,13 @@ Vite is used to bundle both the main code and the UI. To configure how this work
 }
 ``` -->
 
-### Installing globally
+-   ### Installing globally
 
-If you'd prefer to use the CLI globally you can install it using the following.
+    If you'd prefer to use the CLI globally you can install it using the following.
 
-```
-npm install plugma -g
-```
+    ```
+    npm install plugma -g
+    ```
 
 ## Troubleshooting
 
