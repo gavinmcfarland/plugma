@@ -1,4 +1,4 @@
-# Migrating from v0.x.x to v1.x.x
+# Migration Guide v0.x.x -> v1.x.x
 
 Version 1 of Plugma introduces a new way to apply Vite's configuration, simplifying your vite.config.js setup. Previously, Plugma required you to reference its internal Vite configuration file. Now, the configuration is applied programmatically, eliminating the need for extra imports and merging configurations. This results in a cleaner and more maintainable configuration file.
 
