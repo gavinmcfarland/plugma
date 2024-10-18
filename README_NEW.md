@@ -126,7 +126,7 @@ Depending on which framework you choose, the files might vary slightly, but the 
 
 ## Developer Tools
 
-Plugma comes with several developer tools to make developing plugins easier. You can enable them by using keyboard shortcut <kbd>opt + cmd + J</kbd>.
+Plugma comes with several developer tools to make developing plugins easier. You can enable them by using keyboard shortcut <kbd>Opt + Cmd + J</kbd>.
 
 ## Manifest Configuration
 
