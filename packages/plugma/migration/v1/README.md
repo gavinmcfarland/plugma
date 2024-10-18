@@ -1,8 +1,14 @@
-# Migration Guide v1
+# Migration Guide to Plugma v1
 
-Version 1 of Plugma introduces a new way to apply Vite's configuration, simplifying your vite.config.js setup. Previously, Plugma required you to reference its internal Vite configuration file. Now, the configuration is applied programmatically, eliminating the need for extra imports and merging configurations. This results in a cleaner and more maintainable configuration file.
+## Introduction
 
-## Changes You Need to Make
+Plugma v1 introduces a simpler way to manage Vite configurations. Previously, you had to import and manually merge Plugma’s configuration with your own, which added extra steps and complexity. With v1, Plugma now automatically applies its internal configuration, making your `vite.config.js` cleaner and more maintainable.
+
+Additionally, Plugma v1 takes advantage of Vite to bundle the main code, allowing you to configure the bundling for both the main code and UI within the same `vite.config.js` file.
+
+## What You Need to Update
+
+### Before (Old Setup):
 
 If your current `vite.config.js` file looks like this:
 
@@ -20,7 +26,9 @@ export default defineConfig(
 )
 ```
 
-You can update it to the following for Plugma v1.x.x:
+### After (New Setup with Plugma v1.x.x):
+
+You need to update it to the following in Plugma v1:
 
 ```js
 /** @type {import('vite').UserConfig} */
@@ -30,11 +38,18 @@ import { defineConfig } from 'vite'
 
 export default defineConfig(() => {
     return {
-        plugins: [svelte()],
+        plugins: [svelte()], // Only include your specific plugins here
     }
 })
 ```
 
-## Why the change?
+### Upgrade Steps:
 
-In v1.x.x, Plugma automatically applies its necessary Vite settings internally. This change removes the need for importing and merging configuration files like `plugma/lib/vite.config.js`. As a result, your vite.config.js will focus solely on your project's specific plugins and settings, making the file more concise and easier to manage.
+1. **Remove Plugma's Vite Config Import:**
+
+    ```js
+    // import baseConfig from 'plugma/lib/vite.config.js'
+    ```
+
+2. **Remove the `mergeConfig` call:**  
+   With v1, you no longer need to merge configurations.
