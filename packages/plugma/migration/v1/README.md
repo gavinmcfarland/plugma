@@ -45,6 +45,7 @@ Below is an example of what it should look like.
 ```js
 /** @type {import('vite').UserConfig} */
 
+// Remember to replace with the correct plugin for your framework
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { defineConfig } from 'vite'
 
