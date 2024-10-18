@@ -51,9 +51,6 @@ import { defineConfig } from 'vite'
 export default defineConfig(() => {
     return {
         plugins: [svelte()],
-        // build: {
-        // 	minify: false
-        // }
     }
 })
 ```
