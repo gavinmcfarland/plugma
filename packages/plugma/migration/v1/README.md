@@ -8,7 +8,7 @@ Also, Plugma v1 uses Vite to bundle the main code, so you can configure both the
 
 Inside your `vite.config.js` you need to update the following:
 
-```js
+```diff js
  /** @type {import('vite').UserConfig} */
 
  import { svelte } from '@sveltejs/vite-plugin-svelte'
