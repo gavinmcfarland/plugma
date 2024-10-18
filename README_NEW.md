@@ -23,7 +23,7 @@ Take Figma plugin development to the next level with browser previews, faster de
 Create a plugin from a template using the following:
 
 ```shell
-# Use plugma@next for next releas in progress
+# Use plugma@next for next release in progress
 npm create plugma@latest
 ```
 
