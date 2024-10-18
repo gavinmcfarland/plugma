@@ -21,7 +21,7 @@ When you update from v0.x.x to v1.x.x, the CLI can automatically migrate these c
     +import { defineConfig } from 'vite'
     ```
 
--   And then finally return the config in a callback
+-   And then finally return the config directly in a callback
 
     ```diff
     -export default defineConfig(
