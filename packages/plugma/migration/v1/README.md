@@ -29,12 +29,14 @@ When you update from v0.x.x to v1.x.x, the CLI can automatically migrate these c
     -        plugins: [svelte()],
     -    }),
     -)
-    +export default defineConfig(({mode, platform}) => {
+    +export default defineConfig(({mode}) => {
     +    return {
-    +        plugins: [svelte()], // Only include your specific plugins here
+    +        plugins: [svelte()],
     +    }
     +})
     ```
+
+    The callback will allow you to specify the mode (development, build etc).
 
 ## Example with v1
 
