@@ -124,15 +124,17 @@ Depending on which framework you choose, the files might vary slightly, but the 
 
 - `package.json` Contains the name of our plugin and Figma manifest details in the `plugma.manifest` field. -->
 
-## Developer Tools
+## Further features
+
+### Developer Tools
 
 Plugma comes with several developer tools to make developing plugins easier. You can enable them by using keyboard shortcut <kbd>Opt + Cmd + J</kbd>.
 
-## Manifest Configuration
+### Manifest Configuration
 
 You can either place a `manifest.json` file in the root of the project or add a `plugma.manifest` field to the `package.json` file.
 
-## Blunding Options
+### Blunding Options
 
 Vite is used to bundle both the main code and the UI. To configure how this works you can can modify the `vite.config.js` file in the route of your project.
 
@@ -150,9 +152,9 @@ Vite is used to bundle both the main code and the UI. To configure how this work
 }
 ``` -->
 
-## Install
+### Installing globally
 
-To install the CLI globally.
+If you'd prefer to use the CLI globally you can install it using the following.
 
 ```
 npm install plugma -g
@@ -186,7 +188,7 @@ parent.postmessage({
 })
 ```
 
-## How does it work?
+## How does Plugma work?
 
 Plugma simplifies Figma plugin development by using Vite to bundle everything into a single file and managing the development environment with a local server. Here’s how it works:
 
