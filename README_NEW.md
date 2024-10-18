@@ -6,10 +6,10 @@
     <a href="https://www.npmjs.com/package/plugma"><img src="https://img.shields.io/npm/v/plugma.svg"></a>
 </p>
 
-# Plugma
-
 > [!WARNING]
 > The next release is still in progress, but comes with a lot of improved features including better web socket handling for previewing in the browser and the ability to bundle the main code using `vite.config.js`.
+
+# Plugma
 
 Take Figma plugin development to the next level with browser previews, faster debuging and minimal boilerplate.
 
