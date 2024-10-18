@@ -4,28 +4,36 @@ Plugma v1 introduces a simpler way to manage Vite configurations. Before, you ha
 
 Also, Plugma v1 uses Vite to bundle the main code, so you can configure both the main code and UI in the same vite.config.js.
 
-## What You Need to Update
+## Changes you need to make
 
-Inside your `vite.config.js` you need to update the following:
+Inside your `vite.config.js` update the following:
 
-```diff js
- /** @type {import('vite').UserConfig} */
+-   Remove Plugma's Vite config import
 
- import { svelte } from '@sveltejs/vite-plugin-svelte'
--import baseConfig from 'plugma/lib/vite.config.js'
--import { defineConfig, mergeConfig } from 'vite'
-+import { defineConfig } from 'vite'
+    ```diff
+    -import baseConfig from 'plugma/lib/vite.config.js'
+    ```
 
--export default defineConfig(
--    mergeConfig(baseConfig, {
--        plugins: [svelte()],
--    }),
--)
-+export default defineConfig(() => {
-+    return {
-+        plugins: [svelte()], // Only include your specific plugins here
-+    }
-+})
-```
+-   Remove the mergeConfig import
+
+    ```diff
+    -import { defineConfig, mergeConfig } from 'vite'
+    +import { defineConfig } from 'vite'
+    ```
+
+-   And then finally return the config in a callback
+
+    ```diff
+    -export default defineConfig(
+    -    mergeConfig(baseConfig, {
+    -        plugins: [svelte()],
+    -    }),
+    -)
+    +export default defineConfig(({mode, platform}) => {
+    +    return {
+    +        plugins: [svelte()], // Only include your specific plugins here
+    +    }
+    +})
+    ```
 
 If you prefer, when you update from v0.x.x to v1.x.x, the CLI will provide an option to automatically migrate these changes for you.
