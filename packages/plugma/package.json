@@ -13,7 +13,8 @@
 		"copy-apps": "node scripts/copy-files.js",
 		"build-and-copy-apps": "npm run build-apps && npm run copy-apps",
 		"prepublishOnly": "npm run build-and-copy-apps",
-		"copy-workflows": "cp -r ./templates/github/ .github/"
+		"copy-workflows": "cp -r ./templates/github/ .github/",
+		"postinstall": "node ./migration/v1/check-migration.js"
 	},
 	"author": "",
 	"license": "ISC",
