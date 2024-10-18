@@ -9,17 +9,22 @@
 # Plugma
 
 > [!WARNING]
-> The next release is still in progress, but comes with a lot of improved features including better web socket handling for browser preview and ability to configure the main thread using `vite.config.js`.
+> The next release is still in progress, but comes with a lot of improved features including better web socket handling for previewing in the browser and the ability to bundle the main code using `vite.config.js`.
 
 Take Figma plugin development to the next level with browser previews, faster debuging and minimal boilerplate.
+
+## Requirements
+
+-   [Node.js](https://nodejs.org/en)
+-   [Figma desktop app](https://www.figma.com/downloads/)
 
 ## Start from a template
 
 Create a plugin from a template using the following:
 
 ```shell
-# For the next release in progress
-npm create plugma@next
+# Use plugma@next for next releas in progress
+npm create plugma@latest
 ```
 
 The frameworks currently supported are `React`, `Svelte`, `Vue` and vanilla `JavaScript`.
@@ -119,6 +124,10 @@ Depending on which framework you choose, the files might vary slightly, but the 
 
 - `package.json` Contains the name of our plugin and Figma manifest details in the `plugma.manifest` field. -->
 
+## Developer Tools
+
+Plugma comes with several developer tools to make developing plugins easier. You can enable them by using keyboard shortcut <kbd>opt + cmd + J</kbd>.
+
 ## Manifest Configuration
 
 You can either place a `manifest.json` file in the root of the project or add a `plugma.manifest` field to the `package.json` file.
@@ -126,10 +135,6 @@ You can either place a `manifest.json` file in the root of the project or add a 
 ## Blunding Options
 
 Vite is used to bundle both the main code and the UI. To configure how this works you can can modify the `vite.config.js` file in the route of your project.
-
-## Developer Tools
-
-Plugma comes with several developer tools to make developing plugins easier. You can enable them by using keyboard shortcut <kbd>opt + cmd + J</kbd>.
 
 <!-- ```jsonc
 // package.json
@@ -157,6 +162,9 @@ npm install plugma -g
 
 ### Posting messages
 
+> [!WARNING]
+> This will no longer be an issue in the next version when it releases.
+
 You may see the following warning.
 
 ```shell
@@ -180,12 +188,11 @@ parent.postmessage({
 
 ## How does it work?
 
-Plugma uses Vite to bundle Figma plugins and is configured to inline all styles and scripts into one file. It uses a local server for development, that passes messages from Figma's main thread to the local server using web sockets.
+Plugma simplifies Figma plugin development by using Vite to bundle everything into a single file and managing the development environment with a local server. Here’s how it works:
 
-## Requirements
-
--   [Node.js](https://nodejs.org/en)
--   [Figma desktop app](https://www.figma.com/downloads/)
+-   Vite bundles styles and scripts into one file, and a local server is used during development, removing the need for rebuilding with every change. The plugin iframe is automatically redirected to this server.
+-   Since the iframe is redirected, Plugma handles things like keyboard events, passing Figma’s CSS theme variables, and enabling browser previews via WebSockets. This all happens behind the scenes, so you don’t need to modify your plugin’s source code.
+-   For the final build, only your plugin code is bundled, excluding any development boilerplate, and the code is minified.
 
 ## Acknowledgments
 
