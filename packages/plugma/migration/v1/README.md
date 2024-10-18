@@ -6,7 +6,7 @@ Also, Plugma v1 uses Vite to bundle the main code, so you can configure both the
 
 ## Changes you need to make
 
-Inside your `vite.config.js` update the following:
+When you update from v0.x.x to v1.x.x, the CLI can automatically migrate these changes for you. However if you prefer to do it manually, here’s what you need to update in `your vite.config.js` file.
 
 -   Remove Plugma's Vite config import
 
@@ -36,4 +36,22 @@ Inside your `vite.config.js` update the following:
     +})
     ```
 
-If you prefer, when you update from v0.x.x to v1.x.x, the CLI will provide an option to automatically migrate these changes for you.
+## Example with v1
+
+Below is an example of what it should look like.
+
+```js
+/** @type {import('vite').UserConfig} */
+
+import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { defineConfig } from 'vite'
+
+export default defineConfig(() => {
+    return {
+        plugins: [svelte()],
+        // build: {
+        // 	minify: false
+        // }
+    }
+})
+```
