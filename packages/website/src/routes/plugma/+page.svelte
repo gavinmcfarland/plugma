@@ -3,7 +3,7 @@
 	import Icon from '@/components/Icon.svelte'
 </script>
 
-<div class="dark:bg-black dark:text-white border-gray-200 dark:border-gray-700">
+<div class="">
 	<!-- Navigation -->
 	<nav
 		class="p-4 flex justify-between items-center border-b sticky top-0 bg-white/80 dark:bg-black/80 backdrop-blur-lg"
@@ -30,7 +30,7 @@
 		</div>
 	</div>
 
-	<div class="py-32 px-8 w-full justify-center items-center border-t">
+	<div class="py-32 px-4 w-full justify-center items-center border-t">
 		<h2 class="text-4xl sm:text-4xl text-center font-medium mb-8">Features</h2>
 
 		<div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
@@ -62,13 +62,8 @@
 		</div>
 	</div>
 
-	<div class="py-32 px-8 w-full justify-center items-center border-t">
-		<h2 class="text-4xl sm:text-4xl text-center font-medium mb-12">Commands</h2>
-		<p class="text-center mb-8 max-w-2xl mx-auto">
-			Below are some of the key commands you can use with Plugma. These commands help you start the development
-			server, create builds, preview your plugin, and release it to GitHub. They are designed to make your
-			development workflow as smooth as possible, even if you're new to working with CLI tools.
-		</p>
+	<div class="py-32 px-4 w-full justify-center items-center border-t">
+		<h2 class="text-4xl text-center font-medium mb-12">Commands</h2>
 		<div class="lg:max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
 			<div>
 				<h4 class="font-bold mb-2">Start dev server</h4>
@@ -86,6 +81,30 @@
 				<h4 class="font-bold mb-2">Release to github</h4>
 				<pre class="p-2 border mb-6 rounded-sm w-full"><code>plugma release</code></pre>
 			</div>
+		</div>
+	</div>
+
+	<div class="py-32 px-4 w-full justify-center items-center inline-flex border-t">
+		<div class="w-[688px]">
+			<!-- <div class="text-center"> -->
+			<h2 class="text-4xl font-medium font-poppins leading-[90px] mb-4 text-center">What people are saying</h2>
+			<div class="lg:max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-10">
+				<div class="flex items-center gap-4">
+					<img src="https://via.placeholder.com/64" alt="Avatar" class="w-16 h-16 rounded-full" />
+					<div>
+						<p class="font-bold">Developer A</p>
+						<p>This should be the defacto way to develop plugins.</p>
+					</div>
+				</div>
+				<div class="flex items-center gap-4">
+					<img src="https://via.placeholder.com/64" alt="Avatar" class="w-16 h-16 rounded-full" />
+					<div>
+						<p class="font-bold">Developer B</p>
+						<p>It saved me hours!</p>
+					</div>
+				</div>
+			</div>
+			<!-- </div> -->
 		</div>
 	</div>
 

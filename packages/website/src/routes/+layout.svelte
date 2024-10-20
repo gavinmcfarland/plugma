@@ -1,7 +1,7 @@
 <script>
-	import Header from './Header.svelte';
-	import '../styles/app.css';
-	import Box from '../components/Box.svelte';
+	import Header from './Header.svelte'
+	import '../styles/app.css'
+	import Box from '../components/Box.svelte'
 </script>
 
 <div class="app">
@@ -11,7 +11,7 @@
 		<slot />
 	</main>
 
-	<div class="fullwidth">
+	<!-- <div class="fullwidth">
 		<Box
 			padding="var(--size-em-8) var(--rem-0) var(--rem-0)"
 			display="flex"
@@ -22,7 +22,7 @@
 					><a href="https://twitter.com/gavinmcfarland">@gavinmcfarland</a></small>
 			</Box>
 		</Box>
-	</div>
+	</div> -->
 </div>
 
 <style>
