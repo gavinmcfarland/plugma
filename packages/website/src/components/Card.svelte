@@ -1,29 +1,8 @@
 <script>
-	import Icon from './Icon.svelte';
+	// No need for a `content` prop anymore; we will use the slot.
 </script>
 
-<div class="Card">
-	<slot></slot>
+<div class="rounded-lg border p-6 pb-10 space-y-2 flex flex-col place-items-center">
+	<slot />
+	<!-- Slot will render whatever is passed inside the component -->
 </div>
-
-<style>
-	.Card {
-		border-radius: 2px;
-		border: 1px solid var(--border-color-tertiary);
-
-		display: flex;
-		padding: var(--size-8);
-		align-items: flex-start;
-		gap: var(--size-8);
-	}
-
-	:global(.Card .Text.heading) {
-		color: #000;
-		font-family: 'Akkurat TT';
-		font-size: 17px;
-		font-style: normal;
-		font-weight: 700;
-		line-height: 26px; /* 152.941% */
-		letter-spacing: -0.17px;
-	}
-</style>
