@@ -1,13 +1,19 @@
 <script>
+	import Button from '@/components/Button.svelte'
 	import Card from '@/components/Card.svelte'
+	import Code from '@/components/Code.svelte'
 	import Icon from '@/components/Icon.svelte'
+	import Section from '@/components/Section.svelte'
+	import { notifications } from '@/stores'
+	import Notification from '@/components/Notification.svelte'
 </script>
 
-<div class="">
+<div>
+	<!-- <pre><button style="background: red; display: inline-block">
+		<Icon svg="copy" />
+	</button></pre> -->
 	<!-- Navigation -->
-	<nav
-		class="p-4 flex justify-between items-center border-b sticky top-0 bg-white/80 dark:bg-black/80 backdrop-blur-lg"
-	>
+	<nav class="p-4 pr-5 flex justify-between items-center border-b sticky top-0 backdrop-blur-lg">
 		<div class="flex items-center gap-3">
 			<Icon svg="terminal-filled" size={20} strokeWidth={1.5} />
 			<span>Plugma</span>
@@ -18,19 +24,20 @@
 		</div>
 	</nav>
 
-	<div class="py-32">
+	<Section class="border-t-0 text-primary">
 		<div class="max-w-6xl mx-auto">
 			<div class="text-center">
-				<h1 class="text-5xl sm:text-7xl/snug text-center font-medium mb-6">
+				<h1 class="text-5xl/tight md:text-7xl/tight text-center font-medium mb-6">
 					Create Figma plugins <br />without the boilerplate
 				</h1>
-				<p class="mb-16">Supports React, Svelte, Vue, and JavaScript</p>
-				<pre class="p-4 border w-fit mx-auto mb-6 rounded-md"><code>npm create plugma@latest</code></pre>
+				<p class="mb-6">Supports React, Svelte, Vue, and JavaScript</p>
+				<Code class="max-w-fit mx-auto" persistCopyButton lang="js" text="npm create plugma@latest" />
+				<Button>Get started</Button>
 			</div>
 		</div>
-	</div>
+	</Section>
 
-	<div class="py-32 px-4 w-full justify-center items-center border-t">
+	<Section>
 		<h2 class="text-4xl sm:text-4xl text-center font-medium mb-8">Features</h2>
 
 		<div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
@@ -60,56 +67,56 @@
 				</p>
 			</Card>
 		</div>
-	</div>
+	</Section>
 
-	<div class="py-32 px-4 w-full justify-center items-center border-t">
+	<Section>
 		<h2 class="text-4xl text-center font-medium mb-12">Commands</h2>
 		<div class="lg:max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
 			<div>
 				<h4 class="font-bold mb-2">Start dev server</h4>
-				<pre class="p-2 border mb-6 rounded-sm w-full"><code>plugma dev</code></pre>
+				<Code lang="js" text="dev" />
 			</div>
 			<div>
 				<h4 class="font-bold mb-2">Create a build</h4>
-				<pre class="p-2 border mb-6 rounded-sm w-full"><code>plugma build</code></pre>
+				<Code lang="js" text="build" />
 			</div>
 			<div>
 				<h4 class="font-bold mb-2">Preview in any browser</h4>
-				<pre class="p-2 border mb-6 rounded-sm w-full"><code>plugma preview</code></pre>
+				<Code lang="js" text="preview" />
 			</div>
 			<div>
 				<h4 class="font-bold mb-2">Release to github</h4>
-				<pre class="p-2 border mb-6 rounded-sm w-full"><code>plugma release</code></pre>
+				<Code lang="js" text="release" />
 			</div>
 		</div>
-	</div>
+	</Section>
 
-	<div class="py-32 px-4 w-full justify-center items-center inline-flex border-t">
-		<div class="w-[688px]">
+	<Section>
+		<div class="max-w-[688px] mx-auto">
 			<!-- <div class="text-center"> -->
 			<h2 class="text-4xl font-medium font-poppins leading-[90px] mb-4 text-center">What people are saying</h2>
 			<div class="lg:max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-10">
 				<div class="flex items-center gap-4">
 					<img src="https://via.placeholder.com/64" alt="Avatar" class="w-16 h-16 rounded-full" />
 					<div>
-						<p class="font-bold">Developer A</p>
+						<h5 class="font-bold">Developer A</h5>
 						<p>This should be the defacto way to develop plugins.</p>
 					</div>
 				</div>
 				<div class="flex items-center gap-4">
 					<img src="https://via.placeholder.com/64" alt="Avatar" class="w-16 h-16 rounded-full" />
 					<div>
-						<p class="font-bold">Developer B</p>
+						<h5 class="font-bold">Developer B</h5>
 						<p>It saved me hours!</p>
 					</div>
 				</div>
 			</div>
 			<!-- </div> -->
 		</div>
-	</div>
+	</Section>
 
-	<div class="py-32 w-full justify-center items-center inline-flex border-t">
-		<div class="w-[688px] flex justify-center">
+	<Section>
+		<div class="max-w-[688px] mx-auto">
 			<div class="text-center">
 				<h2 class="text-7xl font-medium font-poppins leading-[90px] mb-4">Go create</h2>
 				<!-- <Button class="rounded-full">
@@ -123,5 +130,5 @@
 			</Button> -->
 			</div>
 		</div>
-	</div>
+	</Section>
 </div>

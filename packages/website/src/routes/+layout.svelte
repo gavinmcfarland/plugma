@@ -1,31 +1,44 @@
 <script>
-	import Header from './Header.svelte'
-	import '../styles/app.css'
-	import Box from '../components/Box.svelte'
+	import '../app.css';
+	import { notifications } from '@/stores';
+	import Notification from '@/components/Notification.svelte';
+	import Icon from '@/components/Icon.svelte';
 </script>
 
 <div class="app">
 	<!-- <Header /> -->
 
+	<nav class="p-4 pr-5 flex justify-between items-center border-b sticky top-0 backdrop-blur-lg">
+		<div class="flex">
+			<a href="/" class="items-center flex gap-3">
+				<Icon svg="terminal-filled" size={20} strokeWidth={1.5} />
+				<span>Plugma</span>
+			</a>
+		</div>
+		<div class="flex gap-6">
+			<a href="/docs" class="hover:underline">Docs</a>
+			<a href="https://github.com/yourusername/plugma" class="hover:underline" target="_blank"
+				>GitHub</a
+			>
+		</div>
+	</nav>
+
 	<main>
 		<slot />
 	</main>
 
-	<!-- <div class="fullwidth">
-		<Box
-			padding="var(--size-em-8) var(--rem-0) var(--rem-0)"
-			display="flex"
-			justifyContent="space-between">
-			<Box><small>Copyright 2024 © Gavin McFarland</small></Box>
-			<Box>
-				<small class="Header_Link"
-					><a href="https://twitter.com/gavinmcfarland">@gavinmcfarland</a></small>
-			</Box>
-		</Box>
-	</div> -->
+	{#each $notifications as notification}
+		<Notification
+			id={notification.id}
+			timeout={notification.timeout}
+			type={notification.type}
+			message={notification.message}
+		></Notification>
+	{/each}
 </div>
 
 <style>
-	@import 'https://unpkg.com/open-props/src/media.min.css';
-	/* @import '../styles/props.media.css'; */
+	* > :global(.Icon) {
+		display: inline-flex;
+	}
 </style>

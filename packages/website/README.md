@@ -1,29 +1,38 @@
-# website
+# create-svelte
 
-This website is created using Svelte Kit.
+Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
 
-Content is managed using Stancy.
+## Creating a project
 
-The design system is managed primarily using conventional CSS and CSS variables. The design tokens used by the website are generated using Mole.
+If you're seeing this, you've probably already done this step. Congrats!
 
-Typography and spacing is currently implemented using Typolize but not fully adhered to.
+```bash
+# create a new project in the current directory
+npm create svelte@latest
+
+# create a new project in my-app
+npm create svelte@latest my-app
+```
 
 ## Developing
 
-To preview the website and watch for changes.
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
 ```bash
 npm run dev
+
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
 ```
 
-To create a production version ready to publish.
+## Building
+
+To create a production version of your app:
 
 ```bash
 npm run build
 ```
 
-Make sure to create a new build of the `vars.css` which is used by the website.
+You can preview the production build with `npm run preview`.
 
-```shell
-npm run build:mole
-```
+> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.

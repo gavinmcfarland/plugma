@@ -1,11 +1,11 @@
 <script lang="ts">
-	export let svg;
-	export let color = 'currentColor';
-	export let opacity: number = 1;
-	export let strokeWidth: number = 1.5;
+	export let svg
+	export let color = 'currentColor'
+	export let opacity: number = 1
+	export let strokeWidth: number = 1.5
 
-	export let size: number = 16;
-	$: sizePx = `${size}px`;
+	export let size: number = 16
+	$: sizePx = `${size}px`
 </script>
 
 <span class="Icon">
@@ -73,18 +73,8 @@
 				stroke-linecap="round"
 				stroke-linejoin="round"
 			/>
-			<path
-				d="M6.19531 7H6.20731"
-				stroke={color}
-				stroke-width={strokeWidth}
-				stroke-linecap="round"
-			/>
-			<path
-				d="M9.27979 7H9.29179"
-				stroke={color}
-				stroke-width={strokeWidth}
-				stroke-linecap="round"
-			/>
+			<path d="M6.19531 7H6.20731" stroke={color} stroke-width={strokeWidth} stroke-linecap="round" />
+			<path d="M9.27979 7H9.29179" stroke={color} stroke-width={strokeWidth} stroke-linecap="round" />
 		</svg>
 	{/if}
 	{#if svg === 'bug'}
@@ -172,7 +162,7 @@
 			<path
 				fill-rule="evenodd"
 				clip-rule="evenodd"
-				d="M2 6C2 3.79086 3.79086 2 6 2H18C20.2091 2 22 3.79086 22 6V18C22 20.2091 20.2091 22 18 22H6C3.79086 22 2 20.2091 2 18V6ZM12 16C12 15.4477 12.4477 15 13 15H17C17.5523 15 18 15.4477 18 16C18 16.5523 17.5523 17 17 17H13C12.4477 17 12 16.5523 12 16ZM7.70711 7.29289C7.31658 6.90237 6.68342 6.90237 6.29289 7.29289C5.90237 7.68342 5.90237 8.31658 6.29289 8.70711L9.58579 12L6.29289 15.2929C5.90237 15.6834 5.90237 16.3166 6.29289 16.7071C6.68342 17.0976 7.31658 17.0976 7.70711 16.7071L11.7071 12.7071C12.0976 12.3166 12.0976 11.6834 11.7071 11.2929L7.70711 7.29289Z"
+				d="M2.8418 6.92053C2.8418 4.71139 4.63266 2.92053 6.8418 2.92053H18.8418C21.0509 2.92053 22.8418 4.71139 22.8418 6.92053V18.9205C22.8418 21.1296 21.0509 22.9205 18.8418 22.9205H6.8418C4.63266 22.9205 2.8418 21.1296 2.8418 18.9205V6.92053ZM12.8418 16.9205C12.8418 16.3682 13.2895 15.9205 13.8418 15.9205H17.8418C18.3941 15.9205 18.8418 16.3682 18.8418 16.9205C18.8418 17.4728 18.3941 17.9205 17.8418 17.9205H13.8418C13.2895 17.9205 12.8418 17.4728 12.8418 16.9205ZM8.54891 8.21342C8.15838 7.8229 7.52522 7.8229 7.13469 8.21342C6.74417 8.60395 6.74417 9.23711 7.13469 9.62764L10.4276 12.9205L7.13469 16.2134C6.74417 16.6039 6.74417 17.2371 7.13469 17.6276C7.52522 18.0181 8.15838 18.0181 8.54891 17.6276L12.5489 13.6276C12.9394 13.2371 12.9394 12.6039 12.5489 12.2134L8.54891 8.21342Z"
 				fill={color}
 			/>
 		</svg>
@@ -194,13 +184,7 @@
 				stroke-linecap="round"
 				stroke-linejoin="round"
 			/>
-			<path
-				d="M13 16H17"
-				stroke="black"
-				stroke-width="1.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-			/>
+			<path d="M13 16H17" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
 			<path
 				d="M7 8L11 12L7 16"
 				stroke={color}
