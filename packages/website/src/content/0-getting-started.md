@@ -16,6 +16,4 @@ Once installed, you can start developing your plugin.
 
 ```bash
 npm run dev -- -p 3000
-
-# This will start a development server on port 3000
 ```

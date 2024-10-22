@@ -1,10 +1,10 @@
-# Plugma commands
+# CLI commands
 
-When using CLI commands with `npm run` you need to pass the arguments with a double dash `--`, for example `npm run dev -- -p`.
+When using the commands with `npm run` you need to pass the arguments with a double dash `--`, for example `npm run dev -- -p`.
 
 ### dev [options]
 
-Start a server to develop your plugin. This command sets up a local development environment, allowing you to make changes and see them reflected in real-time.
+Start a server to develop your plugin. This command builds the `ui.html` and points it to the dev server making it easier to debug UI isues.
 
 ##### Options
 
@@ -16,11 +16,9 @@ Start a server to develop your plugin. This command sets up a local development 
 
 ```bash
 # Start development server on port 3000
-
 plugma dev -p 3000
 
 # Start development server with websockets enabled
-
 plugma dev -ws
 ```
 
@@ -45,7 +43,7 @@ plugma build -w
 
 ### Preview [options]
 
-Preview the plugin in a browser preview. This allows you to see how your plugin will look and function in a web environment.
+Preview the plugin in a browser preview. This allows you to see how your plugin will look and function in any web browser. The plugin must be open in the Figma desktop app for this to work.
 
 ##### Options
 
@@ -61,7 +59,7 @@ plugma preview -p 8080
 
 ### Release [version] [options]
 
-Build the plugin and release to GitHub. This command automates the process of creating a new release on GitHub with your latest changes.
+Build the plugin and release to GitHub. This command automates the process of creating a new release on GitHub with your latest changes. If you call the command without a version, it will automatically increment the `plugma.pluginVersion` field in the `package.json` file.
 
 ##### Version
 
@@ -69,14 +67,14 @@ Build the plugin and release to GitHub. This command automates the process of cr
 
 ##### Options
 
--   `-t`, `--title`: Provide a custom title
--   `-n`, `--notes`: Provide release notes.
+-   `-t`, `--title`: Custom title for the release.
+-   `-n`, `--notes`: Add release notes.
 
 ##### Example
 
 ```bash
-# Release a stable version
-plugma release stable
+# Increment the next stable version
+plugma release
 
 # Release a beta version with custom title and notes
 plugma release beta -t "Beta Release v0.2" -n "This release includes new features X and Y"

@@ -4,6 +4,18 @@ The plugin manifest provides essential information about the plugin, including i
 
 You can define the manifest by placing a `manifest.json` file in the project root or by adding a `plugma.manifest` field to the `package.json` file.
 
+##### Using manifest.json
+
+```json
+{
+	"name": "My Plugin",
+	"id": "com.example.myplugin",
+	"api": "1.0.0",
+	"main": "src/code.js",
+	"ui": "src/ui.js"
+}
+```
+
 ##### Using package.json
 
 ```jsonc
@@ -18,17 +30,5 @@ You can define the manifest by placing a `manifest.json` file in the project roo
 			"ui": "src/ui.js"
 		}
 	}
-}
-```
-
-##### Using manifest.json
-
-```json
-{
-	"name": "My Plugin",
-	"id": "com.example.myplugin",
-	"api": "1.0.0",
-	"main": "src/code.js",
-	"ui": "src/ui.js"
 }
 ```

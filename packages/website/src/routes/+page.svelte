@@ -56,7 +56,7 @@
 				<h2 class="text-lg font-medium">Browser preview</h2>
 				<p>
 					Preview in any browser during development using websockets to pass messages from
-					figma to the browser.
+					Figma to the browser.
 				</p>
 			</Card>
 
@@ -76,19 +76,31 @@
 		<div class="lg:max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
 			<div>
 				<h4 class="font-bold mb-2">Start dev server</h4>
-				<Code lang="js" text="dev" />
+				<Code class="mb-1" lang="js" text="dev" />
+				<p class="mt-2 text-sm">
+					Development is faster because it doesn’t require a rebuild for each change.
+				</p>
 			</div>
 			<div>
 				<h4 class="font-bold mb-2">Create a build</h4>
-				<Code lang="js" text="build" />
+				<Code class="mb-1" lang="js" text="build" />
+				<p class="mt-2 text-sm">
+					When you're ready to publish create a build which is minified.
+				</p>
 			</div>
 			<div>
 				<h4 class="font-bold mb-2">Preview in any browser</h4>
-				<Code lang="js" text="preview" />
+				<Code class="mb-1" lang="js" text="preview" />
+				<p class="mt-2 text-sm">
+					Debug and test across different environments using websockets.
+				</p>
 			</div>
 			<div>
 				<h4 class="font-bold mb-2">Release to github</h4>
-				<Code lang="js" text="release" />
+				<Code class="mb-1" lang="js" text="release" />
+				<p class="mt-2 text-sm">
+					A built in command that allows you to keep track of your releases.
+				</p>
 			</div>
 		</div>
 	</Section>
@@ -99,9 +111,9 @@
 			<h2 class="text-4xl font-medium font-poppins leading-[90px] mb-4 text-center">
 				What people are saying
 			</h2>
-			<div class="mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-10">
-				<div class="flex items-center gap-4">
-					<a href="https://x.com/gleb_sexy">
+			<div class="mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-10 items-start">
+				<div class="flex gap-4 items-start">
+					<a href="https://x.com/gleb_sexy" class="mt-1">
 						<img
 							src="https://pbs.twimg.com/profile_images/1589100999091822593/d9zD6NSX_bigger.jpg"
 							alt="Avatar"
@@ -109,7 +121,7 @@
 						/>
 					</a>
 					<div>
-						<h5 class="font-bold">
+						<h5 class="font-bold mt-0 mb-2">
 							<a href="https://x.com/gleb_sexy">Gleb Sabirzyanov</a>
 						</h5>
 						<p>
@@ -119,14 +131,16 @@
 						</p>
 					</div>
 				</div>
-				<div class="flex items-center gap-4">
-					<img
-						src="https://via.placeholder.com/64"
-						alt="Avatar"
-						class="w-16 h-16 rounded-full max-w-none"
-					/>
+				<div class="flex items-start gap-4 align-top">
+					<a href="https://x.com/gleb_sexy" class="mt-1">
+						<img
+							src="https://via.placeholder.com/64"
+							alt="Avatar"
+							class="w-16 h-16 rounded-full max-w-none"
+						/>
+					</a>
 					<div>
-						<h5 class="font-bold">Developer B</h5>
+						<h5 class="font-bold mt-0 mb-2">Developer B</h5>
 						<p>It saved me hours!</p>
 					</div>
 				</div>
@@ -141,11 +155,11 @@
 		position: absolute;
 		top: 0;
 		bottom: 0;
-		left: 0;
+		left: -8px;
 		right: 0;
-		background-image: url('/pattern.svg'); /* Relative path to your SVG */
+		background-image: url('/pattern.svg');
 		background-repeat: repeat; /* This will tile the background */
-		background-size: auto; /* Adjust size as needed, or use 'contain' or 'cover' */
+		background-size: auto;
 		z-index: -1;
 	}
 
@@ -156,6 +170,7 @@
 		left: 0;
 		right: 0;
 		/* background-color: red; */
-		background: linear-gradient(0deg, white, transparent);
+		background: linear-gradient(0deg, var(--color-bg), transparent),
+			linear-gradient(-90deg, var(--color-bg), transparent);
 	}
 </style>

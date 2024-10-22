@@ -48,6 +48,10 @@
 		position: relative;
 		background-color: var(--color-bg);
 	}
+
+	.Code code {
+		/* color: var(--color-text-secondary); */
+	}
 	.copy-button {
 		position: absolute;
 		top: 8px;
@@ -65,7 +69,7 @@
 	}
 
 	.copy-button:hover {
-		background-color: var(--color-bg-hover);
+		background-color: var(--color-bg-secondary-hover);
 	}
 
 	/* If alwaysShowCopyButton is true, make the button always visible */
