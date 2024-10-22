@@ -131,7 +131,7 @@
 						</p>
 					</div>
 				</div>
-				<div class="flex items-start gap-4 align-top">
+				<!-- <div class="flex items-start gap-4 align-top">
 					<a href="https://x.com/gleb_sexy" class="mt-1">
 						<img
 							src="https://via.placeholder.com/64"
@@ -143,7 +143,7 @@
 						<h5 class="font-bold mt-0 mb-2">Developer B</h5>
 						<p>It saved me hours!</p>
 					</div>
-				</div>
+				</div> -->
 			</div>
 			<!-- </div> -->
 		</div>
