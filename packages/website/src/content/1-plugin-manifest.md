@@ -4,6 +4,10 @@ The plugin manifest provides essential information about the plugin, including i
 
 You can define the manifest by placing a `manifest.json` file in the project root or by adding a `plugma.manifest` field to the `package.json` file.
 
+<blockquote class="info">
+It's important that the path in the `main` and `ui` field point to the source files, and not the build files.
+</blockquote>
+
 ##### Using manifest.json
 
 ```json

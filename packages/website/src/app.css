@@ -98,7 +98,7 @@ html {
 body {
 	/* position: relative; */
 	min-height: 100vh;
-	display: flex;
+	/* display: flex; */
 }
 
 /* Syntax highlight */

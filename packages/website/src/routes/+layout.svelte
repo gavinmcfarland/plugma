@@ -56,7 +56,6 @@
 	.app {
 		display: flex;
 		flex-direction: column;
-		/* height: 100%; */
-		flex-grow: 1;
+		min-height: 100vh;
 	}
 </style>

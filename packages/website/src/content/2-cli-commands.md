@@ -1,7 +1,5 @@
 # CLI commands
 
-When using the commands with `npm run` you need to pass the arguments with a double dash `--`, for example `npm run dev -- -p`.
-
 ### dev [options]
 
 Start a server to develop your plugin. This command builds the `ui.html` and points it to the dev server making it easier to debug UI isues.
@@ -79,3 +77,7 @@ plugma release
 # Release a beta version with custom title and notes
 plugma release beta -t "Beta Release v0.2" -n "This release includes new features X and Y"
 ```
+
+<blockquote class="info">
+When using the commands with `npm run` you need to pass the arguments with a double dash `--`, for example `npm run dev -- -p`.
+</blockquote>

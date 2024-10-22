@@ -23,7 +23,7 @@
 </script>
 
 <div>
-	<div class="border-t-0 mt-12 mb-16">
+	<div class="border-t-0 mt-12 mb-16 px-4">
 		<div class="max-w-4xl mx-auto md:flex">
 			<div class="w-64 mb-6 shrink-0">
 				<nav class="md:sticky top-28">

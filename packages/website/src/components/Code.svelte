@@ -32,7 +32,7 @@
 	};
 </script>
 
-<div class="Code border mb-12 rounded-md {$$props.class}">
+<div class="Code border mb-8 rounded-md {$$props.class}">
 	<div class="overflow-scroll p-4 pr-16">
 		<pre><code>{@html html_now}</code></pre>
 		<button
