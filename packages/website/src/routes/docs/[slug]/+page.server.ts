@@ -5,7 +5,22 @@ import { navItems } from '@/stores.js';
 
 export async function load({ params }) {
 	const { slug } = params;
-	const filePath = path.resolve('src/content', `${slug}.md`);
+
+	// Find the correct file without the numeric prefix
+	const contentDir = path.resolve('src/content');
+	const files = fs.readdirSync(contentDir);
+	const matchingFile = files.find(
+		(file) => file.replace(/^\d+-/, '').replace(/\.md$/, '') === slug
+	);
+
+	if (!matchingFile) {
+		return {
+			status: 404,
+			error: new Error('Page not found')
+		};
+	}
+
+	const filePath = path.resolve(contentDir, matchingFile);
 
 	try {
 		// Read the Markdown file content

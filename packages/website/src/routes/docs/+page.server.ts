@@ -13,7 +13,8 @@ export async function load() {
 
 	// If there are any Markdown files, redirect to the first one
 	if (markdownFiles.length > 0) {
-		const firstSlug = markdownFiles[0].replace('.md', '');
+		let firstSlug = markdownFiles[0].replace('.md', '');
+		firstSlug = firstSlug.replace(/^\d+-/, '');
 		console.log(firstSlug);
 		redirect(307, `/docs/${firstSlug}`);
 	} else {

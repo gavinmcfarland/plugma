@@ -3,29 +3,44 @@
 	import { notifications } from '@/stores';
 	import Notification from '@/components/Notification.svelte';
 	import Icon from '@/components/Icon.svelte';
+
+	function getCurrentYear() {
+		const currentYear = new Date().getFullYear();
+		return currentYear;
+	}
+
+	let currentYear = getCurrentYear();
 </script>
 
 <div class="app">
 	<!-- <Header /> -->
 
-	<nav class="p-4 pr-5 flex justify-between items-center border-b sticky top-0 backdrop-blur-lg">
-		<div class="flex">
-			<a href="/" class="items-center flex gap-3">
-				<Icon svg="terminal-filled" size={20} strokeWidth={1.5} />
-				<span>Plugma</span>
-			</a>
-		</div>
-		<div class="flex gap-6">
-			<a href="/docs" class="hover:underline">Docs</a>
-			<a href="https://github.com/yourusername/plugma" class="hover:underline" target="_blank"
-				>GitHub</a
-			>
-		</div>
-	</nav>
+	<div class="p-4 pr-5 flex justify-between border-b sticky top-0 backdrop-blur-lg z-50">
+		<nav class="max-w-7xl mx-auto flex grow justify-between">
+			<div class="flex">
+				<a href="/" class="items-center flex gap-3">
+					<Icon svg="plug-filled" size={20} strokeWidth={1.5} />
+					<span>Plugma</span>
+				</a>
+			</div>
+			<div class="flex gap-6">
+				<a href="/docs" class="hover:underline">Docs</a>
+				<a
+					href="https://github.com/gavinmcfarland/plugma"
+					class="hover:underline"
+					target="_blank">GitHub</a
+				>
+			</div>
+		</nav>
+	</div>
 
-	<main>
+	<main class="grow">
 		<slot />
 	</main>
+
+	<footer class="p-4 flex justify-between">
+		<p class="m-0 text-xs">Copyright {currentYear} &copy; Plugma</p>
+	</footer>
 
 	{#each $notifications as notification}
 		<Notification
@@ -38,7 +53,10 @@
 </div>
 
 <style>
-	* > :global(.Icon) {
-		display: inline-flex;
+	.app {
+		display: flex;
+		flex-direction: column;
+		/* height: 100%; */
+		flex-grow: 1;
 	}
 </style>

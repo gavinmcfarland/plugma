@@ -375,6 +375,23 @@
 		</svg>
 	{/if}
 
+	{#if svg === 'plug-filled'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				fill-rule="evenodd"
+				clip-rule="evenodd"
+				d="M6 2C3.79086 2 2 3.79086 2 6V18C2 20.2091 3.79086 22 6 22H18C20.2091 22 22 20.2091 22 18V6C22 3.79086 20.2091 2 18 2H6ZM6 14H9C9.55228 14 10 14.4477 10 15V16C10 16.5523 9.55228 17 9 17H6C5.44772 17 5 16.5523 5 16V15C5 14.4477 5.44772 14 6 14ZM18 14H15C14.4477 14 14 14.4477 14 15V16C14 16.5523 14.4477 17 15 17H18C18.5523 17 19 16.5523 19 16V15C19 14.4477 18.5523 14 18 14ZM11.5 6H12.5C13.0523 6 13.5 6.44772 13.5 7V10C13.5 10.5523 13.0523 11 12.5 11H11.5C10.9477 11 10.5 10.5523 10.5 10V7C10.5 6.44772 10.9477 6 11.5 6Z"
+				fill={color}
+			/>
+		</svg>
+	{/if}
+
 	{#if svg === 'vite-logo'}
 		<svg
 			style:width={sizePx}
@@ -405,7 +422,7 @@
 		display: inline-block;
 	}
 	.Icon {
-		display: inline-block;
+		display: inline-flex;
 	}
 
 	/* svg {
