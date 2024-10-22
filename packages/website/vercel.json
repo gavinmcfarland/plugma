@@ -1,0 +1,12 @@
+{
+	"builds": [
+		{
+			"src": "content/**/*",
+			"use": "@vercel/static"
+		},
+		{
+			"src": "src/**/*.ts",
+			"use": "@vercel/node"
+		}
+	]
+}
