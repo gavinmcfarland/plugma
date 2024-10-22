@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 export async function load(data) {
-	const contentDir = path.resolve('content');
+	const contentDir = path.join(process.cwd(), 'content');
 	const files = fs.readdirSync(contentDir);
 	const markdownFiles = files.filter((file) => file.endsWith('.md'));
 

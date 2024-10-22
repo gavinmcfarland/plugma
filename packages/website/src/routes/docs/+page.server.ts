@@ -4,7 +4,7 @@ import { redirect } from '@sveltejs/kit';
 
 export async function load() {
 	// Define the path to the content folder
-	const contentDir = path.resolve('src/content');
+	const contentDir = path.join(process.cwd(), 'content');
 
 	const files = fs.readdirSync(contentDir);
 

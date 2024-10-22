@@ -7,7 +7,7 @@ export async function load({ params }) {
 	const { slug } = params;
 
 	// Find the correct file without the numeric prefix
-	const contentDir = path.resolve('content');
+	const contentDir = path.join(process.cwd(), 'content');
 	const files = fs.readdirSync(contentDir);
 	const matchingFile = files.find(
 		(file) => file.replace(/^\d+-/, '').replace(/\.md$/, '') === slug
