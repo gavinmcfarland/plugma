@@ -36,3 +36,17 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+
+## Development notes
+
+Only way I could get it to work was to prerender the site by adding `export const prerender = true;` to `+layout.server.ts`.
+
+I then had to use `@sveltejs/adapter-vercel` inside `svelte.config.js`.
+
+SvelteMarkdown is using an old version of marked which was causing an issue during build. To overcome this I have to add the following to `package.json`.
+
+```
+"resolutions": {
+		"marked": "^14.1.3"
+	},
+```

@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
+export const prerender = true;
+
 export async function load(data) {
 	const contentDir = path.join(process.cwd(), 'content');
 	const files = fs.readdirSync(contentDir);

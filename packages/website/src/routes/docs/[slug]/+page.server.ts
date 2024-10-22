@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import { marked } from 'marked';
 import { navItems } from '@/stores.js';
 
 export async function load({ params }) {
