@@ -36,7 +36,7 @@ dist/
 
 Now, import the plugin by opening the Actions Menu from the Figma desktop app.
 
-1. Yun `Cmd + /` to open the Actions Menu.
+1. Run `Cmd + /` to open the Actions Menu.
 2. Search for `Import plugin from manifest...`.
 3. Navigate to where your plugin is and select the `manifest.json` file inside the `dist` folder.
 

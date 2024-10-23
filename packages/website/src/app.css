@@ -101,6 +101,21 @@ body {
 	/* display: flex; */
 }
 
+ol {
+	list-style: none;
+	counter-reset: my-awesome-counter;
+}
+ol li {
+	counter-increment: my-awesome-counter;
+	margin-left: 24px;
+}
+ol li::before {
+	content: counter(my-awesome-counter) '. ';
+	margin-left: -24px;
+	display: inline-block;
+	min-width: 24px;
+}
+
 /* Syntax highlight */
 
 @media (prefers-color-scheme: light) {
