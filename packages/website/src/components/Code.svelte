@@ -2,16 +2,20 @@
 	import { onMount } from 'svelte';
 	import hljs from 'highlight.js';
 	import bash from 'highlight.js/lib/languages/bash';
+	import js from 'highlight.js/lib/languages/javascript';
 	import Icon from './Icon.svelte';
 	import { notify } from '@/stores';
 
 	hljs.registerLanguage('bash', bash);
+	hljs.registerLanguage('js', js);
 
 	export let lang;
 	export let text;
 	export let persistCopyButton = false;
 
-	$: html_now = hljs.highlight(text, { language: 'bash' }).value;
+	console.log(lang);
+
+	$: html_now = hljs.highlight(text, { language: lang }).value;
 
 	onMount(() => {
 		document.addEventListener('DOMContentLoaded', (event) => {

@@ -43,8 +43,8 @@
 
 	<footer class="p-4 flex justify-between">
 		<p class="m-0 text-sm">Copyright {currentYear} &copy; Plugma</p>
-		<p class="m-0 text-sm hover:underline">
-			by <a href="https://x.com/gavinmcfarland">@gavinmcfarland</a>
+		<p class="m-0 text-sm">
+			by <a class="hover:underline" href="https://x.com/gavinmcfarland">@gavinmcfarland</a>
 		</p>
 	</footer>
 

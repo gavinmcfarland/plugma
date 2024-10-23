@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores'; // To get the current page URL and slug
+	import Icon from '@/components/Icon.svelte';
 	import { onMount } from 'svelte';
 	export let data;
 
@@ -25,7 +26,7 @@
 <div>
 	<div class="border-t-0 mt-12 mb-16 px-4">
 		<div class="max-w-4xl mx-auto md:flex">
-			<div class="w-64 mb-6 shrink-0">
+			<div class="w-64 mb-12 shrink-0">
 				<nav class="md:sticky top-28">
 					<ul>
 						{#each data.navItems as { slug: itemSlug, title }}
@@ -49,16 +50,20 @@
 				<div class="mt-8 flex justify-between">
 					<div>
 						{#if prevItem}
-							<a href={`/docs/${prevItem.slug}`} class="hover:underline"
-								>← {prevItem.title}</a
+							<a
+								href={`/docs/${prevItem.slug}`}
+								class="hover:underline flex items-center gap-2"
+								><Icon svg="arrow-left" strokeWidth={2} />{prevItem.title}</a
 							>
 						{/if}
 					</div>
 
 					<div>
 						{#if nextItem}
-							<a href={`/docs/${nextItem.slug}`} class="hover:underline"
-								>{nextItem.title} →</a
+							<a
+								href={`/docs/${nextItem.slug}`}
+								class="hover:underline flex items-center gap-2"
+								>{nextItem.title}<Icon svg="arrow-right" strokeWidth={2} /></a
 							>
 						{/if}
 					</div>

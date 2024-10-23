@@ -59,7 +59,7 @@ a {
 }
 
 h1 {
-	@apply text-4xl font-medium mb-12;
+	@apply text-4xl font-medium mb-10;
 }
 
 h2 {
