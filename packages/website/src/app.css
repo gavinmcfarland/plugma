@@ -116,6 +116,14 @@ ol li::before {
 	min-width: 24px;
 }
 
+.main-content a {
+	color: var(--color-text);
+}
+
+.main-content a:hover {
+	text-decoration: underline;
+}
+
 /* Syntax highlight */
 
 @media (prefers-color-scheme: light) {

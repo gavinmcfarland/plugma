@@ -43,7 +43,7 @@
 				</nav>
 			</div>
 
-			<div class="grow overflow-hidden">
+			<div class="grow overflow-hidden main-content">
 				<slot />
 
 				<!-- Add next and previous navigation links -->

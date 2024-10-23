@@ -43,7 +43,7 @@
 
 		<div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
 			<Card>
-				<Icon svg="bolt" size={48} strokeWidth={1.1} />
+				<Icon svg="bolt" size={48} strokeWidth={1.1} isAnimated />
 				<h2 class="text-lg font-medium">Faster development</h2>
 				<p>
 					Accelerates development and improves debugging by eliminating the need to
@@ -52,7 +52,7 @@
 			</Card>
 
 			<Card>
-				<Icon svg="window" size={48} strokeWidth={1.1} />
+				<Icon svg="window" size={48} strokeWidth={1.1} isAnimated />
 				<h2 class="text-lg font-medium">Browser preview</h2>
 				<p>
 					Preview in any browser during development using websockets to pass messages from
@@ -61,7 +61,7 @@
 			</Card>
 
 			<Card>
-				<Icon svg="vite-logo" size={48} strokeWidth={1.1} />
+				<Icon svg="vite-logo" size={48} strokeWidth={1.1} isAnimated />
 				<h2 class="text-lg font-medium">Built with Vite</h2>
 				<p>
 					Built using Vite, it works seamlessly with most frameworks and offers support
@@ -77,26 +77,22 @@
 			<div>
 				<h4 class="font-bold mb-2">Start dev server</h4>
 				<Code class="mb-1" lang="js" text="dev" />
-				<p class="-mt-6">
-					Development is faster because it doesn’t require a rebuild for each change.
-				</p>
+				<p>Development is faster because it doesn’t require a rebuild for each change.</p>
 			</div>
 			<div>
 				<h4 class="font-bold mb-2">Create a build</h4>
 				<Code class="mb-1" lang="js" text="build" />
-				<p class="-mt-6">When you're ready to publish create a build which is minified.</p>
+				<p>When you're ready to publish create a build which is minified.</p>
 			</div>
 			<div>
 				<h4 class="font-bold mb-2">Preview in any browser</h4>
 				<Code class="mb-1" lang="js" text="preview" />
-				<p class="-mt-6">Debug and test across different environments using websockets.</p>
+				<p>Debug and test across different environments using websockets.</p>
 			</div>
 			<div>
 				<h4 class="font-bold mb-2">Release to github</h4>
 				<Code class="mb-1" lang="js" text="release" />
-				<p class="-mt-6">
-					A built in command that allows you to keep track of your releases.
-				</p>
+				<p>A built in command that allows you to keep track of your releases.</p>
 			</div>
 		</div>
 	</Section>

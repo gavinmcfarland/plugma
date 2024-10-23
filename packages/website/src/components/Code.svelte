@@ -40,6 +40,7 @@
 	<div class="overflow-scroll p-4 pr-16">
 		<pre><code>{@html html_now}</code></pre>
 		<button
+			aria-label="Copy code"
 			class="copy-button p-2 {persistCopyButton ? 'visible' : 'hidden'}"
 			on:click={copyToClipboard}><Icon size={24} svg="copy" /></button
 		>
@@ -51,6 +52,7 @@
 	.Code {
 		position: relative;
 		background-color: var(--color-bg);
+		@apply my-4;
 	}
 
 	.Code code {
@@ -88,4 +90,8 @@
 	/* * > :global(.Icon) {
 		display: table;
 	} */
+
+	.hidden-text {
+		display: none;
+	}
 </style>

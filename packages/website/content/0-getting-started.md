@@ -2,46 +2,39 @@
 
 Plugma is a powerful command-line interface designed to streamline your development workflow. It makes it easier to create, build, and manage your plugins.
 
-### Installation
+### Start from a template
 
-To create a new plugin, run the following command in your terminal and follow the prompts.
+To create a plugin from a template, run the following command in your terminal and follow the prompts.
 
 ```bash
 npm create plugma@latest
 ```
 
-After this, change the directory to the plugin and install the dependencies.
+After this, change to the plugin directory and install the dependencies.
 
 ```bash
 cd my-plugin
 npm install
 ```
 
-### Basic usage
+### Develop and import
 
-To start developing, run the following command.
+To watch for changes while developing, run the following.
 
 ```bash
 npm run dev
 ```
 
-This will create a build in the `dist` folder that will look like this.
+1. Open a file in Figma.
+2. Search for "Import plugin from manifest..." using the [Quick Actions](https://help.figma.com/hc/en-us/articles/23570416033943-Use-the-actions-menu-in-Figma-Design) bar.
+3. Choose the `manifest.json` file from the `dist` folder.
 
-```bash
-dist/
-  ui.html
-  code.js
-  manifest.json
-```
-
-Now, import the plugin by opening the Actions Menu from the Figma desktop app.
-
-1. Run `Cmd + /` to open the Actions Menu.
-2. Search for `Import plugin from manifest...`.
-3. Navigate to where your plugin is and select the `manifest.json` file inside the `dist` folder.
-
-To open your plugin open the Actions Menu again and then search for your plugin. It should appear in the menu and will open when you select it. From now on any changes you make to the code will be reflected instantly in the UI.
+To open your plugin, go to the Actions Menu, search for your plugin, and select it. Your code changes will now update instantly in the UI.
 
 ### Before publishing
 
-When publishing your plugin, remember to create a build. Otherwise, when users open your plugin, it will still point to the dev server, and it will not work correctly.
+Before publishing your plugin, make sure to create a build. If not, it will still point to the dev server and won't work properly for users.
+
+```bash
+npm run build
+```

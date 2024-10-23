@@ -1,14 +1,18 @@
-# CLI commands
+# Running CLI commands
+
+<blockquote class="info">
+When using the commands with `npm run` you need to pass the arguments with a double dash `--`, for example `npm run dev -- -p`.
+</blockquote>
 
 ### dev [options]
 
-Start a server to develop your plugin. This command builds the `ui.html` and points it to the dev server making it easier to debug UI isues.
+Start a server to develop your plugin. This command builds the `ui.html` and points it to the dev server making it easier to develop and debug your plugin.
 
 ##### Options
 
 -   `-p`, `--port`: Specify a port number for the plugin preview.
 -   `-m`, `--mode`: Specify a mode.
--   `-ws`, `--websockets`: Enable websockets to preview in browser. (dev only)
+-   `-ws`, `--websockets`: Enable websockets to preview in browser.
 
 ##### Example
 
@@ -41,7 +45,7 @@ plugma build -w
 
 ### Preview [options]
 
-Preview the plugin in a browser preview. This allows you to see how your plugin will look and function in any web browser. The plugin must be open in the Figma desktop app for this to work.
+Preview your plugin in any browser to see how it looks and works. Make sure the plugin is open in the Figma desktop app for this to work.
 
 ##### Options
 
@@ -77,7 +81,3 @@ plugma release
 # Release a beta version with custom title and notes
 plugma release beta -t "Beta Release v0.2" -n "This release includes new features X and Y"
 ```
-
-<blockquote class="info">
-When using the commands with `npm run` you need to pass the arguments with a double dash `--`, for example `npm run dev -- -p`.
-</blockquote>
