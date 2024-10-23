@@ -33,7 +33,7 @@
 					lang="js"
 					text="npm create plugma@latest"
 				/>
-				<Button href="docs/getting-started">Get started</Button>
+				<Button class="mt-4 " href="docs/getting-started">Get started</Button>
 			</div>
 		</div>
 	</Section>
@@ -75,22 +75,22 @@
 		<h2 class="text-4xl text-center font-medium mb-12">Commands</h2>
 		<div class="lg:max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
 			<div>
-				<h4 class="font-bold mb-2">Start dev server</h4>
+				<h3 class="font-bold mb-2">Start dev server</h3>
 				<Code class="mb-1" lang="js" text="dev" />
 				<p>Development is faster because it doesn’t require a rebuild for each change.</p>
 			</div>
 			<div>
-				<h4 class="font-bold mb-2">Create a build</h4>
+				<h3 class="font-bold mb-2">Create a build</h3>
 				<Code class="mb-1" lang="js" text="build" />
 				<p>When you're ready to publish create a build which is minified.</p>
 			</div>
 			<div>
-				<h4 class="font-bold mb-2">Preview in any browser</h4>
+				<h3 class="font-bold mb-2">Preview in any browser</h3>
 				<Code class="mb-1" lang="js" text="preview" />
 				<p>Debug and test across different environments using websockets.</p>
 			</div>
 			<div>
-				<h4 class="font-bold mb-2">Release to github</h4>
+				<h3 class="font-bold mb-2">Release to github</h3>
 				<Code class="mb-1" lang="js" text="release" />
 				<p>A built in command that allows you to keep track of your releases.</p>
 			</div>
@@ -112,9 +112,9 @@
 						/>
 					</a>
 					<div>
-						<h5 class="font-bold mt-0 -mb-2">
+						<h3 class="font-bold mt-0 -mb-2">
 							<a href="https://x.com/gleb_sexy">Gleb Sabirzyanov</a>
-						</h5>
+						</h3>
 						<p>
 							Plugma takes away the pain of setting up a plugin development
 							environment. It's so effortless and requires zero config. Used it for
@@ -133,9 +133,9 @@
 						/>
 					</a>
 					<div>
-						<h5 class="font-bold mt-0 -mb-2">
+						<h3 class="font-bold mt-0 -mb-2">
 							<a href="https://x.com/chen_ed5557">Chen Chen</a>
-						</h5>
+						</h3>
 						<p>
 							Plugma elevates the developer experience for Figma plugins like never
 							before. With features like HMR and browser preview, it saved me much

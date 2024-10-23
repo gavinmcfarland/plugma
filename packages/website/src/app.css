@@ -66,10 +66,11 @@ h2 {
 	@apply text-2xl;
 }
 
-h3 {
-	@apply text-xl font-medium mt-6 mb-4;
+.main-content h3 {
+	@apply text-xl font-medium mt-6 mb-4 pb-3;
 }
 
+h3,
 h5 {
 	@apply text-base font-medium mt-6 mb-4;
 }

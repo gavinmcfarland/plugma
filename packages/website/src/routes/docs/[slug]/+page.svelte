@@ -29,7 +29,6 @@
 
 <style>
 	* > :global(h3) {
-		padding-bottom: 8px;
 		border-bottom: 1px solid var(--color-border);
 	}
 

@@ -336,6 +336,7 @@
 		stroke-dasharray: 1000; /* Ensures the path is longer than any of the SVGs' lengths */
 		stroke-dashoffset: 1000;
 		animation: dash-animation 2s ease-in-out forwards;
+		animation-delay: 0.5s;
 	}
 
 	.animated-dot {
