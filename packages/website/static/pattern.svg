@@ -1,22 +1,12 @@
 <svg width="48" height="48" viewBox="0 0 48 48" xmlns='http://www.w3.org/2000/svg' >
-  <style>
-        path {
-            fill: #000;
-        }
-        @media (prefers-color-scheme: dark) {
-            path {
-                fill: #fff;
-            }
-        }
-  </style>
   <g opacity="0.2">
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M24 19H23V23H19V24H23V28H24V24H28V23H24V19Z" fill="currentColor"></path>
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M0 19H-1V23H-5V24H-1V28H0V24H4V23H0V19Z" fill="currentColor"></path>
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M24 43H23V47H19V48H23V52H24V48H28V47H24V43Z" fill="currentColor"></path>
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M0 43H-1V47H-5V48H-1V52H0V48H4V47H0V43Z" fill="currentColor"></path>
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M24 -5H23V-1H19V0H23V4H24V0H28V-1H24V-5Z" fill="currentColor"></path>
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M48 19H47V23H43V24H47V28H48V24H52V23H48V19Z" fill="currentColor"></path>
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M48 43H47V47H43V48H47V52H48V48H52V47H48V43Z" fill="currentColor"></path>
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M48 -5H47V-1H43V0H47V4H48V0H52V-1H48V-5Z" fill="currentColor"></path>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M24 19H23V23H19V24H23V28H24V24H28V23H24V19Z" fill="black"></path>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M0 19H-1V23H-5V24H-1V28H0V24H4V23H0V19Z" fill="black"></path>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M24 43H23V47H19V48H23V52H24V48H28V47H24V43Z" fill="black"></path>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M0 43H-1V47H-5V48H-1V52H0V48H4V47H0V43Z" fill="black"></path>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M24 -5H23V-1H19V0H23V4H24V0H28V-1H24V-5Z" fill="black"></path>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M48 19H47V23H43V24H47V28H48V24H52V23H48V19Z" fill="black"></path>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M48 43H47V47H43V48H47V52H48V48H52V47H48V43Z" fill="black"></path>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M48 -5H47V-1H43V0H47V4H48V0H52V-1H48V-5Z" fill="black"></path>
   </g>
 </svg>
