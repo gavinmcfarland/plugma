@@ -38,7 +38,7 @@
 		</div>
 	</Section>
 
-	<Section class="border-t-0 md:pt-0">
+	<Section class="border-t-0 pt-0 md:pt-0">
 		<h2 class="text-4xl sm:text-4xl text-center font-medium mb-8">Features</h2>
 
 		<div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
@@ -101,9 +101,8 @@
 		</div>
 	</Section>
 
-	<!-- <Section>
+	<Section>
 		<div class="max-w-5xl mx-auto">
-
 			<h2 class="text-4xl font-medium font-poppins leading-[90px] mb-4 text-center">
 				What people are saying
 			</h2>
@@ -121,17 +120,36 @@
 							<a href="https://x.com/gleb_sexy">Gleb Sabirzyanov</a>
 						</h5>
 						<p>
-							Plugma takes away the pain of setting up plugin development environment.
-							It's so effortless and requires zero config. Used it for multiple
-							plugins already, I never had such a hassle-free environment before.
+							Plugma takes away the pain of setting up a plugin development
+							environment. It's so effortless and requires zero config. Used it for
+							multiple plugins already, I never had such a hassle-free environment
+							before.
 						</p>
 					</div>
 				</div>
 
+				<div class="flex gap-4 items-start">
+					<a href="https://x.com/gleb_sexy" class="mt-1">
+						<img
+							src="https://pbs.twimg.com/profile_images/1793940065388986368/glKCxNtj_bigger.jpg"
+							alt="Avatar"
+							class="w-16 h-16 rounded-full max-w-none"
+						/>
+					</a>
+					<div>
+						<h5 class="font-bold mt-0 -mb-2">
+							<a href="https://x.com/chen_ed5557">Chen Chen</a>
+						</h5>
+						<p>
+							Plugma elevates the developer experience for Figma plugins like never
+							before. With features like HMR and browser preview, it saved me much
+							time on debugging plugin UI.
+						</p>
+					</div>
+				</div>
 			</div>
-
 		</div>
-	</Section> -->
+	</Section>
 </div>
 
 <style>

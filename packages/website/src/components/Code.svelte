@@ -3,17 +3,17 @@
 	import hljs from 'highlight.js';
 	import bash from 'highlight.js/lib/languages/bash';
 	import js from 'highlight.js/lib/languages/javascript';
+	import json from 'highlight.js/lib/languages/json';
 	import Icon from './Icon.svelte';
 	import { notify } from '@/stores';
 
 	hljs.registerLanguage('bash', bash);
 	hljs.registerLanguage('js', js);
+	hljs.registerLanguage('json', json);
 
 	export let lang;
 	export let text;
 	export let persistCopyButton = false;
-
-	console.log(lang);
 
 	$: html_now = hljs.highlight(text, { language: lang }).value;
 

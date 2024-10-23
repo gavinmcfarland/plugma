@@ -27,7 +27,7 @@
 	<div class="border-t-0 mt-12 mb-16 px-4">
 		<div class="max-w-4xl mx-auto md:flex">
 			<div class="w-64 mb-12 shrink-0">
-				<nav class="md:sticky top-28">
+				<nav class="md:sticky top-[105px]">
 					<ul>
 						{#each data.navItems as { slug: itemSlug, title }}
 							<li>
