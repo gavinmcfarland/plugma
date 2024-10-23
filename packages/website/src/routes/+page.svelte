@@ -38,7 +38,7 @@
 		</div>
 	</Section>
 
-	<Section class="border-t-0 md:pt-10">
+	<Section class="border-t-0 md:pt-0">
 		<h2 class="text-4xl sm:text-4xl text-center font-medium mb-8">Features</h2>
 
 		<div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
@@ -77,37 +77,33 @@
 			<div>
 				<h4 class="font-bold mb-2">Start dev server</h4>
 				<Code class="mb-1" lang="js" text="dev" />
-				<p class="mt-2 text-sm">
+				<p class="-mt-6">
 					Development is faster because it doesn’t require a rebuild for each change.
 				</p>
 			</div>
 			<div>
 				<h4 class="font-bold mb-2">Create a build</h4>
 				<Code class="mb-1" lang="js" text="build" />
-				<p class="mt-2 text-sm">
-					When you're ready to publish create a build which is minified.
-				</p>
+				<p class="-mt-6">When you're ready to publish create a build which is minified.</p>
 			</div>
 			<div>
 				<h4 class="font-bold mb-2">Preview in any browser</h4>
 				<Code class="mb-1" lang="js" text="preview" />
-				<p class="mt-2 text-sm">
-					Debug and test across different environments using websockets.
-				</p>
+				<p class="-mt-6">Debug and test across different environments using websockets.</p>
 			</div>
 			<div>
 				<h4 class="font-bold mb-2">Release to github</h4>
 				<Code class="mb-1" lang="js" text="release" />
-				<p class="mt-2 text-sm">
+				<p class="-mt-6">
 					A built in command that allows you to keep track of your releases.
 				</p>
 			</div>
 		</div>
 	</Section>
 
-	<Section>
+	<!-- <Section>
 		<div class="max-w-5xl mx-auto">
-			<!-- <div class="text-center"> -->
+
 			<h2 class="text-4xl font-medium font-poppins leading-[90px] mb-4 text-center">
 				What people are saying
 			</h2>
@@ -121,7 +117,7 @@
 						/>
 					</a>
 					<div>
-						<h5 class="font-bold mt-0 mb-2">
+						<h5 class="font-bold mt-0 -mb-2">
 							<a href="https://x.com/gleb_sexy">Gleb Sabirzyanov</a>
 						</h5>
 						<p>
@@ -131,23 +127,11 @@
 						</p>
 					</div>
 				</div>
-				<!-- <div class="flex items-start gap-4 align-top">
-					<a href="https://x.com/gleb_sexy" class="mt-1">
-						<img
-							src="https://via.placeholder.com/64"
-							alt="Avatar"
-							class="w-16 h-16 rounded-full max-w-none"
-						/>
-					</a>
-					<div>
-						<h5 class="font-bold mt-0 mb-2">Developer B</h5>
-						<p>It saved me hours!</p>
-					</div>
-				</div> -->
+
 			</div>
-			<!-- </div> -->
+
 		</div>
-	</Section>
+	</Section> -->
 </div>
 
 <style>
