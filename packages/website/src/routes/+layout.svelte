@@ -1,4 +1,5 @@
 <script>
+	import { inject } from '@vercel/analytics';
 	import '../app.css';
 	import { notifications } from '@/stores';
 	import Notification from '@/components/Notification.svelte';
