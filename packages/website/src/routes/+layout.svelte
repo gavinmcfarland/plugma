@@ -5,6 +5,8 @@
 	import Notification from '@/components/Notification.svelte';
 	import Icon from '@/components/Icon.svelte';
 
+	inject();
+
 	function getCurrentYear() {
 		const currentYear = new Date().getFullYear();
 		return currentYear;
