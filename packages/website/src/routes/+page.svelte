@@ -71,7 +71,7 @@
 		</div>
 	</Section>
 
-	<Section>
+	<Section class="commands">
 		<h2 class="text-4xl text-center font-medium mb-12">Commands</h2>
 		<div class="lg:max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
 			<div>
@@ -99,9 +99,7 @@
 
 	<Section>
 		<div class="max-w-5xl mx-auto">
-			<h2 class="text-4xl font-medium font-poppins leading-[90px] mb-4 text-center">
-				What people are saying
-			</h2>
+			<h2 class="text-4xl text-center font-medium mb-12">What people are saying</h2>
 			<div class="mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-10 items-start">
 				<div class="flex gap-4 items-start">
 					<a href="https://x.com/gleb_sexy" class="mt-1">
@@ -149,6 +147,14 @@
 </div>
 
 <style>
+	.commands > .grid :first-child {
+		margin-top: 0;
+	}
+
+	.commands > .grid :last-child {
+		margin-bottom: 0;
+	}
+
 	.svg-background {
 		position: absolute;
 		top: 0;
