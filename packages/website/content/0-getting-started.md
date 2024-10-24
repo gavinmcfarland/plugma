@@ -26,10 +26,10 @@ npm run dev
 ```
 
 1. Open a file in Figma.
-2. Search for "Import plugin from manifest..." using the [Quick Actions](https://help.figma.com/hc/en-us/articles/23570416033943-Use-the-actions-menu-in-Figma-Design) bar.
+2. Search for "Import plugin from manifest..." using the [Actions](https://help.figma.com/hc/en-us/articles/23570416033943-Use-the-actions-menu-in-Figma-Design) menu.
 3. Choose the `manifest.json` file from the `dist` folder.
 
-To open your plugin, go to the Actions Menu, search for your plugin, and select it. Your code changes will now update instantly in the UI.
+To open your plugin, go to the Actions menu, search for your plugin, and select it. Your code changes will now update instantly in the UI.
 
 ### Before publishing
 

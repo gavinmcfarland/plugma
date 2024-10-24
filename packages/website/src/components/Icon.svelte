@@ -319,6 +319,26 @@
 			/>
 		</svg>
 	{/if}
+
+	{#if svg === 'check'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M4 12L9.33333 18L20 6"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				class:animated-path={isAnimated}
+			/>
+		</svg>
+	{/if}
 </span>
 
 <style>
@@ -336,13 +356,13 @@
 		stroke-dasharray: 1000; /* Ensures the path is longer than any of the SVGs' lengths */
 		stroke-dashoffset: 1000;
 		animation: dash-animation 2s ease-in-out forwards;
-		animation-delay: 0.5s;
+		/* animation-delay: 0.5s; */
 	}
 
 	.animated-dot {
 		opacity: 0;
 		animation: fade-in 0.5s ease-in-out forwards;
-		animation-delay: 0.5s; /* Delay the dots so they appear after the paths */
+		/* animation-delay: 0.5s; */
 	}
 
 	@keyframes dash-animation {

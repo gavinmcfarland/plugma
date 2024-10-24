@@ -16,6 +16,7 @@
 		background-color: var(--color-bg-reverse);
 		color: var(--color-text-reverse);
 		display: inline-block;
+		font-weight: 500;
 	}
 
 	.Button:hover {

@@ -14,6 +14,7 @@
 	export let lang;
 	export let text;
 	export let persistCopyButton = false;
+	let copied = false; // State to track if the text is copied
 
 	$: html_now = hljs.highlight(text, { language: lang }).value;
 
@@ -31,8 +32,9 @@
 		tempInput.select();
 		document.execCommand('copy');
 		document.body.removeChild(tempInput);
-		// alert('Text copied to clipboard')
-		notify({ type: 'passive', message: 'Text copied to clipboard', timeout: 5000 });
+		// notify({ type: 'passive', message: 'Text copied to clipboard', timeout: 5000 });
+		copied = true; // Set copied to true
+		setTimeout(() => (copied = false), 5000); // Reset copied state after 5 seconds
 	};
 </script>
 
@@ -42,12 +44,19 @@
 		<button
 			aria-label="Copy code"
 			class="copy-button p-2 {persistCopyButton ? 'visible' : 'hidden'}"
-			on:click={copyToClipboard}><Icon size={24} svg="copy" /></button
+			class:copied
+			on:click={copyToClipboard}
 		>
+			{#if copied}
+				<Icon size={24} svg="check" isAnimated color="var(--color-success)" />
+				<!-- Display tick icon when copied -->
+			{:else}
+				<Icon size={24} svg="copy" /> <!-- Default copy icon -->
+			{/if}
+		</button>
 	</div>
 </div>
 
-<!-- Optional CSS for the button -->
 <style>
 	.Code {
 		position: relative;
@@ -62,14 +71,12 @@
 		position: absolute;
 		top: 8px;
 		right: 8px;
-		/* display: none; */
 		border: none;
 		border-radius: 4px;
 		cursor: pointer;
 		display: inline-flex;
 	}
 
-	/* Show copy button on hover */
 	.Code:hover .copy-button {
 		opacity: 1;
 	}
@@ -78,20 +85,12 @@
 		background-color: var(--color-bg-secondary-hover);
 	}
 
-	/* If alwaysShowCopyButton is true, make the button always visible */
-	.visible {
-		opacity: 1;
-	}
-
 	.hidden {
 		opacity: 0;
 	}
 
-	/* * > :global(.Icon) {
-		display: table;
-	} */
-
-	.hidden-text {
-		display: none;
+	.visible,
+	.copied {
+		opacity: 1;
 	}
 </style>

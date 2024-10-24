@@ -1,4 +1,4 @@
-# Defining plugin manifest
+# Defining the plugin manifest
 
 You can define the manifest by placing a `manifest.json` file in the project root or by adding a `plugma.manifest` field to the `package.json` file.
 

@@ -19,6 +19,8 @@
 		--color-bg-hover: #4c4c4c;
 		--color-bg-secondary-hover: #e7e7e7;
 		--color-border: lightgrey;
+
+		--color-success: #22863a;
 	}
 
 	/* Dark mode colors */
@@ -36,6 +38,8 @@
 			--color-bg-hover: #cbcbcb;
 			--color-bg-secondary-hover: #292929;
 			--color-border: #4b4b4b;
+
+			--color-success: #7ee787;
 		}
 	}
 }
