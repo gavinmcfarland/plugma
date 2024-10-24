@@ -55,7 +55,7 @@
 	@media (prefers-color-scheme: dark) {
 		.Button .text {
 			background-image: linear-gradient(
-				90deg,
+				152deg,
 				hsla(0 0% 0% / 1) 0%,
 				hsla(0 0% 0% / 0.4) 120%
 			);
