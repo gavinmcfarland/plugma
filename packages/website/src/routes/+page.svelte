@@ -24,7 +24,7 @@
 		<div class="max-w-6xl mx-auto">
 			<div class="text-center">
 				<h1 class="text-5xl/tight md:text-7xl/tight text-center font-medium mb-6">
-					Create Figma plugins <br />without the boilerplate
+					Create Figma plugins <br />without the hassle
 				</h1>
 				<p class="mb-6">Supports React, Svelte, Vue, and JavaScript</p>
 				<Code
@@ -33,7 +33,7 @@
 					lang="js"
 					text="npm create plugma@latest"
 				/>
-				<Button class="mt-4 shadow-md" href="docs/getting-started">Get started</Button>
+				<Button class="mt-4" href="docs/getting-started">Get started</Button>
 			</div>
 		</div>
 	</Section>
@@ -89,12 +89,15 @@
 			<div>
 				<h3 class="font-bold mb-2">Create a build</h3>
 				<Code class="mb-1" lang="js" text="plugma build" />
-				<p>When you're ready to publish create a build which is minified.</p>
+				<p>
+					When you're ready to publish, create a minified version with with everything
+					inlined.
+				</p>
 			</div>
 			<div>
 				<h3 class="font-bold mb-2">Release to github</h3>
 				<Code class="mb-1" lang="js" text="plugma release" />
-				<p>A built in command that allows you to keep track of your releases.</p>
+				<p>A built-in command that allows you to keep track of your releases.</p>
 			</div>
 		</div>
 	</Section>
@@ -106,7 +109,7 @@
 				<div class="flex gap-4 items-start">
 					<a href="https://x.com/gleb_sexy" class="mt-1">
 						<img
-							src="https://pbs.twimg.com/profile_images/1589100999091822593/d9zD6NSX_bigger.jpg"
+							src="/UiC9AmCX_400x400.jpg"
 							alt="Avatar"
 							class="w-16 h-16 rounded-full max-w-none"
 						/>
@@ -125,9 +128,9 @@
 				</div>
 
 				<div class="flex gap-4 items-start">
-					<a href="https://x.com/gleb_sexy" class="mt-1">
+					<a href="https://x.com/chen_ed5557" class="mt-1">
 						<img
-							src="https://pbs.twimg.com/profile_images/1793940065388986368/glKCxNtj_bigger.jpg"
+							src="/glKCxNtj_400x400.jpg"
 							alt="Avatar"
 							class="w-16 h-16 rounded-full max-w-none"
 						/>

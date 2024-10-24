@@ -21,6 +21,7 @@
 		--color-border: lightgrey;
 
 		--color-success: #22863a;
+		--color-info: #005cc5;
 	}
 
 	/* Dark mode colors */
@@ -31,7 +32,7 @@
 			--color-text-code: white;
 			--color-text-code-comment: #858585;
 			--color-text-reverse: black;
-			--color-bg: black;
+			--color-bg: #0f0f0f;
 			--color-bg-secondary: #292929;
 			--color-bg-reverse: white;
 
@@ -40,6 +41,7 @@
 			--color-border: #4b4b4b;
 
 			--color-success: #7ee787;
+			--color-info: #79c0ff;
 		}
 	}
 }
