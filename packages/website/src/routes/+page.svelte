@@ -23,10 +23,10 @@
 		</div>
 		<div class="max-w-6xl mx-auto">
 			<div class="text-center">
-				<h1 class="text-5xl/tight md:text-7xl/tight text-center font-medium mb-6">
+				<h1 class="text-5xl/tight md:text-7xl/tight text-center font-medium mb-4">
 					Create Figma plugins <br />without the hassle
 				</h1>
-				<p class="mb-6">Supports React, Svelte, Vue, and JavaScript</p>
+				<p class="mb-10">Supports React, Svelte, Vue, and JavaScript</p>
 				<Code
 					class="max-w-fit mx-auto"
 					persistCopyButton
