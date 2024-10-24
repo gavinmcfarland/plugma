@@ -4,11 +4,11 @@
 </script>
 
 {#if href}
-	<a class="Button px-6 py-4 rounded-full {$$props.class}" {href} {target}
+	<a class="Button px-7 py-4 rounded-full {$$props.class}" {href} {target}
 		><span class="text"><slot></slot></span></a
 	>
 {:else}
-	<button class="Button px-56 py-4 rounded-full">
+	<button class="Button px-7 py-4 rounded-full">
 		<span class="text">
 			<slot></slot>
 		</span>
