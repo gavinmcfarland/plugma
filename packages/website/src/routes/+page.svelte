@@ -26,7 +26,7 @@
 				<h1 class="text-5xl/tight md:text-7xl/tight text-center font-medium mb-4">
 					Create Figma plugins <br />without the hassle
 				</h1>
-				<p class="mb-10">Supports React, Svelte, Vue, and JavaScript</p>
+				<p class="mb-10">Supports React, Svelte, Vue, and vanilla JS/TS</p>
 				<Code
 					class="max-w-fit mx-auto"
 					persistCopyButton
