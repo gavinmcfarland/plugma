@@ -76,22 +76,22 @@
 		<div class="lg:max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
 			<div>
 				<h3 class="font-bold mb-2">Start dev server</h3>
-				<Code class="mb-1" lang="js" text="dev" />
+				<Code class="mb-1" lang="js" text="plugma dev" />
 				<p>Development is faster because it doesn’t require a rebuild for each change.</p>
 			</div>
 			<div>
 				<h3 class="font-bold mb-2">Create a build</h3>
-				<Code class="mb-1" lang="js" text="build" />
+				<Code class="mb-1" lang="js" text="plugma build" />
 				<p>When you're ready to publish create a build which is minified.</p>
 			</div>
 			<div>
 				<h3 class="font-bold mb-2">Preview in any browser</h3>
-				<Code class="mb-1" lang="js" text="preview" />
+				<Code class="mb-1" lang="js" text="plugma preview" />
 				<p>Debug and test across different environments using websockets.</p>
 			</div>
 			<div>
 				<h3 class="font-bold mb-2">Release to github</h3>
-				<Code class="mb-1" lang="js" text="release" />
+				<Code class="mb-1" lang="js" text="plugma release" />
 				<p>A built in command that allows you to keep track of your releases.</p>
 			</div>
 		</div>
