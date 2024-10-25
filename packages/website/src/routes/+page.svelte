@@ -24,9 +24,7 @@
 		<div class="max-w-6xl mx-auto">
 			<div class="text-center">
 				<span class="badge">v1 coming soon</span>
-				<h1
-					class="text-3xl/tight sm:text-5xl/tight md:text-7xl/tight text-center font-medium mb-4"
-				>
+				<h1 class="text-5xl/tight md:text-7xl/tight text-center font-medium mb-4">
 					Create Figma plugins <br />without the hassle
 				</h1>
 				<p class="mb-10">Supports React, Svelte, Vue, and vanilla JS/TS</p>
@@ -42,7 +40,7 @@
 	</Section>
 
 	<Section class="border-t-0 pt-0 md:pt-0">
-		<h2 class="text-4xl sm:text-4xl text-center font-medium mb-8">Features</h2>
+		<h2 class="text-3xl sm:text-4xl text-center font-medium mb-8">Features</h2>
 
 		<div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
 			<Card>
@@ -75,7 +73,7 @@
 	</Section>
 
 	<Section class="commands">
-		<h2 class="text-4xl text-center font-medium mb-12">Commands</h2>
+		<h2 class="text-3xl text-center font-medium mb-12">Commands</h2>
 		<div class="lg:max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
 			<div>
 				<h3 class="font-bold mb-2">Start dev server</h3>
@@ -107,7 +105,7 @@
 
 	<Section>
 		<div class="max-w-5xl mx-auto">
-			<h2 class="text-4xl text-center font-medium mb-12">What people are saying</h2>
+			<h2 class="text-3xl text-center font-medium mb-12">What people are saying</h2>
 			<div class="mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-10 items-start">
 				<div class="flex gap-4 items-start">
 					<a href="https://x.com/gleb_sexy" class="mt-1">
