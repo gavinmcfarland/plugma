@@ -55,3 +55,15 @@ export default defineConfig(() => {
     }
 })
 ```
+
+## Other changes
+
+The `plugma dev` command longer enables websockets needed for the browser preview my default. To enable this you can use the `--websockets` (`-ws`) flag or the dedicated `plugma preview` command.
+
+**Example**
+
+```
+plugma dev --ws
+# or
+plugma preview
+```
