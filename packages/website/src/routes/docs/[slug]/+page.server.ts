@@ -1,12 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import { navItems } from '@/stores.js';
 
 export async function load({ params }) {
 	const { slug } = params;
 
 	// Find the correct file without the numeric prefix
-	const contentDir = path.join(process.cwd(), 'content');
+	const contentDir = path.join(process.cwd(), 'content/docs');
 	const files = fs.readdirSync(contentDir);
 	const matchingFile = files.find(
 		(file) => file.replace(/^\d+-/, '').replace(/\.md$/, '') === slug

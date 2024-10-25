@@ -23,7 +23,10 @@
 		</div>
 		<div class="max-w-6xl mx-auto">
 			<div class="text-center">
-				<h1 class="text-5xl/tight md:text-7xl/tight text-center font-medium mb-4">
+				<span class="badge">v1 coming soon</span>
+				<h1
+					class="text-3xl/tight sm:text-5xl/tight md:text-7xl/tight text-center font-medium mb-4"
+				>
 					Create Figma plugins <br />without the hassle
 				</h1>
 				<p class="mb-10">Supports React, Svelte, Vue, and vanilla JS/TS</p>
@@ -187,5 +190,17 @@
 		/* background-color: red; */
 		background: linear-gradient(0deg, var(--color-bg), transparent),
 			linear-gradient(-90deg, var(--color-bg), transparent);
+	}
+
+	.badge {
+		@apply rounded-full;
+		align-items: center;
+		background-color: hsl(var(--color-info-hsl) / 0.1);
+		padding: 0 6px 0 8px;
+		gap: 2px;
+		display: inline-flex;
+		color: hsl(var(--color-info-hsl));
+		border: 1px solid hsl(var(--color-info-hsl) / 0.3);
+		margin-bottom: 12px;
 	}
 </style>

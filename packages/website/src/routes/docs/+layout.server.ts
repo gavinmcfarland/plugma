@@ -4,7 +4,7 @@ import path from 'path';
 export const prerender = true;
 
 export async function load(data) {
-	const contentDir = path.join(process.cwd(), 'content');
+	const contentDir = path.join(process.cwd(), 'content/docs');
 	const files = fs.readdirSync(contentDir);
 	const markdownFiles = files.filter((file) => file.endsWith('.md'));
 

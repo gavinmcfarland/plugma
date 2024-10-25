@@ -29,9 +29,10 @@
 		box-shadow:
 			inset 0 0.5px 2px 0 var(--button-color),
 			inset 0 2px 2px hsl(0, 0%, 100%),
-			inset 0 -1px 2px 0 hsl(0, 0%, 0%),
-			0px 4px 6px -4px hsla(0 0% 0% / calc(1 - 0.5)),
-			0 0 0 calc(var(--active, 0) * 0.375rem) hsl(260 97% 50% / 0.75);
+			inset 0 -0.5px 2px 1px var(--color-text),
+			inset 0 -1px 2px 1px hsl(0, 0%, 0%),
+			0px 4px 6px -4px hsla(0 0% 0% / 0.5),
+			0 0 0 calc(0 * 0.375rem) var(--color-info);
 	}
 
 	.Button:hover {

@@ -22,6 +22,7 @@
 
 		--color-success: #22863a;
 		--color-info: #005cc5;
+		--color-info-hsl: 212 100 39;
 	}
 
 	/* Dark mode colors */
@@ -42,6 +43,8 @@
 
 			--color-success: #7ee787;
 			--color-info: #79c0ff;
+
+			--color-info-hsl: 208 100 74;
 		}
 	}
 }
