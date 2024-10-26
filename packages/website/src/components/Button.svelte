@@ -28,9 +28,9 @@
 
 		box-shadow:
 			inset 0 0.5px 2px 0 var(--button-color),
-			inset 0 2px 2px hsl(0, 0%, 100%),
-			inset 0 -0.5px 2px 1px var(--color-text),
-			inset 0 -1px 2px 1px hsl(0, 0%, 0%),
+			inset 0 2px 2px hsl(0 0% 100% / 1),
+			inset 0 -0.5px 2px 1px hsl(var(--color-text-hsl) / 0.4),
+			inset 0 -1px 2px 1px hsl(0 0% 0% / 0.8),
 			0px 4px 6px -4px hsla(0 0% 0% / 0.5),
 			0 0 0 calc(0 * 0.375rem) var(--color-info);
 	}

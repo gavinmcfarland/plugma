@@ -30,7 +30,7 @@
 				<div class="gradient"></div>
 			</div>
 			<div class="text-center grow place-content-center">
-				<h2 class="mb-4 text-8xl">V1</h2>
+				<h2 class="mb-4 text-8xl font-semibold">V1</h2>
 				<Badge>Try it now!</Badge>
 			</div>
 			<Code lang="bash" text="npm create plugma@next" class="w-full" persistCopyButton></Code>
@@ -51,9 +51,11 @@
 				<span class="flex gap-3 font-semibold"
 					><Icon svg="copy" size={24} />Modes and Environments</span
 				>
+
 				<p class="m-0">
-					Simplify builds with a single <code>vite.config.js</code> to manage main and UI code
-					for dev and production modes. Customise freely to match your specific build needs.
+					Test various setups with the new <code>--mode</code> option and
+					<code>.env</code> variables, allowing you to build, run, and debug for different
+					environments with ease.
 				</p>
 			</div>
 			<div class="flex flex-col gap-3">
@@ -70,9 +72,8 @@
 					><Icon svg="file" size={24} />Simplified Vite Configuration</span
 				>
 				<p class="m-0">
-					Test various setups with the new <code>--mode</code> option and
-					<code>.env</code> variables, allowing you to build, run, and debug for different
-					environments with ease.
+					Simplify builds with a single <code>vite.config.js</code> to manage main and UI code
+					for dev and production modes. Customise freely to match your specific build needs.
 				</p>
 			</div>
 			<div class="flex flex-col gap-3">
@@ -91,7 +92,7 @@
 				>
 				<p class="m-0">
 					For those who frequently use browser previews, the new preview command minimises
-					the plugin window in Figma, allowing you to focus entirely.
+					the plugin window in Figma, allowing you to free up space.
 				</p>
 			</div>
 		</div>
