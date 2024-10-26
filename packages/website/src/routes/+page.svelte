@@ -35,7 +35,7 @@
 					lang="js"
 					text="npm create plugma@latest"
 				/>
-				<Button class="mt-4" href="docs/getting-started">Get started</Button>
+				<Button class="mt-4 mx-auto" href="docs/getting-started">Get started</Button>
 			</div>
 		</div>
 	</Section>

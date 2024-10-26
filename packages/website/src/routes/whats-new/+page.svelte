@@ -23,17 +23,22 @@
 	<h1 class="text-center text-3xl my-24">What's new</h1>
 	<div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-12 gap-9">
 		<div
-			class="min-h-80 border rounded-lg sm:col-span-12 lg:col-span-4 place-content-center place-items-center p-8 pt-0 flex flex-col relative overflow-hidden"
+			class="min-h-80 border rounded-lg sm:col-span-12 lg:col-span-4 place-content-center place-items-center p-10 pt-0 flex flex-col relative overflow-hidden"
 		>
 			<div class="svg-background">
 				<!-- Content of the page goes here -->
 				<div class="gradient"></div>
 			</div>
 			<div class="text-center grow place-content-center">
-				<h2 class="mb-4 text-8xl font-semibold">V1</h2>
-				<Badge>Try it now!</Badge>
+				<h2 class="text-8xl font-semibold">V1</h2>
+				<Badge class="mt-2">Try it now!</Badge>
 			</div>
-			<Code lang="bash" text="npm create plugma@next" class="w-full" persistCopyButton></Code>
+			<Code
+				lang="bash"
+				text="npm create plugma@next"
+				class="w-full mb-0 mt-0"
+				persistCopyButton
+			></Code>
 		</div>
 		<div
 			class="border rounded-lg sm:col-span-12 lg:col-span-8 p-10 grid grid-cols-1 md:grid-cols-2 gap-9"

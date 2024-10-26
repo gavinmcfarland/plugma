@@ -21,7 +21,8 @@
 		--button-color: var(--color-bg-reverse);
 		background-color: var(--button-color);
 		color: var(--color-text-reverse);
-		display: inline-block;
+		display: block;
+		width: max-content;
 		font-weight: 500;
 
 		/* background-image: linear-gradient(90deg, var(--color-success) 0%, var(--color-info) 120%); */
@@ -31,8 +32,7 @@
 			inset 0 2px 2px hsl(0 0% 100% / 1),
 			inset 0 -0.5px 2px 1px hsl(var(--color-text-hsl) / 0.4),
 			inset 0 -1px 2px 1px hsl(0 0% 0% / 0.8),
-			0px 4px 6px -4px hsla(0 0% 0% / 0.5),
-			0 0 0 calc(0 * 0.375rem) var(--color-info);
+			0px 4px 6px -4px hsla(0 0% 0% / 0.5);
 	}
 
 	.Button:hover {

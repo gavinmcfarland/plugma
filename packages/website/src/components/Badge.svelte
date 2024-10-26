@@ -3,9 +3,9 @@
 </script>
 
 {#if href}
-	<a class="Badge" {href}><slot /></a>
+	<a class="Badge {$$props.class}" {href}><slot /></a>
 {:else}
-	<span class="Badge"><slot /></span>
+	<span class="Badge {$$props.class}"><slot /></span>
 {/if}
 
 <style>

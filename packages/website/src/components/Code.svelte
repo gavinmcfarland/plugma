@@ -38,7 +38,7 @@
 	};
 </script>
 
-<div class="Code border mb-8 rounded-md {$$props.class}">
+<div class="Code border my-4 mb-8 rounded-md {$$props.class}">
 	<div class="overflow-scroll p-4 pr-16">
 		<pre><code>{@html html_now}</code></pre>
 		<button
@@ -61,7 +61,6 @@
 	.Code {
 		position: relative;
 		background-color: var(--color-bg);
-		@apply my-4;
 	}
 
 	.Code code {
