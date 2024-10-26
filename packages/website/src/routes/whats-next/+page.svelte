@@ -34,8 +34,7 @@
 				<h2 class="mb-4 text-8xl">V1</h2>
 				<Badge>Try it now!</Badge>
 			</div>
-			<Code lang="bash" text="npm create plugma@lnext" class="w-full" persistCopyButton
-			></Code>
+			<Code lang="bash" text="npm create plugma@next" class="w-full" persistCopyButton></Code>
 		</div>
 		<div
 			class="border rounded-lg sm:col-span-12 lg:col-span-8 p-10 grid grid-cols-1 md:grid-cols-2 gap-9"
