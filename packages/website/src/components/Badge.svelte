@@ -1,0 +1,23 @@
+<script lang="ts">
+	export let href: null | string = null;
+</script>
+
+{#if href}
+	<a class="Badge" {href}><slot /></a>
+{:else}
+	<span class="Badge"><slot /></span>
+{/if}
+
+<style>
+	.Badge {
+		@apply rounded-full;
+		align-items: center;
+		background-color: hsl(var(--color-info-hsl) / 0.1);
+		padding: 0 6px 0 8px;
+		gap: 2px;
+		display: inline-flex;
+		color: hsl(var(--color-info-hsl));
+		border: 1px solid hsl(var(--color-info-hsl) / 0.3);
+		margin-bottom: 12px;
+	}
+</style>
