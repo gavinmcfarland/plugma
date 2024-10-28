@@ -4,7 +4,7 @@
 When using the commands with `npm run` you need to pass the arguments with a double dash `--`, for example `npm run dev -- -p`.
 </blockquote>
 
-### dev [options]
+## dev [options]
 
 Start a server to develop your plugin. This command builds the `ui.html` and points it to the dev server making it easier to develop and debug your plugin.
 
@@ -24,7 +24,7 @@ plugma dev -p 3000
 plugma dev -ws
 ```
 
-### preview [options]
+## preview [options]
 
 <mark>Coming in V1</mark>
 
@@ -42,7 +42,7 @@ Preview your plugin in any browser to see how it looks and works. Make sure the 
 plugma preview -p 8080
 ```
 
-### build [options]
+## build [options]
 
 Create a build before publishing. This command compiles and bundles your plugin, preparing it for distribution.
 
@@ -61,7 +61,7 @@ plugma build
 plugma build -w
 ```
 
-### release [version] [options]
+## release [version] [options]
 
 <mark>Coming in V1</mark>
 

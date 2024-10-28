@@ -13,6 +13,14 @@
 
 	let uniqueId = 0;
 
+	// Helper to create slugs from headings
+	function slugify(text: string): string {
+		return text
+			.toLowerCase()
+			.replace(/\s+/g, '-')
+			.replace(/[^\w-]+/g, '');
+	}
+
 	const tokenToTagMap = {
 		paragraph: 'p',
 		list_item: 'li',
@@ -37,17 +45,32 @@
 				case 'heading': {
 					const componentTag = `h${token.depth}`;
 					const content = marked.parseInline(token.text);
+					const slug = slugify(token.text);
+
 					if (components[componentTag]) {
 						structuredMarkdown.push({
 							id,
 							component: components[componentTag],
-							props: { level: token.depth, content }
+							props: {
+								level: token.depth,
+								content,
+								id: slug, // Add id to heading props for linking
+								anchorLink: `#${slug}` // Link for the anchor
+							}
 						});
 					} else {
 						structuredMarkdown.push({
 							id,
 							component: `h${token.depth}`,
-							props: { innerHTML: content }
+							props: {
+								id: slug,
+								innerHTML: `<span class="anchor-link"><a href="#${slug}" aria-label="Anchor link"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M13.2505 16.7495L11.0005 18.9995C9.3436 20.6563 6.65731 20.6563 5.00046 18.9995C3.3436 17.3426 3.3436 14.6563 5.00045 12.9995L7.25045 10.7495M16.7505 13.2495L19.0005 10.9995C20.6573 9.34262 20.6573 6.65633 19.0005 4.99947C17.3436 3.34262 14.6573 3.34262 13.0005 4.99948L10.7505 7.24948" stroke="currentColor" stroke-width="1.5" stroke-opacity="1" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9 15L15 9" stroke="currentColor" stroke-opacity="1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
+</a></span> ${content}` // Anchor link before the heading text
+							}
 						});
 					}
 					break;
@@ -181,7 +204,7 @@
 		<!-- {@html props.innerHTML} -->
 	{:else if typeof component === 'string'}
 		<!-- {console.log(props)} -->
-		{@html `<${component} ${props.attributes}>${props.innerHTML}</${component}>`}
+		{@html `<${component} ${props.attributes} id=${props.id}>${props.innerHTML}</${component}>`}
 	{:else}
 		<svelte:component this={component} {...props} />
 	{/if}

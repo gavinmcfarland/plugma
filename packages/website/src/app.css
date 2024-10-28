@@ -81,8 +81,12 @@ h2 {
 	@apply text-2xl;
 }
 
+.main-content h2 {
+	@apply mt-6 mb-4;
+}
+
 .main-content h3 {
-	@apply text-xl font-medium mt-6 mb-4 pb-3;
+	@apply text-xl font-medium mt-6 mb-4;
 }
 
 h3,
@@ -143,6 +147,37 @@ ol li::before {
 
 .main-content a:hover {
 	text-decoration: underline;
+}
+
+.main-content :where(h1, h2, h3, h4) {
+	position: relative;
+	padding-left: 40px;
+	margin-left: -40px;
+	scroll-margin-top: 105px;
+}
+
+.main-content .anchor-link {
+	display: none;
+}
+.main-content :where(h1, h2, h3, h4):hover > .anchor-link {
+	position: absolute;
+	top: 50%;
+	margin-top: -16px;
+	margin-left: -40px;
+	width: 40px;
+	height: 32px;
+	/* background-color: red; */
+	display: inline-block;
+}
+
+.main-content .anchor-link a {
+	padding: 4px;
+	border-radius: 4px;
+	display: inline-block;
+}
+
+.main-content .anchor-link a:hover {
+	background-color: var(--color-bg-secondary-hover);
 }
 
 /* Syntax highlight */

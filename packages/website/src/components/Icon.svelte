@@ -461,6 +461,35 @@
 			/>
 		</svg>
 	{/if}
+
+	{#if svg === 'link-alt'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M17.2 6C17.7 6 18.2 6.1 18.7 6.3C19.2 6.5 19.6 6.8 20 7.2C20.4 7.6 20.7 8 20.9 8.5C21.1 9 21.2 9.5 21.2 10C21.2 10.5 21.1 11 20.9 11.5C20.7 12 20.4 12.4 20 12.8L19 13.9L17.9 15L16.9 16L15.8 17.1C15.4 17.5 15 17.8 14.5 18C14 18.2 13.5 18.3 13 18.3C12.5 18.3 12 18.2 11.5 18C11 17.8 10.6 17.5 10.2 17.1C9.8 16.7 9.5 16.3 9.3 15.8C9.1 15.3 9 14.8 9 14.2C9 13.7 9.1 13.2 9.3 12.7C9.5 12.2 9.8 11.8 10.2 11.4L11.3 10.3"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M7 18.9C6.5 18.9 6 18.8 5.5 18.6C5 18.4 4.6 18.1 4.2 17.7C3.8 17.3 3.5 16.9 3.3 16.4C3.1 15.9 3 15.4 3 14.9C3 14.4 3.1 13.9 3.3 13.4C3.5 12.9 3.8 12.5 4.2 12.1L5.2 11L6.3 9.9L7.4 8.8L8.5 7.7C8.9 7.3 9.3 7 9.8 6.8C10.3 6.6 10.8 6.5 11.3 6.5C11.8 6.5 12.3 6.6 12.8 6.8C13.3 7 13.7 7.3 14.1 7.7C14.5 8.1 14.8 8.5 15 9C15.2 9.5 15.3 10 15.3 10.5C15.3 11 15.2 11.5 15 12C14.8 12.5 14.5 12.9 14.1 13.3L13 14.5"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	{/if}
 </span>
 
 <style>

@@ -2,6 +2,7 @@
 	import Code from '@/components/Code.svelte';
 	import SvelteMarkdown from 'svelte-markdown';
 	import MarkdownRenderer from '@/components/MarkdownRenderer.svelte';
+	import MarkdownRenderer2 from '@/components/MarkdownRenderer2.svelte';
 	export let data;
 
 	// function replaceSyntax(data) {
@@ -33,13 +34,15 @@
 			code: Code
 		}}
 	/>
+	<!-- <MarkdownRenderer2
+		content={source}
+		components={{
+			code: Code
+		}}
+	/> -->
 </div>
 
 <style>
-	* > :global(h3) {
-		border-bottom: 1px solid var(--color-border);
-	}
-
 	* > :global(.info) {
 		/* display: flex; */
 		position: relative;
