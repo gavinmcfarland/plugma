@@ -1,6 +1,7 @@
 <script>
 	import Code from '@/components/Code.svelte';
 	import SvelteMarkdown from 'svelte-markdown';
+	import MarkdownRenderer from '@/components/MarkdownRenderer.svelte';
 	export let data;
 
 	// function replaceSyntax(data) {
@@ -19,9 +20,15 @@
 </svelte:head>
 
 <div>
-	<SvelteMarkdown
+	<!-- <SvelteMarkdown
 		{source}
 		renderers={{
+			code: Code
+		}}
+	/> -->
+	<MarkdownRenderer
+		markdown={source}
+		components={{
 			code: Code
 		}}
 	/>

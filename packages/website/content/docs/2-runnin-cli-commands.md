@@ -26,6 +26,8 @@ plugma dev -ws
 
 ### preview [options]
 
+<mark>Coming in V1</mark>
+
 Preview your plugin in any browser to see how it looks and works. Make sure the plugin is open in the Figma desktop app for this to work.
 
 ##### Options
@@ -60,6 +62,8 @@ plugma build -w
 ```
 
 ### release [version] [options]
+
+_Coming in V1_
 
 Build the plugin and release to GitHub. This command automates creating a new GitHub release with your latest changes. If no version is specified, it will automatically update the `plugma.pluginVersion` field in `package.json`.
 
