@@ -1,6 +1,7 @@
 <script>
 	import Code from '@/components/Code.svelte';
 	import SvelteMarkdown from 'svelte-markdown';
+	import MarkdownRenderer from '@/components/MarkdownRenderer.svelte';
 	export let data;
 
 	// function replaceSyntax(data) {
@@ -19,9 +20,16 @@
 </svelte:head>
 
 <div>
-	<SvelteMarkdown
+	<!-- SvelteMarkdown doesn't process inline markdown but custom one isn't great either as it can't render nested elements -->
+	<!-- <SvelteMarkdown
 		{source}
 		renderers={{
+			code: Code
+		}}
+	/> -->
+	<MarkdownRenderer
+		markdown={source}
+		components={{
 			code: Code
 		}}
 	/>
@@ -33,10 +41,12 @@
 	}
 
 	* > :global(.info) {
-		display: flex;
+		/* display: flex; */
+		position: relative;
 		gap: 12px;
 		/* border: 1px solid var(--color-border); */
 		padding: 12px 16px;
+		padding-left: 48px;
 		color: var(--color-text-secondary);
 		/* padding-left: 64px; */
 		background-color: var(--color-bg-secondary);
@@ -52,12 +62,14 @@
 	}
 
 	* > :global(.info)::before {
+		position: absolute;
+		left: 12px;
 		content: '';
 		display: flex;
 		/* margin-top: 2px; */
 		width: 24px;
 		height: 24px;
-		margin-left: -4px;
+		/* margin-left: -4px; */
 		flex-shrink: 0;
 		background-image: url('/icon.info.svg');
 	}

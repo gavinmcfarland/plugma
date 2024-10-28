@@ -33,12 +33,7 @@
 				<h2 class="text-8xl font-semibold">V1</h2>
 				<Badge class="mt-2">Try it now!</Badge>
 			</div>
-			<Code
-				lang="bash"
-				text="npm create plugma@next"
-				class="w-full mb-0 mt-0"
-				persistCopyButton
-			></Code>
+			<Code lang="bash" text="npm create plugma@next" class="w-full" persistCopyButton></Code>
 		</div>
 		<div
 			class="border rounded-lg sm:col-span-12 lg:col-span-8 p-10 grid grid-cols-1 md:grid-cols-2 gap-9"
@@ -172,5 +167,10 @@
 		/* background-color: red; */
 		background: linear-gradient(0deg, var(--color-bg), transparent),
 			linear-gradient(-90deg, var(--color-bg), transparent);
+	}
+
+	* :global(.Code) {
+		margin-bottom: 0;
+		margin-top: 0;
 	}
 </style>

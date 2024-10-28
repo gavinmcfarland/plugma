@@ -16,6 +16,7 @@
 		--color-text-code: black;
 		--color-text-code-comment: #adabab;
 		--color-bg: white;
+		--color-bg-hsl: 0 0% 100%;
 		--color-bg-secondary: #e7e7e7;
 		--color-bg-reverse: black;
 		--color-bg-hover: #4c4c4c;
@@ -37,6 +38,7 @@
 			--color-text-code-comment: #858585;
 			--color-text-reverse: black;
 			--color-bg: #080808;
+			--color-bg-hsl: 0 0% 0%;
 			--color-bg-secondary: #292929;
 			--color-bg-reverse: white;
 
@@ -64,6 +66,7 @@ li {
 
 code {
 	font-size: 0.9em;
+	background-color: hsl(var(--color-bg-hsl) / 0.8);
 }
 
 a {
@@ -128,6 +131,11 @@ ol li::before {
 	display: inline-block;
 	min-width: 24px;
 }
+
+/* mark {
+	background-color: hsl(var(--color-info-hsl) / 0.2);
+	color: var(--color-text);
+} */
 
 .main-content a {
 	color: var(--color-text);
