@@ -86,7 +86,7 @@ h2 {
 }
 
 .main-content h3 {
-	@apply text-xl font-medium mt-6 mb-4;
+	@apply text-xl font-normal mt-6 mb-4;
 }
 
 h3,

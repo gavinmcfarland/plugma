@@ -1,4 +1,4 @@
-# Bundling with Vite
+# Vite configuration
 
 Vite is used to bundle both the main code and the UI. To configure how this works you can can modify the `vite.config.js` file in the root of your project.
 

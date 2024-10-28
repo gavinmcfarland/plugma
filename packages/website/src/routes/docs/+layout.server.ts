@@ -14,6 +14,7 @@ export async function load(data) {
 				// Match the number at the beginning of the filename (if it exists)
 				const match = file.match(/^(\d+)-(.+)\.md$/);
 				const order = match ? parseInt(match[1], 10) : null;
+
 				const slug = match ? match[2] : file.replace('.md', '');
 				// const slug = file.replace('.md', '');
 
