@@ -13,12 +13,16 @@ import esbuild from 'esbuild';
 import { build as viteBuild, createServer, mergeConfig } from 'vite';
 
 import { Log } from '../lib/logger.js';
-import { getRandomNumber, readJson, createConfigs, getUserFiles } from './utils.js';
+import { getRandomNumber, readJson, createConfigs, getUserFiles, formatTime } from './utils.js';
 import { task, run, serial } from '../task-runner/taskrunner.js';
+import { suppressLogs } from '../lib/suppress-logs.js';
+import { logFileUpdates } from '../lib/vite-plugins/vite-plugin-log-file-updates.js';
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const __filename = fileURLToPath(import.meta.url);
+
+suppressLogs();
 
 async function loadConfig(fileName) {
 	const configPath = path.resolve(process.cwd(), fileName);
@@ -71,7 +75,7 @@ export async function runScript(command, options) {
 	});
 
 	task('show-plugma-prompt', async ({ files, plugmaPkg }) => {
-		log.text(`${chalk.blue.bold('Plugma')} ${chalk.grey("v" + plugmaPkg.version)}\n`);
+		log.text(`${chalk.blue.bold('Plugma')} ${chalk.grey("v" + plugmaPkg.version)}`);
 	});
 
 	task('build-manifest', async ({ files }) => {
@@ -108,16 +112,18 @@ export async function runScript(command, options) {
 	});
 
 	task('build-ui', async ({ command, config, options }) => {
-		// const userViteConfig = await loadConfig('vite.config.js');
+		// Start the timer as close to the build call as possible
+
+		// log.text('built ui')
+		const startTime = performance.now();
 		if (command === "build" && options.watch) {
-			let merged = mergeConfig({
+
+			await viteBuild(mergeConfig({
 				build: {
 					watch: {},
-					minify: false
+					minify: true
 				},
-			}, config.vite.build)
-
-			await viteBuild(merged);
+			}, config.vite.build));
 		} else {
 			await viteBuild(mergeConfig({
 				build: {
@@ -125,6 +131,12 @@ export async function runScript(command, options) {
 				},
 			}, config.vite.build));
 		}
+
+		// Calculate elapsed time in milliseconds
+		const endTime = performance.now();
+		const buildDuration = ((endTime - 250) - startTime).toFixed(0); // Remove decimals for a Vite-like appearance
+
+		log.text(`${chalk.green('\n✓ build created in ' + buildDuration + 'ms')}`);
 	});
 
 	task('build-main', async ({ command, config }) => {
@@ -141,8 +153,6 @@ export async function runScript(command, options) {
 				await esbuild.build(config.esbuild.build);
 			}
 		} else {
-
-			const userViteConfig = await loadConfig('vite.config.js');
 
 			// FIXME: Had to do all of this because of two issues:
 			// 1. Vite seems to be caching config when watching
@@ -168,15 +178,17 @@ export async function runScript(command, options) {
 				isBuilding = true; // Set the flag indicating a build is in progress
 
 				try {
-					if (command === 'dev' || command === 'preview' || command === "build" && options.watch) {
-						let merged = mergeConfig({ build: { watch: {}, minify: false } }, config.viteMain.dev)
-						// let mergedAgain = mergeConfig(merged, userViteConfig)
+					if (command === 'dev' || command === 'preview') {
+						let merged = mergeConfig({ build: { watch: {}, minify: false }, plugins: [logFileUpdates()] }, config.viteMain.dev)
+						await viteBuild(merged);
+					}
+					else if (command === "build" && options.watch) {
+						let merged = mergeConfig({ build: { watch: {}, minify: true } }, config.viteMain.dev)
 						await viteBuild(merged);
 					} else {
 						let merged = mergeConfig({ build: { minify: true } }, config.viteMain.build)
 						await viteBuild(merged);
 					}
-					// console.log('[vite-build] Build completed.');
 				} catch (error) {
 					console.error('[vite-build] Build failed:', error);
 				} finally {
@@ -225,15 +237,18 @@ export async function runScript(command, options) {
 	});
 
 	task('start-vite-server', async ({ config }) => {
-		// const userViteConfig = await loadConfig('vite.config.js');
+
+		console.log('\nWatching for changes...')
 		const server = await createServer(config.vite.dev);
 		await server.listen();
+
+
 	});
 
 	task('start-websockets-server', async ({ options }) => {
 		if (options.websockets) {
 			exec('node node_modules/plugma/lib/start-web-sockets-server.cjs');
-			log.text(`Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan(options.port)}${chalk.cyan('/')}\n`)
+			log.text(`Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan(options.port)}${chalk.cyan('/')}`)
 		}
 	})
 
@@ -256,8 +271,9 @@ export async function runScript(command, options) {
 						'build-manifest',
 						'build-placeholder-ui',
 						'build-main',
+						'start-websockets-server',
 						'start-vite-server',
-						'start-websockets-server'
+
 					], options);
 				}, { command, options });
 				break;

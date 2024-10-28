@@ -13,6 +13,7 @@ import chalk from 'chalk';
 import { fileURLToPath } from 'url';
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import vitePluginInsertCustomFunctions from '../lib/vite-plugins/vite-plugin-insert-custom-functions.js';
+import viteSupressLogs from '../lib/vite-plugins/vite-plugin-surpress-logs.js';
 
 
 const CURR_DIR = process.cwd();
@@ -77,8 +78,7 @@ export function createConfigs(options, userFiles) {
 		viteCopyDirectoryPlugin({
 			sourceDir: 'dist/node_modules/plugma/tmp/',
 			targetDir: 'dist/',
-		}),
-
+		})
 	];
 
 	const tempFilePath = writeTempFile(`temp_${Date.now()}.js`, userFiles, options);
@@ -214,7 +214,7 @@ export function createConfigs(options, userFiles) {
 	const esbuildConfig = {
 		dev: {
 			...commonEsbuildConfig,
-			inject: [resolve(`${__dirname} /../ lib / global - shim.js`)],
+			inject: [resolve(`${__dirname}/../lib/global-shim.js`)],
 			define: {
 				'process.env.NODE_ENV': JSON.stringify(options.mode),
 				process: JSON.stringify({}),
