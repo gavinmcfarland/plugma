@@ -63,7 +63,7 @@ plugma build -w
 
 ### release [version] [options]
 
-_Coming in V1_
+<mark>Coming in V1</mark>
 
 Build the plugin and release to GitHub. This command automates creating a new GitHub release with your latest changes. If no version is specified, it will automatically update the `plugma.pluginVersion` field in `package.json`.
 

@@ -7,13 +7,12 @@
 
 	let structuredMarkdown: {
 		id: number;
-		component: typeof SvelteComponent | string;
+		component: typeof SvelteComponent | string | null;
 		props: Record<string, any>;
 	}[] = [];
 
 	let uniqueId = 0;
 
-	// Map of token types to their respective HTML tags
 	const tokenToTagMap = {
 		paragraph: 'p',
 		list_item: 'li',
@@ -23,24 +22,21 @@
 		del: 'del',
 		blockquote: 'blockquote',
 		link: 'a'
-		// Add other mappings as needed
 	};
 
 	function parseMarkdown(content: string) {
 		structuredMarkdown = [];
 		uniqueId = 0;
 
-		// Lex the Markdown content into tokens
 		const tokens = marked.lexer(content);
 
-		// Process each token individually
 		for (const token of tokens) {
 			const id = uniqueId++;
 
 			switch (token.type) {
 				case 'heading': {
 					const componentTag = `h${token.depth}`;
-					const content = marked.parseInline(token.text); // Parse inline elements
+					const content = marked.parseInline(token.text);
 					if (components[componentTag]) {
 						structuredMarkdown.push({
 							id,
@@ -68,7 +64,6 @@
 							}
 						});
 					} else {
-						// Render as a <pre><code> block for standard Markdown code
 						structuredMarkdown.push({
 							id,
 							component: 'pre',
@@ -79,16 +74,6 @@
 					}
 					break;
 				}
-
-				// case 'paragraph': {
-				// 	const content = marked.parseInline(token.text); // Parse inline elements
-				// 	structuredMarkdown.push({
-				// 		id,
-				// 		component: 'p',
-				// 		props: { innerHTML: content }
-				// 	});
-				// 	break;
-				// }
 
 				case 'list': {
 					const listTag = token.ordered ? 'ol' : 'ul';
@@ -103,10 +88,77 @@
 					break;
 				}
 
+				case 'html': {
+					console.log(token);
+					const htmlRegex = /^<(\w+)(\s+[^>]*)?>([\s\S]*?)<\/\1>$/;
+					const match = token.text.trim().match(htmlRegex);
+
+					if (match) {
+						const [, tagName, rawAttributes = '', content] = match;
+
+						// Parse attributes into a key-value object
+						const attributes: Record<string, any> = {};
+						rawAttributes.replace(
+							/(\w+)=["']([^"']*)["']/g,
+							(match, attrName, attrValue) => {
+								attributes[attrName] = attrValue;
+								return match;
+							}
+						);
+
+						// Convert attributes object to a string format for inline HTML rendering
+						const attributesString = Object.entries(attributes)
+							.map(([key, value]) => `${key}="${value}"`)
+							.join(' ');
+
+						// Push the detected component, attributes as a string, and parsed Markdown content
+						structuredMarkdown.push({
+							id,
+							component: tagName,
+							props: {
+								attributes: attributesString,
+								innerHTML: marked.parseInline(content)
+							}
+						});
+					} else {
+						// Fallback to treating as raw HTML if no matching HTML structure
+						const parsedContent = marked.parseInline(token.text);
+						structuredMarkdown.push({
+							id,
+							component: null,
+							props: { innerHTML: parsedContent }
+						});
+					}
+					break;
+				}
+
+				case 'paragraph': {
+					const content = marked.parseInline(token.text).trim();
+					if (content) {
+						structuredMarkdown.push({
+							id,
+							component: 'p',
+							props: { innerHTML: content }
+						});
+					}
+					break;
+				}
+
+				case 'space': {
+					// Skip 'space' tokens with two or more newlines
+					if (!token.raw.includes('\n\n')) {
+						structuredMarkdown.push({
+							id,
+							component: 'br',
+							props: {}
+						});
+					}
+					break;
+				}
+
 				default: {
-					// Dynamically determine the HTML tag based on the token type
-					const tag = tokenToTagMap[token.type] || 'div'; // Default to <div> if no mapping is found
-					const content = marked.parser([token]); // Generate HTML content
+					const tag = tokenToTagMap[token.type] || 'div';
+					const content = marked.parser([token]);
 
 					structuredMarkdown.push({
 						id,
@@ -124,13 +176,13 @@
 </script>
 
 <!-- Render each item in structuredMarkdown separately -->
-<div>
-	{#each structuredMarkdown as { id, component, props } (id)}
-		{#if typeof component === 'string'}
-			{@html `<${component}>${props.innerHTML}</${component}>`}
-			<!-- Render HTML element directly -->
-		{:else}
-			<svelte:component this={component} {...props} /> <!-- Render custom component -->
-		{/if}
-	{/each}
-</div>
+{#each structuredMarkdown as { id, component, props } (id)}
+	{#if component === null}
+		<!-- {@html props.innerHTML} -->
+	{:else if typeof component === 'string'}
+		<!-- {console.log(props)} -->
+		{@html `<${component} ${props.attributes}>${props.innerHTML}</${component}>`}
+	{:else}
+		<svelte:component this={component} {...props} />
+	{/if}
+{/each}

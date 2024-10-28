@@ -169,7 +169,7 @@
 			linear-gradient(-90deg, var(--color-bg), transparent);
 	}
 
-	:global(.Code) {
+	* :global(.Code) {
 		margin-bottom: 0;
 		margin-top: 0;
 	}
