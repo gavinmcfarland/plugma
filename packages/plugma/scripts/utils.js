@@ -278,6 +278,22 @@ export async function writeIndexFile() {
 	await fse.outputFile(newIndexPath, finalContent);
 }
 
+export function transformObject(input, options) {
+	const transformed = JSON.parse(JSON.stringify(input)); // Deep copy the input object
+
+	// Update devAllowedDomains
+	transformed.networkAccess.devAllowedDomains = transformed.networkAccess.devAllowedDomains.map(domain => {
+		// Replace `*` in either `http://localhost:*` or `https://localhost:*`
+		if (domain === "http://localhost:*" || domain === "https://localhost:*") {
+			const protocol = domain.startsWith("https") ? "https" : "http";
+			return `${protocol}://localhost:${options.port}`;
+		}
+		return domain;
+	});
+
+	return transformed;
+}
+
 export async function getUserFiles() {
 	const rootManifest = await readJson('./manifest.json');
 	const userPkg = await readJson(resolve('./package.json'));

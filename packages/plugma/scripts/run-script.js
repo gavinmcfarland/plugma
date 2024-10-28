@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { exec } from 'child_process';
 import chokidar from 'chokidar';
 import { spawn } from 'child_process';
+import { transformObject } from './utils.js';
 
 import _ from 'lodash';
 import chalk from 'chalk';
@@ -78,7 +79,10 @@ export async function runScript(command, options) {
 		log.text(`${chalk.blue.bold('Plugma')} ${chalk.grey("v" + plugmaPkg.version)}`);
 	});
 
-	task('build-manifest', async ({ files }) => {
+	task('build-manifest', async ({ files, options }) => {
+
+		files.manifest = transformObject(files.manifest, options)
+
 		await fse.outputFile(
 			'./dist/manifest.json',
 			JSON.stringify(
