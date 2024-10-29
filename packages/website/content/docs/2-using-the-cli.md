@@ -1,6 +1,6 @@
-# CLI
+# Using the CLI
 
-Plugma comes with a Command Line Interface that supports several commands.
+Plugma comes with a Command Line Interface that supports the following commands.
 
 ## Commands
 
@@ -18,7 +18,7 @@ plugma dev [options]
 
 -   `-p`, `--port`: Specify a port number for the plugin preview.
 -   `-m`, `--mode`: Specify a mode.
--   `-ws`, `--websockets`: Enable websockets to preview in browser.
+-   `-ws`, `--websockets`: Enable WebSockets to preview in browser.
 
 ##### Example
 
