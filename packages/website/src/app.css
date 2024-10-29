@@ -122,6 +122,12 @@ html {
 	overflow: scroll;
 	min-height: 100%;
 }
+
+html {
+	scrollbar-width: thin;
+	scrollbar-color: var(--color-bg-secondary) transparent;
+}
+
 body {
 	/* position: relative; */
 	min-height: 100vh;

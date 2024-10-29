@@ -117,7 +117,6 @@
 				}
 
 				case 'html': {
-					console.log(token);
 					const htmlRegex = /^<(\w+)(\s+[^>]*)?>([\s\S]*?)<\/\1>$/;
 					const match = token.text.trim().match(htmlRegex);
 

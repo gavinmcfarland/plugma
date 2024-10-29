@@ -39,7 +39,7 @@
 </script>
 
 <div class="Code border mt-4 mb-8 rounded-md {$$props.class}">
-	<div class="overflow-scroll p-4 pr-16">
+	<div class="overflow-auto p-4 pr-16">
 		<pre><code>{@html html_now}</code></pre>
 		<button
 			aria-label="Copy code"
