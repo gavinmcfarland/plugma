@@ -1,15 +1,17 @@
-export function suppressLogs(patterns) {
-	// let hasMainBuiltBeenCalled = false;
+export function suppressLogs(options) {
+	// need to remove any trailing slashes for it to match correctly
+	const output = options.output.replace(/\/+$/, ''); // Removes trailing slash(es)
+	const escapedOutput = output.replace(/\//g, '\\/');
+	const MAIN_BUILT_REGEX = new RegExp(`^${escapedOutput}/main\\.js\\s+\\d+(\\.\\d+)?\\s+kB\\s+│\\s+gzip:\\s+\\d+(\\.\\d+)?\\s+kB$`);
+	const TEMP_INDEX_PATH_REGEX = new RegExp(`^${escapedOutput}/node_modules/plugma/tmp/index\\.html\\s+\\d+(\\.\\d+)?\\s+kB\\s+│\\s+gzip:\\s+\\d+(\\.\\d+)?\\s+kB$`);
 
-	const MAIN_BUILT_REGEX = /^dist\/main\.js\s+\d+(\.\d+)?\s+kB\s+│\s+gzip:\s+\d+(\.\d+)?\s+kB$/
-
-	patterns = patterns || [
+	let patterns = [
 		/^vite v\d+\.\d+\.\d+ building for \w+\.\.\.$/,
 		/^build started...$/,
 		/^✓ \d+ module(s)? transformed\.$/,
 		/^✓?\s*built in \d+ms\.?$/,
 		/^watching for file changes...$/,
-		/^dist\/node_modules\/plugma\/tmp\/index\.html\s+\d+(\.\d+)?\s+kB\s+│\s+gzip:\s+\d+(\.\d+)?\s+kB$/,
+		TEMP_INDEX_PATH_REGEX,
 		MAIN_BUILT_REGEX,
 		'transforming',
 	]

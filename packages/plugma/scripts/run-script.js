@@ -19,11 +19,8 @@ import { task, run, serial } from '../task-runner/taskrunner.js';
 import { suppressLogs } from '../lib/suppress-logs.js';
 import { logFileUpdates } from '../lib/vite-plugins/vite-plugin-log-file-updates.js';
 
-const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const __filename = fileURLToPath(import.meta.url);
-
-suppressLogs();
 
 async function loadConfig(fileName) {
 	const configPath = path.resolve(process.cwd(), fileName);
@@ -62,6 +59,8 @@ async function loadConfig(fileName) {
 
 export async function runScript(command, options) {
 
+	suppressLogs(options);
+
 	const log = new Log({ debug: options.debug });
 
 	// Add command to options
@@ -83,8 +82,10 @@ export async function runScript(command, options) {
 
 		files.manifest = transformObject(files.manifest, options)
 
+		const outputDirPath = path.join(options.output, 'manifest.json');
+
 		await fse.outputFile(
-			'./dist/manifest.json',
+			outputDirPath,
 			JSON.stringify(
 				{
 					...files.manifest,
@@ -110,8 +111,12 @@ export async function runScript(command, options) {
 
 		devHtmlString = devHtmlString.replace(/^/, runtimeData);
 
-		await fse.mkdir(`${CURR_DIR}/dist`, { recursive: true });
-		await fse.writeFile(path.join(`${CURR_DIR}/dist`, 'ui.html'), devHtmlString);
+		// NOTE: Not sure it needs process.cwd()
+		// await fse.mkdir(path.join(process.cwd(), options.output), { recursive: true });
+		// await fse.writeFile(path.join(process.cwd(), options.output, 'ui.html'), devHtmlString);
+
+		await fse.mkdir(path.join(options.output), { recursive: true });
+		await fse.writeFile(path.join(options.output, 'ui.html'), devHtmlString);
 
 	});
 

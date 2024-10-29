@@ -76,8 +76,8 @@ export function createConfigs(options, userFiles) {
 	const commonVitePlugins = [
 		viteSingleFile(),
 		viteCopyDirectoryPlugin({
-			sourceDir: 'dist/node_modules/plugma/tmp/',
-			targetDir: 'dist/',
+			sourceDir: path.join(options.output, 'node_modules', 'plugma', 'tmp'),
+			targetDir: path.join(options.output),
 		})
 	];
 
@@ -85,7 +85,7 @@ export function createConfigs(options, userFiles) {
 
 	const commonEsbuildConfig = {
 		entryPoints: [tempFilePath],
-		outfile: 'dist/main.js',
+		outfile: `${options.output}/main.js`,
 		format: 'esm',
 		bundle: true,
 		target: 'es2016',
@@ -123,6 +123,7 @@ export function createConfigs(options, userFiles) {
 		build: {
 			// configFile: false,
 			build: {
+				outDir: path.join(options.output),
 				emptyOutDir: false,
 				rollupOptions: { input: 'node_modules/plugma/tmp/index.html' },
 			},
@@ -153,7 +154,7 @@ export function createConfigs(options, userFiles) {
 			},
 			rollupOptions: {
 				output: {
-					dir: 'dist',               // Output directory
+					dir: path.join(options.output),               // Output directory
 					entryFileNames: 'main.js', // Name of the output file
 					inlineDynamicImports: true, // Inline all imports into one file
 				},
@@ -196,7 +197,7 @@ export function createConfigs(options, userFiles) {
 			},
 			rollupOptions: {
 				output: {
-					dir: 'dist',               // Output directory
+					dir: `${options.output}`,               // Output directory
 					entryFileNames: 'main.js', // Name of the output file
 					inlineDynamicImports: true, // Inline all imports into one file
 				},
@@ -243,7 +244,7 @@ function notifyOnRebuild() {
 		setup(build) {
 			build.onEnd(() => {
 				if (!isInitialBuild) {
-					console.log(`${chalk.grey(formatTime())} ${chalk.cyan.bold('[esbuild]')} ${chalk.green('rebuilt')} ${chalk.grey('/dist/main.js')}`);
+					console.log(`${chalk.grey(formatTime())} ${chalk.cyan.bold('[esbuild]')} ${chalk.green('rebuilt')} ${chalk.grey(`/${options.output}/main.js`)}`);
 				}
 				isInitialBuild = false; // Set to false after the first build
 			});
@@ -262,20 +263,6 @@ function writeTempFile(fileName, userFiles, options) {
 	fs.writeFileSync(tempFilePath, modifiedContent);
 
 	return tempFilePath;
-}
-
-export async function writeIndexFile() {
-	const indexTemplatePath = `${__dirname}/../templates / index.html`;
-	const newIndexPath = `${__dirname} /../tmp / index.html`;
-	const contents = await fs.promises.readFile(indexTemplatePath, 'utf8');
-	const userPkg = await readJson(resolve(`${CURR_DIR}/package.json`));
-	const manifest = await readJson(resolve('./manifest.json')) || userPkg.plugma.manifest;
-
-	const input = resolve('/', manifest?.ui || '/src/ui.ts');
-	const comptempl = lodashTemplate(contents);
-	const finalContent = comptempl({ name: 'figma', input });
-
-	await fse.outputFile(newIndexPath, finalContent);
 }
 
 export function transformObject(input, options) {

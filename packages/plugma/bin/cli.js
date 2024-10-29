@@ -47,6 +47,7 @@ program
 	.option('-p, --port <number>', 'Specify a port number for the plugin preview')
 	.option('-t, --toolbar', 'Display the developer toolbar within the plugin UI')
 	.option('-m, --mode <mode>', 'Specify the mode', 'development')
+	.option('-o, --output <path>', 'Specify the output directory', 'dist')
 	.option('-ws, --websockets', 'Enable websockets', false)
 	.option('-d, --debug', 'Enable debug mode', false)
 	.action(function (options) {
@@ -66,6 +67,7 @@ program
 	.option('-p, --port <number>', 'Specify a port number for the plugin preview')
 	.option('-t, --toolbar', 'Display the developer toolbar within the plugin UI')
 	.option('-m, --mode <mode>', 'Specify the mode', 'development')
+	.option('-o, --output <path>', 'Specify the output directory', 'dist')
 	.option('-d, --debug', 'Enable debug mode', false)
 	.action(function (options) {
 		handleDebug(this.name(), options);
@@ -83,6 +85,7 @@ program
 	.description('Create a build ready for publishing')
 	.option('-w, --watch', 'Watch for changes and rebuild automatically')
 	.option('-m, --mode <mode>', 'Specify the mode', 'production')
+	.option('-o, --output <path>', 'Specify the output directory', 'dist')
 	.option('-d, --debug', 'Enable debug mode', false)
 	.action(function (options) {
 		runScript(this.name(), options);
@@ -100,6 +103,7 @@ program
 	.option('-t, --title <title>', 'Specify a title for the release')
 	.option('-n, --notes <notes>', 'Specify release notes')
 	.option('-d, --debug', 'Enable debug mode', false)
+	.option('-o, --output <path>', 'Specify the output directory', 'dist')
 	.action(function (version = 'stable', options) {
 		const validReleaseTypes = ['alpha', 'beta', 'stable'];
 		const releaseOptions = {

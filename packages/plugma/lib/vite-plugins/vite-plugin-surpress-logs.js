@@ -1,4 +1,4 @@
-export default function viteSupressLogs() {
+export default function viteSupressLogs(options) {
 	return {
 		name: 'suppress-logs',
 		apply: 'serve',
