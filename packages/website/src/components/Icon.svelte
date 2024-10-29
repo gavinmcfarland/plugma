@@ -1,7 +1,7 @@
 <script lang="ts">
 	export let svg;
 	export let color = 'currentColor';
-	export let opacity: number = 1;
+	export let opacity: number = 0.8;
 	export let strokeWidth: number = 1.5;
 	export let isAnimated: boolean = false;
 
@@ -21,11 +21,13 @@
 			<path
 				d="M8 10C8 8.89543 8.89543 8 10 8H19C20.1046 8 21 8.89543 21 10V19C21 20.1046 20.1046 21 19 21H10C8.89543 21 8 20.1046 8 19V10Z"
 				stroke={color}
+				stroke-opacity={opacity}
 				stroke-width={strokeWidth}
 			/>
 			<path
 				d="M5.00049 16C4.47005 16 3.96135 15.7893 3.58627 15.4142C3.2112 15.0391 3.00049 14.5304 3.00049 14V5C3.00049 4.46957 3.2112 3.96086 3.58627 3.58579C3.96135 3.21071 4.47005 3 5.00049 3H14.0005C14.5309 3 15.0396 3.21071 15.4147 3.58579C15.7898 3.96086 16.0005 4.46957 16.0005 5"
 				stroke={color}
+				stroke-opacity={opacity}
 				stroke-width={strokeWidth}
 				stroke-linecap="round"
 				stroke-linejoin="round"
@@ -43,6 +45,7 @@
 			<path
 				d="M13.91 3.5H8.37221C8.1514 3.5 7.95674 3.64483 7.89329 3.85633L5.19329 12.8563C5.09705 13.1771 5.33727 13.5 5.67221 13.5H9.3598C9.68509 13.5 9.92377 13.8057 9.84487 14.1213L8.47813 19.5882C8.35235 20.0914 8.98133 20.4297 9.33178 20.0474L18.2322 10.3379C18.5261 10.0172 18.2986 9.5 17.8636 9.5H14.0904C13.7815 9.5 13.5464 9.22257 13.5972 8.9178L14.4032 4.0822C14.454 3.77743 14.2189 3.5 13.91 3.5Z"
 				stroke={color}
+				stroke-opacity={opacity}
 				stroke-width={strokeWidth}
 				stroke-miterlimit="2.16568"
 				stroke-linecap="round"
@@ -63,6 +66,7 @@
 			<path
 				d="M20 4H4C3.44772 4 3 4.44772 3 5V19C3 19.5523 3.44772 20 4 20H20C20.5523 20 21 19.5523 21 19V5C21 4.44772 20.5523 4 20 4Z"
 				stroke={color}
+				stroke-opacity={opacity}
 				stroke-width={strokeWidth}
 				stroke-miterlimit="10"
 				stroke-linecap="round"
@@ -72,6 +76,7 @@
 			<path
 				d="M20 4H4C3.44772 4 3 4.44772 3 5V10H21V5C21 4.44772 20.5523 4 20 4Z"
 				stroke={color}
+				stroke-opacity={opacity}
 				stroke-width={strokeWidth}
 				stroke-miterlimit="10"
 				stroke-linecap="round"
@@ -81,6 +86,7 @@
 			<path
 				d="M6.19531 7H6.20731"
 				stroke={color}
+				stroke-opacity={opacity}
 				stroke-width={strokeWidth}
 				stroke-linecap="round"
 				class:animated-dot={isAnimated}
@@ -88,6 +94,7 @@
 			<path
 				d="M9.27979 7H9.29179"
 				stroke={color}
+				stroke-opacity={opacity}
 				stroke-width={strokeWidth}
 				stroke-linecap="round"
 				class:animated-dot={isAnimated}
@@ -105,6 +112,7 @@
 			<path
 				d="M12 7V21"
 				stroke={color}
+				stroke-opacity={opacity}
 				stroke-width={strokeWidth}
 				stroke-linecap="round"
 				stroke-linejoin="round"
@@ -112,6 +120,7 @@
 			<path
 				d="M3 13H6"
 				stroke={color}
+				stroke-opacity={opacity}
 				stroke-width={strokeWidth}
 				stroke-linecap="round"
 				stroke-linejoin="round"
@@ -119,6 +128,7 @@
 			<path
 				d="M18 13H21"
 				stroke={color}
+				stroke-opacity={opacity}
 				stroke-width={strokeWidth}
 				stroke-linecap="round"
 				stroke-linejoin="round"
@@ -126,6 +136,7 @@
 			<path
 				d="M9 6.99988V6C9 4.34315 10.3431 3 12 3C13.6569 3 15 4.34315 15 6V6.99988"
 				stroke={color}
+				stroke-opacity={opacity}
 				stroke-width={strokeWidth}
 				stroke-linecap="round"
 				stroke-linejoin="round"
@@ -133,6 +144,7 @@
 			<path
 				d="M6 9C4.34315 9 3 7.65685 3 6"
 				stroke={color}
+				stroke-opacity={opacity}
 				stroke-width={strokeWidth}
 				stroke-linecap="round"
 				stroke-linejoin="round"
@@ -140,6 +152,7 @@
 			<path
 				d="M18 9C19.6569 9 21 7.65685 21 6"
 				stroke={color}
+				stroke-opacity={opacity}
 				stroke-width={strokeWidth}
 				stroke-linecap="round"
 				stroke-linejoin="round"
@@ -147,6 +160,7 @@
 			<path
 				d="M6 17C4.34315 17 3 18.3431 3 20"
 				stroke={color}
+				stroke-opacity={opacity}
 				stroke-width={strokeWidth}
 				stroke-linecap="round"
 				stroke-linejoin="round"
@@ -154,6 +168,7 @@
 			<path
 				d="M18 17C19.6569 17 21 18.3431 21 20"
 				stroke={color}
+				stroke-opacity={opacity}
 				stroke-width={strokeWidth}
 				stroke-linecap="round"
 				stroke-linejoin="round"
@@ -161,6 +176,7 @@
 			<path
 				d="M14 7H10C7.79086 7 6 8.79086 6 11V15C6 18.3137 8.68629 21 12 21C15.3137 21 18 18.3137 18 15V11C18 8.79086 16.2091 7 14 7Z"
 				stroke={color}
+				stroke-opacity={opacity}
 				stroke-width={strokeWidth}
 				stroke-miterlimit="10"
 				stroke-linecap="round"
@@ -181,6 +197,7 @@
 				clip-rule="evenodd"
 				d="M2 6C2 3.79086 3.79086 2 6 2H18C20.2091 2 22 3.79086 22 6V18C22 20.2091 20.2091 22 18 22H6C3.79086 22 2 20.2091 2 18V6ZM12 16C12 15.4477 12.4477 15 13 15H17C17.5523 15 18 15.4477 18 16C18 16.5523 17.5523 17 17 17H13C12.4477 17 12 16.5523 12 16ZM7.70711 7.29289C7.31658 6.90237 6.68342 6.90237 6.29289 7.29289C5.90237 7.68342 5.90237 8.31658 6.29289 8.70711L9.58579 12L6.29289 15.2929C5.90237 15.6834 5.90237 16.3166 6.29289 16.7071C6.68342 17.0976 7.31658 17.0976 7.70711 16.7071L11.7071 12.7071C12.0976 12.3166 12.0976 11.6834 11.7071 11.2929L7.70711 7.29289Z"
 				fill={color}
+				fill-opacity={opacity}
 			/>
 		</svg>
 	{/if}

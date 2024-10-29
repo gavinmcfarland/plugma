@@ -45,7 +45,7 @@
 
 		<div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
 			<Card>
-				<Icon svg="bolt" size={48} strokeWidth={1.1} isAnimated />
+				<Icon svg="bolt" size={48} strokeWidth={1.1} isAnimated opacity={1} />
 				<h2 class="text-lg font-medium">Faster development</h2>
 				<p>
 					Accelerates development and improves debugging by eliminating the need to
@@ -54,7 +54,7 @@
 			</Card>
 
 			<Card>
-				<Icon svg="window" size={48} strokeWidth={1.1} isAnimated />
+				<Icon svg="window" size={48} strokeWidth={1.1} isAnimated opacity={1} />
 				<h2 class="text-lg font-medium">Browser preview</h2>
 				<p>
 					Preview in any browser during development using websockets to pass messages from
@@ -63,7 +63,7 @@
 			</Card>
 
 			<Card>
-				<Icon svg="vite-logo" size={48} strokeWidth={1.1} isAnimated />
+				<Icon svg="vite-logo" size={48} strokeWidth={1.1} isAnimated opacity={1} />
 				<h2 class="text-lg font-medium">Built with Vite</h2>
 				<p>
 					Built using Vite, it works seamlessly with most frameworks and offers support

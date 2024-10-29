@@ -105,6 +105,13 @@ code:not(pre code) {
 	@apply rounded-sm px-1 py-[1px];
 }
 
+.Button:hover svg path,
+.copy-button:hover svg path,
+.anchor-link a:hover svg path {
+	stroke-opacity: 1;
+	fill-opacity: 1;
+}
+
 /* Syntax highlighting */
 
 .hljs-comment {

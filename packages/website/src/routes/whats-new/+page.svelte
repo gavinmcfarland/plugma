@@ -40,7 +40,7 @@
 		>
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="message-square" size={24} />Enhanced WebSockets</span
+					><Icon svg="message-square" size={24} opacity={1} />Enhanced WebSockets</span
 				>
 				<p class="m-0">
 					WebSocket messages are now queued until the connection is ready, making browser
@@ -49,7 +49,7 @@
 			</div>
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="copy" size={24} />Modes and Environments</span
+					><Icon svg="copy" size={24} opacity={1} />Modes and Environments</span
 				>
 
 				<p class="m-0">
@@ -60,7 +60,7 @@
 			</div>
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="switch-alt" size={24} />Real-Time Theme Switching</span
+					><Icon svg="switch-alt" size={24} opacity={1} />Real-Time Theme Switching</span
 				>
 				<p class="m-0">
 					Figma’s dark/light modes now update in real time, using a new iframe setup that
@@ -69,7 +69,7 @@
 			</div>
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="file" size={24} />Simplified Vite Configuration</span
+					><Icon svg="file" size={24} opacity={1} />Simplified Vite Configuration</span
 				>
 				<p class="m-0">
 					Simplify builds with a single <code>vite.config.js</code> to manage main and UI code
@@ -78,7 +78,7 @@
 			</div>
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="briefcase" size={24} />Developer Tools</span
+					><Icon svg="briefcase" size={24} opacity={1} />Developer Tools</span
 				>
 				<p class="m-0">
 					Previously, enabling developer tools required setting a flag before starting
@@ -88,7 +88,7 @@
 			</div>
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="window" size={24} />Dedicated Preview Command</span
+					><Icon svg="window" size={24} opacity={1} />Dedicated Preview Command</span
 				>
 				<p class="m-0">
 					For those who frequently use browser previews, the new preview command minimises
