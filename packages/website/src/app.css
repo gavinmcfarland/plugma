@@ -187,6 +187,10 @@ ol li::before {
 	background-color: var(--color-bg-secondary-hover);
 }
 
+.main-content :not(pre) > code {
+	white-space: nowrap;
+}
+
 /* Syntax highlight */
 
 @media (prefers-color-scheme: light) {

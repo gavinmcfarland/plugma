@@ -97,12 +97,6 @@
 			</div>
 		</div>
 	</div>
-	<!-- <SvelteMarkdown
-		{source}
-		renderers={{
-			code: Code
-		}}
-	/> -->
 </div>
 
 <style>
