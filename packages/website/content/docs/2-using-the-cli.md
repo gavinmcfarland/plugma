@@ -17,6 +17,7 @@ plugma dev [options]
 ##### Options
 
 -   `-p`, `--port`: Specify a port number for the plugin preview.
+-   `-o`, `--output`: Specify an output dir, default is `dist`.
 -   `-m`, `--mode`: Specify a mode.
 -   `-ws`, `--websockets`: Enable WebSockets to preview in browser.
 
@@ -49,6 +50,7 @@ plugma preview [options]
 ##### Options
 
 -   `-p`, `--port`: Specify a port number for the plugin preview.
+-   `-o`, `--output`: Specify an output dir, default is `dist`.
 -   `-m`, `--mode`: Specify a mode.
 
 ##### Example
@@ -71,6 +73,7 @@ plugma build [options]
 ##### Options
 
 -   `-w`, `--watch`: Watch for changes and rebuild automatically.
+-   `-o`, `--output`: Specify an output dir, default is `dist`.
 -   `-m`, `--mode`: Specify a mode.
 
 ##### Example
@@ -101,6 +104,7 @@ plugma build [version] [options]
 
 -   `-t`, `--title`: Custom title for the release.
 -   `-n`, `--notes`: Add release notes.
+-   `-o`, `--output`: Specify an output dir, default is `dist`.
 
 ##### Example
 
