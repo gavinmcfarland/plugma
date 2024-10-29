@@ -1,11 +1,13 @@
 <script>
 	import { inject } from '@vercel/analytics';
+	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
 	import '../app.css';
 	import { notifications } from '@/stores';
 	import Notification from '@/components/Notification.svelte';
 	import Icon from '@/components/Icon.svelte';
 
 	inject();
+	injectSpeedInsights();
 
 	function getCurrentYear() {
 		const currentYear = new Date().getFullYear();
