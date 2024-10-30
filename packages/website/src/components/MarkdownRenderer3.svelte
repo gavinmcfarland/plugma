@@ -90,23 +90,37 @@
 	}
 
 	function addStickyClass() {
-		// Use this function for each summary element
+		if (typeof document === 'undefined') return; // Ensure this runs only in a browser environment
+
 		const stickyElements = document.querySelectorAll('summary');
 		const toolbarHeight = 56;
 		const offsetMargin = 0; // Adjust as needed
 
-		window.addEventListener('scroll', () => {
-			stickyElements.forEach((sticky) => {
+		function updateStickyClasses() {
+			stickyElements.forEach((sticky, index) => {
 				const rect = sticky.getBoundingClientRect();
-				// Check if the element has reached below the toolbar
-				if (rect.top <= toolbarHeight + offsetMargin) {
+				const nextSticky = stickyElements[index + 1];
+				const isCurrentSticky = rect.top <= toolbarHeight + offsetMargin;
+				const isNextSticky =
+					nextSticky && nextSticky.getBoundingClientRect().top <= toolbarHeight + 75;
+
+				// Add 'is-sticky' if this element is sticky, but remove it if the next one is also sticky
+				if (isCurrentSticky && !isNextSticky) {
 					sticky.classList.add('is-sticky');
 				} else {
 					sticky.classList.remove('is-sticky');
 				}
 			});
-		});
+		}
+
+		// Run the sticky update on scroll
+		window.addEventListener('scroll', updateStickyClasses);
+
+		// Run the sticky update on click
+		// document.addEventListener('click', updateStickyClasses);
 	}
+
+	addStickyClass();
 
 	onMount(() => {
 		replacePlaceholders(); // Initial replacement on mount

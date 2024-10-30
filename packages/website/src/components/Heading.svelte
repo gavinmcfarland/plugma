@@ -6,6 +6,7 @@
 
 	function slugify(text) {
 		return text
+			.replace(/<\/?[^>]+(>|$)/g, '') // Removes HTML tags
 			.toLowerCase()
 			.replace(/\s+/g, '-')
 			.replace(/[^\w-]+/g, '');
@@ -28,7 +29,7 @@
 		<span class="anchor-link"
 			><a href={'#' + id} aria-label="Anchor link"><Icon svg="link" size={24} /></a></span
 		>
-		<span class="text">{text}</span>
+		<span class="text">{@html text}</span>
 	</h3>
 {:else if depth === 4}
 	<h4 class="my-heading" {id}>

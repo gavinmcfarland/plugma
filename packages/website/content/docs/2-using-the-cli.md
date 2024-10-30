@@ -8,7 +8,7 @@ Plugma comes with a Command Line Interface that supports the following commands.
 
 <summary>
 
-`dev`
+### `dev`
 
 </summary>
 
@@ -49,7 +49,7 @@ When using the commands with `npm run` you need to pass the arguments with a dou
 
 <summary>
 
-`preview`
+### `preview`
 
 </summary>
 
@@ -82,7 +82,7 @@ plugma preview -p 8080
 
 <summary>
 
-`build`
+### `build`
 
 </summary>
 
@@ -116,7 +116,7 @@ plugma build -w
 
 <summary>
 
-`release`
+### `release`
 
 </summary>
 

@@ -173,16 +173,34 @@ ol li::before {
 
 .main-content .anchor-link {
 	display: none;
-}
-.main-content :where(h1, h2, h3, h4):hover > .anchor-link {
 	position: absolute;
 	top: 50%;
 	margin-top: -16px;
 	margin-left: -40px;
 	width: 40px;
 	height: 32px;
+}
+
+.main-content summary :where(h2, h3, h4) {
+	padding-left: 64px;
+	margin-left: -64px;
+}
+
+.main-content summary .anchor-link {
+	/* display: none; */
+	margin-left: -64px;
+	width: 64px;
+}
+.main-content :where(h2, h3, h4):hover > .anchor-link {
 	/* background-color: red; */
 	display: inline-block;
+}
+
+/* To make anchor links visible on mobile */
+@media (max-width: 776px) {
+	.main-content :where(h2, h3, h4):not(summary h2, summary h3, summary h4):hover {
+		margin-left: 0;
+	}
 }
 
 .main-content .anchor-link a {
@@ -205,11 +223,8 @@ ol li::before {
 	padding-bottom: 1px;
 }
 
-.main-content details[open] {
-	margin-bottom: 24px;
-}
-
 .main-content summary {
+	align-items: center;
 	display: flex;
 	background-color: hsl(var(--color-bg-hsl) / 1);
 	/* border-radius: 4px; */
