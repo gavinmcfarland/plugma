@@ -4,7 +4,7 @@ Plugma comes with a Command Line Interface that supports the following commands.
 
 ## Commands
 
-<details open>
+<details>
 
 <summary>
 

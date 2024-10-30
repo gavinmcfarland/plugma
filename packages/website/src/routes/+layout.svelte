@@ -20,7 +20,7 @@
 <div class="app">
 	<!-- <Header /> -->
 
-	<div class="p-4 pr-5 flex justify-between border-b sticky top-0 backdrop-blur-lg z-50">
+	<div class="navbar p-4 pr-5 flex justify-between border-b sticky top-0 z-50">
 		<nav class="max-w-7xl mx-auto flex grow justify-between">
 			<div class="flex">
 				<a href="/" class="items-center flex gap-3">
@@ -61,6 +61,11 @@
 </div>
 
 <style>
+	.navbar {
+		/* background-color: var(--color-bg); */
+		background-color: hsl(var(--color-bg-hsl) / 0.8);
+		@apply backdrop-blur-lg;
+	}
 	.app {
 		display: flex;
 		flex-direction: column;

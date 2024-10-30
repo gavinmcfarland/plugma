@@ -78,13 +78,47 @@
 		});
 	}
 
+	function setSummaryState() {
+		const isDesktop = window.innerWidth > 768;
+
+		if (isDesktop) {
+			// Select all <summary> elements and add the `open` attribute
+			document.querySelectorAll('summary').forEach((summary) => {
+				summary.parentElement.open = true;
+			});
+		}
+	}
+
+	function addStickyClass() {
+		// Use this function for each summary element
+		const stickyElements = document.querySelectorAll('summary');
+		const toolbarHeight = 56;
+		const offsetMargin = 0; // Adjust as needed
+
+		window.addEventListener('scroll', () => {
+			stickyElements.forEach((sticky) => {
+				const rect = sticky.getBoundingClientRect();
+				// Check if the element has reached below the toolbar
+				if (rect.top <= toolbarHeight + offsetMargin) {
+					sticky.classList.add('is-sticky');
+				} else {
+					sticky.classList.remove('is-sticky');
+				}
+			});
+		});
+	}
+
 	onMount(() => {
 		replacePlaceholders(); // Initial replacement on mount
+		addStickyClass();
+		setSummaryState();
 	});
 
 	// Use afterUpdate to re-run `replacePlaceholders` when `html` changes
 	afterUpdate(() => {
 		replacePlaceholders();
+		addStickyClass();
+		setSummaryState();
 	});
 
 	// Clean up all mounted components on component destroy

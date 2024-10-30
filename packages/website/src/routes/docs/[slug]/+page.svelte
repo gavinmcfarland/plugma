@@ -5,6 +5,7 @@
 	import MarkdownRenderer2 from '@/components/MarkdownRenderer2.svelte';
 	import MarkdownRenderer3 from '@/components/MarkdownRenderer3.svelte';
 	import Heading from '@/components/Heading.svelte';
+	import { onMount } from 'svelte';
 	export let data;
 
 	// function replaceSyntax(data) {
@@ -16,6 +17,8 @@
 	// }
 
 	$: source = data.content;
+
+	onMount(() => {});
 </script>
 
 <svelte:head>
