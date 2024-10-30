@@ -4,7 +4,13 @@ Plugma comes with a Command Line Interface that supports the following commands.
 
 ## Commands
 
-### Dev
+<details open>
+
+<summary>
+
+`dev`
+
+</summary>
 
 Start a server to develop your plugin. This command builds the `ui.html` and points it to the dev server making it easier to develop and debug your plugin.
 
@@ -32,10 +38,20 @@ plugma dev -ws
 ```
 
 <blockquote class="info">
+
 When using the commands with `npm run` you need to pass the arguments with a double dash `--`, for example `npm run dev -- -p 3000`.
+
 </blockquote>
 
-### Preview
+</details>
+
+<details>
+
+<summary>
+
+`preview`
+
+</summary>
 
 <mark>Coming in V1</mark>
 
@@ -60,7 +76,15 @@ plugma preview [options]
 plugma preview -p 8080
 ```
 
-### Build
+</details>
+
+<details>
+
+<summary>
+
+`build`
+
+</summary>
 
 Create a build before publishing. This command compiles and bundles your plugin, preparing it for distribution.
 
@@ -86,7 +110,15 @@ plugma build
 plugma build -w
 ```
 
-### Release
+</details>
+
+<details>
+
+<summary>
+
+`release`
+
+</summary>
 
 <mark>Coming in V1</mark>
 
@@ -115,6 +147,8 @@ plugma release
 # Release a beta version with custom title and notes
 plugma release beta -t "New feature" -n "This release includes new features X and Y"
 ```
+
+</details>
 
 ## Installing globally
 

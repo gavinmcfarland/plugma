@@ -61,6 +61,7 @@
 	.Code {
 		position: relative;
 		background-color: var(--color-bg);
+		border-color: var(--color-border);
 	}
 
 	.Code code {

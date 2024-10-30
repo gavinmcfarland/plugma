@@ -507,6 +507,50 @@
 			/>
 		</svg>
 	{/if}
+
+	{#if svg === 'link'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M13.2505 16.7495L11.0005 18.9995C9.3436 20.6563 6.65731 20.6563 5.00046 18.9995C3.3436 17.3426 3.3436 14.6563 5.00045 12.9995L7.25045 10.7495M16.7505 13.2495L19.0005 10.9995C20.6573 9.34262 20.6573 6.65633 19.0005 4.99947C17.3436 3.34262 14.6573 3.34262 13.0005 4.99948L10.7505 7.24948"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M9 15L15 9"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	{/if}
+
+	{#if svg === 'carret-right-fill'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M10 8.06736C10 7.64344 10.4944 7.41186 10.8201 7.68325L15.5391 11.6157C15.7789 11.8156 15.7789 12.184 15.5391 12.3839L10.8201 16.3164C10.4944 16.5878 10 16.3562 10 15.9323V8.06736Z"
+				fill={color}
+				fill-opacity={opacity}
+			/>
+		</svg>
+	{/if}
 </span>
 
 <style>

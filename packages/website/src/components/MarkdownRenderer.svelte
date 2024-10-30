@@ -120,6 +120,8 @@
 					const htmlRegex = /^<(\w+)(\s+[^>]*)?>([\s\S]*?)<\/\1>$/;
 					const match = token.text.trim().match(htmlRegex);
 
+					console.log('---', token.text);
+
 					if (match) {
 						const [, tagName, rawAttributes = '', content] = match;
 

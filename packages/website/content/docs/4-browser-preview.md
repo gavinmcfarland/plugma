@@ -6,7 +6,7 @@ This feature is helpful because Figma plugins can also run in the browser, and c
 
 ## Enabling WebSockets
 
-###### `preview`
+##### Using the preview command
 
 Using the `preview` command will automatically enable WebSockets and open the plugin in Figma in a minimized state with a preview URL.
 
@@ -18,7 +18,7 @@ Plugma v1.0.0
 Preview: http://localhost:<port>
 ```
 
-###### `dev -ws`
+##### Using the dev command
 
 Alternatively, you can run the `dev` command with the `-ws` option. Unlike preview, this option does not minimize the plugin by default.
 
