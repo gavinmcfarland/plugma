@@ -1,10 +1,38 @@
 :root {
-  font-family: Inter, system-ui, Helvetica, Arial, sans-serif;
-  font-display: optional;
-  font-size: 68.75%; /* 11/16 */
+	font-family: Inter, system-ui, Helvetica, Arial, sans-serif;
+	font-display: optional;
+	font-size: 68.75%; /* 11/16 */
 }
 
-body {
-  background-color: var(--figma-color-bg);
-  color: var(--figma-color-text);
+html {
+	background-color: var(--figma-color-bg);
+	color: var(--figma-color-text);
+}
+
+.container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	width: 100%;
+}
+
+.banner {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	margin-bottom: 24px;
+}
+
+.button {
+	position: absolute;
+	right: 16px;
+	bottom: 16px;
+	display: block;
+	border-radius: 5px;
+	border: 1px solid var(--figma-color-border);
+	padding-inline: 8px;
+	line-height: 22px;
+	text-decoration: none;
+	color: var(--figma-color-text);
 }

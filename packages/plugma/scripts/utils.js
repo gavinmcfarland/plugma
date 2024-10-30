@@ -11,7 +11,6 @@ import globalPolyfill from '../lib/esbuild-plugins/esbuild-plugin-global-polyfil
 import os from 'os';
 import chalk from 'chalk';
 import { fileURLToPath } from 'url';
-import { svelte } from "@sveltejs/vite-plugin-svelte";
 import vitePluginInsertCustomFunctions from '../lib/vite-plugins/vite-plugin-insert-custom-functions.js';
 import viteSupressLogs from '../lib/vite-plugins/vite-plugin-surpress-logs.js';
 
