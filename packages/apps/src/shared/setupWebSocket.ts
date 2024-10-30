@@ -20,7 +20,7 @@ interface ExtendedWebSocket extends ReconnectingWebSocket {
 export function setupWebSocket(
 	iframeTarget = null,
 	enableWebSocket = true,
-	registerSource = false
+	registerSource = false,
 ): ExtendedWebSocket | typeof mockWebSocket {
 	const messageQueue: any[] = []
 	let openCallbacks: (() => void)[] = []
@@ -109,7 +109,7 @@ export function setupWebSocket(
 				}
 			})
 		} else {
-			console.warn(`Cannot add message listener via ${via}.`)
+			// console.warn(`Cannot add message listener via ${via}.`)
 		}
 	}
 
@@ -187,7 +187,7 @@ export function setupWebSocket(
 						JSON.stringify({
 							pluginMessage: { event: 'ping' },
 							pluginId: '*',
-						})
+						}),
 					)
 				}
 			}, 10000)
@@ -216,7 +216,7 @@ export function setupWebSocket(
 							JSON.stringify({
 								pluginMessage: { event: 'pong' },
 								pluginId: '*',
-							})
+							}),
 						)
 					}
 
@@ -225,7 +225,7 @@ export function setupWebSocket(
 						const connectedClients = message.pluginMessage.clients || []
 						const browserClientsX = connectedClients.filter((client) => client.source === 'browser')
 						const pluginWindowClientsX = connectedClients.filter(
-							(client) => client.source === 'plugin-window'
+							(client) => client.source === 'plugin-window',
 						)
 						remoteClients.set(browserClientsX) // Set the connected clients
 						pluginWindowClients.set(pluginWindowClientsX) // Set the connected clients
@@ -256,10 +256,10 @@ export function setupWebSocket(
 						// Handle remote clients only when inside iframe or Figma
 						// if (!(isInsideIframe || isInsideFigma)) {
 						pluginWindowClients.update((clients) =>
-							clients.filter((client) => client.id !== message.pluginMessage.client.id)
+							clients.filter((client) => client.id !== message.pluginMessage.client.id),
 						)
 						remoteClients.update((clients) =>
-							clients.filter((client) => client.id !== message.pluginMessage.client.id)
+							clients.filter((client) => client.id !== message.pluginMessage.client.id),
 						)
 						// }
 					}

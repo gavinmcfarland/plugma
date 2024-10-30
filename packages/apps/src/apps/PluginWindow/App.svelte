@@ -37,6 +37,7 @@
 		}, 'window')
 
 		ws.on((event) => {
+			// TODO: Filter out messages sent by framework
 			ws.post(event.data, 'parent')
 		}, 'ws')
 	}
