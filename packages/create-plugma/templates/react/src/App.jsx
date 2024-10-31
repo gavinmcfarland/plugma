@@ -7,7 +7,7 @@ const App = () => {
       <div className="banner">
         <Icon svg="plugma" size={38} />
         <Icon svg="plus" size={24} />
-        <img src={reactLogo} width="44" height="44" className="logo svelte" alt="Plugma logo" />
+        <img src={reactLogo} width="44" height="44" alt="React logo" />
       </div>
 
       <a href="https://plugma.dev/docs" target="_blank" rel="noopener noreferrer" className="button">

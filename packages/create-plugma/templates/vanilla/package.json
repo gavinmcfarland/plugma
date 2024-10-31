@@ -3,20 +3,19 @@
 	"type": "module",
 	"scripts": {
 		"dev": "plugma dev",
-		"build": "plugma build"
+		"build": "plugma build",
+		"preview": "plugma preview",
+		"release": "plugma release"
 	},
 	"devDependencies": {
 		"html-template-tag": "4.0.1",
-		"@figma/plugin-typings": "^1.88.0",
-		"tslib": "^2.6.2",
-		"typescript": "^5.2.2",
-		"vite": "^5.0.0",
-		"esbuild": "^0.19.9",
+		"vite": "^5.4.10",
+		"@figma/plugin-typings": "^1.100.2",
 		"plugma": "^<%- versions.plugmaNext %>"
 	},
 	"plugma": {
 		"manifest": {
-			"id": "<%- name %>",
+			"id": "<%- name %>-replace",
 			"name": "<%- name %>",
 			"main": "src/main.js",
 			"ui": "src/ui.js",
@@ -29,7 +28,8 @@
 					"none"
 				],
 				"devAllowedDomains": [
-					"*"
+					"http://localhost:*",
+					"ws://localhost:9001"
 				]
 			}
 		}

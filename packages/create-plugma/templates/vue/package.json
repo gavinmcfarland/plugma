@@ -3,27 +3,22 @@
 	"type": "module",
 	"scripts": {
 		"dev": "plugma dev",
-		"build": "plugma build"
+		"build": "plugma build",
+		"preview": "plugma preview",
+		"release": "plugma release"
 	},
 	"dependencies": {
-		"vue": "^3.4.31"
+		"vue": "^3.5.12"
 	},
 	"devDependencies": {
-		"@vitejs/plugin-react": "^4.3.0",
-		"react": "^18.3.1",
-		"react-dom": "^18.3.1",
-		"@types/react-dom": "^18.3.0",
-		"@figma/plugin-typings": "^1.88.0",
-		"tslib": "^2.6.2",
-		"typescript": "^5.2.2",
-		"esbuild": "^0.19.9",
-		"plugma": "^<%- versions.plugmaNext %>",
-		"@vitejs/plugin-vue": "^5.0.5",
-		"vite": "^5.3.4"
+		"@vitejs/plugin-vue": "^5.1.4",
+		"vite": "^5.4.10",
+		"@figma/plugin-typings": "^1.100.2",
+		"plugma": "^<%- versions.plugmaNext %>"
 	},
 	"plugma": {
 		"manifest": {
-			"id": "<%- name %>",
+			"id": "<%- name %>-replace",
 			"name": "<%- name %>",
 			"main": "src/main.js",
 			"ui": "src/ui.js",
@@ -36,7 +31,8 @@
 					"none"
 				],
 				"devAllowedDomains": [
-					"*"
+					"http://localhost:*",
+					"ws://localhost:9001"
 				]
 			}
 		}

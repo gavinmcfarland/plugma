@@ -9,7 +9,7 @@
 
 		<Icon svg="plus" size={24} />
 
-		<img src={svelteLogo} width="44" height="44" class="logo svelte" alt="Plugma logo" />
+		<img src={svelteLogo} width="44" height="44" alt="Svelte logo" />
 	</div>
 
 	<a href="https://plugma.dev/docs" target="_blank" class="button">Read the docs</a>
