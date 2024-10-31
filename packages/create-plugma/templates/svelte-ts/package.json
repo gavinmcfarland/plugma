@@ -16,7 +16,7 @@
 		"typescript": "~5.6.2",
 		"vite": "^5.4.10",
 		"@figma/plugin-typings": "^1.100.2",
-		"plugma": "^<%- versions.plugmaNext %>"
+		"plugma": "^<%- versions.plugma %>"
 	},
 	"plugma": {
 		"manifest": {
