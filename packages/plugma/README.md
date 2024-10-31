@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/b9b3e1ef-973b-4a8c-831b-014dca728696" alt="Plugma and Vite logos" width="460" height="auto">
+    <img src="https://github.com/user-attachments/assets/973acbd8-9e94-4b1b-a0f5-26b994be6f78" alt="Plugma logo" width="80" height="auto">
 </p>
 
 # Plugma
@@ -7,16 +7,6 @@
 Plugma is a powerful command-line tool that simplifies your plugin development workflow. It enables easy creation, development, and testing with features like true hot module reloading (HMR), in-browser previews, unified bundling, and .env support for environment variables.
 
 For full documentation see [plugma.dev](https://www.plugma.dev/).
-
-## Start from a template
-
-Initialize a new project with Plugma:
-
-```bash
-npm create plugma@latest
-```
-
-This command creates a new Figma plugin project with your chosen framework, including all the necessary setup and configuration files.
 
 ## Installation
 
@@ -31,15 +21,6 @@ Or install it globally:
 ```bash
 npm install -g plugma
 ```
-
-## Commands
-
--   `plugma dev`: Start a server to develop your plugin.
--   `plugma build`: Create a build before publishing.
--   `plugma preview`: Preview the plugin in a browser preview.
--   `plugma release`: Build the plugin and release to GitHub.
-
-Run `plugma --help` for a full list of the options.
 
 ## Requirements
 
