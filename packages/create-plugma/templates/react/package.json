@@ -27,8 +27,8 @@
 	},
 	"plugma": {
 		"manifest": {
-			"name": "<%- name %>",
 			"id": "<%- name %>-replace",
+			"name": "<%- name %>",
 			"main": "src/main.js",
 			"ui": "src/ui.jsx",
 			"editorType": [

@@ -12,15 +12,15 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const frameworks = [
 	{
-		name: 'Vanilla',
+		name: 'React',
 		variants: [
 			{
 				name: 'TypeScript',
-				dir: 'vanilla-ts'
+				dir: 'react-ts'
 			},
 			{
 				name: 'JavaScript',
-				dir: 'vanilla'
+				dir: 'react'
 			}
 		]
 	},
@@ -38,19 +38,6 @@ const frameworks = [
 		]
 	},
 	{
-		name: 'React',
-		variants: [
-			{
-				name: 'TypeScript',
-				dir: 'react-ts'
-			},
-			{
-				name: 'JavaScript',
-				dir: 'react'
-			}
-		]
-	},
-	{
 		name: 'Vue',
 		variants: [
 			{
@@ -60,6 +47,19 @@ const frameworks = [
 			{
 				name: 'JavaScript',
 				dir: 'vue'
+			}
+		]
+	},
+	{
+		name: 'Vanilla',
+		variants: [
+			{
+				name: 'TypeScript',
+				dir: 'vanilla-ts'
+			},
+			{
+				name: 'JavaScript',
+				dir: 'vanilla'
 			}
 		]
 	},

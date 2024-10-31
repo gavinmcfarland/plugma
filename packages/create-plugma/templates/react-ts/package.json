@@ -28,8 +28,8 @@
 	},
 	"plugma": {
 		"manifest": {
-			"id": "<%- name %>",
-			"name": "<%- name %>-replace",
+			"id": "<%- name %>-replace",
+			"name": "<%- name %>",
 			"main": "src/main.ts",
 			"ui": "src/ui.tsx",
 			"editorType": [
