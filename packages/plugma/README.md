@@ -1,3 +1,5 @@
+![plugma-logo](https://github.com/user-attachments/assets/f60ce7c1-f042-4357-8aad-548accc20671)
+
 # Plugma
 
 Plugma is a powerful command-line interface designed to streamline your development workflow. It makes it easier to create, develop, and test your plugins. With features like, true HMR, browser preview.
