@@ -46,6 +46,6 @@ Run `plugma --help` for a full list of the options.
 -   [Node.js](https://nodejs.org/en)
 -   [Figma desktop app](https://www.figma.com/downloads/)
 
-### License
+## License
 
 Plugma is MIT licensed. See the LICENSE file for more details.
