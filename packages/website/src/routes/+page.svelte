@@ -24,7 +24,7 @@
 		</div>
 		<div class="max-w-6xl mx-auto">
 			<div class="text-center">
-				<Badge href="/whats-new">V1 Coming Soon<Icon svg="arrow-right" /></Badge>
+				<Badge href="/whats-new">V1 What's New<Icon svg="arrow-right" /></Badge>
 				<h1 class="text-5xl/tight md:text-7xl/tight text-center font-medium mb-4">
 					Create Figma plugins <br />without the hassle
 				</h1>
