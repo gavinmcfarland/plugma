@@ -1,3 +1,4 @@
+<br/>
 <p align="center">
     <img src="https://github.com/user-attachments/assets/7f90e731-1af6-4705-a0b0-11e94cf53413" alt="Plugma and Vite logos" width="400" height="auto">
 </p>
