@@ -5,12 +5,10 @@ import path, { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { exec } from 'child_process';
 import chokidar from 'chokidar';
-import { spawn } from 'child_process';
 import { transformObject } from './utils.js';
 
 import _ from 'lodash';
 import chalk from 'chalk';
-import esbuild from 'esbuild';
 import { build as viteBuild, createServer, mergeConfig } from 'vite';
 
 import { Log } from '../lib/logger.js';
@@ -149,97 +147,97 @@ export async function runScript(command, options) {
 	});
 
 	task('build-main', async ({ command, config }) => {
-		if (options.mainBundler === "esbuild") {
-			const userEsConfig = await loadConfig('esbuild.config.js');
-			if (userEsConfig) {
-				config.esbuild.dev = Object.assign(config.esbuild.dev, userEsConfig)
-				config.esbuild.build = Object.assign(config.esbuild.build, userEsConfig)
+		// if (options.mainBundler === "esbuild") {
+		// 	const userEsConfig = await loadConfig('esbuild.config.js');
+		// 	if (userEsConfig) {
+		// 		config.esbuild.dev = Object.assign(config.esbuild.dev, userEsConfig)
+		// 		config.esbuild.build = Object.assign(config.esbuild.build, userEsConfig)
+		// 	}
+		// 	if (command === 'dev' || command === 'preview' || command === "build" && options.watch) {
+		// 		const ctx = await esbuild.context(config.esbuild.dev);
+		// 		await ctx.watch();
+		// 	} else {
+		// 		await esbuild.build(config.esbuild.build);
+		// 	}
+		// } else {
+
+		// FIXME: Had to do all of this because of two issues:
+		// 1. Vite seems to be caching config when watching
+		// 2. dotenv was also caching env files
+		let isBuilding = false;
+
+
+
+		const envFiles = [
+			path.resolve(process.cwd(), '.env'),
+			path.resolve(process.cwd(), '.env.local'),               // Default .env
+			path.resolve(process.cwd(), `.env.${process.env.NODE_ENV}`), // Environment-specific .env (e.g., .env.development, .env.production)
+			path.resolve(process.cwd(), `.env.${process.env.NODE_ENV}.local`)             // Local overrides, if any
+		];
+
+		// Function to start the build
+		async function runBuild() {
+			if (isBuilding) {
+				console.log('[vite-build] Build already in progress. Waiting for it to complete before restarting.');
+				return;
 			}
-			if (command === 'dev' || command === 'preview' || command === "build" && options.watch) {
-				const ctx = await esbuild.context(config.esbuild.dev);
-				await ctx.watch();
-			} else {
-				await esbuild.build(config.esbuild.build);
-			}
-		} else {
 
-			// FIXME: Had to do all of this because of two issues:
-			// 1. Vite seems to be caching config when watching
-			// 2. dotenv was also caching env files
-			let isBuilding = false;
+			isBuilding = true; // Set the flag indicating a build is in progress
 
-
-
-			const envFiles = [
-				path.resolve(process.cwd(), '.env'),
-				path.resolve(process.cwd(), '.env.local'),               // Default .env
-				path.resolve(process.cwd(), `.env.${process.env.NODE_ENV}`), // Environment-specific .env (e.g., .env.development, .env.production)
-				path.resolve(process.cwd(), `.env.${process.env.NODE_ENV}.local`)             // Local overrides, if any
-			];
-
-			// Function to start the build
-			async function runBuild() {
-				if (isBuilding) {
-					console.log('[vite-build] Build already in progress. Waiting for it to complete before restarting.');
-					return;
+			try {
+				if (command === 'dev' || command === 'preview') {
+					let merged = mergeConfig({ build: { watch: {}, minify: false }, plugins: [logFileUpdates()] }, config.viteMain.dev)
+					await viteBuild(merged);
 				}
-
-				isBuilding = true; // Set the flag indicating a build is in progress
-
-				try {
-					if (command === 'dev' || command === 'preview') {
-						let merged = mergeConfig({ build: { watch: {}, minify: false }, plugins: [logFileUpdates()] }, config.viteMain.dev)
-						await viteBuild(merged);
-					}
-					else if (command === "build" && options.watch) {
-						let merged = mergeConfig({ build: { watch: {}, minify: true } }, config.viteMain.dev)
-						await viteBuild(merged);
-					} else {
-						let merged = mergeConfig({ build: { minify: true } }, config.viteMain.build)
-						await viteBuild(merged);
-					}
-				} catch (error) {
-					console.error('[vite-build] Build failed:', error);
-				} finally {
-					isBuilding = false; // Reset the flag after the build completes
+				else if (command === "build" && options.watch) {
+					let merged = mergeConfig({ build: { watch: {}, minify: true } }, config.viteMain.dev)
+					await viteBuild(merged);
+				} else {
+					let merged = mergeConfig({ build: { minify: true } }, config.viteMain.build)
+					await viteBuild(merged);
 				}
+			} catch (error) {
+				console.error('[vite-build] Build failed:', error);
+			} finally {
+				isBuilding = false; // Reset the flag after the build completes
 			}
-
-
-
-			// Function to watch environment files and restart the build process when changes occur
-			function watchEnvFiles() {
-				const watcher = chokidar.watch(envFiles);
-
-				watcher.on('change', (filePath) => {
-					console.log(`[vite-build] Environment file changed: ${filePath}. Restarting build...`);
-					runBuild(); // Restart the build process without exiting
-				});
-			}
-
-			// Initial build run
-			runBuild();
-
-
-
-			if (command === 'dev' || command === 'preview' || command === "build" && options.watch) {
-				// Start watching for changes in environment files
-				watchEnvFiles();
-			}
-
-			// if (command === 'dev' || command === "build" && options.watch) {
-			// 	// We disable watching env on main as it doesn't do anything anyway
-			// 	await viteBuild(_.merge({}, config.viteMain, {
-			// 		build: {
-			// 			watch: {
-
-			// 			},
-			// 		}
-			// 	}));
-			// } else {
-			// 	await viteBuild(config.viteMain);
-			// }
 		}
+
+
+
+		// Function to watch environment files and restart the build process when changes occur
+		function watchEnvFiles() {
+			const watcher = chokidar.watch(envFiles);
+
+			watcher.on('change', (filePath) => {
+				console.log(`[vite-build] Environment file changed: ${filePath}. Restarting build...`);
+				runBuild(); // Restart the build process without exiting
+			});
+		}
+
+		// Initial build run
+		runBuild();
+
+
+
+		if (command === 'dev' || command === 'preview' || command === "build" && options.watch) {
+			// Start watching for changes in environment files
+			watchEnvFiles();
+		}
+
+		// if (command === 'dev' || command === "build" && options.watch) {
+		// 	// We disable watching env on main as it doesn't do anything anyway
+		// 	await viteBuild(_.merge({}, config.viteMain, {
+		// 		build: {
+		// 			watch: {
+
+		// 			},
+		// 		}
+		// 	}));
+		// } else {
+		// 	await viteBuild(config.viteMain);
+		// }
+		// }
 
 
 

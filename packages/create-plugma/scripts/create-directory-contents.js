@@ -1,4 +1,4 @@
-import slugify from '@sindresorhus/slugify';
+import slugify from 'slugify';
 import * as fs from 'fs';
 const CURR_DIR = process.cwd();
 import _ from 'lodash'

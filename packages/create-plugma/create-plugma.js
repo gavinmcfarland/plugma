@@ -2,12 +2,9 @@
 
 import inquirer from 'inquirer';
 import * as fs from 'fs';
-import { dirname, resolve } from 'path';
+import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import slugify from '@sindresorhus/slugify'
 import createDirectoryContents from './scripts/create-directory-contents.js';
-import { exec } from 'node:child_process'
-import lodashTemplate from 'lodash.template'
 import path from 'path';
 
 const CURR_DIR = process.cwd();
