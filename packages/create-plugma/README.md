@@ -23,6 +23,6 @@ This command creates a new Figma plugin project with your chosen framework, incl
 -   [Node.js](https://nodejs.org/en)
 -   [Figma desktop app](https://www.figma.com/downloads/)
 
-### License
+## License
 
 Plugma is MIT licensed. See the LICENSE file for more details.
