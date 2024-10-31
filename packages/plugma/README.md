@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/f5667ecb-8893-4ddb-bf9c-010624e8700a" alt="Plugma and Vite logos" width="600" height="auto">
+    <img src="https://github.com/user-attachments/assets/f5667ecb-8893-4ddb-bf9c-010624e8700a" alt="Plugma and Vite logos" width="460" height="auto">
 </p>
 
 # Plugma
