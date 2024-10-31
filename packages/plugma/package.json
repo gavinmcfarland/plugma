@@ -27,9 +27,10 @@
 		"esbuild-plugin-replace": "^1.4.0",
 		"express": "^4.18.2",
 		"fs-extra": "^11.2.0",
+		"inquirer": "^12.0.0",
 		"jsdom": "^25.0.0",
 		"just-task": "^1.10.0",
-		"lodash": "^4.5.0",
+		"lodash": "^4.17.21",
 		"lodash.merge": "^4.6.2",
 		"lodash.template": "^4.5.0",
 		"node-cleanup": "^2.1.2",
@@ -37,7 +38,6 @@
 		"uuid": "^10.0.0",
 		"vite": "^5.0.4",
 		"vite-plugin-singlefile": "^0.13.5",
-		"ws": "^8.16.0",
-		"inquirer": "^12.0.0"
+		"ws": "^8.16.0"
 	}
 }
