@@ -1,10 +1,10 @@
 # Migrating to v1
 
-Plugma v1 introduces a simpler way to manage Vite configurations. Before, you had to import and merge Plugma's config with your own, adding extra steps. Now, Plugma automatically applies its configuration, keeping your `vite.config.js` simpler and cleaner.
-
-Also, Plugma v1 uses Vite to bundle the main code, so you can configure both the main code and UI in the same vite.config.js.
+Plugma v1 makes managing Vite configurations much simpler. Previously, you had to import and merge Plugma’s configuration with your own, adding extra steps. Now, Plugma automatically applies its setup, keeping your vite.config.js clean and straightforward. With Vite now bundling both the main code and UI, you can manage all configurations in a single vite.config.js. Note that you’ll need to update the mount configuration in your ui file for your specific framework, as Plugma will no longer handle these configurations automatically in the future.
 
 ## Changes you need to make
+
+### Update your vite.config.js file
 
 When you update from v0.x.x to v1.x.x, the CLI can automatically migrate these changes for you. However if you prefer to do it manually, here’s what you need to update in `your vite.config.js` file.
 
@@ -37,6 +37,73 @@ When you update from v0.x.x to v1.x.x, the CLI can automatically migrate these c
     ```
 
     The callback will allow you to specify the mode (development, build etc).
+
+### Update configuration for framework
+
+Each framework has its own configuration method. In Plugma V0, this was managed internally, but to give developers more control, Plugma will no longer handle these configurations. Update your ui file to manage framework setup. Current configurations are supported temporarily but will be deprecated in future versions.
+
+Use the code snippets below to configure your application for each supported framework:
+
+#### React
+
+```jsx
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './styles.css'
+import App from './App.jsx'
+
+createRoot(document.getElementById('app')).render(
+    <StrictMode>
+        <App />
+    </StrictMode>,
+)
+```
+
+### Svelte 4
+
+```js
+import './styles.css'
+import App from './App.svelte'
+
+let app = new App({
+    target: document.getElementById("app")!,
+});
+
+export default app;
+```
+
+### Svelte 5
+
+```js
+import { mount } from 'svelte'
+import './styles.css'
+import App from './App.svelte'
+
+const app = mount(App, {
+    target: document.getElementById('app'),
+})
+
+export default app
+```
+
+### Vue
+
+```js
+import { createApp } from 'vue'
+import './styles.css'
+import App from './App.vue'
+
+createApp(App).mount('#app')
+```
+
+### Vanilla JS/TS
+
+```js
+import App from './App.js'
+import './styles.css'
+
+document.querySelector('#app').innerHTML = App
+```
 
 ## Example with v1
 
