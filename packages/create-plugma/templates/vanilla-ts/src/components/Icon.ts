@@ -1,9 +1,20 @@
-import html from "html-template-tag";
+import html from 'html-template-tag'
 
-export function Icon({ svg, size = 16 }) {
-	if (svg === "plugma") {
+interface IconProps {
+	svg: string
+	size?: number
+}
+
+export function Icon({ svg, size = 16 }: IconProps): string {
+	if (svg === 'plugma') {
 		return html`
-			<svg width="${size}px" height="${size}px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<svg
+				width="${String(size)}px"
+				height="${String(size)}px"
+				viewBox="0 0 24 24"
+				fill="none"
+				xmlns="http://www.w3.org/2000/svg"
+			>
 				<g clip-path="url(#clip0_1508_4907)">
 					<path
 						fill-rule="evenodd"
@@ -18,12 +29,18 @@ export function Icon({ svg, size = 16 }) {
 					</clipPath>
 				</defs>
 			</svg>
-		`;
+		`
 	}
 
-	if (svg === "plus") {
+	if (svg === 'plus') {
 		return html`
-			<svg width="${size}px" height="${size}px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<svg
+				width="${String(size)}px"
+				height="${String(size)}px"
+				viewBox="0 0 24 24"
+				fill="none"
+				xmlns="http://www.w3.org/2000/svg"
+			>
 				<g opacity="0.3">
 					<path d="M12 5V19Z" fill="white" />
 					<path
@@ -45,6 +62,7 @@ export function Icon({ svg, size = 16 }) {
 					/>
 				</g>
 			</svg>
-		`;
+		`
 	}
+	return ''
 }
