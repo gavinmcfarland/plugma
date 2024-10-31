@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/973acbd8-9e94-4b1b-a0f5-26b994be6f78" alt="Plugma logo" width="80" height="auto">
+    <img src="https://github.com/user-attachments/assets/2cd70abd-7edc-4059-b4c5-58e18f73d237" alt="Plugma logo" width="auto" height="208">
 </p>
 
 # Create Plugma
