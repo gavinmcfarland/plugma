@@ -1,11 +1,10 @@
-<br/>
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/7f90e731-1af6-4705-a0b0-11e94cf53413" alt="Plugma and Vite logos" width="400" height="auto">
+    <img src="https://github.com/user-attachments/assets/f5667ecb-8893-4ddb-bf9c-010624e8700a" alt="Plugma and Vite logos" width="600" height="auto">
 </p>
 
 # Plugma
 
-Plugma is a powerful command-line interface designed to streamline your development workflow. It makes it easier to create, develop, and test your plugins. With features like, true HMR, browser preview.
+Plugma is a powerful command-line tool that simplifies your plugin development workflow. It enables easy creation, development, and testing with features like true hot module reloading (HMR), in-browser previews, unified bundling, and .env support for environment variables.
 
 For full documentation see [plugma.dev](https://www.plugma.dev/).
 
