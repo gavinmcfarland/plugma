@@ -1,13 +1,11 @@
 import fs from 'fs';
 import path, { dirname, resolve, join } from 'path';
-import envfilePlugin from '../lib/esbuild-plugins/esbuild-plugin-envfile.js';
 import htmlTransform from '../lib/vite-plugins/vite-plugin-html-transform.js';
 import replaceMainInput from '../lib/vite-plugins/vite-plugin-replace-main-input.js';
 import deepIndex from '../lib/vite-plugins/vite-plugin-deep-index.js';
 import viteCopyDirectoryPlugin from '../lib/vite-plugins/vite-plugin-copy-dir.js';
 import dotEnvLoader from '../lib/vite-plugins/vite-plugin-dot-env-loader.js';
 import { viteSingleFile } from 'vite-plugin-singlefile';
-import globalPolyfill from '../lib/esbuild-plugins/esbuild-plugin-global-polyfill.js';
 import os from 'os';
 import chalk from 'chalk';
 import { fileURLToPath } from 'url';
@@ -81,22 +79,6 @@ export function createConfigs(options, userFiles) {
 	];
 
 	const tempFilePath = writeTempFile(`temp_${Date.now()}.js`, userFiles, options);
-
-	const commonEsbuildConfig = {
-		entryPoints: [tempFilePath],
-		outfile: `${options.output}/main.js`,
-		format: 'esm',
-		bundle: true,
-		target: 'es2016',
-		plugins: [
-			globalPolyfill(),
-			envfilePlugin({
-				envPath: '.env',
-				envTestPath: '.env.test',
-				envDevelopmentPath: '.env.development',
-			}),
-		],
-	};
 
 	// Vite configuration
 	const viteConfig = {
@@ -210,28 +192,13 @@ export function createConfigs(options, userFiles) {
 		},
 	}
 
-	// Esbuild configuration
-	const esbuildConfig = {
-		dev: {
-			...commonEsbuildConfig,
-			inject: [resolve(`${__dirname}/../lib/global-shim.js`)],
-			define: {
-				'process.env.NODE_ENV': JSON.stringify(options.mode),
-				process: JSON.stringify({}),
-			},
-			plugins: [...commonEsbuildConfig.plugins, notifyOnRebuild()],
-		},
-		build: commonEsbuildConfig,
-	};
-
 	// Return both configurations in a config object
 	return {
 		vite: viteConfig,
 		viteMain: {
 			dev: viteConfigMainDev,
 			build: viteConfigMainBuild
-		},
-		esbuild: esbuildConfig,
+		}
 	};
 }
 
