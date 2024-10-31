@@ -234,15 +234,18 @@ function writeTempFile(fileName, userFiles, options) {
 export function transformObject(input, options) {
 	const transformed = JSON.parse(JSON.stringify(input)); // Deep copy the input object
 
-	// Update devAllowedDomains
-	transformed.networkAccess.devAllowedDomains = transformed.networkAccess.devAllowedDomains.map(domain => {
-		// Replace `*` in either `http://localhost:*` or `https://localhost:*`
-		if (domain === "http://localhost:*" || domain === "https://localhost:*") {
-			const protocol = domain.startsWith("https") ? "https" : "http";
-			return `${protocol}://localhost:${options.port}`;
-		}
-		return domain;
-	});
+	if (transformed?.networkAccess?.devAllowedDomains) {
+		// Update devAllowedDomains
+		transformed.networkAccess.devAllowedDomains = transformed.networkAccess.devAllowedDomains.map(domain => {
+			// Replace `*` in either `http://localhost:*` or `https://localhost:*`
+			if (domain === "http://localhost:*" || domain === "https://localhost:*") {
+				const protocol = domain.startsWith("https") ? "https" : "http";
+				return `${protocol}://localhost:${options.port}`;
+			}
+			return domain;
+		});
+	}
+
 
 	return transformed;
 }
