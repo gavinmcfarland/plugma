@@ -10,13 +10,13 @@ For full documentation see [plugma.dev](https://www.plugma.dev/).
 
 ## Start from a template
 
-Initialize a new project with Plugma:
+Create a plugin from a template using the following:
 
 ```bash
 npm create plugma@latest
 ```
 
-This command creates a new Figma plugin project with your chosen framework, including all the necessary setup and configuration files.
+The frameworks currently supported are `React`, `Svelte`, `Vue` and vanilla `JavaScript`.
 
 ## Installation
 
