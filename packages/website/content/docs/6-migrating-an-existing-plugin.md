@@ -1,10 +1,18 @@
 # Migrating an existing plugin
 
-Here's a quick guide on how to update your Figma plugin to work with Plugma. While Plugma has been tested with **React**, **Svelte**, **Vue**, and **vanilla JS/TS**, compatibility with other frameworks may vary.
+This guide outlines the steps to update your Figma plugin to work seamlessly with Plugma. While Plugma is compatible with **React**, **Svelte**, **Vue**, and **vanilla JS/TS**, compatibility with other frameworks may vary.
 
 ## Steps to migrate
 
-### Step 1: Update `package.json`
+### Step 1: Install Plugma
+
+Add Plugma as a dependency in your project.
+
+```bash
+npm install plugma@latest
+```
+
+### Step 2: Update `package.json` scripts
 
 Add Plugma commands in the scripts section to handle development, building, previewing, and releasing.
 
@@ -17,7 +25,7 @@ Add Plugma commands in the scripts section to handle development, building, prev
 }
 ```
 
-### Step 2: Update file paths in `manifest.json`
+### Step 3: Update file paths in `manifest.json`
 
 Update the `main` and `ui` fields in your Figma plugin manifest to point to your source files.
 
@@ -29,9 +37,9 @@ Update the `main` and `ui` fields in your Figma plugin manifest to point to your
 }
 ```
 
-### Step 3: Allow development network access
+### Step 4: Allow development network access
 
-Allow access to localhost to support both the local development server and websockets server.
+To allow local development with live reloading and WebSocket support, add the following domains to the `networkAccess.devAllowedDomains` field in your manifest.
 
 ```jsonc
 "networkAccess": {
@@ -43,9 +51,9 @@ Allow access to localhost to support both the local development server and webso
 }
 ```
 
-### Step 4: Wrap your `main` code in a default function
+### Step 5: Wrap your `main` code in a default function
 
-For Plugma compatibility, export your main code as a default function. This allows Plugma to initialize your plugin code properly.
+Plugma requires that your `main` code is wrapped in and exported as a default function, so that it can enable certain features during development.
 
 ```js
 export default function () {
@@ -53,9 +61,9 @@ export default function () {
 }
 ```
 
-### Step 5: Update `ts.config.js`
+### Step 6: Update `ts.config.js` configuration
 
-If your plugin uses TypeScript, add the necessary type definitions for Figma to your `tsconfig.json` file.
+If your project uses TypeScript, add the necessary type definitions for Figma to your `tsconfig.json` file.
 
 ```jsonc
 {
@@ -66,7 +74,7 @@ If your plugin uses TypeScript, add the necessary type definitions for Figma to 
 }
 ```
 
-### Step 6: Build and import the `manifest.json` file
+### Step 7: Build and import the plugin in Figma
 
 Run the `build` command to create a `dist` folder with it's own `manifest.json` file, and import it into Figma.
 
