@@ -5,6 +5,7 @@
 	import { notifications } from '@/stores';
 	import Notification from '@/components/Notification.svelte';
 	import Icon from '@/components/Icon.svelte';
+	import Meta from '@/components/Meta.svelte';
 
 	inject();
 	injectSpeedInsights();
@@ -16,6 +17,10 @@
 
 	let currentYear = getCurrentYear();
 </script>
+
+<svelte:head>
+	<Meta image="https://plugma.dev/og.png" site="Plugma" />
+</svelte:head>
 
 <div class="app">
 	<!-- <Header /> -->
