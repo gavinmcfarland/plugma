@@ -7,6 +7,7 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\"",
 		"bump-versions": "node scripts/bump-plugma-version.js",
+		"prepublishOnly": "scripts/check-github-actions.sh",
 		"postversion": "npm run bump-versions"
 	},
 	"bin": {
