@@ -31,7 +31,7 @@
 {/if}
 
 {#if siteName}
-	<meta property="og:site_name" content={site} />
+	<meta property="og:site_name" content={siteName} />
 {/if}
 
 {#if type}
