@@ -1,6 +1,6 @@
 # Migrating an existing plugin
 
-Here's a quick guide on how to update your Figma plugin to work with Plugma. It’s fully tested with React, Svelte, Vue, and vanilla JS/TS, though compatibility with other frameworks may vary.
+Here's a quick guide on how to update your Figma plugin to work with Plugma. While Plugma has been tested with **React**, **Svelte**, **Vue**, and **vanilla JS/TS**, compatibility with other frameworks may vary.
 
 ## Steps to migrate
 
