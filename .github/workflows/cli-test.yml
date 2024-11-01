@@ -30,7 +30,7 @@ jobs:
             - name: Run create-plugma CLI
               run: |
                   expect <<EOF
-                  spawn npm create-plugma
+                  spawn create-plugma
                   expect "Select a framework:"
                   send "\r"   # Sends 'Enter' to select the default framework
                   expect "Select a variant:"
