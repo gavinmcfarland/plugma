@@ -5,18 +5,18 @@
 	import Card from '@/components/Card.svelte';
 	import Code from '@/components/Code.svelte';
 	import Icon from '@/components/Icon.svelte';
+	import Meta from '@/components/Meta.svelte';
 	import Section from '@/components/Section.svelte';
 </script>
 
 <svelte:head>
 	<title>Plugma — Take Figma plugin development to the next level</title>
-	<meta property="og:title" content="Plugma: Take Figma plugin development to the next level" />
-	<meta
-		property="og:description"
-		content="Excelerate your plugin develop with an all in one solution for developing and bundling Figma plugins."
+	<Meta
+		title="Plugma: Take Figma plugin development to the next level"
+		description="Excelerate your plugin develop with an all in one solution for developing and bundling Figma plugins."
+		url={`https://plugma.dev${$page.url.pathname}`}
+		type="website"
 	/>
-	<meta property="og:url" content={`https://plugma.dev${$page.url.pathname}`} />
-	<meta property="og:type" content="website" />
 </svelte:head>
 
 <div>

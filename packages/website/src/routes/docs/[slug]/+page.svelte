@@ -7,6 +7,7 @@
 	import MarkdownRenderer3 from '@/components/MarkdownRenderer3.svelte';
 	import Heading from '@/components/Heading.svelte';
 	import { onMount } from 'svelte';
+	import Meta from '@/components/Meta.svelte';
 	export let data;
 
 	// function replaceSyntax(data) {
@@ -24,9 +25,7 @@
 
 <svelte:head>
 	<title>{data.title}</title>
-	<meta property="og:title" content={data.title} />
-	<meta property="og:url" content={`https://plugma.dev${$page.url.pathname}`} />
-	<meta property="og:type" content="article" />
+	<Meta title={data.title} url={`https://plugma.dev${$page.url.pathname}`} type="article" />
 </svelte:head>
 
 <div>

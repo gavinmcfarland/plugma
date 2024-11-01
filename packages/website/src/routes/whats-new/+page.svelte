@@ -3,6 +3,7 @@
 	import Badge from '@/components/Badge.svelte';
 	import Code from '@/components/Code.svelte';
 	import Icon from '@/components/Icon.svelte';
+	import Meta from '@/components/Meta.svelte';
 	export let data;
 
 	// function replaceSyntax(data) {
@@ -15,10 +16,13 @@
 </script>
 
 <svelte:head>
-	<title>Plugma — What's new</title>
-	<meta property="og:title" content="What's new" />
-	<meta property="og:url" content={`https://plugma.dev${$page.url.pathname}`} />
-	<meta property="og:type" content="article" />
+	<title>Plugma: What's new</title>
+	<Meta
+		title="Plugma: What's new"
+		description="Excelerate your plugin develop with an all in one solution for developing and bundling Figma plugins."
+		url={`https://plugma.dev${$page.url.pathname}`}
+		type="article"
+	/>
 </svelte:head>
 
 <div class="my-8 mx-4">
