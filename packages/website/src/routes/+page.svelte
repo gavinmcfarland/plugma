@@ -1,4 +1,5 @@
 <script>
+	import { page } from '$app/stores';
 	import Badge from '@/components/Badge.svelte';
 	import Button from '@/components/Button.svelte';
 	import Card from '@/components/Card.svelte';
@@ -9,6 +10,13 @@
 
 <svelte:head>
 	<title>Plugma — Take Figma plugin development to the next level</title>
+	<meta property="og:title" content="Plugma: Take Figma plugin development to the next level" />
+	<meta
+		property="og:description"
+		content="Excelerate your plugin develop with an all in one solution for developing and bundling Figma plugins."
+	/>
+	<meta property="og:url" content={$page.url.toString()} />
+	<meta property="og:type" content="website" />
 </svelte:head>
 
 <div>

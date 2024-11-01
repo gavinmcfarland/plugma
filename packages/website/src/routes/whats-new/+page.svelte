@@ -1,4 +1,5 @@
 <script>
+	import { page } from '$app/stores';
 	import Badge from '@/components/Badge.svelte';
 	import Code from '@/components/Code.svelte';
 	import Icon from '@/components/Icon.svelte';
@@ -11,12 +12,13 @@
 	// 	);
 	// 	return data.content;
 	// }
-
-	$: source = data.content;
 </script>
 
 <svelte:head>
-	<title>Plugma — What's next</title>
+	<title>Plugma — What's new</title>
+	<meta property="og:title" content="What's new" />
+	<meta property="og:url" content={$page.url.toString()} />
+	<meta property="og:type" content="article" />
 </svelte:head>
 
 <div class="my-8 mx-4">

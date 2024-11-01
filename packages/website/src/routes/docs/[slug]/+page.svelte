@@ -1,4 +1,5 @@
 <script>
+	import { page } from '$app/stores';
 	import Code from '@/components/Code.svelte';
 	import SvelteMarkdown from 'svelte-markdown';
 	import MarkdownRenderer from '@/components/MarkdownRenderer.svelte';
@@ -23,6 +24,9 @@
 
 <svelte:head>
 	<title>{data.title}</title>
+	<meta property="og:title" content={data.title} />
+	<meta property="og:url" content={$page.url.toString()} />
+	<meta property="og:type" content="article" />
 </svelte:head>
 
 <div>
