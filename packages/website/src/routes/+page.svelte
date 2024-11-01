@@ -15,7 +15,7 @@
 		property="og:description"
 		content="Excelerate your plugin develop with an all in one solution for developing and bundling Figma plugins."
 	/>
-	<meta property="og:url" content={$page.url.toString()} />
+	<meta property="og:url" content={`https://plugma.dev${$page.url.pathname}`} />
 	<meta property="og:type" content="website" />
 </svelte:head>
 

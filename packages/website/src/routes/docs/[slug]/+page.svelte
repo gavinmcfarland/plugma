@@ -25,7 +25,7 @@
 <svelte:head>
 	<title>{data.title}</title>
 	<meta property="og:title" content={data.title} />
-	<meta property="og:url" content={$page.url.toString()} />
+	<meta property="og:url" content={`https://plugma.dev${$page.url.pathname}`} />
 	<meta property="og:type" content="article" />
 </svelte:head>
 
