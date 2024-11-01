@@ -21,7 +21,7 @@ jobs:
 
             - name: Install dependencies
               run: |
-                  cd packages/create-plugma/create-plugma.js  # Navigate to the subfolder containing your CLI
+                  cd packages/create-plugma  # Navigate to the subfolder containing your CLI
                   npm install
 
             - name: Install expect
