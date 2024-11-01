@@ -12,7 +12,7 @@
 	.Badge {
 		@apply rounded-full;
 		align-items: center;
-		background-color: hsl(var(--color-info-hsl) / 0.1);
+		background-color: hsl(var(--color-info-hsl) / 0.05);
 		padding: 0 6px 0 8px;
 		gap: 2px;
 		display: inline-flex;

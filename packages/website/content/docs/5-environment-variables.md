@@ -2,7 +2,7 @@
 
 Plugma supports environment variables by loading `.env` files located in the root of your project. When setting environment variables for use in the `ui` code, they must be prefixed with `VITE_` to be exposed to the UI.
 
-## `.env` Files
+## Configuring `.env` files
 
 Plugma will load the following .env files from your project root.
 

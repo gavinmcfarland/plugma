@@ -56,9 +56,7 @@ While developing locally, Plugma uses a local dev server. This server must be sp
 ```
 
 <blockquote class="info">
-
 Using a wildcard `*` for the port number, such as `http://localhost:*`, will ensure your setup works with any local port that Plugma assigns to the dev server.
-
 </blockquote>
 
 ### Websockets

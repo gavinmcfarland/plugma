@@ -38,9 +38,7 @@ plugma dev -ws
 ```
 
 <blockquote class="info">
-
 When using the commands with `npm run` you need to pass the arguments with a double dash `--`, for example `npm run dev -- -p 3000`.
-
 </blockquote>
 
 </details>
@@ -52,8 +50,6 @@ When using the commands with `npm run` you need to pass the arguments with a dou
 ### `preview`
 
 </summary>
-
-<mark>Coming in V1</mark>
 
 Preview your plugin in any browser to see how it looks and works. Make sure the plugin is open in the Figma desktop app for this to work.
 
@@ -119,8 +115,6 @@ plugma build -w
 ### `release`
 
 </summary>
-
-<mark>Coming in V1</mark>
 
 Build the plugin and release to GitHub. This command automates creating a new GitHub release with your latest changes. If no version is specified, it will automatically update the `plugma.pluginVersion` field in `package.json`.
 

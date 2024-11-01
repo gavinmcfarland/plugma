@@ -83,6 +83,10 @@ h2 {
 	@apply text-2xl;
 }
 
+strong {
+	font-weight: 600;
+}
+
 .main-content h2 {
 	@apply mt-6 mb-4;
 }
@@ -136,19 +140,34 @@ body {
 	/* display: flex; */
 }
 
-ol {
-	list-style: none;
-	counter-reset: my-awesome-counter;
-}
-ol li {
-	counter-increment: my-awesome-counter;
-	margin-left: 24px;
-}
-ol li::before {
-	content: counter(my-awesome-counter) '. ';
-	margin-left: -24px;
-	display: inline-block;
-	min-width: 24px;
+.main-content {
+	ol {
+		list-style: none;
+		counter-reset: my-awesome-counter;
+	}
+	ol li {
+		counter-increment: my-awesome-counter;
+		margin-left: 24px;
+	}
+	ol li::before {
+		content: counter(my-awesome-counter) '. ';
+		margin-left: -24px;
+		display: inline-block;
+		min-width: 24px;
+	}
+
+	ul {
+		list-style: none;
+	}
+	ul li {
+		margin-left: 24px;
+	}
+	ul li::before {
+		content: '-';
+		margin-left: -24px;
+		display: inline-block;
+		min-width: 24px;
+	}
 }
 
 /* mark {
@@ -286,7 +305,8 @@ blockquote.info {
 	padding-left: 48px;
 	color: var(--color-text-secondary);
 	/* padding-left: 64px; */
-	background-color: var(--color-bg-secondary);
+	border: 1px solid hsl(var(--color-info-hsl) / 0.3);
+	background-color: hsl(var(--color-info-hsl) / 0.05);
 	@apply rounded-md my-6;
 }
 
