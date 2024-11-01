@@ -32,13 +32,13 @@ jobs:
                   expect <<EOF
                   spawn npx create-plugma
                   expect "Select a framework:"
-                  sleep 1  # Short delay for variant prompt
+                  sleep 1
                   send "\r"   # Sends 'Enter' to select the default framework
                   expect "Select a variant:"
-                  sleep 1  # Short delay for variant prompt
+                  sleep 1
                   send "\r"   # Sends 'Enter' to select the default variant
                   expect "Project name:"
-                  sleep 1  # Short delay for variant prompt
+                  sleep 1
                   send "TestProject\r"  # Sends 'TestProject' as the project name
                   expect "Next:"  # Verifies it reaches the end instructions
                   EOF
