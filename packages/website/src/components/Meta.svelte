@@ -4,7 +4,7 @@
 	export let description: string | undefined = undefined;
 	export let url: string | undefined = undefined;
 	export let image: string | undefined = undefined;
-	export let site: string | undefined = undefined;
+	export let siteName: string | undefined = undefined;
 	export let type: string | undefined = undefined;
 </script>
 
@@ -30,8 +30,8 @@
 	<meta property="og:image" content={image} />
 {/if}
 
-{#if site}
-	<meta property="og:site" content={site} />
+{#if siteName}
+	<meta property="og:site_name" content={site} />
 {/if}
 
 {#if type}

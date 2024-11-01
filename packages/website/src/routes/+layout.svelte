@@ -19,7 +19,7 @@
 </script>
 
 <svelte:head>
-	<Meta image="https://plugma.dev/og.png" site="Plugma" />
+	<Meta image="https://plugma.dev/og.png" siteName="Plugma" />
 </svelte:head>
 
 <div class="app">
