@@ -1,10 +1,6 @@
 # Migrating an existing plugin
 
-Here's a quick guide on how to update your Figma plugin to work with Plugma.
-
-<blockquote class="info">
-While Plugma is compatible with most frameworks that work with Vite, it has primarily been tested with **React**, **Svelte**, **Vue**, and **vanilla JS/TS**. Compatibility with other frameworks may vary.
-</blockquote>
+Here's a quick guide on how to update your Figma plugin to work with Plugma. It’s fully tested with React, Svelte, Vue, and vanilla JS/TS, though compatibility with other frameworks may vary.
 
 ## Steps to migrate
 
