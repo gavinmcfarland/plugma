@@ -1,13 +1,12 @@
 {
 	"name": "create-plugma",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "",
 	"main": "create-plugma.js",
 	"type": "module",
 	"scripts": {
 		"test": "echo \"Error: no test specified\"",
 		"bump-versions": "node scripts/bump-plugma-version.js",
-		"prepublishOnly": "scripts/check-github-actions.sh",
 		"postversion": "npm run bump-versions"
 	},
 	"bin": {
