@@ -14,7 +14,8 @@
 	},
 	"files": [
 		"templates",
-		"scripts"
+		"scripts",
+		"versions.json"
 	],
 	"author": "",
 	"license": "ISC",
