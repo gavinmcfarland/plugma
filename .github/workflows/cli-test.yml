@@ -20,7 +20,9 @@ jobs:
                   node-version: '18'
 
             - name: Install dependencies
-              run: npm install
+              run: |
+                  cd packages/create-plugma/create-plugma.js  # Navigate to the subfolder containing your CLI
+                  npm install
 
             - name: Install expect
               run: sudo apt-get install -y expect
@@ -28,7 +30,7 @@ jobs:
             - name: Run create-plugma CLI
               run: |
                   expect <<EOF
-                  spawn npx create-plugma
+                  spawn npm create-plugma
                   expect "Select a framework:"
                   send "\r"   # Sends 'Enter' to select the default framework
                   expect "Select a variant:"
