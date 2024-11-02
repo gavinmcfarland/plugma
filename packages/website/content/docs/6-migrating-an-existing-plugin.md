@@ -61,9 +61,15 @@ export default function () {
 }
 ```
 
-### Step 6: Update `ts.config.js` configuration
+### Step 6: Add TypeScript definitions for Figma
 
-If your project uses TypeScript, add the necessary type definitions for Figma to your `tsconfig.json` file.
+If your project uses TypeScript, install the necessary type definitions for Figma
+
+```bash
+npm install @figma/plugin-typings
+```
+
+And add the following to your `tsconfig.json` file.
 
 ```jsonc
 {
