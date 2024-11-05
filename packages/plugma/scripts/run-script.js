@@ -12,7 +12,7 @@ import chalk from 'chalk';
 import { build as viteBuild, createServer, mergeConfig } from 'vite';
 
 import { Log } from '../lib/logger.js';
-import { getRandomNumber, readJson, createConfigs, getUserFiles, formatTime } from './utils.js';
+import { getRandomNumber, readJson, createConfigs, getUserFiles, formatTime, cleanManifestFiles } from './utils.js';
 import { task, run, serial } from '../task-runner/taskrunner.js';
 import { suppressLogs } from '../lib/suppress-logs.js';
 import { logFileUpdates } from '../lib/vite-plugins/vite-plugin-log-file-updates.js';
@@ -20,39 +20,24 @@ import { logFileUpdates } from '../lib/vite-plugins/vite-plugin-log-file-updates
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const __filename = fileURLToPath(import.meta.url);
 
-async function loadConfig(fileName) {
-	const configPath = path.resolve(process.cwd(), fileName);
+let viteServerInstance = null;
+let viteBuildInstance = null;
+let buildPlaceholderUICount = 0
 
-	try {
-		// Check if the file exists using the promises API
-		await fs.access(configPath);
-
-		// Dynamically import the module if it exists
-		const configModule = await import(`${configPath}`);
-
-		// If the file name starts with 'vite.', call the function and return its result
-		if (fileName.startsWith('vite.')) {
-			if (typeof configModule.default === 'function') {
-				// Pass a mock context with the mode property set, e.g., 'development' or 'production'
-				const context = { mode: process.env.NODE_ENV || 'development' };
-				return await configModule.default(context);
-			} else {
-				console.warn(`The config file ${fileName} does not export a function as default.`);
-				return {};
-			}
-		}
-
-		// Otherwise, return the default export as-is
-		return configModule.default;
-	} catch (error) {
-		// Handle the error if the file does not exist
-		if (error.code === 'ENOENT') {
-			console.warn(`Config file not found at ${configPath}. Using default config.`);
-			return {}; // Return an empty config or a default configuration object
-		}
-		// Re-throw the error if it's not related to the file not existing
-		throw error;
+async function restartViteServer(command, options) {
+	if (viteServerInstance) {
+		await viteServerInstance.close();
 	}
+	const files = await getUserFiles(options)
+	const config = createConfigs(options, files);
+
+	if (files.manifest.ui) {
+		await run('build-placeholder-ui', { command, options });
+
+		viteServerInstance = await createServer(config.vite.dev);
+		await viteServerInstance.listen();
+	}
+
 }
 
 export async function runScript(command, options) {
@@ -66,188 +51,337 @@ export async function runScript(command, options) {
 
 	task('get-files', async ({ options }) => {
 		const plugmaPkg = await readJson(resolve(`${__dirname}/../package.json`));
-		const files = await getUserFiles();
+		const files = await getUserFiles(options);
 		const config = createConfigs(options, files);
 
 		return { plugmaPkg, files, config };
 	});
 
 	task('show-plugma-prompt', async ({ files, plugmaPkg }) => {
-		log.text(`${chalk.blue.bold('Plugma')} ${chalk.grey("v" + plugmaPkg.version)}`);
+		log.text(`${chalk.blue.bold('Plugma')} ${chalk.grey("v" + plugmaPkg.version)}\n`);
+
+		if (options.command === "dev" || options.command === "preview" || (options.command === "build") && options.watch) {
+			console.log('Watching for changes...')
+		}
 	});
 
-	task('build-manifest', async ({ files, options }) => {
+	task('build-manifest', async ({ files, options, config }) => {
 
-		files.manifest = transformObject(files.manifest, options)
+		let previousUiValue = null;
+		let previousMainValue = null;
 
-		const outputDirPath = path.join(options.output, 'manifest.json');
+		const buildManifest = async () => {
+			const files = await getUserFiles(options)
 
-		await fse.outputFile(
-			outputDirPath,
-			JSON.stringify(
-				{
-					...files.manifest,
-					name: files.manifest.name,
-					api: '1.0.0',
-					main: 'main.js',
-					ui: 'ui.html',
-				},
-				null,
-				2
-			)
-		);
+			const outputDirPath = path.join(options.output, 'manifest.json');
+
+			const defaultValues = {
+				api: '1.0.0',
+			};
+
+			const overriddenValues = {};
+
+			if (files.manifest.main) {
+				overriddenValues.main = 'main.js';
+			}
+
+			if (files.manifest.ui) {
+				overriddenValues.ui = 'ui.html';
+			}
+
+			const mergedManifest = {
+				...defaultValues,
+				...files.manifest,
+				...overriddenValues,
+			};
+
+			await fse.outputFile(outputDirPath, JSON.stringify(mergedManifest, null, 2));
+
+			return {
+				raw: files.manifest,
+				processed: mergedManifest
+			}
+
+		};
+
+		// Initial build
+		const { raw } = await buildManifest();
+		previousUiValue = raw.ui;
+		previousMainValue = raw.main;
+
+		// Set up watcher if options.watch is true
+		if (options.command === "dev" || options.command === "preview" || (options.command === "build" && options.watch)) {
+
+			const manifestPath = resolve('./manifest.json');
+			const userPkgPath = resolve('./package.json');
+			const srcPath = resolve('./src');
+
+			// If manifest changes, restart or rebuild
+			chokidar.watch([manifestPath, userPkgPath]).on('change', async (path) => {
+				const { raw } = await buildManifest();
+				if (raw.ui !== previousUiValue) {
+					previousUiValue = raw.ui;
+					await restartViteServer(command, options);
+				}
+				if (raw.main !== previousMainValue) {
+					previousMainValue = raw.main;
+
+					// console.log('\n'.repeat(process.stdout.rows - 2));
+
+					// process.stdout.write('\x1B[H');
+					// console.log(chalk.grey(formatTime()) + chalk.cyan(chalk.bold(' [plugma]')) + chalk.green(' manifest changed'));
+
+					await run('build-main', { command, options });
+
+				}
+				const files = await getUserFiles(options)
+
+				cleanManifestFiles(options, files, "manifest-changed")
+			});
+
+
+			// Utility function to recursively gather files in the directory
+			async function getFilesRecursively(directory) {
+				const files = [];
+				const entries = await fse.readdir(directory, { withFileTypes: true });
+				for (const entry of entries) {
+					const entryPath = path.join(directory, entry.name);
+					if (entry.isDirectory()) {
+						files.push(...await getFilesRecursively(entryPath));
+					} else if (entry.isFile()) {
+						files.push(entryPath);
+					}
+				}
+				return files;
+			}
+
+			// Get initial list of files in srcPath to track already existing files
+			const existingFiles = new Set();
+			const srcFiles = await getFilesRecursively(srcPath);
+			srcFiles.forEach((file) => existingFiles.add(file));
+
+			// Watch the srcPath directory, including subdirectories
+			const watcher = chokidar.watch([srcPath], { persistent: true, ignoreInitial: false });
+
+			// Handle the "add" event
+			watcher.on('add', async (filePath) => {
+				if (existingFiles.has(filePath)) {
+					return; // Skip if the file was already present
+				}
+
+				// Add this file to existingFiles
+				existingFiles.add(filePath);
+
+				const { raw } = await buildManifest();
+				const relativePath = path.relative(process.cwd(), filePath);
+
+				// Check if the relative path matches raw.ui or raw.main
+				if (relativePath === raw.ui) {
+					await restartViteServer(command, options);
+				}
+				if (relativePath === raw.main) {
+					// console.log('\n'.repeat(process.stdout.rows - 2));
+
+					// process.stdout.write('\x1B[H');
+					// console.log(chalk.grey(formatTime()) + chalk.cyan(chalk.bold(' [plugma]')) + chalk.green(' main built'));
+
+					await run('build-main', { command, options });
+				}
+
+				const files = await getUserFiles(options);
+				cleanManifestFiles(options, files, "file-added");
+			});
+
+			// Handle the "unlink" event to remove the file from existingFiles
+			watcher.on('unlink', (filePath) => {
+				if (existingFiles.has(filePath)) {
+					existingFiles.delete(filePath);
+				}
+			});
+
+			const files = await getUserFiles(options);
+			cleanManifestFiles(options, files, "on-initialisation");
+		}
 	});
 
 	task('build-placeholder-ui', async ({ options }) => {
-		const devHtmlPath = resolve(`${__dirname}/../apps/PluginWindow.html`);
-		let devHtmlString = await fs.readFile(devHtmlPath, 'utf8');
+		const files = await getUserFiles(options);
 
-		const runtimeData = `<script>
-	  // Global variables defined on the window object
-	  window.runtimeData = ${JSON.stringify(options)};
-	</script>`;
+		if (files.manifest.ui) {
+			// Resolve the path for files.manifest.ui
+			const uiPath = resolve(files.manifest.ui);
 
-		devHtmlString = devHtmlString.replace(/^/, runtimeData);
+			const fileExists = await fs.access(uiPath).then(() => true).catch(() => false)
 
-		// NOTE: Not sure it needs process.cwd()
-		// await fse.mkdir(path.join(process.cwd(), options.output), { recursive: true });
-		// await fse.writeFile(path.join(process.cwd(), options.output, 'ui.html'), devHtmlString);
+			// Check if the resolved path exists
+			if (files.manifest.ui && fileExists) {
+				const devHtmlPath = resolve(`${__dirname}/../apps/PluginWindow.html`);
+				let devHtmlString = await fs.readFile(devHtmlPath, 'utf8');
 
-		await fse.mkdir(path.join(options.output), { recursive: true });
-		await fse.writeFile(path.join(options.output, 'ui.html'), devHtmlString);
+				const runtimeData = `<script>
+				// Global variables defined on the window object
+				window.runtimeData = ${JSON.stringify(options)};
+			</script>`;
+
+				devHtmlString = devHtmlString.replace(/^/, runtimeData);
+
+				// Create the output directory and write the modified HTML file
+				await fse.mkdir(path.join(options.output), { recursive: true });
+				await fse.writeFile(path.join(options.output, 'ui.html'), devHtmlString);
+			}
+		}
+
 
 	});
 
-	task('build-ui', async ({ command, config, options }) => {
+	task('build-ui', async ({ command, options }) => {
+
 		// Start the timer as close to the build call as possible
 
-		// log.text('built ui')
-		const startTime = performance.now();
-		if (command === "build" && options.watch) {
+		const files = await getUserFiles(options)
+		const config = createConfigs(options, files);
 
-			await viteBuild(mergeConfig({
-				build: {
-					watch: {},
-					minify: true
-				},
-			}, config.vite.build));
-		} else {
-			await viteBuild(mergeConfig({
-				build: {
-					minify: true
-				},
-			}, config.vite.build));
+		const startTime = performance.now();
+
+		if (files.manifest.ui && await fs.access(resolve(files.manifest.ui)).then(() => true).catch(() => false)) {
+			// log.text('built ui')
+
+			if (command === "build" && options.watch) {
+
+				await viteBuild(mergeConfig({
+					build: {
+						watch: {},
+						minify: true
+					},
+				}, config.vite.build));
+			} else {
+				await viteBuild(mergeConfig({
+					build: {
+						minify: true
+					},
+				}, config.vite.build));
+			}
 		}
 
 		// Calculate elapsed time in milliseconds
 		const endTime = performance.now();
 		const buildDuration = ((endTime - 250) - startTime).toFixed(0); // Remove decimals for a Vite-like appearance
 
-		log.text(`${chalk.green('\n✓ build created in ' + buildDuration + 'ms')}`);
-	});
+		cleanManifestFiles(options, files, "plugin-built")
 
-	task('build-main', async ({ command, config }) => {
-		// if (options.mainBundler === "esbuild") {
-		// 	const userEsConfig = await loadConfig('esbuild.config.js');
-		// 	if (userEsConfig) {
-		// 		config.esbuild.dev = Object.assign(config.esbuild.dev, userEsConfig)
-		// 		config.esbuild.build = Object.assign(config.esbuild.build, userEsConfig)
-		// 	}
-		// 	if (command === 'dev' || command === 'preview' || command === "build" && options.watch) {
-		// 		const ctx = await esbuild.context(config.esbuild.dev);
-		// 		await ctx.watch();
-		// 	} else {
-		// 		await esbuild.build(config.esbuild.build);
-		// 	}
-		// } else {
-
-		// FIXME: Had to do all of this because of two issues:
-		// 1. Vite seems to be caching config when watching
-		// 2. dotenv was also caching env files
-		let isBuilding = false;
-
-
-
-		const envFiles = [
-			path.resolve(process.cwd(), '.env'),
-			path.resolve(process.cwd(), '.env.local'),               // Default .env
-			path.resolve(process.cwd(), `.env.${process.env.NODE_ENV}`), // Environment-specific .env (e.g., .env.development, .env.production)
-			path.resolve(process.cwd(), `.env.${process.env.NODE_ENV}.local`)             // Local overrides, if any
-		];
-
-		// Function to start the build
-		async function runBuild() {
-			if (isBuilding) {
-				console.log('[vite-build] Build already in progress. Waiting for it to complete before restarting.');
-				return;
+		if (files.manifest.main && await fs.access(resolve(files.manifest.main)).then(() => true).catch(() => false)) {
+			if ((files.manifest.ui && await fs.access(resolve(files.manifest.ui)).then(() => true).catch(() => false))) {
+				log.text(`${chalk.green('✓ build created in ' + buildDuration + 'ms')}`);
+			}
+			else if (!files.manifest.ui) {
+				log.text(`${chalk.green('✓ build created in ' + buildDuration + 'ms')}`);
 			}
 
-			isBuilding = true; // Set the flag indicating a build is in progress
-
-			try {
-				if (command === 'dev' || command === 'preview') {
-					let merged = mergeConfig({ build: { watch: {}, minify: false }, plugins: [logFileUpdates()] }, config.viteMain.dev)
-					await viteBuild(merged);
-				}
-				else if (command === "build" && options.watch) {
-					let merged = mergeConfig({ build: { watch: {}, minify: true } }, config.viteMain.dev)
-					await viteBuild(merged);
-				} else {
-					let merged = mergeConfig({ build: { minify: true } }, config.viteMain.build)
-					await viteBuild(merged);
-				}
-			} catch (error) {
-				console.error('[vite-build] Build failed:', error);
-			} finally {
-				isBuilding = false; // Reset the flag after the build completes
-			}
 		}
-
-
-
-		// Function to watch environment files and restart the build process when changes occur
-		function watchEnvFiles() {
-			const watcher = chokidar.watch(envFiles);
-
-			watcher.on('change', (filePath) => {
-				console.log(`[vite-build] Environment file changed: ${filePath}. Restarting build...`);
-				runBuild(); // Restart the build process without exiting
-			});
-		}
-
-		// Initial build run
-		runBuild();
-
-
-
-		if (command === 'dev' || command === 'preview' || command === "build" && options.watch) {
-			// Start watching for changes in environment files
-			watchEnvFiles();
-		}
-
-		// if (command === 'dev' || command === "build" && options.watch) {
-		// 	// We disable watching env on main as it doesn't do anything anyway
-		// 	await viteBuild(_.merge({}, config.viteMain, {
-		// 		build: {
-		// 			watch: {
-
-		// 			},
-		// 		}
-		// 	}));
-		// } else {
-		// 	await viteBuild(config.viteMain);
-		// }
-		// }
-
 
 
 	});
 
-	task('start-vite-server', async ({ config }) => {
+	task('build-main', async ({ command }) => {
+		const files = await getUserFiles(options);
 
-		console.log('\nWatching for changes...')
-		const server = await createServer(config.vite.dev);
-		await server.listen();
+		if (files.manifest.main) {
+
+			// Resolve the path for files.manifest.ui
+			const mainPath = resolve(files.manifest.main);
+
+			const fileExists = await fs.access(mainPath).then(() => true).catch(() => false)
+
+			if (fileExists) {
+				if (viteBuildInstance) {
+					await viteBuildInstance.close(); // Stop watching
+				}
+
+				// FIXME: Had to do all of this because of two issues:
+				// 1. Vite seems to be caching config when watching
+				// 2. dotenv was also caching env files
+				let isBuilding = false;
+
+
+
+				const envFiles = [
+					path.resolve(process.cwd(), '.env'),
+					path.resolve(process.cwd(), '.env.local'),               // Default .env
+					path.resolve(process.cwd(), `.env.${process.env.NODE_ENV}`), // Environment-specific .env (e.g., .env.development, .env.production)
+					path.resolve(process.cwd(), `.env.${process.env.NODE_ENV}.local`)             // Local overrides, if any
+				];
+
+				// Function to start the build
+				async function runBuild() {
+
+					const files = await getUserFiles(options)
+					const config = createConfigs(options, files);
+
+					if (isBuilding) {
+						console.log('[vite-build] Build already in progress. Waiting for it to complete before restarting.');
+						return;
+					}
+
+					isBuilding = true; // Set the flag indicating a build is in progress
+
+					try {
+						if (command === 'dev' || command === 'preview') {
+							let merged = mergeConfig({ build: { watch: {}, minify: false }, plugins: [logFileUpdates()] }, config.viteMain.dev)
+							viteBuildInstance = await viteBuild(merged);
+						}
+						else if (command === "build" && options.watch) {
+							let merged = mergeConfig({ build: { watch: {}, minify: true } }, config.viteMain.dev)
+							viteBuildInstance = await viteBuild(merged);
+						} else {
+							if (files.manifest.ui && await fs.access(resolve(files.manifest.ui)).then(() => true).catch(() => false)) {
+								let merged = mergeConfig({ build: { minify: true } }, config.viteMain.build)
+								viteBuildInstance = await viteBuild(merged);
+							}
+
+						}
+					} catch (error) {
+						console.error('[vite-build] Build failed:', error);
+					} finally {
+						isBuilding = false; // Reset the flag after the build completes
+					}
+				}
+
+
+
+				// Function to watch environment files and restart the build process when changes occur
+				function watchEnvFiles() {
+					const watcher = chokidar.watch(envFiles);
+
+					watcher.on('change', async (filePath) => {
+						console.log(`[vite-build] Environment file changed: ${filePath}. Restarting build...`);
+						runBuild(); // Restart the build process without exiting
+					});
+				}
+
+				// Initial build run
+				runBuild();
+
+
+
+				if (command === 'dev' || command === 'preview' || command === "build" && options.watch) {
+					// Start watching for changes in environment files
+					watchEnvFiles();
+				}
+			}
+		}
+
+	});
+
+	task('start-vite-server', async () => {
+
+		const files = await getUserFiles(options)
+		const config = createConfigs(options, files);
+
+		if (files.manifest.ui) {
+
+			viteServerInstance = await createServer(config.vite.dev);
+			await viteServerInstance.listen();
+		}
 
 
 	});

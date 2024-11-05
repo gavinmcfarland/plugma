@@ -10,7 +10,9 @@ import os from 'os';
 import chalk from 'chalk';
 import { fileURLToPath } from 'url';
 import vitePluginInsertCustomFunctions from '../lib/vite-plugins/vite-plugin-insert-custom-functions.js';
+import deleteDistOnError from '../lib/vite-plugins/vite-plugin-delete-dist-on-error.js';
 import viteSupressLogs from '../lib/vite-plugins/vite-plugin-surpress-logs.js';
+import { cwd } from 'process';
 
 
 const CURR_DIR = process.cwd();
@@ -75,7 +77,8 @@ export function createConfigs(options, userFiles) {
 		viteCopyDirectoryPlugin({
 			sourceDir: path.join(options.output, 'node_modules', 'plugma', 'tmp'),
 			targetDir: path.join(options.output),
-		})
+		}),
+		deleteDistOnError(options, 'ui')
 	];
 
 	const tempFilePath = writeTempFile(`temp_${Date.now()}.js`, userFiles, options);
@@ -126,7 +129,8 @@ export function createConfigs(options, userFiles) {
 			'process.env.NODE_ENV': JSON.stringify(options.mode),
 		},
 		plugins: [
-			dotEnvLoader(options)
+			dotEnvLoader(options),
+			deleteDistOnError(options, 'main')
 		],
 		build: {
 			lib: {
@@ -160,7 +164,8 @@ export function createConfigs(options, userFiles) {
 			dotEnvLoader(options),
 			vitePluginInsertCustomFunctions({
 				codeToPrepend: injectedCode
-			})
+			}),
+			deleteDistOnError(options, 'main')
 		],
 		// TODO: Make two versions of viteConfigMain one for build and one for dev
 		// esbuild: {
@@ -250,10 +255,10 @@ export function transformObject(input, options) {
 	return transformed;
 }
 
-export async function getUserFiles() {
-	const rootManifest = await readJson('./manifest.json');
+export async function getUserFiles(options) {
+	const rootManifest = transformObject(await readJson('./manifest.json'), options);
 	const userPkg = await readJson(resolve('./package.json'));
-	const manifest = rootManifest || userPkg.plugma?.manifest;
+	const manifest = rootManifest || transformObject(userPkg.plugma?.manifest, options);
 
 	if (!userPkg.plugma?.manifest?.name && !rootManifest?.name) {
 		console.warn(`Plugma: Please specify the name in the manifest. Example: \`{ name: "My Plugin" }\``);
@@ -261,3 +266,85 @@ export async function getUserFiles() {
 
 	return { manifest, userPkg };
 }
+
+export async function cleanManifestFiles(options, files, type) {
+	let scrollOnce = false;
+
+	// Helper function for formatted time
+	const formatTime = () => new Date().toLocaleTimeString();
+
+	// Helper to log status change messages only once
+	const logStatusChange = (message) => {
+		if (!scrollOnce && type !== "on-initialisation") {
+			console.log('\n'.repeat(process.stdout.rows - 2));
+			process.stdout.write('\x1B[H');
+			console.log(chalk.grey(formatTime()) + chalk.cyan(chalk.bold(' [plugma]')) + chalk.green(` ${message}`));
+			scrollOnce = true;
+		}
+	};
+
+	if (type !== "plugin-built") {
+		logStatusChange(type === "manifest-changed" ? 'manifest changed' : 'file changed');
+	}
+
+
+	// Helper to remove file if it exists
+	const removeFileIfExists = (filePath) => {
+		if (fs.existsSync(filePath)) {
+			const stats = fs.lstatSync(filePath);
+			if (stats.isDirectory()) {
+				fs.rmSync(filePath, { recursive: true, force: true });
+			} else {
+				fs.unlinkSync(filePath);
+			}
+		}
+	};
+
+	// Helper to check file existence and log errors
+	const validateFile = (filePath, fieldName) => {
+
+		if (!fs.existsSync(filePath)) {
+
+			if (type !== "plugin-built") {
+				logStatusChange(type === "manifest-changed" ? 'manifest changed' : 'file changed');
+			} else {
+				removeFileIfExists(path.resolve(path.join(process.cwd(), options.output)));
+			}
+			console.error(`[plugma] Error: The file specified in the manifest's '${fieldName}' field could not be found at path: ${files.manifest[fieldName]}. Please ensure the file path is correct and that the file exists.`);
+		}
+	};
+
+	// Resolve paths based on manifest entries
+	const mainFilePath = files.manifest.main && path.resolve(path.join(process.cwd(), files.manifest.main));
+	const uiFilePath = files.manifest.ui && path.resolve(path.join(process.cwd(), files.manifest.ui));
+
+	// Validate 'main' entry
+	if (files.manifest.main) {
+		validateFile(mainFilePath, 'main');
+	} else {
+		if (type !== "plugin-built") {
+			logStatusChange('manifest changed');
+		}
+		else {
+			removeFileIfExists(path.resolve(path.join(process.cwd(), options.output)));
+		}
+		console.error("[plugma] Error: The 'main' field is missing in the manifest. Please specify the 'main' entry point.");
+	}
+
+	// Remove 'main.js' if 'main' entry is missing or file not found
+	if (!files.manifest.main || !fs.existsSync(mainFilePath)) {
+		removeFileIfExists(path.resolve(path.join(process.cwd(), options.output, 'main.js')));
+	}
+
+	// Validate 'ui' entry
+	if (files.manifest.ui) {
+		validateFile(uiFilePath, 'ui');
+	}
+
+	// Remove 'ui.html' if 'ui' entry is missing or file not found
+	if (!files.manifest.ui || !fs.existsSync(uiFilePath)) {
+		removeFileIfExists(path.resolve(path.join(process.cwd(), options.output, 'ui.html')));
+	}
+}
+
+
