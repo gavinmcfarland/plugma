@@ -31,16 +31,13 @@
 		bottom: 0;
 		right: 0;
 		left: 0;
-		padding: 16px;
-		background-color: var(--figma-color-bg);
+		background-color: var(--figma-color-bg, white);
 	}
 
 	.panel {
 		display: flex;
-		background-color: var(--figma-color-bg-brand-tertiary);
-		border: 1px solid var(--figma-color-border);
+		background-color: var(--figma-color-bg-brand-tertiary, #e8f4fe);
 		padding: 8px;
-		border-radius: 4px;
 		color: var(--figma-color-text);
 		font-family: Inter, system-ui, Helvetica, Arial, sans-serif;
 		font-display: optional;

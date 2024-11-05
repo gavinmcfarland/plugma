@@ -10,6 +10,7 @@ export function suppressLogs(options) {
 		/^build started...$/,
 		/^✓ \d+ module(s)? transformed\.$/,
 		/^✓?\s*built in \d+ms\.?$/,
+		/^✓?\s*built in \d+s\.?$/,
 		/^watching for file changes...$/,
 		TEMP_INDEX_PATH_REGEX,
 		MAIN_BUILT_REGEX,

@@ -6,6 +6,7 @@ const log = new Log({
 
 // FIXME: Does this need changing so styles are applied as soon as url is changed, and the rest of the stuff loads when the iframe loads?
 export async function redirectIframe(iframe, url) {
+
 	return new Promise((resolve, reject) => {
 		// Set the iframe source
 

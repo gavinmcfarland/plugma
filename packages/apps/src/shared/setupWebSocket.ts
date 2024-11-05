@@ -77,7 +77,7 @@ export function setupWebSocket(
 		} else if (via === 'ws') {
 			if (enableWebSocket) {
 				if (!ws || ws.readyState !== WebSocket.OPEN) {
-					console.warn('WebSocket is disabled or not open, queuing message:', message)
+					// console.warn('WebSocket is disabled or not open, queuing message:', message)
 					messageQueue.push({ message, via })
 				} else {
 					ws.send(JSON.stringify(message))

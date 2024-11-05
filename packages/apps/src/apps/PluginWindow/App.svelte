@@ -8,7 +8,7 @@
 	import { setupWebSocket } from '../../shared/setupWebSocket'
 
 	import { onMount } from 'svelte'
-	import { isDeveloperToolsActive } from '../../shared/stores'
+	import { isDeveloperToolsActive, isLocalhostWithoutPort } from '../../shared/stores'
 	import Toolbar from './lib/Toolbar.svelte'
 	import { triggerDeveloperTools } from '../../shared/triggerDeveloperTools'
 
@@ -132,7 +132,9 @@
 <iframe title="" id="vite-app-host" bind:this={iframe}></iframe>
 
 <!-- needs to be in both PluginWindow and ViteApp, because if ViteApp hasn't loaded, then no way to report error-->
-{#if !isServerActive}
+{#if $isLocalhostWithoutPort}
+	<ServerStatus message="Check dev console"></ServerStatus>
+{:else if !isServerActive}
 	<ServerStatus></ServerStatus>
 {/if}
 

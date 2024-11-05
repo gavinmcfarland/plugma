@@ -83,6 +83,7 @@ export function createConfigs(options, userFiles) {
 
 	const tempFilePath = writeTempFile(`temp_${Date.now()}.js`, userFiles, options);
 
+	options.manifest = userFiles.manifest
 	// Vite configuration
 	const viteConfig = {
 

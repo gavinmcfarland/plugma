@@ -9,7 +9,7 @@ import { transformObject } from './utils.js';
 
 import _ from 'lodash';
 import chalk from 'chalk';
-import { build as viteBuild, createServer, mergeConfig } from 'vite';
+import { build as viteBuild, createServer, mergeConfig, build } from 'vite';
 
 import { Log } from '../lib/logger.js';
 import { getRandomNumber, readJson, createConfigs, getUserFiles, formatTime, cleanManifestFiles } from './utils.js';
@@ -131,10 +131,9 @@ export async function runScript(command, options) {
 
 				const { raw } = await buildManifest();
 
-				if (raw.ui !== previousUiValue) {
-					previousUiValue = raw.ui;
-					await restartViteServer(command, options);
-				}
+				// Restart server whenever manifest updated
+				await restartViteServer(command, options);
+
 				if (raw.main !== previousMainValue) {
 					previousMainValue = raw.main;
 
@@ -237,6 +236,7 @@ export async function runScript(command, options) {
 				const devHtmlPath = resolve(`${__dirname}/../apps/PluginWindow.html`);
 				let devHtmlString = await fs.readFile(devHtmlPath, 'utf8');
 
+				options.manifest = files.manifest
 				const runtimeData = `<script>
 				// Global variables defined on the window object
 				window.runtimeData = ${JSON.stringify(options)};
@@ -458,7 +458,9 @@ export async function runScript(command, options) {
 						'show-plugma-prompt',
 						'build-manifest',
 						'build-ui',
-						'build-main',
+						'build-main'
+
+
 					], options);
 				}, { command, options });
 				break;
