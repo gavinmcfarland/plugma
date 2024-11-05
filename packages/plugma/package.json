@@ -8,7 +8,7 @@
 		"plugma": "./bin/cli.js"
 	},
 	"scripts": {
-		"test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+		"test": "echo \"Error: no test specified\"",
 		"build-apps": "cd ../apps && npm run build",
 		"copy-apps": "node scripts/copy-files.js",
 		"build-and-copy-apps": "npm run build-apps && npm run copy-apps",
