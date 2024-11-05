@@ -22,9 +22,10 @@ const __filename = fileURLToPath(import.meta.url);
 
 let viteServerInstance = null;
 let viteBuildInstance = null;
-let buildPlaceholderUICount = 0
+let viteUiInstance = null;
 
 async function restartViteServer(command, options) {
+
 	if (viteServerInstance) {
 		await viteServerInstance.close();
 	}
@@ -32,10 +33,19 @@ async function restartViteServer(command, options) {
 	const config = createConfigs(options, files);
 
 	if (files.manifest.ui) {
-		await run('build-placeholder-ui', { command, options });
 
-		viteServerInstance = await createServer(config.vite.dev);
-		await viteServerInstance.listen();
+		if (options.command === "dev" || options.command === "preview") {
+			await run('build-placeholder-ui', { command, options });
+
+			viteServerInstance = await createServer(config.vite.dev);
+			await viteServerInstance.listen();
+		}
+		else {
+			await run('build-ui', { command, options });
+		}
+
+
+
 	}
 
 }
@@ -119,6 +129,7 @@ export async function runScript(command, options) {
 			// If manifest changes, restart or rebuild
 			chokidar.watch([manifestPath, userPkgPath]).on('change', async (path) => {
 				const { raw } = await buildManifest();
+				console.log(raw)
 				if (raw.ui !== previousUiValue) {
 					previousUiValue = raw.ui;
 					await restartViteServer(command, options);
@@ -135,6 +146,14 @@ export async function runScript(command, options) {
 
 				}
 				const files = await getUserFiles(options)
+
+				if (!files.manifest.ui || !(await fs.access(resolve(files.manifest.ui)).then(() => true).catch(() => false))) {
+					if (viteUiInstance) {
+						console.log("close")
+						await viteUiInstance.close(); // Stop watching
+					}
+				}
+
 
 				cleanManifestFiles(options, files, "manifest-changed")
 			});
@@ -235,7 +254,9 @@ export async function runScript(command, options) {
 	});
 
 	task('build-ui', async ({ command, options }) => {
-
+		if (viteUiInstance) {
+			await viteUiInstance.close(); // Stop watching
+		}
 		// Start the timer as close to the build call as possible
 
 		const files = await getUserFiles(options)
@@ -248,7 +269,8 @@ export async function runScript(command, options) {
 
 			if (command === "build" && options.watch) {
 
-				await viteBuild(mergeConfig({
+				// FIXME: For some reason, it rebuilds ui.html when not specified in manifest during watch
+				viteUiInstance = await viteBuild(mergeConfig({
 					build: {
 						watch: {},
 						minify: true
@@ -267,9 +289,10 @@ export async function runScript(command, options) {
 		const endTime = performance.now();
 		const buildDuration = ((endTime - 250) - startTime).toFixed(0); // Remove decimals for a Vite-like appearance
 
+
 		cleanManifestFiles(options, files, "plugin-built")
 
-		if (files.manifest.main && await fs.access(resolve(files.manifest.main)).then(() => true).catch(() => false)) {
+		if (!options.watch && files.manifest.main && await fs.access(resolve(files.manifest.main)).then(() => true).catch(() => false)) {
 			if ((files.manifest.ui && await fs.access(resolve(files.manifest.ui)).then(() => true).catch(() => false))) {
 				log.text(`${chalk.green('✓ build created in ' + buildDuration + 'ms')}`);
 			}
@@ -283,6 +306,12 @@ export async function runScript(command, options) {
 	});
 
 	task('build-main', async ({ command }) => {
+
+		if (viteBuildInstance) {
+			await viteBuildInstance.close(); // Stop watching
+		}
+
+
 		const files = await getUserFiles(options);
 
 		if (files.manifest.main) {
@@ -293,9 +322,7 @@ export async function runScript(command, options) {
 			const fileExists = await fs.access(mainPath).then(() => true).catch(() => false)
 
 			if (fileExists) {
-				if (viteBuildInstance) {
-					await viteBuildInstance.close(); // Stop watching
-				}
+
 
 				// FIXME: Had to do all of this because of two issues:
 				// 1. Vite seems to be caching config when watching

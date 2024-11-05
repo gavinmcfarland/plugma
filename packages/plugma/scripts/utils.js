@@ -341,8 +341,10 @@ export async function cleanManifestFiles(options, files, type) {
 		validateFile(uiFilePath, 'ui');
 	}
 
+
 	// Remove 'ui.html' if 'ui' entry is missing or file not found
 	if (!files.manifest.ui || !fs.existsSync(uiFilePath)) {
+
 		removeFileIfExists(path.resolve(path.join(process.cwd(), options.output, 'ui.html')));
 	}
 }
