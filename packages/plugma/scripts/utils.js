@@ -308,7 +308,8 @@ export async function cleanManifestFiles(options, files, type) {
 			if (type !== "plugin-built") {
 				logStatusChange(type === "manifest-changed" ? 'manifest changed' : 'file changed');
 			} else {
-				removeFileIfExists(path.resolve(path.join(process.cwd(), options.output)));
+				// Note: Let the user decide if they want to delete it, can be used to debug as well
+				// removeFileIfExists(path.resolve(path.join(process.cwd(), options.output)));
 			}
 			console.error(`[plugma] Error: The file specified in the manifest's '${fieldName}' field could not be found at path: ${files.manifest[fieldName]}. Please ensure the file path is correct and that the file exists.`);
 		}
@@ -326,7 +327,8 @@ export async function cleanManifestFiles(options, files, type) {
 			logStatusChange('manifest changed');
 		}
 		else {
-			removeFileIfExists(path.resolve(path.join(process.cwd(), options.output)));
+			// Note: Let the user decide if they want to delete it, can be used to debug as well
+			// removeFileIfExists(path.resolve(path.join(process.cwd(), options.output)));
 		}
 		console.error("[plugma] Error: The 'main' field is missing in the manifest. Please specify the 'main' entry point.");
 	}

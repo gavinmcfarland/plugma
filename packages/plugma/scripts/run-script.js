@@ -128,8 +128,9 @@ export async function runScript(command, options) {
 
 			// If manifest changes, restart or rebuild
 			chokidar.watch([manifestPath, userPkgPath]).on('change', async (path) => {
+
 				const { raw } = await buildManifest();
-				console.log(raw)
+
 				if (raw.ui !== previousUiValue) {
 					previousUiValue = raw.ui;
 					await restartViteServer(command, options);
@@ -141,7 +142,6 @@ export async function runScript(command, options) {
 
 					// process.stdout.write('\x1B[H');
 					// console.log(chalk.grey(formatTime()) + chalk.cyan(chalk.bold(' [plugma]')) + chalk.green(' manifest changed'));
-
 					await run('build-main', { command, options });
 
 				}
@@ -149,7 +149,7 @@ export async function runScript(command, options) {
 
 				if (!files.manifest.ui || !(await fs.access(resolve(files.manifest.ui)).then(() => true).catch(() => false))) {
 					if (viteUiInstance) {
-						console.log("close")
+
 						await viteUiInstance.close(); // Stop watching
 					}
 				}
@@ -290,19 +290,24 @@ export async function runScript(command, options) {
 		const buildDuration = ((endTime - 250) - startTime).toFixed(0); // Remove decimals for a Vite-like appearance
 
 
-		cleanManifestFiles(options, files, "plugin-built")
 
+		// NOTE: Couldn't decide on whether to show a 'errors with build' message
 		if (!options.watch && files.manifest.main && await fs.access(resolve(files.manifest.main)).then(() => true).catch(() => false)) {
 			if ((files.manifest.ui && await fs.access(resolve(files.manifest.ui)).then(() => true).catch(() => false))) {
-				log.text(`${chalk.green('✓ build created in ' + buildDuration + 'ms')}`);
+				log.text(`${chalk.green('✓ build created in ' + buildDuration + 'ms')} `);
 			}
 			else if (!files.manifest.ui) {
-				log.text(`${chalk.green('✓ build created in ' + buildDuration + 'ms')}`);
+				log.text(`${chalk.green('✓ build created in ' + buildDuration + 'ms')} `);
 			}
-
+			else {
+				// log.text(`${ chalk.red('✕ errors with build\n') } `);
+			}
+		}
+		else {
+			// log.text(`${ chalk.red('✕ errors with build\n') } `);
 		}
 
-
+		cleanManifestFiles(options, files, "plugin-built")
 	});
 
 	task('build-main', async ({ command }) => {
@@ -334,7 +339,7 @@ export async function runScript(command, options) {
 				const envFiles = [
 					path.resolve(process.cwd(), '.env'),
 					path.resolve(process.cwd(), '.env.local'),               // Default .env
-					path.resolve(process.cwd(), `.env.${process.env.NODE_ENV}`), // Environment-specific .env (e.g., .env.development, .env.production)
+					path.resolve(process.cwd(), `.env.${process.env.NODE_ENV} `), // Environment-specific .env (e.g., .env.development, .env.production)
 					path.resolve(process.cwd(), `.env.${process.env.NODE_ENV}.local`)             // Local overrides, if any
 				];
 
@@ -360,7 +365,7 @@ export async function runScript(command, options) {
 							let merged = mergeConfig({ build: { watch: {}, minify: true } }, config.viteMain.dev)
 							viteBuildInstance = await viteBuild(merged);
 						} else {
-							if (files.manifest.ui && await fs.access(resolve(files.manifest.ui)).then(() => true).catch(() => false)) {
+							if (files.manifest.main && await fs.access(resolve(files.manifest.main)).then(() => true).catch(() => false)) {
 								let merged = mergeConfig({ build: { minify: true } }, config.viteMain.build)
 								viteBuildInstance = await viteBuild(merged);
 							}
@@ -380,7 +385,7 @@ export async function runScript(command, options) {
 					const watcher = chokidar.watch(envFiles);
 
 					watcher.on('change', async (filePath) => {
-						console.log(`[vite-build] Environment file changed: ${filePath}. Restarting build...`);
+						console.log(`[vite - build] Environment file changed: ${filePath}. Restarting build...`);
 						runBuild(); // Restart the build process without exiting
 					});
 				}
@@ -425,7 +430,7 @@ export async function runScript(command, options) {
 		process.env.NODE_ENV = options.mode || 'development';
 		options.port = options.port || getRandomNumber();
 
-		// const plugmaPkg = await readJson(resolve(`${__dirname}/../package.json`));
+		// const plugmaPkg = await readJson(resolve(`${ __dirname } /../ package.json`));
 		// const files = await getUserFiles();
 		// const config = createConfigs(options, files)
 
@@ -459,7 +464,7 @@ export async function runScript(command, options) {
 				break;
 		}
 	} catch (err) {
-		console.error(`Error during ${command} process:`, err);
+		console.error(`Error during ${command} process: `, err);
 		process.exit(1);
 	}
 }
