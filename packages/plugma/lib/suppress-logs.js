@@ -11,7 +11,7 @@ export function suppressLogs(options) {
 		/^✓ \d+ module(s)? transformed\.$/,
 		/^✓?\s*built in \d+(\.\d+)?ms\.?$/,
 		/^✓?\s*built in \d+(\.\d+)?s\.?$/,
-		/^ watching for file changes...$ /,
+		/^watching for file changes...$/,
 		TEMP_INDEX_PATH_REGEX,
 		MAIN_BUILT_REGEX,
 		'transforming',
