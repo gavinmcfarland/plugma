@@ -3,20 +3,20 @@ import { get } from "svelte/store"
 
 export function triggerDeveloperTools() {
 
-	if (window.runtimeData.command === "preview") {
-		isDeveloperToolsActive.set(true)
-	}
+	// if (window.runtimeData.command === "preview") {
+	// 	isDeveloperToolsActive.set(true)
+	// }
 
-	window.addEventListener('message', (event) => {
-		let message = event.data?.pluginMessage
+	// window.addEventListener('message', (event) => {
+	// 	let message = event.data?.pluginMessage
 
-		if (message.event === "PLUGMA_HIDE_TOOLBAR") {
-			isDeveloperToolsActive.set(false)
-		}
-		if (message.event === "PLUGMA_SHOW_TOOLBAR") {
-			isDeveloperToolsActive.set(true)
-		}
-	})
+	// 	if (message.event === "PLUGMA_HIDE_TOOLBAR") {
+	// 		isDeveloperToolsActive.set(false)
+	// 	}
+	// 	if (message.event === "PLUGMA_SHOW_TOOLBAR") {
+	// 		isDeveloperToolsActive.set(true)
+	// 	}
+	// })
 
 	document.addEventListener('keydown', (event) => {
 		// Check if Cmd (Mac) or Ctrl (Windows/Linux) is pressed

@@ -10,6 +10,7 @@ import { transformObject } from './utils.js';
 import _ from 'lodash';
 import chalk from 'chalk';
 import { build as viteBuild, createServer, mergeConfig, build } from 'vite';
+import { nanoid } from 'nanoid';
 
 import { Log } from '../lib/logger.js';
 import { getRandomNumber, readJson, createConfigs, getUserFiles, formatTime, cleanManifestFiles } from './utils.js';
@@ -58,6 +59,7 @@ export async function runScript(command, options) {
 
 	// Add command to options
 	options.command = command
+	options.instanceId = nanoid()
 
 	task('get-files', async ({ options }) => {
 		const plugmaPkg = await readJson(resolve(`${__dirname}/../package.json`));

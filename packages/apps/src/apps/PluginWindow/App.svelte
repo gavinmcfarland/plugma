@@ -102,6 +102,23 @@
 		createObserver(styleSheetElement, 'FIGMA_STYLES', () => styleSheetElement.innerHTML)
 	}
 
+	async function monitorDeveloperToolsStatus() {
+		return new Promise((resolve) => {
+			window.addEventListener('message', (event) => {
+				let message = event.data?.pluginMessage
+
+				if (message?.event === 'PLUGMA_HIDE_TOOLBAR') {
+					isDeveloperToolsActive.set(false)
+					resolve(false) // Resolves with `false` when toolbar is hidden
+				}
+				if (message?.event === 'PLUGMA_SHOW_TOOLBAR') {
+					isDeveloperToolsActive.set(true)
+					resolve(true) // Resolves with `true` when toolbar is shown
+				}
+			})
+		})
+	}
+
 	triggerDeveloperTools()
 
 	onMount(async () => {
@@ -113,6 +130,7 @@
 			isServerActive = isActive
 		})
 		setBodyStyles()
+		await monitorDeveloperToolsStatus()
 		await redirectIframe(iframe, url)
 
 		// Needs to occur without waiting for websocket to open
