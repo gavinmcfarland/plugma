@@ -192,16 +192,9 @@ function customShowUI(htmlString, options) {
 
 				figma['show' + 'UI'](htmlString, options);
 
-				if (pluginWindowSettings.toolbarEnabled) {
-					figma.ui.postMessage(
-						{ event: 'PLUGMA_SHOW_TOOLBAR' }
-					)
-				}
-				else {
-					figma.ui.postMessage(
-						{ event: 'PLUGMA_HIDE_TOOLBAR' }
-					)
-				}
+				figma.ui.postMessage(
+					{ event: 'PLUGMA_PLUGIN_WINDOW_SETTINGS', data: pluginWindowSettings }
+				)
 
 			} else {
 				console.warn('Figma showUI method is not available.');
@@ -219,32 +212,29 @@ figma.ui.on('message', async (message) => {
 
 		if (message.event === 'PLUGMA_MINIMISE_WINDOW') {
 			pluginWindowSettings.minimized = true;
-			figma.ui['re' + 'size'](200, message.toolbarHeight)
+			figma.ui['re' + 'size'](200, 40)
 			setWindowSettings(pluginWindowSettings)
 
 		}
 		if (message.event === 'PLUGMA_MAXIMISE_WINDOW') {
 			pluginWindowSettings.minimized = false;
 
-			figma.ui['re' + 'size'](pluginWindowSettings.width, pluginWindowSettings.height + message.toolbarHeight)
+			figma.ui['re' + 'size'](pluginWindowSettings.width, pluginWindowSettings.height + 40)
 			setWindowSettings(pluginWindowSettings)
 
 		}
-		if (message.event === 'PLUGMA_INCREASE_WINDOW_HEIGHT') {
-			pluginWindowSettings.minimized = false;
-			pluginWindowSettings.toolbarEnabled = true;
 
-			figma.ui['re' + 'size'](pluginWindowSettings.width, pluginWindowSettings.height + message.toolbarHeight)
-			setWindowSettings(pluginWindowSettings)
+		if (message.event === 'PLUGMA_SAVE_PLUGIN_WINDOW_SETTINGS') {
 
-		}
-		if (message.event === 'PLUGMA_DECREASE_WINDOW_HEIGHT') {
-			pluginWindowSettings.minimized = false;
-			pluginWindowSettings.toolbarEnabled = false;
+			if (message.data.toolbarEnabled) {
+				figma.ui['re' + 'size'](pluginWindowSettings.width, message.data.height + 40)
+			}
+			else {
+				figma.ui['re' + 'size'](pluginWindowSettings.width, message.data.height)
+			}
 
-			figma.ui['re' + 'size'](pluginWindowSettings.width, pluginWindowSettings.height)
-			setWindowSettings(pluginWindowSettings)
-
+			console.log("toolbar toggled", message.data)
+			setWindowSettings(message.data)
 		}
 	})
 

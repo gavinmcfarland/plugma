@@ -7,10 +7,11 @@
 	import { resizePluginWindow } from '../../shared/resizePluginWindow'
 	import { setupWebSocket } from '../../shared/setupWebSocket'
 
-	import { onMount } from 'svelte'
-	import { isDeveloperToolsActive, isLocalhostWithoutPort } from '../../shared/stores'
+	import { onMount, tick } from 'svelte'
+	import { isDeveloperToolsActive, isLocalhostWithoutPort, pluginWindowSettings } from '../../shared/stores'
 	import Toolbar from './lib/Toolbar.svelte'
 	import { triggerDeveloperTools } from '../../shared/triggerDeveloperTools'
+	import { monitorDeveloperToolsStatus } from '../../shared/monitorDeveloperToolsStatus'
 
 	let iframe
 	const html = document.querySelector('html')
@@ -102,25 +103,6 @@
 		createObserver(styleSheetElement, 'FIGMA_STYLES', () => styleSheetElement.innerHTML)
 	}
 
-	async function monitorDeveloperToolsStatus() {
-		return new Promise((resolve) => {
-			window.addEventListener('message', (event) => {
-				let message = event.data?.pluginMessage
-
-				if (message?.event === 'PLUGMA_HIDE_TOOLBAR') {
-					isDeveloperToolsActive.set(false)
-					resolve(false) // Resolves with `false` when toolbar is hidden
-				}
-				if (message?.event === 'PLUGMA_SHOW_TOOLBAR') {
-					isDeveloperToolsActive.set(true)
-					resolve(true) // Resolves with `true` when toolbar is shown
-				}
-			})
-		})
-	}
-
-	triggerDeveloperTools()
-
 	onMount(async () => {
 		// NOTE: Messaging must be setup first so that it's ready to receive messages from iframe
 		let ws = setupWebSocket(iframe, window.runtimeData.websockets)
@@ -131,6 +113,7 @@
 		})
 		setBodyStyles()
 		await monitorDeveloperToolsStatus()
+		await triggerDeveloperTools()
 		await redirectIframe(iframe, url)
 
 		// Needs to occur without waiting for websocket to open

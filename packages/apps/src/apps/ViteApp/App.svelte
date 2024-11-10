@@ -5,18 +5,14 @@
 	import { monitorUrl } from '../../shared/monitorUrl'
 	import ServerStatus from '../PluginWindow/lib/ServerStatus.svelte'
 	import app from './main'
-	import {
-		localClientConnected,
-		remoteClients,
-		pluginWindowClients,
-		isDeveloperToolsActive,
-	} from '../../shared/stores'
+	import { localClientConnected, remoteClients, pluginWindowClients } from '../../shared/stores'
 
 	import { Log } from '../../../../plugma/lib/logger'
 	import { setupWebSocket } from '../../shared/setupWebSocket'
 	import { resizePluginWindow } from '../../shared/resizePluginWindow'
 	import Toolbar from '../PluginWindow/lib/Toolbar.svelte'
 	import { triggerDeveloperTools } from '../../shared/triggerDeveloperTools'
+	import { monitorDeveloperToolsStatus } from '../../shared/monitorDeveloperToolsStatus'
 
 	const html = document.querySelector('html')
 
@@ -216,7 +212,6 @@
 	overrideMessageEvent()
 	listenForFigmaStyles()
 	applyStoredStyles()
-	triggerDeveloperTools()
 
 	ws.open(() => {
 		isWebsocketServerActive = true
@@ -266,13 +261,7 @@
 	// }
 
 	onMount(async () => {
-		parent.postMessage(
-			{
-				pluginMessage: { type: 'VITE_APP_MOUNTED' },
-				pluginId: '*',
-			},
-			'*',
-		)
+		await triggerDeveloperTools()
 	})
 </script>
 

@@ -1,22 +1,35 @@
-import { isDeveloperToolsActive } from "./stores"
+import { isDeveloperToolsActive, pluginWindowSettings } from "./stores"
 import { get } from "svelte/store"
 
-export function triggerDeveloperTools() {
+export async function triggerDeveloperTools() {
 
-	// if (window.runtimeData.command === "preview") {
-	// 	isDeveloperToolsActive.set(true)
-	// }
+	let devToolsActive = false;
 
-	// window.addEventListener('message', (event) => {
-	// 	let message = event.data?.pluginMessage
+	// Subscribe to the store to keep the local variable updated
+	isDeveloperToolsActive.subscribe((value) => {
+		console.log("update dev status", value)
+		devToolsActive = value;
+	});
 
-	// 	if (message.event === "PLUGMA_HIDE_TOOLBAR") {
-	// 		isDeveloperToolsActive.set(false)
-	// 	}
-	// 	if (message.event === "PLUGMA_SHOW_TOOLBAR") {
-	// 		isDeveloperToolsActive.set(true)
-	// 	}
-	// })
+	window.addEventListener('message', (event) => {
+
+		let message = event.data?.pluginMessage
+
+		if (message.event === "PLUGMA_PLUGIN_WINDOW_TOGGLE_TOOLBAR") {
+			let $pluginWindowSettings = get(pluginWindowSettings)
+
+			$pluginWindowSettings.toolbarEnabled = !devToolsActive
+			isDeveloperToolsActive.set(!devToolsActive)
+			parent.postMessage(
+				{
+					pluginMessage: { event: 'PLUGMA_SAVE_PLUGIN_WINDOW_SETTINGS', data: $pluginWindowSettings },
+					pluginId: '*',
+				},
+				'*',
+			)
+		}
+
+	})
 
 	document.addEventListener('keydown', (event) => {
 		// Check if Cmd (Mac) or Ctrl (Windows/Linux) is pressed
@@ -28,46 +41,23 @@ export function triggerDeveloperTools() {
 		// Check if the key code corresponds to 'D'
 		const isJKey = event.code === 'KeyJ'
 
+
 		// If all these modifiers and the D key are pressed
 		if (isCmdOrCtrl && isOption && isJKey) {
-			event.preventDefault() // Prevent the default action if needed
-			// Add your custom functionality here
-			let devToolsActive = get(isDeveloperToolsActive)
+			event.preventDefault()
+
+			console.log("before setting toolbar", devToolsActive)
+
+			parent.postMessage(
+				{
+					pluginMessage: { event: 'PLUGMA_PLUGIN_WINDOW_TOGGLE_TOOLBAR' },
+					pluginId: '*',
+				},
+				'*',
+			)
+
 			isDeveloperToolsActive.set(!devToolsActive)
-
-			if (!devToolsActive) {
-				parent.postMessage(
-					{
-						pluginMessage: { event: 'PLUGMA_INCREASE_WINDOW_HEIGHT', toolbarHeight: 40 },
-						pluginId: '*',
-					},
-					'*',
-				)
-				parent.postMessage(
-					{
-						pluginMessage: { event: 'PLUGMA_SHOW_TOOLBAR' },
-						pluginId: '*',
-					},
-					'*',
-				)
-			}
-			else {
-				parent.postMessage(
-					{
-						pluginMessage: { event: 'PLUGMA_DECREASE_WINDOW_HEIGHT', toolbarHeight: 40 },
-						pluginId: '*',
-					},
-					'*',
-				)
-				parent.postMessage(
-					{
-						pluginMessage: { event: 'PLUGMA_HIDE_TOOLBAR' },
-						pluginId: '*',
-					},
-					'*',
-				)
-			}
-
+			console.log("set toolbar", !devToolsActive)
 		}
 	})
 }

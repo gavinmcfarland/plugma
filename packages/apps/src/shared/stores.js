@@ -9,3 +9,4 @@ export const remoteClients = writable([]);
 export const pluginWindowClients = writable([]);
 export const isDeveloperToolsActive = writable(false);
 export const isLocalhostWithoutPort = writable(false);
+export const pluginWindowSettings = writable({});
