@@ -2,11 +2,9 @@
 	import { onMount } from 'svelte'
 	import { remoteClients } from '../../../shared/stores'
 	import Button from './Button.svelte'
-	import Dropdown from './Dropdown.svelte'
-	import DropdownDivider from './DropdownDivider.svelte'
-	import DropdownItem from './DropdownItem.svelte'
 	import Icon from './Icon.svelte'
 	import Select from './Select.svelte'
+	import { pluginWindowSettings } from '../../../shared/stores'
 
 	let isWindowMinimised
 
@@ -27,6 +25,10 @@
 		// { isDivider: true }, // Divider here
 		{ value: 'HIDE_TOOLBAR', label: 'Hide toolbar' },
 	]
+
+	if ($pluginWindowSettings.minimized) {
+		menuItems[0] = { value: 'MAXIMIZE_WINDOW', label: 'Maximise window' }
+	}
 
 	// This function updates the window action (maximize/minimize) in the menu items
 	function updateWindowAction() {

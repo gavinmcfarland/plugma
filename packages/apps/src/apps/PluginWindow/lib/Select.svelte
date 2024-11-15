@@ -1,6 +1,6 @@
 <script>
 	import Icon from './Icon.svelte'
-	import { isDeveloperToolsActive } from '../../../shared/stores'
+	import { isDeveloperToolsActive, pluginWindowSettings } from '../../../shared/stores'
 
 	export let label = 'Choose an option' // Default label
 	export let options = [] // Array of options passed into the component
@@ -18,6 +18,10 @@
 				},
 				'*',
 			)
+			pluginWindowSettings.set({
+				...$pluginWindowSettings,
+				minimized: true,
+			})
 		}
 
 		if (selected === 'MAXIMIZE_WINDOW') {
@@ -28,6 +32,10 @@
 				},
 				'*',
 			)
+			pluginWindowSettings.set({
+				...$pluginWindowSettings,
+				minimized: false,
+			})
 		}
 
 		if (selected === 'DELETE_CLIENT_STORAGE') {
@@ -57,18 +65,15 @@
 		if (selected === 'HIDE_TOOLBAR') {
 			parent.postMessage(
 				{
-					pluginMessage: { event: 'PLUGMA_DECREASE_WINDOW_HEIGHT', toolbarHeight: 40 },
+					pluginMessage: { event: 'PLUGMA_HIDE_TOOLBAR' },
 					pluginId: '*',
 				},
 				'*',
 			)
-			// parent.postMessage(
-			// 	{
-			// 		pluginMessage: { event: 'PLUGMA_HIDE_TOOLBAR' },
-			// 		pluginId: '*',
-			// 	},
-			// 	'*',
-			// )
+			pluginWindowSettings.set({
+				...$pluginWindowSettings,
+				toolbarEnabled: false,
+			})
 			isDeveloperToolsActive.set(false)
 			// Reset back to default
 			selected = 'select-an-option'

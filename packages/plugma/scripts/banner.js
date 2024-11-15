@@ -198,12 +198,14 @@ function customShowUI(htmlString, options) {
 				figma.ui.reposition(options.position.x, options.position.y)
 			}
 
-			// Set ui to visible
-			figma.ui.show()
-
 			figma.ui.postMessage(
 				{ event: 'PLUGMA_PLUGIN_WINDOW_SETTINGS', data: pluginWindowSettings }
 			)
+
+			// Set ui to visible
+			figma.ui.show()
+
+
 
 			// } else {
 			// 	console.warn('Figma showUI method is not available.');
@@ -218,6 +220,13 @@ function customShowUI(htmlString, options) {
 figma.ui.on('message', async (message) => {
 	// Check if the message type is "PLUGMA_MINIMISE_WINDOW"
 	getWindowSettings().then((pluginWindowSettings) => {
+
+		if (message.event === 'PLUGMA_HIDE_TOOLBAR') {
+			pluginWindowSettings.toolbarEnabled = false;
+			figma.ui['re' + 'size'](pluginWindowSettings.width, pluginWindowSettings.height)
+			setWindowSettings(pluginWindowSettings)
+
+		}
 
 		if (message.event === 'PLUGMA_MINIMISE_WINDOW') {
 			pluginWindowSettings.minimized = true;
