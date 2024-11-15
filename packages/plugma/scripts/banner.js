@@ -103,6 +103,10 @@ function customResize(width, height) {
 
 function customShowUI(htmlString, options) {
 
+	// Show UI to receive messages
+	let mergeOptions = Object.assign(options, { visible: false })
+	figma['show' + 'UI'](htmlString, mergeOptions);
+
 	getCommandHistory().then((commandHistory) => {
 		getWindowSettings().then((pluginWindowSettings) => {
 
@@ -154,51 +158,56 @@ function customShowUI(htmlString, options) {
 
 
 
-			if (figma && figma.showUI && typeof figma.showUI === 'function') {
+			// if (figma && figma.showUI && typeof figma.showUI === 'function') {
 
 
-				if (hasInstanceChanged) {
-					// NOTE: we override position because preview mode is very opinionated about how it's used and will reset the position each time the command is used
-					// if (!options.position) {
-					if (runtimeData.command === "preview") {
-						const zoom = figma.viewport.zoom;
+			if (hasInstanceChanged) {
+				// NOTE: we override position because preview mode is very opinionated about how it's used and will reset the position each time the command is used
+				// if (!options.position) {
+				if (runtimeData.command === "preview") {
+					const zoom = figma.viewport.zoom;
 
-						options.position = {
-							x: figma.viewport.bounds.x + (12 / zoom),
-							y: figma.viewport.bounds.y + (figma.viewport.bounds.height - ((80 + 12) / zoom))
-						}
-					}
-					// }
-
-				}
-
-				// NOTE: Because we can't get the last used window position, we reset it to the center when the user changes to dev
-				if (hasCommandChanged) {
-					if (runtimeData.command === "dev") {
-						const zoom = figma.viewport.zoom;
-
-						if (!options.position) {
-							options.position = {
-								x: (figma.viewport.center.x - ((options.width / 2) / zoom)),
-								// Remember to take into account height of plugin window toolbar which is 40px
-								y: (figma.viewport.center.y - (((options.height + 40) / 2) / zoom))
-							}
-						}
+					options.position = {
+						x: figma.viewport.bounds.x + (12 / zoom),
+						y: figma.viewport.bounds.y + (figma.viewport.bounds.height - ((80 + 12) / zoom))
 					}
 				}
-
-
-
-
-				figma['show' + 'UI'](htmlString, options);
-
-				figma.ui.postMessage(
-					{ event: 'PLUGMA_PLUGIN_WINDOW_SETTINGS', data: pluginWindowSettings }
-				)
-
-			} else {
-				console.warn('Figma showUI method is not available.');
+				// }
 			}
+
+			// Resize UI
+			figma.ui.resize(options.width, options.height)
+
+			// NOTE: Because we can't get the last used window position, we reset it to the center when the user changes to dev
+			if (hasCommandChanged) {
+				if (runtimeData.command === "dev") {
+					const zoom = figma.viewport.zoom;
+
+					if (!options.position) {
+						options.position = {
+							x: (figma.viewport.center.x - ((options.width / 2) / zoom)),
+							// Remember to take into account height of plugin window toolbar which is 40px
+							y: (figma.viewport.center.y - (((options.height + 40) / 2) / zoom))
+						}
+					}
+				}
+			}
+
+			// Reposition UI
+			if (options.position && options.position.x && options.position.y) {
+				figma.ui.reposition(options.position.x, options.position.y)
+			}
+
+			// Set ui to visible
+			figma.ui.show()
+
+			figma.ui.postMessage(
+				{ event: 'PLUGMA_PLUGIN_WINDOW_SETTINGS', data: pluginWindowSettings }
+			)
+
+			// } else {
+			// 	console.warn('Figma showUI method is not available.');
+			// }
 
 			setWindowSettings(pluginWindowSettings)
 		})
@@ -225,6 +234,7 @@ figma.ui.on('message', async (message) => {
 		}
 
 		if (message.event === 'PLUGMA_SAVE_PLUGIN_WINDOW_SETTINGS') {
+			console.log(new Date().getTime())
 
 			if (message.data.toolbarEnabled) {
 				figma.ui['re' + 'size'](pluginWindowSettings.width, message.data.height + 40)

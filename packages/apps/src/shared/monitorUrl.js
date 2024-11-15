@@ -95,7 +95,7 @@ export function monitorUrl(url, iframe, onStatusChange) {
 	// Check the URL immediately
 	if (hasMatchingLocalhostOrWildcard()) {
 		isLocalhostWithoutPort.set(false)
-		// checkUrl();
+		checkUrl();
 		// Continue checking at the specified interval
 		setInterval(checkUrl, interval);
 	}

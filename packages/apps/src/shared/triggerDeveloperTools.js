@@ -20,6 +20,7 @@ export async function triggerDeveloperTools() {
 
 			$pluginWindowSettings.toolbarEnabled = !devToolsActive
 			isDeveloperToolsActive.set(!devToolsActive)
+			console.log(new Date().getTime())
 			parent.postMessage(
 				{
 					pluginMessage: { event: 'PLUGMA_SAVE_PLUGIN_WINDOW_SETTINGS', data: $pluginWindowSettings },

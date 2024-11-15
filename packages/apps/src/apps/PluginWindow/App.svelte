@@ -29,7 +29,6 @@
 		ws.on((event) => {
 			if (event.origin === 'https://www.figma.com') {
 				// forward to iframe and browser
-
 				ws.post(event.data, ['iframe', 'ws'])
 			} else {
 				// forward to main
@@ -106,6 +105,10 @@
 	onMount(async () => {
 		// NOTE: Messaging must be setup first so that it's ready to receive messages from iframe
 		let ws = setupWebSocket(iframe, window.runtimeData.websockets)
+
+		// Move redirecting iframe higher up because some messages were not being recieved due to iframe not being redirected in time (do i need to consider queing messages?)
+		// await redirectIframe(iframe, url)
+		iframe.src = new URL(url).href
 		relayFigmaMessages(ws)
 
 		monitorUrl(url, iframe, (isActive) => {
@@ -114,7 +117,8 @@
 		setBodyStyles()
 		await monitorDeveloperToolsStatus()
 		await triggerDeveloperTools()
-		await redirectIframe(iframe, url)
+		// redirecting iframe used to be here
+		// await redirectIframe(iframe, url)
 
 		// Needs to occur without waiting for websocket to open
 		observeChanges(ws)
