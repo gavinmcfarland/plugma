@@ -156,8 +156,9 @@
 			const originalPostMessage = window.postMessage
 
 			window.postMessage = function (message, targetOrigin, transfer) {
+				// console.log('intercept message', message)
 				// Intercept and log the message
-				let messageId = nanoid()
+				// let messageId = nanoid()
 				// Check if this message has already been processed
 				// if (!processedMessages.has(messageId)) {
 				// processedMessages.add(messageId)

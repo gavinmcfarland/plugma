@@ -13,6 +13,7 @@ import vitePluginInsertCustomFunctions from '../lib/vite-plugins/vite-plugin-ins
 // import deleteDistOnError from '../lib/vite-plugins/vite-plugin-delete-dist-on-error.js';
 import viteSupressLogs from '../lib/vite-plugins/vite-plugin-surpress-logs.js';
 import { cwd } from 'process';
+import rewritePostMessageTargetOrigin from '../lib/vite-plugins/vite-plugin-rewrite-postmessage-origin.js';
 
 
 const CURR_DIR = process.cwd();
@@ -78,7 +79,6 @@ export function createConfigs(options, userFiles) {
 			sourceDir: path.join(options.output, 'node_modules', 'plugma', 'tmp'),
 			targetDir: path.join(options.output),
 		}),
-		// deleteDistOnError(options, 'ui')
 	];
 
 	const tempFilePath = writeTempFile(`temp_${Date.now()}.js`, userFiles, options);
@@ -96,6 +96,7 @@ export function createConfigs(options, userFiles) {
 				replaceMainInput({ pluginName: userFiles.manifest.name, input: userFiles.manifest.ui }),
 				htmlTransform(options),
 				deepIndex(),
+				rewritePostMessageTargetOrigin(),
 				...commonVitePlugins,
 			],
 			server: {
