@@ -3,11 +3,16 @@
 export default function rewritePostMessageTargetOrigin() {
 	return {
 		name: 'rewrite-postmessage-origin',
+
 		transform(code, id) {
+			// Process only JavaScript files (or files already transformed into JavaScript)
 			// if (!id.endsWith('.js')) return null;
 
 			// Replace "https://www.figma.com" with "*"
-			const updatedCode = code.replace(/postMessage\((.*?),\s*["']https:\/\/www\.figma\.com["']\)/g, 'postMessage($1, "*")');
+			const updatedCode = code.replace(
+				/postMessage\((.*?),\s*["']https:\/\/www\.figma\.com["']\)/g,
+				'postMessage($1, "*")'
+			);
 
 			return {
 				code: updatedCode,

@@ -104,7 +104,6 @@
 		let ws = setupWebSocket(iframe, window.runtimeData.websockets)
 
 		// Move redirecting iframe higher up because some messages were not being recieved due to iframe not being redirected in time (do i need to consider queing messages?)
-		// await redirectIframe(iframe, url)
 		iframe.src = new URL(url).href
 		relayFigmaMessages(ws)
 
