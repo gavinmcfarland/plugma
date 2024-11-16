@@ -6,7 +6,6 @@ export async function monitorDeveloperToolsStatus() {
 			let message = event.data?.pluginMessage
 
 			if (message?.event === 'PLUGMA_PLUGIN_WINDOW_SETTINGS') {
-				console.log('plugin window settings on load', message.data)
 				pluginWindowSettings.set(message.data)
 				isDeveloperToolsActive.set(message.data.toolbarEnabled)
 				resolve(true)

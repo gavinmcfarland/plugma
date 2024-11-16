@@ -4,7 +4,6 @@ import { viteSingleFile } from 'vite-plugin-singlefile'
 import renameAndMoveFiles from './plugins/vite-plugin-rename-and-move-files'
 
 export default defineConfig(({ mode }) => {
-	console.log('mode', mode)
 	return {
 		plugins: [
 			svelte(),

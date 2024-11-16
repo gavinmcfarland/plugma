@@ -116,6 +116,40 @@ function customShowUI(htmlString, options) {
 			// FIXME: Modify this so that this triggers each time the preview command is used. Accomplish this because generating an instance id from the CLI
 			// If new instance of command reset toolbar and minimized window
 
+			// if (hasInstanceChanged && runtimeData.command === "preview") {
+			if (runtimeData.command === "preview") {
+				// Note: because we can't reliably show the UI with the position in the bottom left we reposition it each time the window opens (as well as the toolbar)
+				pluginWindowSettings.minimized = true
+				pluginWindowSettings.toolbarEnabled = true
+				// NOTE: we override position because preview mode is very opinionated about how it's used and will reset the position each time the command is used
+				// if (!options.position) {
+
+				const zoom = figma.viewport.zoom;
+
+				options.position = {
+					x: figma.viewport.bounds.x + (12 / zoom),
+					y: figma.viewport.bounds.y + (figma.viewport.bounds.height - ((80 + 12) / zoom))
+					// y: figma.viewport.bounds.y + (0 + 12 / zoom)
+				}
+
+				// }
+
+			}
+
+			// NOTE: Because we can't get the last used window position, we reset it to the center when the user changes to dev
+			if (hasCommandChanged && runtimeData.command === "dev") {
+				const zoom = figma.viewport.zoom;
+
+				if (!options.position) {
+					options.position = {
+						x: (figma.viewport.center.x - ((options.width / 2) / zoom)),
+						// Remember to take into account height of plugin window toolbar which is 40px
+						y: (figma.viewport.center.y - (((options.height + 40) / 2) / zoom))
+					}
+				}
+
+			}
+
 			if (hasInstanceChanged) {
 
 				if (runtimeData.command === "preview") {
@@ -161,40 +195,14 @@ function customShowUI(htmlString, options) {
 			// if (figma && figma.showUI && typeof figma.showUI === 'function') {
 
 
-			if (hasInstanceChanged) {
-				// NOTE: we override position because preview mode is very opinionated about how it's used and will reset the position each time the command is used
-				// if (!options.position) {
-				if (runtimeData.command === "preview") {
-					const zoom = figma.viewport.zoom;
 
-					options.position = {
-						x: figma.viewport.bounds.x + (12 / zoom),
-						y: figma.viewport.bounds.y + (figma.viewport.bounds.height - ((80 + 12) / zoom))
-					}
-				}
-				// }
-			}
 
 			// Resize UI
 			figma.ui.resize(options.width, options.height)
 
-			// NOTE: Because we can't get the last used window position, we reset it to the center when the user changes to dev
-			if (hasCommandChanged) {
-				if (runtimeData.command === "dev") {
-					const zoom = figma.viewport.zoom;
-
-					if (!options.position) {
-						options.position = {
-							x: (figma.viewport.center.x - ((options.width / 2) / zoom)),
-							// Remember to take into account height of plugin window toolbar which is 40px
-							y: (figma.viewport.center.y - (((options.height + 40) / 2) / zoom))
-						}
-					}
-				}
-			}
-
 			// Reposition UI
 			if (options.position && options.position.x && options.position.y) {
+				console.log("reposition ui")
 				figma.ui.reposition(options.position.x, options.position.y)
 			}
 
@@ -243,17 +251,18 @@ figma.ui.on('message', async (message) => {
 		}
 
 		if (message.event === 'PLUGMA_SAVE_PLUGIN_WINDOW_SETTINGS') {
-			console.log(new Date().getTime())
 
-			if (message.data.toolbarEnabled) {
-				figma.ui['re' + 'size'](pluginWindowSettings.width, message.data.height + 40)
-			}
-			else {
-				figma.ui['re' + 'size'](pluginWindowSettings.width, message.data.height)
+			// FIXME: For not only set it if data received. Really need a env variable so this event is not even posted by Plugin Window
+			if (message.data.height) {
+				if (message.data.toolbarEnabled) {
+					figma.ui['re' + 'size'](pluginWindowSettings.width, message.data.height + 40)
+				}
+				else {
+					figma.ui['re' + 'size'](pluginWindowSettings.width, message.data.height)
+				}
+				setWindowSettings(message.data)
 			}
 
-			console.log("toolbar toggled", message.data)
-			setWindowSettings(message.data)
 		}
 	})
 

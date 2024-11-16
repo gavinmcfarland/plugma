@@ -1,11 +1,8 @@
-const appName = import.meta.env.VITE_APP_NAME;
-console.log(`Loading app from path: ${appName}`);
+const appName = import.meta.env.VITE_APP_NAME
 
 if (!appName) {
-	throw new Error("VITE_APP_NAME environment variable is not defined");
+	throw new Error('VITE_APP_NAME environment variable is not defined')
 }
-
-console.log("----", appName);
 
 // import(`./src/${appName}/App.svelte`)
 // 	.then(({ default: App }) => {
@@ -19,14 +16,14 @@ console.log("----", appName);
 
 async function loadApp(appName) {
 	try {
-		const { default: App } = await import(`./src/${appName}/App.svelte`);
+		const { default: App } = await import(`./src/${appName}/App.svelte`)
 		const app = new App({
 			target: document.getElementById(appName),
-		});
-		return app;
+		})
+		return app
 	} catch (err) {
-		console.error(`Failed to load the app: ${appName}`, err);
+		console.error(`Failed to load the app: ${appName}`, err)
 	}
 }
 
-module.exports = { loadApp };
+module.exports = { loadApp }

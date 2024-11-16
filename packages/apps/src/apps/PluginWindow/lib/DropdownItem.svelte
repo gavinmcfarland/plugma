@@ -4,7 +4,6 @@
 	const dispatch = createEventDispatcher()
 
 	function handleClick() {
-		console.log('click')
 		dispatch('click') // Dispatch a 'click' event
 	}
 </script>

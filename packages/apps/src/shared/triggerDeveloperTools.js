@@ -1,13 +1,27 @@
 import { isDeveloperToolsActive, pluginWindowSettings } from "./stores"
 import { get } from "svelte/store"
 
+function savePluginWindowSettings(devToolsActive) {
+	let $pluginWindowSettings = get(pluginWindowSettings)
+
+	$pluginWindowSettings.toolbarEnabled = !devToolsActive
+	isDeveloperToolsActive.set(!devToolsActive)
+
+	parent.postMessage(
+		{
+			pluginMessage: { event: 'PLUGMA_SAVE_PLUGIN_WINDOW_SETTINGS', data: $pluginWindowSettings },
+			pluginId: '*',
+		},
+		'*',
+	)
+}
+
 export async function triggerDeveloperTools() {
 
 	let devToolsActive = false;
 
 	// Subscribe to the store to keep the local variable updated
 	isDeveloperToolsActive.subscribe((value) => {
-		console.log("update dev status", value)
 		devToolsActive = value;
 	});
 
@@ -16,18 +30,7 @@ export async function triggerDeveloperTools() {
 		let message = event.data?.pluginMessage
 
 		if (message.event === "PLUGMA_PLUGIN_WINDOW_TOGGLE_TOOLBAR") {
-			let $pluginWindowSettings = get(pluginWindowSettings)
-
-			$pluginWindowSettings.toolbarEnabled = !devToolsActive
-			isDeveloperToolsActive.set(!devToolsActive)
-			console.log(new Date().getTime())
-			parent.postMessage(
-				{
-					pluginMessage: { event: 'PLUGMA_SAVE_PLUGIN_WINDOW_SETTINGS', data: $pluginWindowSettings },
-					pluginId: '*',
-				},
-				'*',
-			)
+			savePluginWindowSettings(devToolsActive)
 		}
 
 	})
@@ -47,8 +50,6 @@ export async function triggerDeveloperTools() {
 		if (isCmdOrCtrl && isOption && isJKey) {
 			event.preventDefault()
 
-			console.log("before setting toolbar", devToolsActive)
-
 			parent.postMessage(
 				{
 					pluginMessage: { event: 'PLUGMA_PLUGIN_WINDOW_TOGGLE_TOOLBAR' },
@@ -56,9 +57,7 @@ export async function triggerDeveloperTools() {
 				},
 				'*',
 			)
-
-			isDeveloperToolsActive.set(!devToolsActive)
-			console.log("set toolbar", !devToolsActive)
+			savePluginWindowSettings(devToolsActive)
 		}
 	})
 }
