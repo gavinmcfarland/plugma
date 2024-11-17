@@ -17,6 +17,32 @@ interface ExtendedWebSocket extends ReconnectingWebSocket {
 	close: (callback?: () => void) => void
 }
 
+// Encoding and decoding functions for WebSocket messages
+const encodeMessage = (message) => {
+	return JSON.stringify(message, (key, value) => {
+		if (value instanceof Uint8Array) {
+			return {
+				__type: 'Uint8Array',
+				value: btoa(String.fromCharCode(...value)), // Convert Uint8Array to Base64
+			}
+		}
+		return value // Leave other values unchanged
+	})
+}
+
+const decodeMessage = (message) => {
+	return JSON.parse(message, (key, value) => {
+		if (value && value.__type === 'Uint8Array') {
+			return new Uint8Array(
+				atob(value.value)
+					.split('')
+					.map((char) => char.charCodeAt(0)),
+			) // Convert Base64 back to Uint8Array
+		}
+		return value // Leave other values unchanged
+	})
+}
+
 export function setupWebSocket(
 	iframeTarget = null,
 	enableWebSocket = true,
@@ -80,7 +106,12 @@ export function setupWebSocket(
 					// console.warn('WebSocket is disabled or not open, queuing message:', message)
 					messageQueue.push({ message, via })
 				} else {
-					ws.send(JSON.stringify(message))
+					try {
+						let encodedMessage = encodeMessage(message)
+						ws.send(encodedMessage)
+					} catch (error) {
+						console.log('1', error)
+					}
 				}
 			}
 		} else {
@@ -100,7 +131,7 @@ export function setupWebSocket(
 		} else if (via === 'ws' && enableWebSocket) {
 			ws.addEventListener('message', (event) => {
 				try {
-					const parsedData = JSON.parse(event.data)
+					const parsedData = decodeMessage(event.data)
 					const newEvent = { ...event, data: parsedData }
 					callback(newEvent)
 				} catch (error) {
@@ -183,12 +214,17 @@ export function setupWebSocket(
 
 			pingInterval = window.setInterval(() => {
 				if (ws.readyState === WebSocket.OPEN) {
-					ws.send(
-						JSON.stringify({
-							pluginMessage: { event: 'ping' },
-							pluginId: '*',
-						}),
-					)
+					let message = {
+						pluginMessage: { event: 'ping' },
+						pluginId: '*',
+					}
+
+					try {
+						let encodedMessage = encodeMessage(message)
+						ws.send(encodedMessage)
+					} catch (error) {
+						console.log('2', error)
+					}
 				}
 			}, 10000)
 		}
@@ -204,7 +240,7 @@ export function setupWebSocket(
 
 				let message
 				try {
-					message = JSON.parse(event.data)
+					message = decodeMessage(event.data)
 				} catch (error) {
 					log.warn('Failed to parse WebSocket message:', event.data)
 					return
@@ -212,12 +248,17 @@ export function setupWebSocket(
 
 				if (message.pluginMessage) {
 					if (message.pluginMessage.event === 'ping') {
-						ws.send(
-							JSON.stringify({
-								pluginMessage: { event: 'pong' },
-								pluginId: '*',
-							}),
-						)
+						let message = {
+							pluginMessage: { event: 'pong' },
+							pluginId: '*',
+						}
+
+						try {
+							let encodedMessage = encodeMessage(message)
+							ws.send(encodedMessage)
+						} catch (error) {
+							console.log('3', error)
+						}
 					}
 
 					if (message.pluginMessage.event === 'client_list') {
