@@ -252,15 +252,17 @@ figma.ui.on('message', async (message) => {
 
 		if (message.event === 'PLUGMA_SAVE_PLUGIN_WINDOW_SETTINGS') {
 
+
+
 			// FIXME: For not only set it if data received. Really need a env variable so this event is not even posted by Plugin Window
 			if (message.data.height) {
 				if (message.data.toolbarEnabled) {
-					figma.ui['re' + 'size'](pluginWindowSettings.width, message.data.height + 40)
+					figma.ui['re' + 'size'](message.data.width, message.data.height + 40)
 				}
 				else {
-					figma.ui['re' + 'size'](pluginWindowSettings.width, message.data.height)
+					figma.ui['re' + 'size'](message.data.width, message.data.height - 40)
 				}
-				setWindowSettings(message.data)
+				setWindowSettings(Object.assign(pluginWindowSettings, message.data))
 			}
 
 		}

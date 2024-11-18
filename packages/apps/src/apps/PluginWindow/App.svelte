@@ -145,5 +145,7 @@
 		/* height: 100vh; */
 		flex-grow: 1;
 		border: none;
+		/* Prevents iframe from pushing out of plugin window */
+		min-height: 0;
 	}
 </style>

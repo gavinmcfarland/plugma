@@ -1,19 +1,40 @@
 import { isDeveloperToolsActive, pluginWindowSettings } from "./stores"
 import { get } from "svelte/store"
 
-function savePluginWindowSettings(devToolsActive) {
-	let $pluginWindowSettings = get(pluginWindowSettings)
+function savePluginWindowSettings(devToolsActive, getWindowSize) {
 
+	let $pluginWindowSettings = get(pluginWindowSettings)
 	$pluginWindowSettings.toolbarEnabled = !devToolsActive
+
 	isDeveloperToolsActive.set(!devToolsActive)
 
-	parent.postMessage(
-		{
-			pluginMessage: { event: 'PLUGMA_SAVE_PLUGIN_WINDOW_SETTINGS', data: $pluginWindowSettings },
-			pluginId: '*',
-		},
-		'*',
-	)
+
+	if (getWindowSize) {
+		pluginWindowSettings.set({
+			...$pluginWindowSettings,
+			width: window.innerWidth,
+			height: window.innerHeight
+		})
+
+		parent.postMessage(
+			{
+				pluginMessage: {
+					event: 'PLUGMA_SAVE_PLUGIN_WINDOW_SETTINGS', data: {
+						...$pluginWindowSettings,
+						width: window.innerWidth,
+						height: window.innerHeight
+					}
+				},
+				pluginId: '*',
+			},
+			'*',
+		)
+	}
+
+
+
+
+
 }
 
 export async function triggerDeveloperTools() {
@@ -30,7 +51,9 @@ export async function triggerDeveloperTools() {
 		let message = event.data?.pluginMessage
 
 		if (message.event === "PLUGMA_PLUGIN_WINDOW_TOGGLE_TOOLBAR") {
-			savePluginWindowSettings(devToolsActive)
+
+
+			savePluginWindowSettings(devToolsActive, true)
 		}
 
 	})
