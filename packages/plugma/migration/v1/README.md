@@ -38,6 +38,24 @@ When you update from v0.x.x to v1.x.x, the CLI can automatically migrate these c
 
     The callback will allow you to specify the mode (development, build etc).
 
+## Example with v1
+
+Below is an example of what it should look like.
+
+```js
+/** @type {import('vite').UserConfig} */
+
+// Remember to replace with the correct plugin for your framework
+import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { defineConfig } from 'vite'
+
+export default defineConfig(() => {
+    return {
+        plugins: [svelte()],
+    }
+})
+```
+
 ### Update configuration for framework
 
 Each framework has its own configuration method. In Plugma V0, this was managed internally, but to give developers more control, Plugma will no longer handle these configurations. Update your ui file to manage framework setup. Current configurations are supported temporarily but will be deprecated in future versions.
@@ -103,24 +121,6 @@ import App from './App.js'
 import './styles.css'
 
 document.querySelector('#app').innerHTML = App
-```
-
-## Example with v1
-
-Below is an example of what it should look like.
-
-```js
-/** @type {import('vite').UserConfig} */
-
-// Remember to replace with the correct plugin for your framework
-import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { defineConfig } from 'vite'
-
-export default defineConfig(() => {
-    return {
-        plugins: [svelte()],
-    }
-})
 ```
 
 ## Other changes
