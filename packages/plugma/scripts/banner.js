@@ -223,7 +223,7 @@ function customShowUI(htmlString, options) {
 				figma.ui['re' + 'size'](options.width, options.height)
 			}
 
-			console.log("resize")
+
 			// If width and height not provided and toolbarEnabled, resize to account for toolbar
 			if ((!options.width || !options.height) && pluginWindowSettings.toolbarEnabled) {
 				figma.ui['re' + 'size'](300, 200 + 40)
@@ -289,7 +289,6 @@ figma.ui.on('message', async (message) => {
 		getWindowSettings().then((pluginWindowSettings) => {
 			// FIXME: For not only set it if data received. Really need a env variable so this event is not even posted by Plugin Window
 			if (message.data.height) {
-				console.log("received from ui", message.data)
 				if (message.data.toolbarEnabled) {
 					// message.data.height = message.data.height + 40
 					figma.ui['re' + 'size'](message.data.width, message.data.height + 40)
@@ -299,7 +298,6 @@ figma.ui.on('message', async (message) => {
 					figma.ui['re' + 'size'](message.data.width, message.data.height - 40)
 				}
 				let mergedOptions = Object.assign(pluginWindowSettings, message.data)
-				console.log("saving window settings", mergedOptions)
 				setWindowSettings(mergedOptions)
 			}
 		})
@@ -310,7 +308,7 @@ figma.ui.on('message', async (message) => {
 		for (let i = 0; i < pluginDataKeys.length; i++) {
 			let key = pluginDataKeys[i];
 			figma.root.setPluginData(key, "");
-			console.log(`Pugma: ${key} deleted from root pluginData`);
+			console.log(`[plugma] ${key} deleted from root pluginData`);
 		}
 		figma.notify("Root pluginData deleted");
 	}
@@ -321,7 +319,7 @@ figma.ui.on('message', async (message) => {
 			let key = clientStorageKeys[i];
 			if (key !== "figma-stylesheet") {
 				await figma.clientStorage.deleteAsync(key);
-				console.log(`Pugma: ${key} deleted from clientStorage`);
+				console.log(`[plugma] ${key} deleted from clientStorage`);
 			}
 		}
 		figma.notify("ClientStorage deleted");
