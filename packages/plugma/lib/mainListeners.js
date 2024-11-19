@@ -11,7 +11,7 @@ function mainListeners() {
 				for (let i = 0; i < pluginDataKeys.length; i++) {
 					let key = pluginDataKeys[i];
 					figma.root.setPluginData(key, "");
-					console.log(`Pugma: ${key} deleted from root pluginData`);
+					console.log(`[plugma] ${key} deleted from root pluginData`);
 				}
 				figma.notify("Root pluginData deleted");
 			}
@@ -21,7 +21,7 @@ function mainListeners() {
 					let key = clientStorageKeys[i];
 					if (key !== "figma-stylesheet") {
 						await figma.clientStorage.deleteAsync(key);
-						console.log(`Pugma: ${key} deleted from clientStorage`);
+						console.log(`[plugma] ${key} deleted from clientStorage`);
 					}
 				}
 				figma.notify("ClientStorage deleted");
