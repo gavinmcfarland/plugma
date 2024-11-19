@@ -13,7 +13,7 @@
 	<title>Plugma — Take Figma plugin development to the next level</title>
 	<Meta
 		title="Plugma: Take Figma plugin development to the next level"
-		description="Excelerate your plugin develop with an all in one solution for developing and bundling Figma plugins."
+		description="Excelerate your plugin development with an all in one solution for developing and bundling Figma plugins."
 		url={`https://plugma.dev${$page.url.pathname}`}
 		type="website"
 	/>
