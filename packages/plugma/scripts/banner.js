@@ -124,8 +124,9 @@ function customShowUI(htmlString, options) {
 	options = options || {}
 
 	// Show UI to receive messages
-	let mergeOptions = Object.assign(options, { visible: false })
+	let mergeOptions = Object.assign({ visible: false }, options)
 	figma['show' + 'UI'](htmlString, mergeOptions);
+
 
 	getCommandHistory().then((commandHistory) => {
 		getWindowSettings(options).then((pluginWindowSettings) => {
@@ -240,10 +241,10 @@ function customShowUI(htmlString, options) {
 				{ event: 'PLUGMA_PLUGIN_WINDOW_SETTINGS', data: pluginWindowSettings }
 			)
 
-			// Set ui to visible
-			figma.ui.show()
-
-
+			// Don't show the UI if user set to false
+			if (options.visible !== false) {
+				figma.ui.show()
+			}
 
 			// } else {
 			// 	console.warn('Figma showUI method is not available.');
