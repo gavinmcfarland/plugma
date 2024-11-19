@@ -42,61 +42,66 @@
 	function getClassesAndStyles(ws) {
 		const styleSheetElement = document.getElementById('figma-style')
 
-		ws.on((event) => {
-			const message = event.data.pluginMessage
+		if (styleSheetElement) {
+			ws.on((event) => {
+				const message = event.data.pluginMessage
 
-			if (message.type === 'GET_FIGMA_CLASSES_AND_STYLES') {
-				const messages = [
-					{
-						pluginMessage: {
-							type: 'FIGMA_HTML_CLASSES',
-							data: html.className,
+				if (message.type === 'GET_FIGMA_CLASSES_AND_STYLES') {
+					const messages = [
+						{
+							pluginMessage: {
+								type: 'FIGMA_HTML_CLASSES',
+								data: html.className,
+							},
 						},
-					},
-					{
-						pluginMessage: {
-							type: 'FIGMA_STYLES',
-							data: styleSheetElement.innerHTML,
+						{
+							pluginMessage: {
+								type: 'FIGMA_STYLES',
+								data: styleSheetElement.innerHTML,
+							},
 						},
-					},
-				]
-				ws.post(messages, ['iframe', 'ws'])
-			}
-		}, 'ws')
+					]
+					ws.post(messages, ['iframe', 'ws'])
+				}
+			}, 'ws')
+		}
 	}
 
 	function observeChanges(ws) {
-		function postMessage(type, data) {
-			ws.post(
-				{
-					pluginMessage: {
-						type,
-						data,
-					},
-					pluginId: '*',
-				},
-				['iframe', 'ws'],
-			)
-		}
-
-		function createObserver(target, messageType, getData) {
-			// Post initial data
-			postMessage(messageType, getData())
-
-			const observer = new MutationObserver(() => {
-				postMessage(messageType, getData())
-			})
-
-			observer.observe(target, {
-				attributes: true,
-				childList: true,
-				subtree: true,
-			})
-		}
-
 		const styleSheetElement = document.getElementById('figma-style')
-		createObserver(html, 'FIGMA_HTML_CLASSES', () => html.className)
-		createObserver(styleSheetElement, 'FIGMA_STYLES', () => styleSheetElement.innerHTML)
+
+		if (styleSheetElement) {
+			function postMessage(type, data) {
+				ws.post(
+					{
+						pluginMessage: {
+							type,
+							data,
+						},
+						pluginId: '*',
+					},
+					['iframe', 'ws'],
+				)
+			}
+
+			function createObserver(target, messageType, getData) {
+				// Post initial data
+				postMessage(messageType, getData())
+
+				const observer = new MutationObserver(() => {
+					postMessage(messageType, getData())
+				})
+
+				observer.observe(target, {
+					attributes: true,
+					childList: true,
+					subtree: true,
+				})
+			}
+
+			createObserver(html, 'FIGMA_HTML_CLASSES', () => html.className)
+			createObserver(styleSheetElement, 'FIGMA_STYLES', () => styleSheetElement.innerHTML)
+		}
 	}
 
 	onMount(async () => {

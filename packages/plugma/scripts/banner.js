@@ -22,24 +22,26 @@ async function getCommandHistory() {
 	return { previousCommand, previousInstanceId };
 }
 
-async function getWindowSettings() {
+async function getWindowSettings(options) {
 	// Determine which command is running (dev or preview)
 	const command = runtimeData.command;
 
 	// Define default settings for both dev and preview commands
 	const defaultDevSettings = {
-		width: 400,
-		height: 300,
+		width: 300,
+		height: 200,
 		minimized: false,
 		toolbarEnabled: false
 	};
 
 	const defaultPreviewSettings = {
-		width: 400,
-		height: 300,
+		width: 300,
+		height: 200,
 		minimized: true,
 		toolbarEnabled: true
 	};
+
+
 
 	// Define storage keys for dev and preview settings
 	const storageKeyDev = 'PLUGMA_PLUGIN_WINDOW_SETTINGS_DEV';
@@ -47,18 +49,34 @@ async function getWindowSettings() {
 	let pluginWindowSettings;
 
 	if (command === "dev") {
-		// Get dev settings or set them if they don't exist
+
+
 		pluginWindowSettings = await figma.clientStorage.getAsync(storageKeyDev);
+
+
+		// Get dev settings or set them if they don't exist
 		if (!pluginWindowSettings) {
 			await figma.clientStorage.setAsync(storageKeyDev, defaultDevSettings);
 			pluginWindowSettings = defaultDevSettings;
 		}
 	} else if (command === "preview") {
-		// Get preview settings or set them if they don't exist
+
 		pluginWindowSettings = await figma.clientStorage.getAsync(storageKeyPreview);
+
+
+		// Get preview settings or set them if they don't exist
 		if (!pluginWindowSettings) {
 			await figma.clientStorage.setAsync(storageKeyPreview, defaultPreviewSettings);
 			pluginWindowSettings = defaultPreviewSettings;
+		}
+	}
+
+	if (options && (!options.width || !options.height)) {
+		pluginWindowSettings.height = 300
+		pluginWindowSettings.width = 400
+
+		if (pluginWindowSettings && pluginWindowSettings.toolbarEnabled) {
+			pluginWindowSettings.height = 300 + 40
 		}
 	}
 
@@ -103,12 +121,14 @@ function customResize(width, height) {
 
 function customShowUI(htmlString, options) {
 
+	options = options || {}
+
 	// Show UI to receive messages
 	let mergeOptions = Object.assign(options, { visible: false })
 	figma['show' + 'UI'](htmlString, mergeOptions);
 
 	getCommandHistory().then((commandHistory) => {
-		getWindowSettings().then((pluginWindowSettings) => {
+		getWindowSettings(options).then((pluginWindowSettings) => {
 
 			let hasCommandChanged = commandHistory.previousCommand !== runtimeData.command
 			let hasInstanceChanged = commandHistory.previousInstanceId !== runtimeData.instanceId
@@ -183,7 +203,7 @@ function customShowUI(htmlString, options) {
 				options = options || {}
 
 				// Check if the options object exists and if it has a height property
-				if (options && options.height) {
+				if (options.height && options.width) {
 					// Override the height property
 					options.height = 40;
 					options.width = 200;
@@ -197,12 +217,22 @@ function customShowUI(htmlString, options) {
 
 
 
-			// Resize UI
-			figma.ui.resize(options.width, options.height)
+			// Only resize if width and height provided
+			if (options.width && options.height) {
+				figma.ui['re' + 'size'](options.width, options.height)
+			}
+
+			console.log("resize")
+			// If width and height not provided and toolbarEnabled, resize to account for toolbar
+			if ((!options.width || !options.height) && pluginWindowSettings.toolbarEnabled) {
+				figma.ui['re' + 'size'](300, 200 + 40)
+			}
+			if ((!options.width || !options.height) && !pluginWindowSettings.toolbarEnabled) {
+				figma.ui['re' + 'size'](300, 200)
+			}
 
 			// Reposition UI
 			if (options.position && options.position.x && options.position.y) {
-				console.log("reposition ui")
 				figma.ui.reposition(options.position.x, options.position.y)
 			}
 
@@ -227,46 +257,52 @@ function customShowUI(htmlString, options) {
 
 figma.ui.on('message', async (message) => {
 	// Check if the message type is "PLUGMA_MINIMISE_WINDOW"
-	getWindowSettings().then((pluginWindowSettings) => {
 
-		if (message.event === 'PLUGMA_HIDE_TOOLBAR') {
+
+	if (message.event === 'PLUGMA_HIDE_TOOLBAR') {
+		getWindowSettings().then((pluginWindowSettings) => {
 			pluginWindowSettings.toolbarEnabled = false;
 			figma.ui['re' + 'size'](pluginWindowSettings.width, pluginWindowSettings.height)
 			setWindowSettings(pluginWindowSettings)
+		})
+	}
 
-		}
-
-		if (message.event === 'PLUGMA_MINIMISE_WINDOW') {
+	if (message.event === 'PLUGMA_MINIMISE_WINDOW') {
+		getWindowSettings().then((pluginWindowSettings) => {
 			pluginWindowSettings.minimized = true;
 			figma.ui['re' + 'size'](200, 40)
 			setWindowSettings(pluginWindowSettings)
-
-		}
-		if (message.event === 'PLUGMA_MAXIMISE_WINDOW') {
+		})
+	}
+	if (message.event === 'PLUGMA_MAXIMISE_WINDOW') {
+		getWindowSettings().then((pluginWindowSettings) => {
 			pluginWindowSettings.minimized = false;
 
 			figma.ui['re' + 'size'](pluginWindowSettings.width, pluginWindowSettings.height + 40)
 			setWindowSettings(pluginWindowSettings)
+		})
 
-		}
+	}
 
-		if (message.event === 'PLUGMA_SAVE_PLUGIN_WINDOW_SETTINGS') {
-
-
-
+	if (message.event === 'PLUGMA_SAVE_PLUGIN_WINDOW_SETTINGS') {
+		getWindowSettings().then((pluginWindowSettings) => {
 			// FIXME: For not only set it if data received. Really need a env variable so this event is not even posted by Plugin Window
 			if (message.data.height) {
+				console.log("received from ui", message.data)
 				if (message.data.toolbarEnabled) {
+					// message.data.height = message.data.height + 40
 					figma.ui['re' + 'size'](message.data.width, message.data.height + 40)
 				}
 				else {
+					// message.data.height = message.data.height - 40
 					figma.ui['re' + 'size'](message.data.width, message.data.height - 40)
 				}
-				setWindowSettings(Object.assign(pluginWindowSettings, message.data))
+				let mergedOptions = Object.assign(pluginWindowSettings, message.data)
+				console.log("saving window settings", mergedOptions)
+				setWindowSettings(mergedOptions)
 			}
-
-		}
-	})
+		})
+	}
 
 	if (message.event === "PLUGMA_DELETE_ROOT_PLUGIN_DATA") {
 		let pluginDataKeys = figma.root.getPluginDataKeys();

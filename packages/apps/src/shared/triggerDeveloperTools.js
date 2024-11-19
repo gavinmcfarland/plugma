@@ -3,13 +3,13 @@ import { get } from "svelte/store"
 
 function savePluginWindowSettings(devToolsActive, getWindowSize) {
 
-	let $pluginWindowSettings = get(pluginWindowSettings)
-	$pluginWindowSettings.toolbarEnabled = !devToolsActive
-
-	isDeveloperToolsActive.set(!devToolsActive)
-
-
 	if (getWindowSize) {
+
+		let $pluginWindowSettings = get(pluginWindowSettings)
+		$pluginWindowSettings.toolbarEnabled = !devToolsActive
+
+		isDeveloperToolsActive.set(!devToolsActive)
+
 		pluginWindowSettings.set({
 			...$pluginWindowSettings,
 			width: window.innerWidth,
