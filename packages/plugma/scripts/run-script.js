@@ -364,7 +364,7 @@ export async function runScript(command, options) {
 							viteBuildInstance = await viteBuild(merged);
 						}
 						else if (command === "build" && options.watch) {
-							let merged = mergeConfig({ build: { watch: {}, minify: true } }, config.viteMain.dev)
+							let merged = mergeConfig({ build: { watch: {}, minify: true } }, config.viteMain.build)
 							viteBuildInstance = await viteBuild(merged);
 						} else {
 							if (files.manifest.main && await fs.access(resolve(files.manifest.main)).then(() => true).catch(() => false)) {
