@@ -76,7 +76,7 @@ async function getWindowSettings(options) {
 		pluginWindowSettings.width = 400
 
 		if (pluginWindowSettings && pluginWindowSettings.toolbarEnabled) {
-			pluginWindowSettings.height = 300 + 40
+			pluginWindowSettings.height = 300 + 41
 		}
 	}
 
@@ -165,7 +165,7 @@ function customShowUI(htmlString, options) {
 					options.position = {
 						x: (figma.viewport.center.x - ((options.width / 2) / zoom)),
 						// Remember to take into account height of plugin window toolbar which is 40px
-						y: (figma.viewport.center.y - (((options.height + 40) / 2) / zoom))
+						y: (figma.viewport.center.y - (((options.height + 41) / 2) / zoom))
 					}
 				}
 
@@ -195,7 +195,7 @@ function customShowUI(htmlString, options) {
 
 
 			if (pluginWindowSettings.toolbarEnabled) {
-				options.height = pluginWindowSettings.height + 40
+				options.height = pluginWindowSettings.height + 41
 			}
 
 			// Check if the PLUGMA_MINIMIZE_WINDOW event was triggered
@@ -226,7 +226,7 @@ function customShowUI(htmlString, options) {
 
 			// If width and height not provided and toolbarEnabled, resize to account for toolbar
 			if ((!options.width || !options.height) && pluginWindowSettings.toolbarEnabled) {
-				figma.ui['re' + 'size'](300, 200 + 40)
+				figma.ui['re' + 'size'](300, 200 + 41)
 			}
 			if ((!options.width || !options.height) && !pluginWindowSettings.toolbarEnabled) {
 				figma.ui['re' + 'size'](300, 200)
@@ -279,7 +279,7 @@ figma.ui.on('message', async (message) => {
 		getWindowSettings().then((pluginWindowSettings) => {
 			pluginWindowSettings.minimized = false;
 
-			figma.ui['re' + 'size'](pluginWindowSettings.width, pluginWindowSettings.height + 40)
+			figma.ui['re' + 'size'](pluginWindowSettings.width, pluginWindowSettings.height + 41)
 			setWindowSettings(pluginWindowSettings)
 		})
 
@@ -291,11 +291,11 @@ figma.ui.on('message', async (message) => {
 			if (message.data.height) {
 				if (message.data.toolbarEnabled) {
 					// message.data.height = message.data.height + 40
-					figma.ui['re' + 'size'](message.data.width, message.data.height + 40)
+					figma.ui['re' + 'size'](message.data.width, message.data.height + 41)
 				}
 				else {
 					// message.data.height = message.data.height - 40
-					figma.ui['re' + 'size'](message.data.width, message.data.height - 40)
+					figma.ui['re' + 'size'](message.data.width, message.data.height - 41)
 				}
 				let mergedOptions = Object.assign(pluginWindowSettings, message.data)
 				setWindowSettings(mergedOptions)
