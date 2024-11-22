@@ -206,6 +206,7 @@ export async function runRelease(command, options) {
 				execSync('git push', { stdio: 'inherit' });
 				execSync(`git push origin ${newTag}`, { stdio: 'inherit' });
 				console.log(`Successfully committed, tagged, and pushed: ${newTag}`);
+				execSync('plugma build', { stdio: 'inherit' });
 
 			} catch (err) {
 				console.error('Error during git push, reverting the last commit...', err);
