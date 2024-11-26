@@ -29,7 +29,7 @@ It's important that the path in the `main` and `ui` field point to the source fi
 
 ## Plugin files
 
-When you define the relative file path to the `main` code and the `ui`, it must point to the source files and not the build files. This lets you choose where to store and how to name your source files.
+When defining the relative file paths for the `main` code and the `ui`, they must point to the source files, not the build files. This allows you to organize and name your source files as you prefer.
 
 ```jsonc
 {
@@ -38,6 +38,12 @@ When you define the relative file path to the `main` code and the `ui`, it must 
 	"ui": "src/ui.js"
 }
 ```
+
+The `ui` field specifies the relative path to the source file for your plugin's user interface. This source file is compiled into a bundled file, which can be displayed in the iframe modal by referencing it with the `__html__` constant when using `figma.showUI`.
+
+<blockquote class="warning">
+Plugma currently does not allow using a map for the `ui` field, which means `__uiFiles__` is not yet supported.
+</blockquote>
 
 ## DevAllowedDomains
 
