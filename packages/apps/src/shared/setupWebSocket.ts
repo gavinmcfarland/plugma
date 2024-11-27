@@ -10,6 +10,9 @@ const log = new Log({
 const isInsideIframe = window.self !== window.top
 const isInsideFigma = typeof figma !== 'undefined'
 
+// Temporary buffer for managing plugin-window clients
+let pluginWindowClientsBuffer = []
+
 interface ExtendedWebSocket extends ReconnectingWebSocket {
 	post: (messages: any, via: any) => void
 	on: (callback: any, via: any) => void
@@ -261,48 +264,97 @@ export function setupWebSocket(
 						}
 					}
 
+					// Helper function to update the Svelte store with filtered plugin-window clients
+					let graceTimeout = null // Timeout handle for the grace period
+
+					// Helper function to update the Svelte store
+					// Helper function to update the Svelte store
+					function updatePluginWindowClients() {
+						const pluginWindowClientsRemaining = pluginWindowClientsBuffer.filter(
+							(client) => client.source === 'plugin-window',
+						)
+
+						// If no plugin-window clients are left, wait before updating to []
+						if (pluginWindowClientsRemaining.length === 0) {
+							// console.log('No plugin-window clients connected. Waiting for grace period.')
+
+							// Set a grace period before marking the store as empty
+							if (!graceTimeout) {
+								graceTimeout = setTimeout(() => {
+									// Re-check the buffer after the grace period
+									const finalPluginWindowClientsRemaining = pluginWindowClientsBuffer.filter(
+										(client) => client.source === 'plugin-window',
+									)
+
+									if (finalPluginWindowClientsRemaining.length === 0) {
+										// console.log('Grace period over. Setting pluginWindowClients to empty.')
+										pluginWindowClients.set([])
+									} else {
+										// console.log(
+										// 	'Grace period over. Clients reconnected:',
+										// 	finalPluginWindowClientsRemaining,
+										// )
+										pluginWindowClients.set(finalPluginWindowClientsRemaining)
+									}
+
+									graceTimeout = null // Clear the timeout handle
+								}, 200) // Grace period of 500ms (adjust as needed)
+							}
+						} else {
+							// Update the store immediately if there are clients remaining
+							pluginWindowClients.set(pluginWindowClientsRemaining)
+						}
+					}
+
 					if (message.pluginMessage.event === 'client_list') {
 						// if (!(isInsideIframe || isInsideFigma)) {
 						const connectedClients = message.pluginMessage.clients || []
 						const browserClientsX = connectedClients.filter((client) => client.source === 'browser')
-						const pluginWindowClientsX = connectedClients.filter(
-							(client) => client.source === 'plugin-window',
-						)
+						const pluginWindowClientsX = connectedClients.filter((client) => {
+							pluginWindowClientsBuffer.push(client)
+							return client.source === 'plugin-window'
+						})
 						remoteClients.set(browserClientsX) // Set the connected clients
-						pluginWindowClients.set(pluginWindowClientsX) // Set the connected clients
+						// pluginWindowClients.set(pluginWindowClientsX) // Set the connected clients
+						updatePluginWindowClients()
+
 						// }
 					}
 
-					// Handle remote client connection and disconnection events
+					// Event Handlers
 					if (message.pluginMessage.event === 'client_connected') {
-						// console.log(`Client connected:`, message.pluginMessage.client)
+						if (message.pluginMessage.client.source === 'plugin-window') {
+							// Add the client to the buffer
+							pluginWindowClientsBuffer.push(message.pluginMessage.client)
 
-						// Handle remote clients only when inside iframe or Figma
-						// if (!(isInsideIframe || isInsideFigma)) {
-						// 	console.log('----', message.pluginMessage.source)
-						// 	// Only add browser
-						// 	if (message.pluginMessage.source === 'browser') {
+							// Immediately cancel the grace period and update the store
+							if (graceTimeout) {
+								// console.log('Canceling grace period due to new client connection.')
+								clearTimeout(graceTimeout)
+								graceTimeout = null
+							}
+
+							// Update the store immediately
+							pluginWindowClients.set(
+								pluginWindowClientsBuffer.filter((client) => client.source === 'plugin-window'),
+							)
+						}
+
 						if (message.pluginMessage.client.source === 'browser') {
 							remoteClients.update((clients) => [...clients, message.pluginMessage.client])
 						}
-
-						if (message.pluginMessage.client.source === 'plugin-window') {
-							pluginWindowClients.update((clients) => [...clients, message.pluginMessage.client])
-						}
-						// 	}
-						// }
 					} else if (message.pluginMessage.event === 'client_disconnected') {
-						// console.log(`Client disconnected:`, message.pluginMessage.client)
-
-						// Handle remote clients only when inside iframe or Figma
-						// if (!(isInsideIframe || isInsideFigma)) {
-						pluginWindowClients.update((clients) =>
-							clients.filter((client) => client.id !== message.pluginMessage.client.id),
+						// Remove the client from the buffer
+						pluginWindowClientsBuffer = pluginWindowClientsBuffer.filter(
+							(client) => client.id !== message.pluginMessage.client.id,
 						)
+
+						// Update the store with grace period logic
+						updatePluginWindowClients()
+
 						remoteClients.update((clients) =>
 							clients.filter((client) => client.id !== message.pluginMessage.client.id),
 						)
-						// }
 					}
 				}
 			} catch (error) {
