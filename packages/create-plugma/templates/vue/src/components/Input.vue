@@ -1,19 +1,16 @@
-<script lang="ts">
+<script>
 import { defineComponent, ref, toRefs } from 'vue'
 
 export default defineComponent({
 	name: 'InputField',
 	props: {
 		value: {
-			type: String,
 			default: ''
 		},
 		type: {
-			type: String,
 			default: 'text'
 		},
 		showIcon: {
-			type: Boolean,
 			default: false
 		}
 	},
@@ -22,7 +19,7 @@ export default defineComponent({
 
 		// Two-way binding for value
 		const modelValue = ref(value.value)
-		function updateValue(newValue: string) {
+		function updateValue(newValue) {
 			emit('update:value', newValue)
 		}
 
@@ -39,13 +36,9 @@ export default defineComponent({
 <template>
 	<div class="Input" data-non-interactive="true">
 		<div class="displayContents">
-			<label data-tooltip-type="text" data-tooltip="X-position" aria-label="X-position"
-				data-onboarding-key="scrubbable-control-x-position" data-temporary-fpl-no-drag="">
-				<!-- Conditional rendering for the icon -->
-				<span v-if="showIcon" class="icon"><i18n-text>X</i18n-text></span>
-
-				<!-- Input binding and attributes -->
-				<input :type="type" spellcheck="false" dir="auto" v-model="value" />
+			<label>
+				<span v-if="showIcon" class="icon"><span class="i18n-text">X</span></span>
+				<input :type="type" spellcheck="false" dir="auto" v-model="modelValue" />
 			</label>
 		</div>
 	</div>

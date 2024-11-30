@@ -1,34 +1,39 @@
-<script lang="ts">
-import { defineComponent, PropType } from 'vue'
-
-export default defineComponent({
+<script>
+export default {
 	name: 'Button',
 	props: {
 		href: {
-			type: String,
-			default: null
+			default: null,
 		},
 		target: {
-			type: String,
-			default: '_self'
+			default: null,
 		},
 		style: {
-			type: [String, Object] as PropType<string | Record<string, string>>,
-			default: null
+			default: () => ({}),
 		},
-		onclick: {
-			type: Function as PropType<(event: Event) => void>,
-			default: null
-		}
-	}
-})
+		onClick: {
+			default: null,
+		},
+	},
+	methods: {
+		handleClick(event) {
+			if (this.onClick) {
+				this.onClick(event);
+			}
+		},
+	},
+};
 </script>
 
 <template>
-	<component :is="href ? 'a' : 'button'" class="Button" :href="href" :target="target" :style="style"
-		:onclick="onclick">
-		<slot />
-	</component>
+	<div>
+		<a v-if="href" :class="'Button'" :href="href" :target="target" :style="style" @click="handleClick">
+			<slot />
+		</a>
+		<button v-else :class="'Button'" :style="style" @click="handleClick">
+			<slot />
+		</button>
+	</div>
 </template>
 
 <style scoped>

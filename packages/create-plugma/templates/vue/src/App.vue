@@ -1,22 +1,3 @@
-<template>
-	<div class="container">
-		<div class="banner">
-			<Icon :svg="'plugma'" :size="38" />
-			<Icon :svg="'plus'" :size="24" />
-			<img src="./assets/svelte.svg" width="44" height="44" alt="Svelte logo" />
-		</div>
-
-		<div class="field create-rectangles">
-			<Input v-model="rectCount" type="number" />
-			<Button @click="createRectangles(rectCount)">Create Rectangles</Button>
-		</div>
-
-		<div class="field node-count">
-			<span>{{ nodeCount }} nodes selected</span>
-		</div>
-	</div>
-</template>
-
 <script lang="ts">
 import { ref } from 'vue'
 import Icon from './components/Icon.vue'
@@ -65,6 +46,25 @@ export default {
 	}
 }
 </script>
+
+<template>
+	<div class="container">
+		<div class="banner">
+			<Icon :svg="'plugma'" :size="38" />
+			<Icon :svg="'plus'" :size="24" />
+			<img src="./assets/vue.svg" width="44" height="44" alt="Svelte logo" />
+		</div>
+
+		<div class="field create-rectangles">
+			<Input v-model="rectCount" type="number" />
+			<Button @click="createRectangles(rectCount)">Create Rectangles</Button>
+		</div>
+
+		<div class="field node-count">
+			<span>{{ nodeCount }} nodes selected</span>
+		</div>
+	</div>
+</template>
 
 <style scoped>
 .container {

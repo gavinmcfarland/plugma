@@ -1,7 +1,5 @@
 <script lang="ts">
-import { defineComponent } from 'vue'
-
-export default defineComponent({
+export default {
 	name: 'Icon',
 	props: {
 		size: {
@@ -13,7 +11,7 @@ export default defineComponent({
 			required: true
 		}
 	}
-})
+}
 </script>
 
 <template>
