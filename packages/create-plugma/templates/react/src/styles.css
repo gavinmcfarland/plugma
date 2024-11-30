@@ -1,7 +1,7 @@
 :root {
 	font-family: Inter, system-ui, Helvetica, Arial, sans-serif;
 	font-display: optional;
-	font-size: 68.75%; /* 11/16 */
+	font-size: 16px;
 }
 
 html {
@@ -9,30 +9,43 @@ html {
 	color: var(--figma-color-text);
 }
 
-.container {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	height: 100%;
-	width: 100%;
+body {
+	font-size: 11px;
 }
 
-.banner {
-	display: flex;
-	align-items: center;
-	gap: 18px;
-	margin-bottom: 24px;
+* {
+	box-sizing: border-box;
 }
 
-.button {
-	position: absolute;
-	right: 16px;
-	bottom: 16px;
-	display: block;
-	border-radius: 5px;
-	border: 1px solid var(--figma-color-border);
-	padding-inline: 8px;
-	line-height: 22px;
-	text-decoration: none;
-	color: var(--figma-color-text);
+input {
+	border: none;
+	background-color: transparent;
+	font-size: inherit;
+}
+
+button {
+	border: none;
+	background: transparent;
+	appearance: none;
+	font-size: inherit;
+	color: inherit;
+}
+
+i18n-text {
+	display: contents;
+}
+
+:root {
+	--radius-full: 9999px;
+	--radius-large: 0.8125rem;
+	--radius-medium: 0.3125rem;
+	--radius-none: 0;
+	--radius-small: 0.125rem;
+	--spacer-0: 0;
+	--spacer-1: 0.25rem;
+	--spacer-2: 0.5rem;
+	--spacer-3: 1rem;
+	--spacer-4: 1.5rem;
+	--spacer-5: 2rem;
+	--spacer-6: 2.5rem;
 }

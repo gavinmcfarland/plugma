@@ -24,6 +24,7 @@ const Icon = ({ size = 16, svg }) => {
       </svg>
     );
   }
+
   if (svg === 'plus') {
     return (
       <svg
@@ -56,6 +57,8 @@ const Icon = ({ size = 16, svg }) => {
       </svg>
     );
   }
+
+  return null; // Return nothing if `svg` does not match any case
 };
 
 export default Icon;

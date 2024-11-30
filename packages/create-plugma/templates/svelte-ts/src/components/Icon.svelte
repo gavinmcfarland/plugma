@@ -1,16 +1,10 @@
 <script lang="ts">
-	export let size = 16;
-	export let svg;
+	export let size = 16
+	export let svg
 </script>
 
-{#if svg === "plugma"}
-	<svg
-		width={size + "px"}
-		height={size + "px"}
-		viewBox="0 0 24 24"
-		fill="none"
-		xmlns="http://www.w3.org/2000/svg"
-	>
+{#if svg === 'plugma'}
+	<svg width={size + 'px'} height={size + 'px'} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<g clip-path="url(#clip0_1508_4907)">
 			<path
 				fill-rule="evenodd"
@@ -27,14 +21,8 @@
 	</svg>
 {/if}
 
-{#if svg === "plus"}
-	<svg
-		width={size + "px"}
-		height={size + "px"}
-		viewBox="0 0 24 24"
-		fill="none"
-		xmlns="http://www.w3.org/2000/svg"
-	>
+{#if svg === 'plus'}
+	<svg width={size + 'px'} height={size + 'px'} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<g opacity="0.3">
 			<path d="M12 5V19Z" fill="white" />
 			<path

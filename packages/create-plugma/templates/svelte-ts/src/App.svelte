@@ -1,6 +1,31 @@
 <script lang="ts">
 	import svelteLogo from './assets/svelte.svg'
 	import Icon from './components/Icon.svelte'
+	import Input from './components/Input.svelte'
+	import Button from './components/Button.svelte'
+
+	function createRectangles(count: number) {
+		parent.postMessage(
+			{
+				pluginMessage: {
+					type: 'CREATE_RECTANGLES',
+					count,
+				},
+			},
+			'*',
+		)
+	}
+
+	let rectCount: number = $state(5)
+	let nodeCount: number = $state(0)
+
+	window.onmessage = (event) => {
+		let message = event.data.pluginMessage
+
+		if (message.type === 'POST_NODE_COUNT') {
+			nodeCount = message.count
+		}
+	}
 </script>
 
 <div class="container">
@@ -12,7 +37,13 @@
 		<img src={svelteLogo} width="44" height="44" alt="Svelte logo" />
 	</div>
 
-	<a href="https://plugma.dev/docs" target="_blank" class="button">Read the docs</a>
+	<div class="field create-rectangles">
+		<Input type="number" bind:value={rectCount}></Input>
+		<Button onclick={() => createRectangles(rectCount)}>Create Rectangles</Button>
+	</div>
+	<div class="field node-count">
+		<span>{nodeCount} nodes selected</span>
+	</div>
 </div>
 
 <style>
@@ -22,24 +53,27 @@
 		justify-content: center;
 		height: 100%;
 		width: 100%;
+		flex-direction: column;
 	}
 	.banner {
 		display: flex;
 		align-items: center;
 		gap: 18px;
-		margin-bottom: 24px;
+		margin-bottom: 16px;
 	}
 
-	.button {
-		position: absolute;
-		right: 16px;
-		bottom: 16px;
-		display: block;
-		border-radius: 5px;
-		border: 1px solid var(--figma-color-border);
-		padding-inline: 8px;
-		line-height: 22px;
-		text-decoration: none;
-		color: var(--figma-color-text);
+	.node-count {
+		font-size: 11px;
+	}
+
+	.field {
+		display: flex;
+		gap: var(--spacer-2);
+		height: var(--spacer-5);
+		align-items: center;
+	}
+
+	.create-rectangles :global(.Input) {
+		width: 40px;
 	}
 </style>

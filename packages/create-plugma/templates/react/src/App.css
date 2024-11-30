@@ -1,0 +1,30 @@
+.container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	width: 100%;
+	flex-direction: column;
+}
+
+.banner {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	margin-bottom: 16px;
+}
+
+.node-count {
+	font-size: 11px;
+}
+
+.field {
+	display: flex;
+	gap: var(--spacer-2);
+	height: var(--spacer-5);
+	align-items: center;
+}
+
+.create-rectangles .Input {
+	width: 40px;
+}

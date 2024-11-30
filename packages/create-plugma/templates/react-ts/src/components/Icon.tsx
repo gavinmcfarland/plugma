@@ -1,4 +1,11 @@
-const Icon = ({ size = 16, svg }) => {
+import React from 'react';
+
+interface IconProps {
+  size?: number;
+  svg: 'plugma' | 'plus';
+}
+
+const Icon: React.FC<IconProps> = ({ size = 16, svg }) => {
   if (svg === 'plugma') {
     return (
       <svg
@@ -24,6 +31,7 @@ const Icon = ({ size = 16, svg }) => {
       </svg>
     );
   }
+
   if (svg === 'plus') {
     return (
       <svg
@@ -56,6 +64,8 @@ const Icon = ({ size = 16, svg }) => {
       </svg>
     );
   }
+
+  return null; // Return nothing if `svg` does not match any case
 };
 
 export default Icon;
