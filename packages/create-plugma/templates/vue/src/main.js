@@ -26,8 +26,6 @@ export default function () {
 	function postNodeCount() {
 		const nodeCount = figma.currentPage.selection.length
 
-		console.log('POST_NODE_COUNT')
-
 		figma.ui.postMessage({
 			type: 'POST_NODE_COUNT',
 			count: nodeCount,
