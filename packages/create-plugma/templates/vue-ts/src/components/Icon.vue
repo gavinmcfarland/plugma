@@ -1,22 +1,21 @@
 <script lang="ts">
 export default {
-	name: 'Icon',
 	props: {
 		size: {
 			type: Number,
-			default: 16
+			default: 16,
 		},
 		svg: {
 			type: String,
-			required: true
-		}
-	}
-}
+			required: true,
+		},
+	},
+};
 </script>
 
 <template>
 	<div>
-		<svg v-if="svg === 'plugma'" :width="`${size}px`" :height="`${size}px`" viewBox="0 0 24 24" fill="none"
+		<svg v-if="svg === 'plugma'" :width="size + 'px'" :height="size + 'px'" viewBox="0 0 24 24" fill="none"
 			xmlns="http://www.w3.org/2000/svg">
 			<g clip-path="url(#clip0_1508_4907)">
 				<path fill-rule="evenodd" clip-rule="evenodd"
@@ -30,7 +29,7 @@ export default {
 			</defs>
 		</svg>
 
-		<svg v-else-if="svg === 'plus'" :width="`${size}px`" :height="`${size}px`" viewBox="0 0 24 24" fill="none"
+		<svg v-if="svg === 'plus'" :width="size + 'px'" :height="size + 'px'" viewBox="0 0 24 24" fill="none"
 			xmlns="http://www.w3.org/2000/svg">
 			<g opacity="0.3">
 				<path d="M12 5V19Z" fill="white" />

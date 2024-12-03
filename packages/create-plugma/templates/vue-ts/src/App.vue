@@ -16,8 +16,7 @@ export default {
 		const nodeCount = ref(0)
 
 		// Function to create rectangles
-		function createRectangles(count: number) {
-			console.log('create')
+		function createRectangles(count) {
 			parent.postMessage(
 				{
 					pluginMessage: {
@@ -52,7 +51,7 @@ export default {
 		<div class="banner">
 			<Icon :svg="'plugma'" :size="38" />
 			<Icon :svg="'plus'" :size="24" />
-			<img src="./assets/vue.svg" width="44" height="44" alt="Svelte logo" />
+			<img src="./assets/vue.svg" width="44" height="44" alt="Vue logo" />
 		</div>
 
 		<div class="field create-rectangles">

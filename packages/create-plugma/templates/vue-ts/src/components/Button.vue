@@ -3,24 +3,20 @@ export default {
 	name: 'Button',
 	props: {
 		href: {
-			type: String,
 			default: null,
 		},
 		target: {
-			type: String,
 			default: null,
 		},
 		style: {
-			type: Object,
 			default: () => ({}),
 		},
 		onClick: {
-			type: Function,
 			default: null,
 		},
 	},
 	methods: {
-		handleClick(event: any) {
+		handleClick(event) {
 			if (this.onClick) {
 				this.onClick(event);
 			}

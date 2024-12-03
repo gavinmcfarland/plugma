@@ -1,11 +1,11 @@
-<script lang="ts">
-import { defineComponent, ref, toRefs } from 'vue'
+<script>
+import { defineComponent, toRefs } from 'vue'
 
 export default defineComponent({
-	name: 'InputField',
+	name: 'Input',
 	props: {
-		value: {
-			type: String,
+		modelValue: { // Use modelValue for v-model
+			type: [String, Number],
 			default: ''
 		},
 		type: {
@@ -15,15 +15,14 @@ export default defineComponent({
 		showIcon: {
 			type: Boolean,
 			default: false
-		}
+		},
 	},
 	setup(props, { emit }) {
-		const { value, type, showIcon } = toRefs(props)
+		const { modelValue, type, showIcon } = toRefs(props)
 
-		// Two-way binding for value
-		const modelValue = ref(value.value)
-		function updateValue(newValue: any) {
-			emit('update:value', newValue)
+		// Emit updates to modelValue when the input changes
+		function updateValue(event) {
+			emit('update:modelValue', event.target.value)
 		}
 
 		return {
@@ -41,11 +40,12 @@ export default defineComponent({
 		<div class="displayContents">
 			<label>
 				<span v-if="showIcon" class="icon"><span class="i18n-text">X</span></span>
-				<input :type="type" spellcheck="false" dir="auto" v-model="modelValue" />
+				<input :type="type" spellcheck="false" dir="auto" :value="modelValue" @input="updateValue" />
 			</label>
 		</div>
 	</div>
 </template>
+
 
 <style scoped>
 .displayContents {
