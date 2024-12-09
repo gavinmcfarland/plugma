@@ -30,7 +30,8 @@ jobs:
 
             - name: Simulate CLI prompts
               run: |
-                  node -e "
+                  echo "Running create-plugma CLI..."
+                  node <<EOF
                   const { spawn } = require('child_process');
                   const isWindows = process.platform === 'win32';
                   const cliCommand = isWindows ? 'npx.cmd' : 'npx';
@@ -59,8 +60,7 @@ jobs:
                           console.log('CLI process completed successfully.');
                       }
                   });
-                  "
-              shell: node
+                  EOF
 
             - name: Confirm working directory after project creation
               run: |
