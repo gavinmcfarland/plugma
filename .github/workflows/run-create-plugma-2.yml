@@ -1,0 +1,60 @@
+name: Run create-plugma 2
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+    workflow_dispatch: # Allows manual triggering
+
+jobs:
+    test-cli:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '18'
+
+            - name: Install dependencies for CLI
+              run: |
+                  cd packages/create-plugma  # Navigate to the subfolder containing your CLI
+                  npm install
+
+            - name: Install expect
+              run: sudo apt-get install -y expect
+
+            - name: Run create-plugma CLI
+              run: |
+                  expect <<EOF
+                  spawn npx create-plugma@latest
+                  expect "Select a framework:"
+                  send "\r"
+                  expect "Select a variant:"
+                  send "\r"
+                  expect "Project name:"
+                  send "TestProject\r"
+                  expect "Next:"
+                  send "\r"
+                  EOF
+
+            - name: Change into project directory
+              run: |
+                  cd TestProject
+
+            - name: Install project dependencies
+              run: |
+                  npm install
+
+            - name: Build the project
+              run: |
+                  npm run build
+
+            - name: Verify Build
+              run: |
+                  test -f dist/main.js && echo "Build succeeded" || (echo "Build failed" && exit 1)
+              working-directory: TestProject
