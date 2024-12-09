@@ -27,23 +27,21 @@ jobs:
               run: |
                   npm install create-plugma@latest
 
+            - name: Install execa
+              run: npm install execa
+
             - name: Write simulate-cli.js
               run: |
-                  echo "const { spawn } = require('child_process');" > simulate-cli.js
-                  echo "const isWindows = process.platform === 'win32';" >> simulate-cli.js
-                  echo "const cliCommand = isWindows ? 'npx.cmd' : 'npx';" >> simulate-cli.js
-                  echo "const child = spawn(cliCommand, ['create-plugma@latest'], { stdio: ['pipe', process.stdout, process.stderr], shell: isWindows });" >> simulate-cli.js
-                  echo "child.stdout.on('data', (data) => {" >> simulate-cli.js
-                  echo "  const output = data.toString();" >> simulate-cli.js
-                  echo "  console.log(output);" >> simulate-cli.js
-                  echo "  if (output.includes('Select a framework:')) { console.log('Responding to framework prompt...'); child.stdin.write('\\n'); }" >> simulate-cli.js
-                  echo "  if (output.includes('Select a variant:')) { console.log('Responding to variant prompt...'); child.stdin.write('\\n'); }" >> simulate-cli.js
-                  echo "  if (output.includes('Project name:')) { console.log('Entering project name...'); child.stdin.write('TestProject\\n'); }" >> simulate-cli.js
-                  echo "  if (output.includes('Next:')) { console.log('Confirming setup...'); child.stdin.write('\\n'); }" >> simulate-cli.js
-                  echo "});" >> simulate-cli.js
-                  echo "child.on('close', (code) => {" >> simulate-cli.js
-                  echo "  if (code !== 0) { console.error('CLI process exited with code:', code); process.exit(code); } else { console.log('CLI process completed successfully.'); }" >> simulate-cli.js
-                  echo "});" >> simulate-cli.js
+                  echo "const execa = require('execa');" > simulate-cli.js
+                  echo "(async () => {" >> simulate-cli.js
+                  echo "  try {" >> simulate-cli.js
+                  echo "    const { stdout } = await execa('npx', ['create-plugma@latest'], { input: '\\n\\nTestProject\\n\\n' });" >> simulate-cli.js
+                  echo "    console.log(stdout);" >> simulate-cli.js
+                  echo "  } catch (error) {" >> simulate-cli.js
+                  echo "    console.error('Error running create-plugma CLI:', error);" >> simulate-cli.js
+                  echo "    process.exit(1);" >> simulate-cli.js
+                  echo "  }" >> simulate-cli.js
+                  echo "})();" >> simulate-cli.js
 
             - name: Run simulate-cli.js
               run: node simulate-cli.js
