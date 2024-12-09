@@ -33,7 +33,7 @@ jobs:
                   echo "const { spawn } = require('child_process');" > simulate-cli.js
                   echo "const isWindows = process.platform === 'win32';" >> simulate-cli.js
                   echo "const cliCommand = isWindows ? 'npx.cmd' : 'npx';" >> simulate-cli.js
-                  echo "const child = spawn(cliCommand, ['create-plugma@latest'], { stdio: 'pipe' });" >> simulate-cli.js
+                  echo "const child = spawn(cliCommand, ['create-plugma@latest'], { stdio: 'pipe', shell: isWindows });" >> simulate-cli.js
                   echo "child.stdout.on('data', (data) => {" >> simulate-cli.js
                   echo "  const output = data.toString();" >> simulate-cli.js
                   echo "  console.log(output);" >> simulate-cli.js
@@ -55,8 +55,7 @@ jobs:
                   echo "});" >> simulate-cli.js
 
             - name: Simulate CLI prompts
-              run: |
-                  node simulate-cli.js
+              run: node simulate-cli.js
 
             - name: Confirm working directory after project creation
               run: |
