@@ -1,4 +1,4 @@
-name: Run create-plugma 2
+name: Run create-plugma
 
 on:
     push:
@@ -46,13 +46,22 @@ jobs:
               run: |
                   cd TestProject
 
+            - name: Display package.json scripts
+              run: |
+                  echo "Scripts found in package.json:"
+                  jq '.scripts' package.json || echo "Failed to parse package.json"
+
             - name: Install project dependencies
               run: |
                   npm install
 
             - name: Build the project
               run: |
-                  npm run build
+                  if jq -e '.scripts.build' package.json > /dev/null; then
+                    npm run build
+                  else
+                    echo "Build script not found in package.json" && exit 1
+                  fi
 
             - name: Verify Build
               run: |
