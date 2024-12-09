@@ -32,8 +32,8 @@ jobs:
 
             - name: Write simulate-cli.js
               run: |
-                  echo "const execa = require('execa');" > simulate-cli.js
-                  echo "(async () => {" >> simulate-cli.js
+                  echo "(async () => {" > simulate-cli.js
+                  echo "  const execa = (await import('execa')).default;" >> simulate-cli.js
                   echo "  try {" >> simulate-cli.js
                   echo "    const { stdout } = await execa('npx', ['create-plugma@latest'], { input: '\\n\\nTestProject\\n\\n' });" >> simulate-cli.js
                   echo "    console.log(stdout);" >> simulate-cli.js
