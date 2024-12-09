@@ -28,39 +28,35 @@ jobs:
                   cd packages/create-plugma
                   npm install
 
+            - name: Write Node.js script for CLI prompts
+              run: |
+                  echo "const { spawn } = require('child_process');" > simulate-cli.js
+                  echo "const isWindows = process.platform === 'win32';" >> simulate-cli.js
+                  echo "const cliCommand = isWindows ? 'npx.cmd' : 'npx';" >> simulate-cli.js
+                  echo "const child = spawn(cliCommand, ['create-plugma@latest'], { stdio: 'pipe' });" >> simulate-cli.js
+                  echo "child.stdout.on('data', (data) => {" >> simulate-cli.js
+                  echo "  const output = data.toString();" >> simulate-cli.js
+                  echo "  console.log(output);" >> simulate-cli.js
+                  echo "  if (output.includes('Select a framework:')) child.stdin.write('\\n');" >> simulate-cli.js
+                  echo "  if (output.includes('Select a variant:')) child.stdin.write('\\n');" >> simulate-cli.js
+                  echo "  if (output.includes('Project name:')) child.stdin.write('TestProject\\n');" >> simulate-cli.js
+                  echo "  if (output.includes('Next:')) child.stdin.write('\\n');" >> simulate-cli.js
+                  echo "});" >> simulate-cli.js
+                  echo "child.stderr.on('data', (data) => {" >> simulate-cli.js
+                  echo "  console.error(data.toString());" >> simulate-cli.js
+                  echo "});" >> simulate-cli.js
+                  echo "child.on('close', (code) => {" >> simulate-cli.js
+                  echo "  if (code !== 0) {" >> simulate-cli.js
+                  echo "    console.error('CLI process exited with code:', code);" >> simulate-cli.js
+                  echo "    process.exit(code);" >> simulate-cli.js
+                  echo "  } else {" >> simulate-cli.js
+                  echo "    console.log('CLI process completed successfully.');" >> simulate-cli.js
+                  echo "  }" >> simulate-cli.js
+                  echo "});" >> simulate-cli.js
+
             - name: Simulate CLI prompts
               run: |
-                  echo "Running create-plugma CLI..."
-                  node <<EOF
-                  const { spawn } = require('child_process');
-                  const isWindows = process.platform === 'win32';
-                  const cliCommand = isWindows ? 'npx.cmd' : 'npx';
-
-                  const child = spawn(cliCommand, ['create-plugma@latest'], { stdio: 'pipe' });
-
-                  child.stdout.on('data', (data) => {
-                      const output = data.toString();
-                      console.log(output);
-
-                      if (output.includes('Select a framework:')) child.stdin.write('\n'); // Press Enter
-                      if (output.includes('Select a variant:')) child.stdin.write('\n');   // Press Enter
-                      if (output.includes('Project name:')) child.stdin.write('TestProject\n');
-                      if (output.includes('Next:')) child.stdin.write('\n');             // Press Enter
-                  });
-
-                  child.stderr.on('data', (data) => {
-                      console.error(data.toString());
-                  });
-
-                  child.on('close', (code) => {
-                      if (code !== 0) {
-                          console.error('CLI process exited with code:', code);
-                          process.exit(code);
-                      } else {
-                          console.log('CLI process completed successfully.');
-                      }
-                  });
-                  EOF
+                  node simulate-cli.js
 
             - name: Confirm working directory after project creation
               run: |
@@ -68,7 +64,6 @@ jobs:
                   pwd
                   echo "Contents of the current directory:"
                   ls -al
-              shell: bash
 
             - name: Display package.json contents
               run: |
