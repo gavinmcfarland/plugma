@@ -1,4 +1,4 @@
-name: Run create-plugma
+name: Run create-plugma 2
 
 on:
     push:
@@ -41,6 +41,11 @@ jobs:
                   expect "Next:"
                   send "\r"
                   EOF
+
+            - name: Check if project directory was created
+              run: |
+                  test -d TestProject  # Confirm the project directory was created
+                  test -f TestProject/package.json  # Check for package.json as an indicator of successful setup
 
             - name: Change into project directory
               run: |
