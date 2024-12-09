@@ -28,23 +28,39 @@ jobs:
                   cd packages/create-plugma
                   npm install
 
-            - name: Install expect
-              if: runner.os == 'Linux'
-              run: sudo apt-get install -y expect
-
-            - name: Run create-plugma CLI
+            - name: Simulate CLI prompts
               run: |
-                  expect <<EOF
-                  spawn npx create-plugma@latest
-                  expect "Select a framework:"
-                  send "\r"
-                  expect "Select a variant:"
-                  send "\r"
-                  expect "Project name:"
-                  send "TestProject\r"
-                  expect "Next:"
-                  send "\r"
-                  EOF
+                  node -e "
+                  const { spawn } = require('child_process');
+                  const isWindows = process.platform === 'win32';
+                  const cliCommand = isWindows ? 'npx.cmd' : 'npx';
+
+                  const child = spawn(cliCommand, ['create-plugma@latest'], { stdio: 'pipe' });
+
+                  child.stdout.on('data', (data) => {
+                      const output = data.toString();
+                      console.log(output);
+
+                      if (output.includes('Select a framework:')) child.stdin.write('\n'); // Press Enter
+                      if (output.includes('Select a variant:')) child.stdin.write('\n');   // Press Enter
+                      if (output.includes('Project name:')) child.stdin.write('TestProject\n');
+                      if (output.includes('Next:')) child.stdin.write('\n');             // Press Enter
+                  });
+
+                  child.stderr.on('data', (data) => {
+                      console.error(data.toString());
+                  });
+
+                  child.on('close', (code) => {
+                      if (code !== 0) {
+                          console.error('CLI process exited with code:', code);
+                          process.exit(code);
+                      } else {
+                          console.log('CLI process completed successfully.');
+                      }
+                  });
+                  "
+              shell: node
 
             - name: Confirm working directory after project creation
               run: |
@@ -52,6 +68,7 @@ jobs:
                   pwd
                   echo "Contents of the current directory:"
                   ls -al
+              shell: bash
 
             - name: Display package.json contents
               run: |
