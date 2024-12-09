@@ -23,14 +23,12 @@ jobs:
               with:
                   node-version: '18'
 
-            - name: Install dependencies for CLI
+            - name: Install create-plugma locally
               run: |
-                  cd packages/create-plugma
-                  npm install
+                  npm install create-plugma@latest
 
-            - name: Simulate CLI prompts
+            - name: Write simulate-cli.js
               run: |
-                  echo "Writing simulate-cli.js..."
                   echo "const { spawn } = require('child_process');" > simulate-cli.js
                   echo "const isWindows = process.platform === 'win32';" >> simulate-cli.js
                   echo "const cliCommand = isWindows ? 'npx.cmd' : 'npx';" >> simulate-cli.js
@@ -38,10 +36,10 @@ jobs:
                   echo "child.stdout.on('data', (data) => {" >> simulate-cli.js
                   echo "  const output = data.toString();" >> simulate-cli.js
                   echo "  console.log(output);" >> simulate-cli.js
-                  echo "  if (output.includes('Select a framework:')) child.stdin.write('\\n');" >> simulate-cli.js
-                  echo "  if (output.includes('Select a variant:')) child.stdin.write('\\n');" >> simulate-cli.js
-                  echo "  if (output.includes('Project name:')) child.stdin.write('TestProject\\n');" >> simulate-cli.js
-                  echo "  if (output.includes('Next:')) child.stdin.write('\\n');" >> simulate-cli.js
+                  echo "  if (output.includes('Select a framework:')) { console.log('Responding to framework prompt...'); child.stdin.write('\\n'); }" >> simulate-cli.js
+                  echo "  if (output.includes('Select a variant:')) { console.log('Responding to variant prompt...'); child.stdin.write('\\n'); }" >> simulate-cli.js
+                  echo "  if (output.includes('Project name:')) { console.log('Entering project name...'); child.stdin.write('TestProject\\n'); }" >> simulate-cli.js
+                  echo "  if (output.includes('Next:')) { console.log('Confirming setup...'); child.stdin.write('\\n'); }" >> simulate-cli.js
                   echo "});" >> simulate-cli.js
                   echo "child.stderr.on('data', (data) => { console.error(data.toString()); });" >> simulate-cli.js
                   echo "child.on('close', (code) => {" >> simulate-cli.js
