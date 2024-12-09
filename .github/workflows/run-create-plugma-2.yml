@@ -1,4 +1,4 @@
-name: Run create-plugma 2
+name: Run create-plugma
 
 on:
     push:
@@ -42,16 +42,7 @@ jobs:
                   send "\r"
                   EOF
 
-            - name: Check if project directory was created
-              run: |
-                  test -d TestProject  # Confirm the project directory was created
-                  test -f TestProject/package.json  # Check for package.json as an indicator of successful setup
-
-            - name: Change into project directory
-              run: |
-                  cd TestProject
-
-            - name: Confirm working directory
+            - name: Confirm working directory after project creation
               run: |
                   echo "Current working directory:"
                   pwd
@@ -62,18 +53,17 @@ jobs:
               run: |
                   echo "Contents of package.json:"
                   cat package.json || echo "Failed to read package.json"
+              working-directory: TestProject
 
             - name: Install project dependencies
               run: |
                   npm install
+              working-directory: TestProject
 
             - name: Build the project
               run: |
-                  if jq -e '.scripts.build' package.json > /dev/null; then
-                    npm run build
-                  else
-                    echo "Build script not found in package.json" && exit 1
-                  fi
+                  npm run build
+              working-directory: TestProject
 
             - name: Verify Build
               run: |
