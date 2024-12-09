@@ -1,4 +1,4 @@
-name: Run create-plugma
+name: Run create-plugma on multiple OS
 
 on:
     push:
@@ -9,7 +9,10 @@ on:
 
 jobs:
     test-cli:
-        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                os: [ubuntu-latest, windows-latest] # Test on Ubuntu and Windows
+        runs-on: ${{ matrix.os }}
 
         steps:
             - name: Checkout code
@@ -22,14 +25,19 @@ jobs:
 
             - name: Install dependencies for CLI
               run: |
-                  cd packages/create-plugma  # Navigate to the subfolder containing your CLI
+                  cd packages/create-plugma
                   npm install
 
             - name: Install expect
+              if: runner.os == 'Linux'
               run: sudo apt-get install -y expect
 
             - name: Run create-plugma CLI
               run: |
+                  if [ "${{ runner.os }}" == "Windows" ]; then
+                      echo "Skipping interactive CLI test on Windows"
+                      exit 0
+                  fi
                   expect <<EOF
                   spawn npx create-plugma@latest
                   expect "Select a framework:"
