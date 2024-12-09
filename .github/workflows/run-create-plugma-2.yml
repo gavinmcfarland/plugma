@@ -51,10 +51,10 @@ jobs:
               run: |
                   cd TestProject
 
-            - name: Display package.json scripts
+            - name: Display package.json contents
               run: |
-                  echo "Scripts found in package.json:"
-                  jq '.scripts' package.json || echo "Failed to parse package.json"
+                  echo "Contents of package.json:"
+                  cat package.json || echo "Failed to read package.json"
 
             - name: Install project dependencies
               run: |
