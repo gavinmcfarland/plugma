@@ -28,27 +28,23 @@ jobs:
                   cd packages/create-plugma
                   npm install
 
-            - name: Simulate CLI prompts
+            - name: Install expect
+              if: runner.os == 'Linux'
+              run: sudo apt-get install -y expect
+
+            - name: Run create-plugma CLI
               run: |
-                  node -e "
-                  const { spawn } = require('child_process');
-                  const child = spawn('npx', ['create-plugma@latest'], { stdio: 'pipe' });
-
-                  child.stdout.on('data', (data) => {
-                      const output = data.toString();
-                      console.log(output);
-
-                      if (output.includes('Select a framework:')) child.stdin.write('\n');
-                      if (output.includes('Select a variant:')) child.stdin.write('\n');
-                      if (output.includes('Project name:')) child.stdin.write('TestProject\n');
-                      if (output.includes('Next:')) child.stdin.write('\n');
-                  });
-
-                  child.on('close', (code) => {
-                      process.exit(code);
-                  });
-                  "
-              shell: node
+                  expect <<EOF
+                  spawn npx create-plugma@latest
+                  expect "Select a framework:"
+                  send "\r"
+                  expect "Select a variant:"
+                  send "\r"
+                  expect "Project name:"
+                  send "TestProject\r"
+                  expect "Next:"
+                  send "\r"
+                  EOF
 
             - name: Confirm working directory after project creation
               run: |
@@ -56,7 +52,6 @@ jobs:
                   pwd
                   echo "Contents of the current directory:"
                   ls -al
-              shell: bash
 
             - name: Display package.json contents
               run: |
