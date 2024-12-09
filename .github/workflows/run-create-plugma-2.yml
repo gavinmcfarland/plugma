@@ -51,6 +51,13 @@ jobs:
               run: |
                   cd TestProject
 
+            - name: Confirm working directory
+              run: |
+                  echo "Current working directory:"
+                  pwd
+                  echo "Contents of the current directory:"
+                  ls -al
+
             - name: Display package.json contents
               run: |
                   echo "Contents of package.json:"
