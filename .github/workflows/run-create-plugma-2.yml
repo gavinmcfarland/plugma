@@ -35,7 +35,7 @@ jobs:
                   echo "(async () => {" > simulate-cli.js
                   echo "  try {" >> simulate-cli.js
                   echo "    const { execa } = await import('execa');" >> simulate-cli.js
-                  echo "    const { stdout } = await execa('npm', ['create-plugma@latest'], { input: '\\n\\nTestProject\\n\\n' });" >> simulate-cli.js
+                  echo "    const { stdout } = await execa('npm', ['create plugma@latest'], { input: '\\n\\nTestProject\\n\\n' });" >> simulate-cli.js
                   echo "    console.log(stdout);" >> simulate-cli.js
                   echo "  } catch (error) {" >> simulate-cli.js
                   echo "    console.error('Error running create-plugma CLI:', error);" >> simulate-cli.js
