@@ -46,12 +46,19 @@ jobs:
             - name: Run simulate-cli.js
               run: node simulate-cli.js
 
-            - name: Confirm working directory after project creation
+            - name: Check workspace after simulate-cli.js
               run: |
-                  echo "Current working directory:"
-                  pwd
-                  echo "Contents of the current directory:"
+                  echo "Listing workspace directory after running simulate-cli.js:"
                   ls -al
+
+            - name: Verify TestProject directory
+              run: |
+                  if [ -d "TestProject" ]; then
+                    echo "TestProject directory exists.";
+                  else
+                    echo "TestProject directory not found.";
+                    exit 1;
+                  fi
 
             - name: Display package.json contents
               run: |
