@@ -24,7 +24,7 @@ jobs:
               run: |
                   $env:Path += ";C:\Program Files\Tcl\bin"
                   [Environment]::SetEnvironmentVariable("Path", $env:Path, [System.EnvironmentVariableTarget]::Machine)
-                  shell: pwsh
+              shell: pwsh
 
             - name: Run create-plugma CLI with Expect
               run: |
