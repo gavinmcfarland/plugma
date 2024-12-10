@@ -24,7 +24,7 @@ jobs:
               shell: pwsh
 
             - name: Install Tcl
-              run: choco install tcl -y
+              run: choco install activetcl -y
               shell: pwsh
 
             - name: Set up Node.js
