@@ -34,10 +34,10 @@ jobs:
               run: |
                   echo "const pty = require('node-pty');" > simulate-cli.js
                   echo "const os = require('os');" >> simulate-cli.js
-                  echo "const shell = os.platform() === 'win32' ? 'cmd.exe' : 'bash';" >> simulate-cli.js
+                  echo "const npxPath = os.platform() === 'win32' ? 'C:\\Program Files\\nodejs\\npx.cmd' : '/usr/local/bin/npx';" >> simulate-cli.js
                   echo "(async () => {" >> simulate-cli.js
                   echo "  try {" >> simulate-cli.js
-                  echo "    const cli = pty.spawn('npx', ['create-plugma@latest'], { name: 'xterm-color', cols: 80, rows: 30, cwd: process.cwd(), env: process.env });" >> simulate-cli.js
+                  echo "    const cli = pty.spawn(npxPath, ['create-plugma@latest'], { name: 'xterm-color', cols: 80, rows: 30, cwd: process.cwd(), env: process.env });" >> simulate-cli.js
                   echo "    const promptResponses = [" >> simulate-cli.js
                   echo "      { prompt: 'Select a framework:', response: '\\r' }," >> simulate-cli.js
                   echo "      { prompt: 'Select a variant:', response: '\\r' }," >> simulate-cli.js
@@ -58,9 +58,9 @@ jobs:
                   echo "        console.log('Unrecognized output: ' + data);" >> simulate-cli.js
                   echo "      }" >> simulate-cli.js
                   echo "    });" >> simulate-cli.js
-                  echo "    cli.onExit((code) => {" >> simulate-cli.js
-                  echo "      console.log('CLI process exited with code: ' + code.exitCode);" >> simulate-cli.js
-                  echo "      if (code.exitCode !== 0) { process.exit(1); }" >> simulate-cli.js
+                  echo "    cli.onExit(({ exitCode }) => {" >> simulate-cli.js
+                  echo "      console.log('CLI process exited with code: ' + exitCode);" >> simulate-cli.js
+                  echo "      if (exitCode !== 0) { process.exit(1); }" >> simulate-cli.js
                   echo "    });" >> simulate-cli.js
                   echo "  } catch (error) {" >> simulate-cli.js
                   echo "    console.error('Error running create-plugma CLI: ' + error);" >> simulate-cli.js
