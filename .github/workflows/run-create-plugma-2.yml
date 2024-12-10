@@ -34,21 +34,16 @@ jobs:
               run: |
                   expect <<EOF
                   log_user 1
-                  set timeout 50
+                  set timeout 20
                   spawn npx create-plugma
+                  set step 0
                   expect {
-                    "Select a framework:" {
-                      send "\r"
-                    }
-                  }
-                  expect {
-                    "Select a variant:" {
-                      send "\r"
-                    }
-                  }
-                  expect {
-                    "Project name:" {
-                      send "TestProject\r"
+                    -re . {
+                      incr step
+                      if {$step == 1} { send "\r" }  # Select default for first prompt
+                      if {$step == 2} { send "\r" }  # Select default for second prompt
+                      if {$step == 3} { send "TestProject\r" }  # Send project name for third prompt
+                      exp_continue
                     }
                   }
                   expect eof
