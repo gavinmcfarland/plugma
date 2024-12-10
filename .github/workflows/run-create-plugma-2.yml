@@ -37,10 +37,10 @@ jobs:
                   echo "  try {" >> simulate-cli.js
                   echo "    const cli = spawn('npx', ['create-plugma@latest'], { stdio: ['pipe', 'pipe', 'pipe'], shell: true });" >> simulate-cli.js
                   echo "    const promptResponses = [" >> simulate-cli.js
-                  echo "      { prompt: 'Select a framework:', response: '\\n' }," >> simulate-cli.js
-                  echo "      { prompt: 'Select a variant:', response: '\\n' }," >> simulate-cli.js
-                  echo "      { prompt: 'Project name:', response: 'TestProject\\n' }," >> simulate-cli.js
-                  echo "      { prompt: 'Next:', response: '\\n' }," >> simulate-cli.js
+                  echo "      { prompt: 'Select a framework:', response: '\\r\\n' }," >> simulate-cli.js
+                  echo "      { prompt: 'Select a variant:', response: '\\r\\n' }," >> simulate-cli.js
+                  echo "      { prompt: 'Project name:', response: 'TestProject\\r\\n' }," >> simulate-cli.js
+                  echo "      { prompt: 'Next:', response: '\\r\\n' }," >> simulate-cli.js
                   echo "    ];" >> simulate-cli.js
                   echo "    let currentPrompt = 0;" >> simulate-cli.js
                   echo "    cli.stdout.on('data', function (data) {" >> simulate-cli.js
@@ -49,9 +49,11 @@ jobs:
                   echo "      if (currentPrompt < promptResponses.length) {" >> simulate-cli.js
                   echo "        const { prompt, response } = promptResponses[currentPrompt];" >> simulate-cli.js
                   echo "        if (output.includes(prompt)) {" >> simulate-cli.js
-                  echo "          console.log('Sending response: ' + response.trim() || '<Enter>');" >> simulate-cli.js
-                  echo "          cli.stdin.write(response);" >> simulate-cli.js
-                  echo "          currentPrompt++;" >> simulate-cli.js
+                  echo "          setTimeout(() => {" >> simulate-cli.js
+                  echo "            console.log('Sending response: ' + (response.trim() || '<Enter>'));" >> simulate-cli.js
+                  echo "            cli.stdin.write(response);" >> simulate-cli.js
+                  echo "            currentPrompt++;" >> simulate-cli.js
+                  echo "          }, 500);" >> simulate-cli.js
                   echo "        }" >> simulate-cli.js
                   echo "      } else {" >> simulate-cli.js
                   echo "        console.log('Unrecognized output: ' + output);" >> simulate-cli.js
