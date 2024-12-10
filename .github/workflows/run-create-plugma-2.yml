@@ -38,7 +38,7 @@ jobs:
                   send "TestProject\r"
                   expect "Next:"
                   EOF
-                  shell: bash
+              shell: bash
 
             - name: Check if project directory was created
               run: |
