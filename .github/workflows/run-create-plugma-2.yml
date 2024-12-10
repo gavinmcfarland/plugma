@@ -30,17 +30,20 @@ jobs:
               run: expect -v
               shell: bash
 
-            - name: Run create-plugma CLI with Expect
+            - name: Debug create-plugma CLI with Expect
               run: |
                   expect <<EOF
                   log_user 1
                   set timeout 20
                   spawn npx create-plugma
-                  set inputs [list "\r" "\r" "TestProject\r"]
-                  foreach input $inputs {
-                    expect {
-                      -re . { send $input; exp_continue }
-                    }
+                  expect {
+                    -re . { send "\r"; exp_continue }  # Send Enter
+                  }
+                  expect {
+                    -re . { send "\r"; exp_continue }  # Send Enter again
+                  }
+                  expect {
+                    -re . { send "TestProject\r"; exp_continue }  # Send project name
                   }
                   expect eof
                   EOF
