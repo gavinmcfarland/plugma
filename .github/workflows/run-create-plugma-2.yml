@@ -16,17 +16,18 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v3
 
-            - name: Download ActiveTcl
+            - name: Install Cygwin and Expect
               run: |
-                  curl -LO https://downloads.activestate.com/ActiveTcl/releases/8.6.11/ActiveTcl-8.6.11.1.0000-MSWin32-x64.exe
+                  curl -LO https://cygwin.com/setup-x86_64.exe
+                  ./setup-x86_64.exe --quiet-mode --packages expect
 
-            - name: Install ActiveTcl
+            - name: Add Cygwin to PATH
               run: |
-                  ./ActiveTcl-8.6.11.1.0000-MSWin32-x64.exe /quiet /norestart
+                  echo "C:\cygwin64\bin" >> $env:GITHUB_PATH
 
-            - name: Add Tcl to PATH
-              run: |
-                  echo "C:\Tcl\bin" >> $env:GITHUB_PATH
+            - name: Verify Expect Installation
+              run: expect -v
+              shell: bash
 
             - name: Run create-plugma CLI with Expect
               run: |
