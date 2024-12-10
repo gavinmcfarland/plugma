@@ -40,7 +40,7 @@ jobs:
                   echo "    console.log('Starting CLI prompts...');" >> simulate-cli.js
                   echo "    for (const response of inputResponses) {" >> simulate-cli.js
                   echo "      console.log('Sending response: ' + (response.trim() || '<Enter>'));" >> simulate-cli.js
-                  echo "      await new Promise((resolve) => setTimeout(resolve, 1500));" >> simulate-cli.js
+                  echo "      await new Promise((resolve) => setTimeout(resolve, 2000));" >> simulate-cli.js
                   echo "      cli.stdin.write(response);" >> simulate-cli.js
                   echo "    }" >> simulate-cli.js
                   echo "    cli.stdin.end();" >> simulate-cli.js
