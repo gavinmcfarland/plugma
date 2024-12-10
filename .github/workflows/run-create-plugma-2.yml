@@ -32,9 +32,9 @@ jobs:
 
             - name: Write simulate-cli.js
               run: |
-                  echo "import { execa } from 'execa';" > simulate-cli.js
-                  echo "(async () => {" >> simulate-cli.js
+                  echo "(async () => {" > simulate-cli.js
                   echo "  try {" >> simulate-cli.js
+                  echo "    const { execa } = await import('execa');" >> simulate-cli.js
                   echo "    const cli = execa('npx', ['create-plugma@latest'], { stdin: 'pipe', stdout: process.stdout, stderr: process.stderr });" >> simulate-cli.js
                   echo "    const inputResponses = ['\\n', '\\n', 'TestProject\\n', '\\n'];" >> simulate-cli.js
                   echo "    for (const response of inputResponses) {" >> simulate-cli.js
