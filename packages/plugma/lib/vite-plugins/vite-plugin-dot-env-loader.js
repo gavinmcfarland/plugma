@@ -33,6 +33,9 @@ export default function dotEnvLoader(options = {}) {
 
 		const env = { ...process.env };
 
+		delete env['CommonProgramFiles(x86)'];
+		delete env['ProgramFiles(x86)'];
+
 		envFiles.forEach((file) => {
 			if (fs.existsSync(file)) {
 				const content = fs.readFileSync(file, 'utf-8');
