@@ -53,10 +53,13 @@ jobs:
             - name: Run simulate-cli.js
               run: node simulate-cli.js
 
-            - name: Check workspace after simulate-cli.js
+            - name: List workspace contents
               run: |
-                  echo "Listing workspace directory after running simulate-cli.js:"
-                  ls -al
+                  if [[ "$RUNNER_OS" == "Windows" ]]; then
+                    dir
+                  else
+                    ls -la
+                  fi
 
             - name: Verify TestProject directory
               run: |
