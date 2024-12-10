@@ -36,10 +36,10 @@ jobs:
                   log_user 1
                   set timeout 20
                   spawn npx create-plugma
-                  set inputs [list "\r" "\r" "TestProject\r"]  # Proper Tcl list syntax
+                  set inputs [list "\r" "\r" "TestProject\r"]
                   foreach input $inputs {
                     expect {
-                      -re . { send $input; exp_continue }  # Match any output and send the input
+                      -re . { send $input; exp_continue }
                     }
                   }
                   expect eof
