@@ -40,13 +40,13 @@ jobs:
                   expect <<EOF
                   spawn npx create-plugma@latest
                   expect "Select a framework:"
-                  send "\r"    # Press Enter for the default framework (React)
+                  send "\r"
                   expect "Select a variant:"
-                  send "\r"    # Press Enter for the default variant
+                  send "\r"
                   expect "Project name:"
-                  send "TestProject\r"  # Type "TestProject" and press Enter
+                  send "TestProject\r"
                   expect "Next:"
-                  send "\r"    # Press Enter to confirm
+                  send "\r"
                   expect eof
                   EOF
 
