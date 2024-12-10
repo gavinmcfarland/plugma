@@ -32,25 +32,25 @@ jobs:
 
             - name: Write simulate-cli.js
               run: |
-                  echo "(async () => {" > simulate-cli.js
-                  echo "  try {" >> simulate-cli.js
-                  echo "    const { execa } = await import('execa');" >> simulate-cli.js
-                  echo "    const cli = execa('npx', ['create-plugma@latest'], { stdin: 'pipe', stdout: process.stdout, stderr: process.stderr });" >> simulate-cli.js
-                  echo "    const inputResponses = ['\\n', '\\n', 'TestProject\\n', '\\n'];" >> simulate-cli.js
-                  echo "    console.log('Starting CLI prompts...');" >> simulate-cli.js
-                  echo "    for (const response of inputResponses) {" >> simulate-cli.js
-                  echo "      console.log(`Sending response: ${response.trim() || '<Enter>'}`);" >> simulate-cli.js
-                  echo "      await new Promise((resolve) => setTimeout(resolve, 500));" >> simulate-cli.js
-                  echo "      cli.stdin.write(response);" >> simulate-cli.js
-                  echo "    }" >> simulate-cli.js
-                  echo "    cli.stdin.end();" >> simulate-cli.js
-                  echo "    const { stdout } = await cli;" >> simulate-cli.js
-                  echo "    console.log('CLI completed successfully:', stdout);" >> simulate-cli.js
-                  echo "  } catch (error) {" >> simulate-cli.js
-                  echo "    console.error('Error running create-plugma CLI:', error);" >> simulate-cli.js
-                  echo "    process.exit(1);" >> simulate-cli.js
-                  echo "  }" >> simulate-cli.js
-                  echo "})();" >> simulate-cli.js
+                  printf "(async () => {\n" > simulate-cli.js
+                  printf "  try {\n" >> simulate-cli.js
+                  printf "    const { execa } = await import('execa');\n" >> simulate-cli.js
+                  printf "    const cli = execa('npx', ['create-plugma@latest'], { stdin: 'pipe', stdout: process.stdout, stderr: process.stderr });\n" >> simulate-cli.js
+                  printf "    const inputResponses = ['\\\\n', '\\\\n', 'TestProject\\\\n', '\\\\n'];\n" >> simulate-cli.js
+                  printf "    console.log('Starting CLI prompts...');\n" >> simulate-cli.js
+                  printf "    for (const response of inputResponses) {\n" >> simulate-cli.js
+                  printf "      console.log(\`Sending response: \${response.trim() || '<Enter>'}\`);\n" >> simulate-cli.js
+                  printf "      await new Promise((resolve) => setTimeout(resolve, 500));\n" >> simulate-cli.js
+                  printf "      cli.stdin.write(response);\n" >> simulate-cli.js
+                  printf "    }\n" >> simulate-cli.js
+                  printf "    cli.stdin.end();\n" >> simulate-cli.js
+                  printf "    const { stdout } = await cli;\n" >> simulate-cli.js
+                  printf "    console.log('CLI completed successfully:', stdout);\n" >> simulate-cli.js
+                  printf "  } catch (error) {\n" >> simulate-cli.js
+                  printf "    console.error('Error running create-plugma CLI:', error);\n" >> simulate-cli.js
+                  printf "    process.exit(1);\n" >> simulate-cli.js
+                  printf "  }\n" >> simulate-cli.js
+                  printf "})();\n" >> simulate-cli.js
 
             - name: Run simulate-cli.js
               run: node simulate-cli.js
