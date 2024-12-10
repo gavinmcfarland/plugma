@@ -27,29 +27,33 @@ jobs:
               run: |
                   npm install create-plugma@latest
 
-            - name: Install expect
+            - name: Write simulate-cli.js
               run: |
-                  if [ "$RUNNER_OS" = "Windows" ]; then
-                    choco install expect
-                  else
-                    sudo apt-get install -y expect
-                  fi
-              shell: bash
+                  echo "const { spawn } = require('child_process');" > simulate-cli.js
+                  echo "(async () => {" >> simulate-cli.js
+                  echo "  try {" >> simulate-cli.js
+                  echo "    const cli = spawn('npx', ['create-plugma@latest'], { stdio: ['pipe', 'pipe', 'pipe'], shell: true });" >> simulate-cli.js
+                  echo "    cli.stdout.on('data', (data) => { console.log(\`STDOUT: \${data.toString()}\`); });" >> simulate-cli.js
+                  echo "    cli.stderr.on('data', (data) => { console.error(\`STDERR: \${data.toString()}\`); });" >> simulate-cli.js
+                  echo "    const responses = ['\\n', '\\n', 'TestProject\\n', '\\n'];" >> simulate-cli.js
+                  echo "    let index = 0;" >> simulate-cli.js
+                  echo "    cli.stdout.on('data', (data) => {" >> simulate-cli.js
+                  echo "      const output = data.toString();" >> simulate-cli.js
+                  echo "      console.log(\`Received: \${output}\`);" >> simulate-cli.js
+                  echo "      if (index < responses.length) { cli.stdin.write(responses[index]); index++; }" >> simulate-cli.js
+                  echo "    });" >> simulate-cli.js
+                  echo "    cli.on('close', (code) => {" >> simulate-cli.js
+                  echo "      console.log(\`CLI process exited with code: \${code}\`);" >> simulate-cli.js
+                  echo "      if (code !== 0) { process.exit(1); }" >> simulate-cli.js
+                  echo "    });" >> simulate-cli.js
+                  echo "  } catch (error) {" >> simulate-cli.js
+                  echo "    console.error('Error running create-plugma CLI:', error);" >> simulate-cli.js
+                  echo "    process.exit(1);" >> simulate-cli.js
+                  echo "  }" >> simulate-cli.js
+                  echo "})();" >> simulate-cli.js
 
-            - name: Simulate CLI Prompts
-              run: |
-                  expect <<EOF
-                  spawn npx create-plugma@latest
-                  expect "Select a framework:"
-                  send "\r"
-                  expect "Select a variant:"
-                  send "\r"
-                  expect "Project name:"
-                  send "TestProject\r"
-                  expect "Next:"
-                  send "\r"
-                  expect eof
-                  EOF
+            - name: Run simulate-cli.js
+              run: node simulate-cli.js
 
             - name: Verify TestProject directory
               run: |
