@@ -16,10 +16,11 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v3
 
-            - name: Install Cygwin and Expect
+            - name: Install Cygwin and Expect with Admin Privileges
+              shell: pwsh
               run: |
                   curl -LO https://cygwin.com/setup-x86_64.exe
-                  ./setup-x86_64.exe --quiet-mode --root C:\cygwin64 --local-package-dir C:\cygwin64\packages --site http://mirrors.kernel.org/sourceware/cygwin/ --packages expect
+                  Start-Process -FilePath ./setup-x86_64.exe -ArgumentList '--quiet-mode --root C:\cygwin64 --local-package-dir C:\cygwin64\packages --site http://mirrors.kernel.org/sourceware/cygwin/ --packages expect' -Verb RunAs -Wait
 
             - name: Add Cygwin to PATH
               run: |
