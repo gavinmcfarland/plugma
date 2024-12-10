@@ -16,15 +16,14 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v3
 
-            - name: Install Expect via Chocolatey
-              shell: pwsh
-              run: choco install activetcl -y
-
-            - name: Add Tcl to PATH
-              shell: pwsh
+            - name: Install Cygwin and Expect
               run: |
-                  $env:Path += ";C:\Program Files\ActiveTcl\bin"
-                  [Environment]::SetEnvironmentVariable("Path", $env:Path, [System.EnvironmentVariableTarget]::Machine)
+                  curl -LO https://cygwin.com/setup-x86_64.exe
+                  ./setup-x86_64.exe --quiet-mode --packages expect
+
+            - name: Add Cygwin to PATH
+              run: |
+                  echo "C:\cygwin64\bin" >> $env:GITHUB_PATH
 
             - name: Run create-plugma CLI with Expect
               run: |
