@@ -27,46 +27,40 @@ jobs:
               run: |
                   npm install create-plugma@latest
 
-            - name: Install execa
-              run: npm install execa
+            - name: Install dependencies for node-pty
+              run: npm install node-pty
 
             - name: Write simulate-cli.js
               run: |
-                  echo "const { spawn } = require('child_process');" > simulate-cli.js
+                  echo "const pty = require('node-pty');" > simulate-cli.js
+                  echo "const os = require('os');" >> simulate-cli.js
+                  echo "const shell = os.platform() === 'win32' ? 'cmd.exe' : 'bash';" >> simulate-cli.js
                   echo "(async () => {" >> simulate-cli.js
                   echo "  try {" >> simulate-cli.js
-                  echo "    const cli = spawn('npx', ['create-plugma@latest'], { stdio: ['pipe', 'pipe', 'pipe'], shell: true });" >> simulate-cli.js
+                  echo "    const cli = pty.spawn('npx', ['create-plugma@latest'], { name: 'xterm-color', cols: 80, rows: 30, cwd: process.cwd(), env: process.env });" >> simulate-cli.js
                   echo "    const promptResponses = [" >> simulate-cli.js
-                  echo "      { prompt: 'Select a framework:', response: '\\r\\n' }," >> simulate-cli.js
-                  echo "      { prompt: 'Select a variant:', response: '\\r\\n' }," >> simulate-cli.js
-                  echo "      { prompt: 'Project name:', response: 'TestProject\\r\\n' }," >> simulate-cli.js
-                  echo "      { prompt: 'Next:', response: '\\r\\n' }," >> simulate-cli.js
+                  echo "      { prompt: 'Select a framework:', response: '\\r' }," >> simulate-cli.js
+                  echo "      { prompt: 'Select a variant:', response: '\\r' }," >> simulate-cli.js
+                  echo "      { prompt: 'Project name:', response: 'TestProject\\r' }," >> simulate-cli.js
+                  echo "      { prompt: 'Next:', response: '\\r' }," >> simulate-cli.js
                   echo "    ];" >> simulate-cli.js
                   echo "    let currentPrompt = 0;" >> simulate-cli.js
-                  echo "    cli.stdout.on('data', function (data) {" >> simulate-cli.js
-                  echo "      const output = data.toString();" >> simulate-cli.js
-                  echo "      console.log('STDOUT: ' + output);" >> simulate-cli.js
+                  echo "    cli.onData((data) => {" >> simulate-cli.js
+                  echo "      console.log('STDOUT: ' + data);" >> simulate-cli.js
                   echo "      if (currentPrompt < promptResponses.length) {" >> simulate-cli.js
                   echo "        const { prompt, response } = promptResponses[currentPrompt];" >> simulate-cli.js
-                  echo "        if (output.includes(prompt)) {" >> simulate-cli.js
-                  echo "          setTimeout(() => {" >> simulate-cli.js
-                  echo "            console.log('Sending response: ' + (response.trim() || '<Enter>'));" >> simulate-cli.js
-                  echo "            cli.stdin.write(response);" >> simulate-cli.js
-                  echo "            currentPrompt++;" >> simulate-cli.js
-                  echo "          }, 500);" >> simulate-cli.js
+                  echo "        if (data.includes(prompt)) {" >> simulate-cli.js
+                  echo "          console.log('Sending response: ' + (response.trim() || '<Enter>'));" >> simulate-cli.js
+                  echo "          cli.write(response);" >> simulate-cli.js
+                  echo "          currentPrompt++;" >> simulate-cli.js
                   echo "        }" >> simulate-cli.js
                   echo "      } else {" >> simulate-cli.js
-                  echo "        console.log('Unrecognized output: ' + output);" >> simulate-cli.js
+                  echo "        console.log('Unrecognized output: ' + data);" >> simulate-cli.js
                   echo "      }" >> simulate-cli.js
                   echo "    });" >> simulate-cli.js
-                  echo "    cli.stderr.on('data', function (data) { console.error('STDERR: ' + data.toString()); });" >> simulate-cli.js
-                  echo "    cli.on('close', function (code) {" >> simulate-cli.js
-                  echo "      console.log('CLI process exited with code: ' + code);" >> simulate-cli.js
-                  echo "      if (code !== 0) { process.exit(1); }" >> simulate-cli.js
-                  echo "    });" >> simulate-cli.js
-                  echo "    cli.on('error', function (error) {" >> simulate-cli.js
-                  echo "      console.error('Error spawning the process: ' + error);" >> simulate-cli.js
-                  echo "      process.exit(1);" >> simulate-cli.js
+                  echo "    cli.onExit((code) => {" >> simulate-cli.js
+                  echo "      console.log('CLI process exited with code: ' + code.exitCode);" >> simulate-cli.js
+                  echo "      if (code.exitCode !== 0) { process.exit(1); }" >> simulate-cli.js
                   echo "    });" >> simulate-cli.js
                   echo "  } catch (error) {" >> simulate-cli.js
                   echo "    console.error('Error running create-plugma CLI: ' + error);" >> simulate-cli.js
