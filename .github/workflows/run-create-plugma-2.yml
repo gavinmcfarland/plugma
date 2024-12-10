@@ -35,8 +35,8 @@ jobs:
                   expect <<EOF
                   log_user 1
                   set timeout 20
-                  spawn npx create-plugma
                   set step 0
+                  spawn npx create-plugma
                   expect {
                     -re . {
                       incr step
