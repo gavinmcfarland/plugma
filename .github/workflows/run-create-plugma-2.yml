@@ -29,28 +29,28 @@ jobs:
 
             - name: Write simulate-cli.js
               run: |
-                  echo "const { spawn } = require('child_process');" > simulate-cli.js
-                  echo "(async () => {" >> simulate-cli.js
-                  echo "  try {" >> simulate-cli.js
-                  echo "    const cli = spawn('npx', ['create-plugma@latest'], { stdio: ['pipe', 'pipe', 'pipe'], shell: true });" >> simulate-cli.js
-                  echo "    cli.stdout.on('data', (data) => { console.log(\`STDOUT: \${data.toString()}\`); });" >> simulate-cli.js
-                  echo "    cli.stderr.on('data', (data) => { console.error(\`STDERR: \${data.toString()}\`); });" >> simulate-cli.js
-                  echo "    const responses = ['\\n', '\\n', 'TestProject\\n', '\\n'];" >> simulate-cli.js
-                  echo "    let index = 0;" >> simulate-cli.js
-                  echo "    cli.stdout.on('data', (data) => {" >> simulate-cli.js
-                  echo "      const output = data.toString();" >> simulate-cli.js
-                  echo "      console.log(\`Received: \${output}\`);" >> simulate-cli.js
-                  echo "      if (index < responses.length) { cli.stdin.write(responses[index]); index++; }" >> simulate-cli.js
-                  echo "    });" >> simulate-cli.js
-                  echo "    cli.on('close', (code) => {" >> simulate-cli.js
-                  echo "      console.log(\`CLI process exited with code: \${code}\`);" >> simulate-cli.js
-                  echo "      if (code !== 0) { process.exit(1); }" >> simulate-cli.js
-                  echo "    });" >> simulate-cli.js
-                  echo "  } catch (error) {" >> simulate-cli.js
-                  echo "    console.error('Error running create-plugma CLI:', error);" >> simulate-cli.js
-                  echo "    process.exit(1);" >> simulate-cli.js
-                  echo "  }" >> simulate-cli.js
-                  echo "})();" >> simulate-cli.js
+                  printf "const { spawn } = require('child_process');\n" > simulate-cli.js
+                  printf "(async () => {\n" >> simulate-cli.js
+                  printf "  try {\n" >> simulate-cli.js
+                  printf "    const cli = spawn('npx', ['create-plugma@latest'], { stdio: ['pipe', 'pipe', 'pipe'], shell: true });\n" >> simulate-cli.js
+                  printf "    cli.stdout.on('data', (data) => { console.log(\`STDOUT: \${data.toString()}\`); });\n" >> simulate-cli.js
+                  printf "    cli.stderr.on('data', (data) => { console.error(\`STDERR: \${data.toString()}\`); });\n" >> simulate-cli.js
+                  printf "    const responses = ['\\n', '\\n', 'TestProject\\n', '\\n'];\n" >> simulate-cli.js
+                  printf "    let index = 0;\n" >> simulate-cli.js
+                  printf "    cli.stdout.on('data', (data) => {\n" >> simulate-cli.js
+                  printf "      const output = data.toString();\n" >> simulate-cli.js
+                  printf "      console.log(\`Received: \${output}\`);\n" >> simulate-cli.js
+                  printf "      if (index < responses.length) { cli.stdin.write(responses[index]); index++; }\n" >> simulate-cli.js
+                  printf "    });\n" >> simulate-cli.js
+                  printf "    cli.on('close', (code) => {\n" >> simulate-cli.js
+                  printf "      console.log(\`CLI process exited with code: \${code}\`);\n" >> simulate-cli.js
+                  printf "      if (code !== 0) { process.exit(1); }\n" >> simulate-cli.js
+                  printf "    });\n" >> simulate-cli.js
+                  printf "  } catch (error) {\n" >> simulate-cli.js
+                  printf "    console.error('Error running create-plugma CLI:', error);\n" >> simulate-cli.js
+                  printf "    process.exit(1);\n" >> simulate-cli.js
+                  printf "  }\n" >> simulate-cli.js
+                  printf "})();\n" >> simulate-cli.js
 
             - name: Run simulate-cli.js
               run: node simulate-cli.js
