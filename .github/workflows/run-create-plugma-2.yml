@@ -16,11 +16,13 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v3
 
-            - name: Install Chocolatey
+            - name: Fix Get-BinRoot for Chocolatey
               run: |
-                  Set-ExecutionPolicy Bypass -Scope Process -Force;
-                  [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072;
-                  iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+                  Set-Content -Path "C:\ProgramData\chocolatey\helpers\Get-BinRoot.ps1" -Value @'
+                  function Get-BinRoot {
+                      return "$env:SystemDrive\tools"
+                  }
+                  '@
               shell: pwsh
 
             - name: Install Tcl
