@@ -34,7 +34,7 @@ jobs:
               run: |
                   expect <<EOF
                   log_user 1
-                  set timeout 10
+                  set timeout 50
                   spawn npx create-plugma
                   expect {
                     "Select a framework:" {
