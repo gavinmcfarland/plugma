@@ -36,11 +36,11 @@ jobs:
                   log_user 1
                   spawn npx create-plugma
                   expect "Select a framework:"
-                  send "\r"  # Sends Enter to select the default (React)
+                  send "\r"
                   expect "Select a variant:"
-                  send "\r"  # Sends Enter to select the default option
+                  send "\r"
                   expect "Project name:"
-                  send "TestProject\r"  # Sends "TestProject" as the project name
+                  send "TestProject\r"
                   expect eof
                   EOF
               shell: bash
