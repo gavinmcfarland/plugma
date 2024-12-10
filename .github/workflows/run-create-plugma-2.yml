@@ -35,7 +35,7 @@ jobs:
                   printf "    const cli = spawn('npx', ['create-plugma@latest'], { stdio: ['pipe', 'pipe', 'pipe'], shell: true });\n" >> simulate-cli.js
                   printf "    cli.stdout.on('data', (data) => { console.log(\`STDOUT: \${data.toString()}\`); });\n" >> simulate-cli.js
                   printf "    cli.stderr.on('data', (data) => { console.error(\`STDERR: \${data.toString()}\`); });\n" >> simulate-cli.js
-                  printf "    const responses = ['\\n', '\\n', 'TestProject\\n', '\\n'];\n" >> simulate-cli.js
+                  printf "    const responses = [\"\\n\", \"\\n\", \"TestProject\\n\", \"\\n\"];\n" >> simulate-cli.js
                   printf "    let index = 0;\n" >> simulate-cli.js
                   printf "    cli.stdout.on('data', (data) => {\n" >> simulate-cli.js
                   printf "      const output = data.toString();\n" >> simulate-cli.js
