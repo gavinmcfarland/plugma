@@ -1,101 +1,79 @@
-name: Run create-plugma on multiple OS
+name: Test CLI with Expect
 
 on:
     push:
-        branches: [main]
-    pull_request:
-        branches: [main]
-    workflow_dispatch: # Allows manual triggering
+        branches:
+            - main
 
 jobs:
     test-cli:
         strategy:
             matrix:
-                os: [ubuntu-latest, windows-latest] # Test on Ubuntu and Windows
+                os: [ubuntu-latest, windows-latest]
+
         runs-on: ${{ matrix.os }}
 
         steps:
-            - name: Checkout code
+            - name: Checkout Code
               uses: actions/checkout@v3
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v3
-              with:
-                  node-version: '18'
-
-            - name: Install create-plugma locally
+            # Install dependencies based on OS
+            - name: Install Expect on Ubuntu
+              if: runner.os == 'Linux'
               run: |
-                  npm install create-plugma@latest
+                  sudo apt-get update
+                  sudo apt-get install -y expect
 
-            - name: Install dependencies for node-pty
-              run: npm install node-pty
-
-            - name: Write simulate-cli.js
+            - name: Install Tcl with Expect on Windows
+              if: runner.os == 'Windows'
               run: |
-                  echo "const pty = require('node-pty');" > simulate-cli.js
-                  echo "const os = require('os');" >> simulate-cli.js
-                  echo "const npxPath = os.platform() === 'win32' ? 'C:\\Program Files\\nodejs\\npx.cmd' : '/usr/local/bin/npx';" >> simulate-cli.js
-                  echo "(async () => {" >> simulate-cli.js
-                  echo "  try {" >> simulate-cli.js
-                  echo "    const cli = pty.spawn(npxPath, ['create-plugma@latest'], { name: 'xterm-color', cols: 80, rows: 30, cwd: process.cwd(), env: process.env });" >> simulate-cli.js
-                  echo "    const promptResponses = [" >> simulate-cli.js
-                  echo "      { prompt: 'Select a framework:', response: '\\r' }," >> simulate-cli.js
-                  echo "      { prompt: 'Select a variant:', response: '\\r' }," >> simulate-cli.js
-                  echo "      { prompt: 'Project name:', response: 'TestProject\\r' }," >> simulate-cli.js
-                  echo "      { prompt: 'Next:', response: '\\r' }," >> simulate-cli.js
-                  echo "    ];" >> simulate-cli.js
-                  echo "    let currentPrompt = 0;" >> simulate-cli.js
-                  echo "    cli.onData((data) => {" >> simulate-cli.js
-                  echo "      console.log('STDOUT: ' + data);" >> simulate-cli.js
-                  echo "      if (currentPrompt < promptResponses.length) {" >> simulate-cli.js
-                  echo "        const { prompt, response } = promptResponses[currentPrompt];" >> simulate-cli.js
-                  echo "        if (data.includes(prompt)) {" >> simulate-cli.js
-                  echo "          console.log('Sending response: ' + (response.trim() || '<Enter>'));" >> simulate-cli.js
-                  echo "          cli.write(response);" >> simulate-cli.js
-                  echo "          currentPrompt++;" >> simulate-cli.js
-                  echo "        }" >> simulate-cli.js
-                  echo "      } else {" >> simulate-cli.js
-                  echo "        console.log('Unrecognized output: ' + data);" >> simulate-cli.js
-                  echo "      }" >> simulate-cli.js
-                  echo "    });" >> simulate-cli.js
-                  echo "    cli.onExit(({ exitCode }) => {" >> simulate-cli.js
-                  echo "      console.log('CLI process exited with code: ' + exitCode);" >> simulate-cli.js
-                  echo "      if (exitCode !== 0) { process.exit(1); }" >> simulate-cli.js
-                  echo "    });" >> simulate-cli.js
-                  echo "  } catch (error) {" >> simulate-cli.js
-                  echo "    console.error('Error running create-plugma CLI: ' + error);" >> simulate-cli.js
-                  echo "    process.exit(1);" >> simulate-cli.js
-                  echo "  }" >> simulate-cli.js
-                  echo "})();" >> simulate-cli.js
+                  curl -LO https://prdownloads.sourceforge.net/tcl/tcl86.11.1-win32-x86_64-threaded.exe
+                  ./tcl86.11.1-win32-x86_64-threaded.exe /quiet /norestart
+                  echo "C:\\Tcl\\bin" >> $GITHUB_ENV
 
-            - name: Run simulate-cli.js
-              run: node simulate-cli.js
+            - name: Verify Expect Installation
+              run: expect -version
 
-            - name: Verify TestProject directory
+            # Write the Expect script dynamically
+            - name: Write simulate-cli.expect
               run: |
-                  if [ -d "TestProject" ]; then
-                    echo "TestProject directory exists.";
-                  else
-                    echo "TestProject directory not found.";
-                    exit 1;
-                  fi
+                  echo "#!/usr/bin/expect" > simulate-cli.expect
+                  echo "set timeout 30" >> simulate-cli.expect
+                  echo "spawn npx create-plugma@latest" >> simulate-cli.expect
+                  echo "expect \"Select a framework:\"" >> simulate-cli.expect
+                  echo "send \"\\r\"" >> simulate-cli.expect
+                  echo "expect \"Select a variant:\"" >> simulate-cli.expect
+                  echo "send \"\\r\"" >> simulate-cli.expect
+                  echo "expect \"Project name:\"" >> simulate-cli.expect
+                  echo "send \"TestProject\\r\"" >> simulate-cli.expect
+                  echo "expect \"Next:\"" >> simulate-cli.expect
+                  echo "send \"\\r\"" >> simulate-cli.expect
+                  echo "expect eof" >> simulate-cli.expect
 
+            # Run the Expect script
+            - name: Run simulate-cli.expect
+              run: expect simulate-cli.expect
+
+            # Display package.json contents
             - name: Display package.json contents
               run: |
                   echo "Contents of package.json:"
                   cat package.json || echo "Failed to read package.json"
               working-directory: TestProject
 
+            # Install project dependencies
             - name: Install project dependencies
               run: |
                   npm install
               working-directory: TestProject
 
+            # Build the project
             - name: Build the project
               run: |
                   npm run build
               working-directory: TestProject
 
+            # Verify Build
             - name: Verify Build
               run: |
                   test -f dist/main.js && echo "Build succeeded" || (echo "Build failed" && exit 1)
