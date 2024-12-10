@@ -50,9 +50,6 @@ jobs:
                   expect eof
                   EOF
 
-            - name: Run simulate-cli.js
-              run: node simulate-cli.js
-
             - name: Verify TestProject directory
               run: |
                   if [ -d "TestProject" ]; then
