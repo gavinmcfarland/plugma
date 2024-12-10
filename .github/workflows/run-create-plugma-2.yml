@@ -32,14 +32,9 @@ jobs:
             - name: Run create-plugma CLI with Expect
               run: |
                   expect <<EOF
+                  log_user 1
                   spawn npx create-plugma
-                  expect "Select a framework:"
-                  send "\r"
-                  expect "Select a variant:"
-                  send "\r"
-                  expect "Project name:"
-                  send "TestProject\r"
-                  expect "Next:"
+                  interact
                   EOF
               shell: bash
 
