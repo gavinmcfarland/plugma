@@ -34,22 +34,20 @@ jobs:
               run: |
                   expect <<EOF
                   log_user 1
+                  set timeout 10
                   spawn npx create-plugma
                   expect {
                     "Select a framework:" {
-                      sleep 0.5
                       send "\r"
                     }
                   }
                   expect {
                     "Select a variant:" {
-                      sleep 0.5
                       send "\r"
                     }
                   }
                   expect {
                     "Project name:" {
-                      sleep 0.5
                       send "TestProject\r"
                     }
                   }
