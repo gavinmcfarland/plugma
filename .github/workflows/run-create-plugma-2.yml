@@ -29,11 +29,12 @@ jobs:
 
             - name: Install expect
               run: |
-                  if [[ "$RUNNER_OS" == "Windows" ]]; then
-                    choco install expect
-                  else
-                    sudo apt-get install -y expect
-                  fi
+                    if [ "$RUNNER_OS" = "Windows" ]; then
+                      choco install expect
+                    else
+                      sudo apt-get install -y expect
+                    fi
+                  shell: bash
 
             - name: Simulate CLI Prompts
               run: |
