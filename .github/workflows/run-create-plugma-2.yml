@@ -20,17 +20,13 @@ jobs:
               run: choco install magicsplat-tcl-tk -y
               shell: pwsh
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v3
-              with:
-                  node-version: '18'
-
-            - name: Install dependencies
+            - name: Add Tcl to Path
               run: |
-                  cd packages/create-plugma  # Navigate to the subfolder containing your CLI
-                  npm install
+                  $env:Path += ";C:\Program Files\Tcl\bin"
+                  [Environment]::SetEnvironmentVariable("Path", $env:Path, [System.EnvironmentVariableTarget]::Machine)
+                  shell: pwsh
 
-            - name: Run create-plugma CLI
+            - name: Run create-plugma CLI with Expect
               run: |
                   expect <<EOF
                   spawn npx create-plugma
@@ -42,6 +38,7 @@ jobs:
                   send "TestProject\r"
                   expect "Next:"
                   EOF
+                  shell: bash
 
             - name: Check if project directory was created
               run: |
