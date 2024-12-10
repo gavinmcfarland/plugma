@@ -16,15 +16,15 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v3
 
-            - name: Install Tcl
-              run: choco install magicsplat-tcl-tk -y
+            - name: Install Expect via Chocolatey
               shell: pwsh
+              run: choco install activetcl -y
 
-            - name: Add Tcl to Path
-              run: |
-                  $env:Path += ";C:\Program Files\Tcl\bin"
-                  [Environment]::SetEnvironmentVariable("Path", $env:Path, [System.EnvironmentVariableTarget]::Machine)
+            - name: Add Tcl to PATH
               shell: pwsh
+              run: |
+                  $env:Path += ";C:\Program Files\ActiveTcl\bin"
+                  [Environment]::SetEnvironmentVariable("Path", $env:Path, [System.EnvironmentVariableTarget]::Machine)
 
             - name: Verify Tcl Installation
               run: |
