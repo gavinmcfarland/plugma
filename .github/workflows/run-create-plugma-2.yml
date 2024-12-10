@@ -43,23 +43,39 @@ jobs:
                   echo "      { prompt: 'Next:', response: '\\n' }," >> simulate-cli.js
                   echo "    ];" >> simulate-cli.js
                   echo "    let currentPrompt = 0;" >> simulate-cli.js
-                  echo "    cli.stdout.on('data', (data) => {" >> simulate-cli.js
+                  echo "    let timeout;" >> simulate-cli.js
+                  echo "    const resetTimeout = function () {" >> simulate-cli.js
+                  echo "      clearTimeout(timeout);" >> simulate-cli.js
+                  echo "      timeout = setTimeout(function () {" >> simulate-cli.js
+                  echo "        console.error('CLI interaction timed out.');" >> simulate-cli.js
+                  echo "        cli.kill();" >> simulate-cli.js
+                  echo "        process.exit(1);" >> simulate-cli.js
+                  echo "      }, 15000);" >> simulate-cli.js
+                  echo "    };" >> simulate-cli.js
+                  echo "    cli.stdout.on('data', function (data) {" >> simulate-cli.js
                   echo "      const output = data.toString();" >> simulate-cli.js
-                  echo "      console.log('STDOUT:' + output);" >> simulate-cli.js
-                  echo "      if (currentPrompt < promptResponses.length && output.includes(promptResponses[currentPrompt].prompt)) {" >> simulate-cli.js
-                  echo "        const response = promptResponses[currentPrompt].response;" >> simulate-cli.js
-                  echo "        console.log('Sending response:' + (response.trim() || '<Enter>'));" >> simulate-cli.js
-                  echo "        cli.stdin.write(response);" >> simulate-cli.js
-                  echo "        currentPrompt++;" >> simulate-cli.js
+                  echo "      console.log('STDOUT: ' + output);" >> simulate-cli.js
+                  echo "      resetTimeout();" >> simulate-cli.js
+                  echo "      if (currentPrompt < promptResponses.length) {" >> simulate-cli.js
+                  echo "        const currentResponse = promptResponses[currentPrompt];" >> simulate-cli.js
+                  echo "        if (output.includes(currentResponse.prompt)) {" >> simulate-cli.js
+                  echo "          console.log('Sending response: ' + (currentResponse.response.trim() || '<Enter>'));" >> simulate-cli.js
+                  echo "          cli.stdin.write(currentResponse.response);" >> simulate-cli.js
+                  echo "          currentPrompt++;" >> simulate-cli.js
+                  echo "        }" >> simulate-cli.js
+                  echo "      } else {" >> simulate-cli.js
+                  echo "        console.log('Unrecognized output: ' + output);" >> simulate-cli.js
                   echo "      }" >> simulate-cli.js
                   echo "    });" >> simulate-cli.js
-                  echo "    cli.stderr.on('data', (data) => { console.error('STDERR:' + data.toString() ); });" >> simulate-cli.js
-                  echo "    cli.on('close', (code) => {" >> simulate-cli.js
-                  echo "      console.log('CLI process exited with code:' + code);" >> simulate-cli.js
+                  echo "    cli.stderr.on('data', function (data) { console.error('STDERR: ' + data.toString()); });" >> simulate-cli.js
+                  echo "    cli.on('close', function (code) {" >> simulate-cli.js
+                  echo "      clearTimeout(timeout);" >> simulate-cli.js
+                  echo "      console.log('CLI process exited with code: ' + code);" >> simulate-cli.js
                   echo "      if (code !== 0) { process.exit(1); }" >> simulate-cli.js
                   echo "    });" >> simulate-cli.js
+                  echo "    resetTimeout();" >> simulate-cli.js
                   echo "  } catch (error) {" >> simulate-cli.js
-                  echo "    console.error('Error running create-plugma CLI:', error);" >> simulate-cli.js
+                  echo "    console.error('Error running create-plugma CLI: ' + error);" >> simulate-cli.js
                   echo "    process.exit(1);" >> simulate-cli.js
                   echo "  }" >> simulate-cli.js
                   echo "})();" >> simulate-cli.js
