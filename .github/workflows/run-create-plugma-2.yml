@@ -32,11 +32,13 @@ jobs:
 
             - name: Run create-plugma CLI with Expect
               run: |
+                  echo "Starting Expect script..."
                   expect <<EOF
                   log_user 1
                   spawn npx create-plugma
                   interact
                   EOF
+                  echo "Expect script completed."
               shell: bash
 
             - name: Display TestProject Directory Contents
