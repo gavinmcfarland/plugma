@@ -225,16 +225,18 @@ function notifyOnRebuild() {
 	};
 }
 
+function replaceBackslashInString(stringPath) {
+	return path.sep === "\\"
+		? path.resolve(stringPath).split(path.sep).join('/')
+		: stringPath
+}
+
 function writeTempFile(fileName, userFiles, options) {
-	const tempFilePath = join(os.tmpdir(), fileName);
-	const bannerCode = fs.readFileSync(`${__dirname}/banner.js`, 'utf8')
-	const injectedCode = bannerCode.replace('let runtimeData', `let runtimeData = ${JSON.stringify(options)};`);
-	const modifiedContent = `import plugmaMain from "${CURR_DIR}/${userFiles.manifest.main}";
+	const tempFilePath = path.join(os.tmpdir(), fileName);
+	const modifiedContentPath = replaceBackslashInString(path.join(CURR_DIR, userFiles.manifest.main))
+	const modifiedContent = `import plugmaMain from "${modifiedContentPath}";
 		plugmaMain();`;
-
-
 	fs.writeFileSync(tempFilePath, modifiedContent);
-
 	return tempFilePath;
 }
 
