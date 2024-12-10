@@ -80,6 +80,11 @@ jobs:
                   echo "  }" >> simulate-cli.js
                   echo "})();" >> simulate-cli.js
 
+            - name: Debug simulate-cli.js
+              run: |
+                  node simulate-cli.js
+                  echo "Script completed. Check logs for output."
+
             - name: Run simulate-cli.js
               run: node simulate-cli.js
 
