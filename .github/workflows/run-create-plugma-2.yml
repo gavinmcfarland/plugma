@@ -40,9 +40,9 @@ jobs:
                   expect {
                     -re . {
                       incr step
-                      if {$step == 1} { send "\r" }  # Select default for first prompt
-                      if {$step == 2} { send "\r" }  # Select default for second prompt
-                      if {$step == 3} { send "TestProject\r" }  # Send project name for third prompt
+                      if {$step == 1} { send "\r" }
+                      if {$step == 2} { send "\r" }
+                      if {$step == 3} { send "TestProject\r" }
                       exp_continue
                     }
                   }
