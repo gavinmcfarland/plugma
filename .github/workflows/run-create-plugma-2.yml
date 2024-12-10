@@ -1,80 +1,42 @@
-name: Test CLI with Expect
+name: Windows Testing
 
 on:
     push:
         branches:
             - main
+    pull_request:
+        branches:
+            - main
 
 jobs:
-    test-cli:
-        strategy:
-            matrix:
-                os: [ubuntu-latest, windows-latest]
-
-        runs-on: ${{ matrix.os }}
+    test-on-windows:
+        runs-on: windows-latest
 
         steps:
-            - name: Checkout Code
+            # Checkout the repository
+            - name: Checkout code
               uses: actions/checkout@v3
 
-            # Install dependencies based on OS
-            - name: Install Expect on Ubuntu
-              if: runner.os == 'Linux'
+            # Install Tcl dependency
+            - name: Install Tcl
               run: |
-                  sudo apt-get update
-                  sudo apt-get install -y expect
+                  curl -LO --retry 5 --retry-delay 10 https://prdownloads.sourceforge.net/tcl/tcl86.11.1-win32-x86_64-threaded.exe
+                  Unblock-File -Path .\tcl86.11.1-win32-x86_64-threaded.exe
+                  if (!(Test-Path .\tcl86.11.1-win32-x86_64-threaded.exe)) { Write-Host 'Download failed'; exit 1 }
+                  .\tcl86.11.1-win32-x86_64-threaded.exe /quiet /norestart
+              shell: pwsh
 
-            - name: Install Tcl with Expect on Windows
-              if: runner.os == 'Windows'
-              run: |
-                  curl -LO https://prdownloads.sourceforge.net/tcl/tcl86.11.1-win32-x86_64-threaded.exe
-                  ./tcl86.11.1-win32-x86_64-threaded.exe /quiet /norestart
-                  echo "C:\\Tcl\\bin" >> $GITHUB_ENV
+            # Set up Node.js
+            - name: Set up Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '16' # Specify your Node.js version here
+                  cache: 'npm'
 
-            - name: Verify Expect Installation
-              run: expect -version
+            # Install dependencies
+            - name: Install Dependencies
+              run: npm install
 
-            # Write the Expect script dynamically
-            - name: Write simulate-cli.expect
-              run: |
-                  echo "#!/usr/bin/expect" > simulate-cli.expect
-                  echo "set timeout 30" >> simulate-cli.expect
-                  echo "spawn npx create-plugma@latest" >> simulate-cli.expect
-                  echo "expect \"Select a framework:\"" >> simulate-cli.expect
-                  echo "send \"\\r\"" >> simulate-cli.expect
-                  echo "expect \"Select a variant:\"" >> simulate-cli.expect
-                  echo "send \"\\r\"" >> simulate-cli.expect
-                  echo "expect \"Project name:\"" >> simulate-cli.expect
-                  echo "send \"TestProject\\r\"" >> simulate-cli.expect
-                  echo "expect \"Next:\"" >> simulate-cli.expect
-                  echo "send \"\\r\"" >> simulate-cli.expect
-                  echo "expect eof" >> simulate-cli.expect
-
-            # Run the Expect script
-            - name: Run simulate-cli.expect
-              run: expect simulate-cli.expect
-
-            # Display package.json contents
-            - name: Display package.json contents
-              run: |
-                  echo "Contents of package.json:"
-                  cat package.json || echo "Failed to read package.json"
-              working-directory: TestProject
-
-            # Install project dependencies
-            - name: Install project dependencies
-              run: |
-                  npm install
-              working-directory: TestProject
-
-            # Build the project
-            - name: Build the project
-              run: |
-                  npm run build
-              working-directory: TestProject
-
-            # Verify Build
-            - name: Verify Build
-              run: |
-                  test -f dist/main.js && echo "Build succeeded" || (echo "Build failed" && exit 1)
-              working-directory: TestProject
+            # Run tests
+            - name: Run Tests
+              run: npm test
