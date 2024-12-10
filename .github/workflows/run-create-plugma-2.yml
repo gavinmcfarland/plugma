@@ -16,17 +16,8 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v3
 
-            - name: Fix Get-BinRoot for Chocolatey
-              run: |
-                  Set-Content -Path "C:\ProgramData\chocolatey\helpers\Get-BinRoot.ps1" -Value @'
-                  function Get-BinRoot {
-                      return "$env:SystemDrive\tools"
-                  }
-                  '@
-              shell: pwsh
-
             - name: Install Tcl
-              run: choco install activetcl -y
+              run: choco install magicsplat-tcl-tk -y
               shell: pwsh
 
             - name: Set up Node.js
