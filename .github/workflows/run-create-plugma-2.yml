@@ -13,30 +13,28 @@ jobs:
         runs-on: windows-latest
 
         steps:
-            # Checkout the repository
             - name: Checkout code
               uses: actions/checkout@v3
 
-            # Install Tcl dependency
-            - name: Install Tcl
+            - name: Install Chocolatey
               run: |
-                  curl -LO --retry 5 --retry-delay 10 https://prdownloads.sourceforge.net/tcl/tcl86.11.1-win32-x86_64-threaded.exe
-                  Unblock-File -Path .\tcl86.11.1-win32-x86_64-threaded.exe
-                  if (!(Test-Path .\tcl86.11.1-win32-x86_64-threaded.exe)) { Write-Host 'Download failed'; exit 1 }
-                  .\tcl86.11.1-win32-x86_64-threaded.exe /quiet /norestart
+                  Set-ExecutionPolicy Bypass -Scope Process -Force;
+                  [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072;
+                  iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
               shell: pwsh
 
-            # Set up Node.js
+            - name: Install Tcl
+              run: choco install tcl -y
+              shell: pwsh
+
             - name: Set up Node.js
               uses: actions/setup-node@v3
               with:
-                  node-version: '16' # Specify your Node.js version here
+                  node-version: '16'
                   cache: 'npm'
 
-            # Install dependencies
             - name: Install Dependencies
               run: npm install
 
-            # Run tests
             - name: Run Tests
               run: npm test
