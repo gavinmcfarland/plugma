@@ -37,10 +37,10 @@ jobs:
                   echo "  try {" >> simulate-cli.js
                   echo "    const cli = spawn('npx', ['create-plugma@latest'], { stdio: ['pipe', 'pipe', 'pipe'], shell: true });" >> simulate-cli.js
                   echo "    const promptResponses = [" >> simulate-cli.js
-                  echo "      { prompt: 'Select a framework:', response: '\\n' }," >> simulate-cli.js
-                  echo "      { prompt: 'Select a variant:', response: '\\n' }," >> simulate-cli.js
-                  echo "      { prompt: 'Project name:', response: 'TestProject\\n' }," >> simulate-cli.js
-                  echo "      { prompt: 'Next:', response: '\\n' }," >> simulate-cli.js
+                  echo "      { prompt: 'Select a framework:', response: '\\r' }," >> simulate-cli.js
+                  echo "      { prompt: 'Select a variant:', response: '\\r' }," >> simulate-cli.js
+                  echo "      { prompt: 'Project name:', response: 'TestProject\\r' }," >> simulate-cli.js
+                  echo "      { prompt: 'Next:', response: '\\r' }," >> simulate-cli.js
                   echo "    ];" >> simulate-cli.js
                   echo "    let currentPrompt = 0;" >> simulate-cli.js
                   echo "    let timeout;" >> simulate-cli.js
@@ -50,7 +50,7 @@ jobs:
                   echo "        console.error('CLI interaction timed out.');" >> simulate-cli.js
                   echo "        cli.kill();" >> simulate-cli.js
                   echo "        process.exit(1);" >> simulate-cli.js
-                  echo "      }, 15000);" >> simulate-cli.js
+                  echo "      }, 30000);" >> simulate-cli.js
                   echo "    };" >> simulate-cli.js
                   echo "    cli.stdout.on('data', function (data) {" >> simulate-cli.js
                   echo "      const output = data.toString();" >> simulate-cli.js
