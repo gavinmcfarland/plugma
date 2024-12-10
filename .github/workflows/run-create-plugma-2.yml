@@ -35,15 +35,11 @@ jobs:
                   expect <<EOF
                   log_user 1
                   set timeout 20
-                  set step 0
                   spawn npx create-plugma
-                  expect {
-                    -re . {
-                      incr step
-                      if {$step == 1} { send "\r" }
-                      if {$step == 2} { send "\r" }
-                      if {$step == 3} { send "TestProject\r" }
-                      exp_continue
+                  set inputs {"\r" "\r" "TestProject\r"}
+                  foreach input $inputs {
+                    expect {
+                      -re . { send $input; exp_continue }
                     }
                   }
                   expect eof
