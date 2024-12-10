@@ -26,11 +26,6 @@ jobs:
                   $env:Path += ";C:\Program Files\ActiveTcl\bin"
                   [Environment]::SetEnvironmentVariable("Path", $env:Path, [System.EnvironmentVariableTarget]::Machine)
 
-            - name: Verify Tcl Installation
-              run: |
-                  Get-ChildItem "C:\Program Files\Tcl\bin"
-              shell: pwsh
-
             - name: Run create-plugma CLI with Expect
               run: |
                   expect <<EOF
