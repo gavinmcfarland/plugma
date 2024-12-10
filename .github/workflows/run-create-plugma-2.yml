@@ -30,9 +30,6 @@ jobs:
                   cd packages/create-plugma  # Navigate to the subfolder containing your CLI
                   npm install
 
-            - name: Install expect
-              run: sudo apt-get install -y expect
-
             - name: Run create-plugma CLI
               run: |
                   expect <<EOF
