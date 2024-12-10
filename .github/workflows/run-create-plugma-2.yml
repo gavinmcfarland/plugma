@@ -32,13 +32,15 @@ jobs:
 
             - name: Run create-plugma CLI with Expect
               run: |
-                  echo "Starting Expect script..."
                   expect <<EOF
                   log_user 1
                   spawn npx create-plugma
-                  interact
+                  set timeout -1
+                  expect {
+                      -re . { exp_continue }
+                      timeout { send_user "Timeout occurred\n" }
+                  }
                   EOF
-                  echo "Expect script completed."
               shell: bash
 
             - name: Display TestProject Directory Contents
