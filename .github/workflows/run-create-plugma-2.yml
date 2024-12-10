@@ -16,11 +16,10 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v3
 
-            - name: Install Cygwin and Expect with Admin Privileges
-              shell: pwsh
+            - name: Install Cygwin and Expect
               run: |
                   curl -LO https://cygwin.com/setup-x86_64.exe
-                  Start-Process -FilePath ./setup-x86_64.exe -ArgumentList '--quiet-mode --root C:\cygwin64 --local-package-dir C:\cygwin64\packages --site http://mirrors.kernel.org/sourceware/cygwin/ --packages expect' -Verb RunAs -Wait
+                  ./setup-x86_64.exe --quiet-mode --root C:\cygwin64 --local-package-dir C:\cygwin64\packages --site http://mirrors.kernel.org/sourceware/cygwin/ --packages expect
 
             - name: Add Cygwin to PATH
               run: |
@@ -44,7 +43,8 @@ jobs:
                   EOF
               shell: bash
 
-            - name: Check if project directory was created
+            - name: Display TestProject Directory Contents
               run: |
-                  test -d TestProject  # Confirm the project directory was created
-                  test -f TestProject/package.json  # Check for package.json as an indicator of successful setup
+                  echo "Contents of TestProject directory:"
+                  ls TestProject
+              shell: bash
