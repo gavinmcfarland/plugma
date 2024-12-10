@@ -19,7 +19,7 @@ jobs:
             - name: Install Cygwin and Expect
               run: |
                   curl -LO https://cygwin.com/setup-x86_64.exe
-                  ./setup-x86_64.exe --quiet-mode --packages expect
+                  ./setup-x86_64.exe --quiet-mode --root C:\cygwin64 --local-package-dir C:\cygwin64\packages --site http://mirrors.kernel.org/sourceware/cygwin/ --packages expect
 
             - name: Add Cygwin to PATH
               run: |
