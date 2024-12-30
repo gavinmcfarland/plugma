@@ -14,11 +14,15 @@ import vitePluginInsertCustomFunctions from '../lib/vite-plugins/vite-plugin-ins
 import viteSupressLogs from '../lib/vite-plugins/vite-plugin-surpress-logs.js';
 import { cwd } from 'process';
 import rewritePostMessageTargetOrigin from '../lib/vite-plugins/vite-plugin-rewrite-postmessage-origin.js';
+import { createRequire } from 'node:module'
 
+export const require = createRequire(import.meta.url)
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const __filename = fileURLToPath(import.meta.url);
+
+const plugmaRootDir = require.resolve('plugma/package.json').replace('/package.json', '')
 
 export function createFileWithDirectory(filePath, fileName, fileContent, callback) {
 
@@ -73,11 +77,23 @@ export async function readJson(filePath) {
 
 export function createConfigs(options, userFiles) {
 	// Common plugins and paths for both configurations
+	const tmpDir = resolve(plugmaRootDir, 'tmp')
 	const commonVitePlugins = [
 		viteSingleFile(),
 		viteCopyDirectoryPlugin({
-			sourceDir: path.join(options.output, 'node_modules', 'plugma', 'tmp'),
+			sourceDir: tmpDir,
+			targetDir: 'node_modules/plugma/tmp',
+			buildStart: true,
+		}),
+		viteCopyDirectoryPlugin({
+			sourceDir: tmpDir,
 			targetDir: path.join(options.output),
+			renamePipe: (destPath, { file, destination }) => {
+				if (file === 'index.html') {
+					return path.join(destination, 'ui.html')
+				}
+				return destPath
+			},
 		}),
 	];
 

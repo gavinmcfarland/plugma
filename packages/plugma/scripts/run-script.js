@@ -13,7 +13,7 @@ import { build as viteBuild, createServer, mergeConfig, build } from 'vite';
 import { nanoid } from 'nanoid';
 
 import { Log } from '../lib/logger.js';
-import { getRandomNumber, readJson, createConfigs, getUserFiles, formatTime, cleanManifestFiles } from './utils.js';
+import { getRandomNumber, readJson, createConfigs, getUserFiles, require, formatTime, cleanManifestFiles } from './utils.js';
 import { task, run, serial } from '../task-runner/taskrunner.js';
 import { suppressLogs } from '../lib/suppress-logs.js';
 import { logFileUpdates } from '../lib/vite-plugins/vite-plugin-log-file-updates.js';
@@ -422,7 +422,8 @@ export async function runScript(command, options) {
 
 	task('start-websockets-server', async ({ options }) => {
 		if (options.websockets) {
-			exec('node node_modules/plugma/lib/start-web-sockets-server.cjs');
+			const cjsPath = require.resolve('plugma/lib/start-web-sockets-server.cjs')
+			exec(`node ${cjsPath}`)
 			log.text(`Preview: ${chalk.cyan('http://localhost:')}${chalk.bold.cyan(options.port)}${chalk.cyan('/')}`)
 		}
 	})
