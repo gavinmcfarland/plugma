@@ -2,10 +2,16 @@
 	"name": "plugma",
 	"version": "1.2.7",
 	"description": "",
-	"main": "index.js",
+	"main": "./bin/cli.js",
 	"type": "module",
 	"bin": {
 		"plugma": "./bin/cli.js"
+	},
+	"exports": {
+		"./index.html": "./tmp/index.html",
+		"./tmp": "./tmp",
+		"./package.json": "./package.json",
+		"./lib": "./lib"
 	},
 	"scripts": {
 		"test": "echo \"Error: no test specified\"",

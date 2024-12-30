@@ -20,10 +20,11 @@ function removeDirectory(dirPath) {
 		fs.rmdirSync(dirPath); // Remove the directory itself
 	}
 }
+const defaultRenamePipe = (destPath, { file, destination }) => destPath
 
-function copyDirectory(source, destination) {
+function copyDirectory(source, destination, renamePipe = defaultRenamePipe) {
 	if (!fs.existsSync(destination)) {
-		fs.mkdirSync(destination);
+		fs.mkdirSync(destination, { recursive: true });
 	}
 
 	const files = fs.readdirSync(source);
@@ -37,13 +38,7 @@ function copyDirectory(source, destination) {
 			copyDirectory(sourcePath, destPath);
 		} else {
 			// Check if file is named 'index.html'
-			if (file === 'index.html') {
-				// Rename 'index.html' to 'ui.html' during copy
-				fs.copyFileSync(sourcePath, path.join(destination, 'ui.html'));
-			} else {
-				// Copy files other than 'index.html'
-				fs.copyFileSync(sourcePath, destPath);
-			}
+			fs.copyFileSync(sourcePath, renamePipe(destPath, { file, destination }));
 		}
 	}
 
@@ -58,12 +53,19 @@ function copyDirectory(source, destination) {
 }
 
 
-export default function viteCopyDirectoryPlugin({ sourceDir, targetDir }) {
+export default function viteCopyDirectoryPlugin({ sourceDir, targetDir, buildStart = false, renamePipe = defaultRenamePipe }) {
 	return {
 		name: 'vite-plugin-copy-dir',
 		apply: 'build',
 		writeBundle() {
-			copyDirectory(sourceDir, targetDir);
+			if (!buildStart) {
+				copyDirectory(sourceDir, targetDir, renamePipe);
+			}
+		},
+		buildStart() {
+			if (buildStart) {
+				copyDirectory(sourceDir, targetDir, renamePipe);
+			}
 		},
 	};
 }
