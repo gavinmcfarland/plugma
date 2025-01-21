@@ -1,21 +1,34 @@
 {
   "name": "plugma",
-  "version": "1.2.7",
+  "version": "1.3.0",
   "description": "",
   "main": "index.js",
   "type": "module",
   "bin": {
-    "plugma": "./bin/cli.js"
+    "plugma": "./bin/plugma"
+  },
+  "imports": {
+    "#core": "./dist/core/index.js",
+    "#core/*": "./dist/core/*",
+    "#commands": "./dist/commands/index.js",
+    "#commands/*": "./dist/commands/*",
+    "#utils": "./dist/utils/index.js",
+    "#utils/*": "./dist/utils/*",
+    "#tasks": "./dist/tasks/index.js",
+    "#tasks/*": "./dist/tasks/*",
+    "#vite-plugins": "./dist/vite-plugins/index.js",
+    "#vite-plugins/*": "./dist/vite-plugins/*",
+    "#tests/*": "./tests/*"
   },
   "scripts": {
     "build-and-copy-apps": "npm run build-apps && npm run copy-apps",
     "build-apps": "cd ../apps && npm run build",
-    "build": "tsc",
+    "build": "nr clean && tsc -p tsconfig.build.json",
     "check": "tsc --noEmit",
     "clean": "rm -rf dist/*",
     "copy-apps": "node scripts/copy-files.js",
     "copy-workflows": "cp -r ./templates/github/ .github/",
-    "dev": "concurrently -n tsc,biome 'nr check --watch' 'nr lint --watch'",
+    "dev": "concurrently -n tsc,biome 'nr build --watch' 'nr lint --watch'",
     "lint:fix": "biome check --fix .",
     "lint:unsafe-fix": "biome check --unsafe-fix .",
     "lint": "biome check .",
@@ -55,6 +68,11 @@
     "@types/react-dom": "^19.0.3",
     "@types/uuid": "^10.0.0",
     "@types/ws": "^8.5.13",
-    "typescript": "^5.7.3"
+    "biome": "^0.3.3",
+    "concurrently": "^9.1.2",
+    "dprint": "^0.48.0",
+    "type-fest": "^4.33.0",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.3"
   }
 }

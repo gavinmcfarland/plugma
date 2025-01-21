@@ -21,7 +21,8 @@
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
     "Config Files.md": "biome.*, dprint.*, .env*, *.cjs, *.config.ts, *.setup.ts, .git*, *.config, *.config.json, *config.js, *config.mjs, *config.cjs, *config.ts, *config.toml, *config.yaml, *config.yml, *rc, *rc.json, *rc.js, *rc.mjs, *rc.cjs, *rc.ts, *rc.toml, *rc.yaml, *rc.yml, *ignore, Dockerfile*, docker-*, *.toml, package-lock.json, yarn.lock, pnpm-lock.yaml, .prototools, rollup.*, renovate.json, .size-limit.*, vitest*",
-    "*.json": "${capture}.lock"
+    "*.json": "${capture}.lock",
+    "*.ts": "${capture}.test.ts"
   },
   "search.exclude": {
     "**/coverage": true,
@@ -42,6 +43,7 @@
     "dprint",
     "endindex",
     "Fong",
+    "plugma",
     "stylelint",
     "texthighlight",
     "tokilabs",
