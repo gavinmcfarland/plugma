@@ -2,32 +2,12 @@
 
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { runRelease } from '../scripts/run-release.js';
-import { runScript } from '../scripts/run-script.js';
+import { runRelease } from '../scripts/run-release';
+import { runScript } from '../scripts/run-script';
+import type { DebugOptions, ReleaseOptions, ScriptOptions } from './types';
 
 // Initialize Commander
 const program = new Command();
-
-interface DebugOptions {
-  debug?: boolean;
-  [key: string]: unknown;
-}
-
-interface ScriptOptions extends DebugOptions {
-  port?: number;
-  toolbar?: boolean;
-  mode?: string;
-  output?: string;
-  websockets?: boolean;
-  watch?: boolean;
-}
-
-interface ReleaseOptions {
-  title?: string;
-  notes?: string;
-  type?: 'alpha' | 'beta' | 'stable';
-  version?: string;
-}
 
 // Color and format string
 function colorStringify(obj: Record<string, unknown>, indent = 2): string {
@@ -74,7 +54,7 @@ program
   .option('-ws, --websockets', 'Enable websockets', false)
   .option('-d, --debug', 'Enable debug mode', false)
   .action(function (this: Command, options: ScriptOptions) {
-    runScript(this.name(), options);
+    runScript('dev', options);
     handleDebug(this.name(), options);
   })
   .addHelpText(
@@ -98,7 +78,7 @@ program
   .action(function (this: Command, options: ScriptOptions) {
     handleDebug(this.name(), options);
     options.websockets = true;
-    runScript(this.name(), options);
+    runScript('preview', options);
   })
   .addHelpText(
     'after',
@@ -117,7 +97,7 @@ program
   .option('-o, --output <path>', 'Specify the output directory', 'dist')
   .option('-d, --debug', 'Enable debug mode', false)
   .action(function (this: Command, options: ScriptOptions) {
-    runScript(this.name(), options);
+    runScript('build', options);
     handleDebug(this.name(), options);
   })
   .addHelpText(
