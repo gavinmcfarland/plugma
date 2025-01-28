@@ -29,6 +29,7 @@
   },
   "include": [
     "src/**/*.ts",
+    "src/**/*.svelte",
     "src/**/*.tsx",
     "archive/demo.ts",
     "archive/helpers.ts"

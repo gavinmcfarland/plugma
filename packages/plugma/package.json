@@ -20,13 +20,22 @@
     "#vite-plugins/*": "./dist/vite-plugins/*",
     "#tests/*": "./tests/*"
   },
+  "exports": {
+    "core": "./dist/core/index.js",
+    "commands": "./dist/commands/index.js",
+    "utils": "./dist/utils/index.js",
+    "tasks": "./dist/tasks/index.js",
+    "vite-plugins": "./dist/vite-plugins/index.js",
+    "testing": "./dist/testing/index.js"
+  },
   "scripts": {
-    "build-and-copy-apps": "npm run build-apps && npm run copy-apps",
-    "build-apps": "cd ../apps && npm run build",
-    "build": "nr clean && tsc -p tsconfig.build.json",
+    "build:apps": "nr build:figma-bridge && nr build:dev-server",
+    "build:figma-bridge": "cd apps && PLUGMA_APP_NAME=figma-bridge vite build",
+    "build:dev-server": "cd apps && PLUGMA_APP_NAME=dev-server vite build",
+    "build": "nr clean && nr build:apps && tsc -p tsconfig.build.json",
     "check": "tsc --noEmit",
     "clean": "rm -rf dist/*",
-    "copy-apps": "node scripts/copy-files.js",
+    "clean:apps": "rm -rf apps/dist/apps",
     "copy-workflows": "cp -r ./templates/github/ .github/",
     "dev": "concurrently -n tsc,biome 'nr build --watch' 'nr lint --watch'",
     "lint:fix": "biome check --fix .",
@@ -71,6 +80,9 @@
     "biome": "^0.3.3",
     "concurrently": "^9.1.2",
     "dprint": "^0.48.0",
+    "reconnecting-websocket": "^4.4.0",
+    "svelte": "^4.2.19",
+    "terser": "^5.37.0",
     "type-fest": "^4.33.0",
     "typescript": "^5.7.3",
     "vitest": "^3.0.3"

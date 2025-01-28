@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "lib": ["DOM", "esnext"],
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "rootDir": "./",
+    "strict": true,
+    "resolveJsonModule": true,
+    "types": ["@figma/plugin-typings"],
+    "baseUrl": ".",
+    "paths": {
+      "#core": ["../src/core/index.ts"],
+      "#core/*": ["../src/core/*"],
+      "#tasks": ["../src/tasks/index.ts"],
+      "#tasks/*": ["../src/tasks/*"],
+      "#utils": ["../src/utils/index.ts"],
+      "#utils/*": ["../src/utils/*"],
+      "#vite-plugins": ["../src/vite-plugins/index.ts"],
+      "#vite-plugins/*": ["../src/vite-plugins/*"]
+    }
+  },
+  "include": ["./**/*.js", "./**/*.ts", "./**/*.svelte"]
+}

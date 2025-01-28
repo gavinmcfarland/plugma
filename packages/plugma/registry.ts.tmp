@@ -1,2 +1,0 @@
-import type { EmptyObject } from 'type-fest';
-import type { ManifestFile, PluginOptions } from '#core/types.js';
