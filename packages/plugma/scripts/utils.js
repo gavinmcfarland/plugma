@@ -104,6 +104,9 @@ export function createConfigs(options, userFiles) {
 				// watch: {
 				// 	ignored: ['**/*.env*'],
 				// },
+				cors: {
+					origin: '*',
+				},
 			},
 		},
 		build: {
