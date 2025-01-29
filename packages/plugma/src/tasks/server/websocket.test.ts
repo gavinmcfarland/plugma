@@ -1,17 +1,26 @@
 import type { ResultsOfTask } from '#core/types.js';
-import { type MockFs, createMockFs } from '#tests/utils/mock-fs.js';
-import { createMockGetFilesResult } from '#tests/utils/mock-get-files.js';
 import { EventEmitter } from 'node:events';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { WebSocketServer } from 'ws';
+import { type MockFs, createMockFs } from '../../../test/utils/mock-fs.js';
+import { createMockGetFilesResult } from '../../../test/utils/mock-get-files.js';
 import { GetFilesTask } from '../common/get-files.js';
 import { StartWebSocketsServerTask } from './websocket.js';
 
 vi.mock('ws', () => ({
   WebSocketServer: vi.fn(),
+  WebSocket: {
+    OPEN: 1,
+  },
 }));
 
-vi.mock('#utils/cleanup.js');
+vi.mock('#utils/cleanup.js', () => ({
+  registerCleanup: vi.fn(),
+}));
+
+vi.mock('uuid', () => ({
+  v4: vi.fn().mockReturnValue('test-client-id'),
+}));
 
 interface MockWebSocketClient extends EventEmitter {
   readyState: number;
@@ -91,42 +100,136 @@ describe('WebSocket Server Tasks', () => {
   });
 
   describe('StartWebSocketsServerTask', () => {
-    it('should start WebSocket server with correct configuration', async () => {
-      const context: ResultsOfTask<typeof GetFilesTask> = {
+    test('should have correct name', () => {
+      expect(StartWebSocketsServerTask.name).toBe('server:websocket');
+    });
+
+    test('should start WebSocket server with correct port', async () => {
+      const context = {
         [GetFilesTask.name]: createMockGetFilesResult(),
       };
 
       const result = await StartWebSocketsServerTask.run(baseOptions, context);
 
       expect(WebSocketServer).toHaveBeenCalledWith({
-        port: 3003,
+        port: baseOptions.port + 1,
       });
       expect(result.server).toBe(mockServer);
+      expect(result.port).toBe(baseOptions.port + 1);
     });
 
-    it('should handle client connection and messages', async () => {
-      const result = await StartWebSocketsServerTask.run(baseOptions, {
+    test('should handle client connection with source identification', async () => {
+      const context = {
         [GetFilesTask.name]: createMockGetFilesResult(),
-      });
-      const mockClient = new MockWebSocketClientImpl();
+      };
 
-      result.server.emit('connection', mockClient);
-      mockClient.emit('message', Buffer.from(JSON.stringify({ type: 'test' })));
+      const result = await StartWebSocketsServerTask.run(baseOptions, context);
+      const req = { url: '?source=plugin-window' };
 
-      expect(result.server.clients.size).toBe(1);
-      expect(mockClient.send).toHaveBeenCalled();
+      result.server.emit('connection', mockClient, req);
+
+      expect(mockClient.send).toHaveBeenCalledWith(
+        expect.stringContaining('"event":"client_list"'),
+      );
+      expect(mockClient.send).toHaveBeenCalledWith(
+        expect.stringContaining('"source":"plugin-window"'),
+      );
     });
 
-    it('should handle client disconnection', async () => {
-      const result = await StartWebSocketsServerTask.run(baseOptions, {
+    test('should broadcast messages to other clients', async () => {
+      const context = {
         [GetFilesTask.name]: createMockGetFilesResult(),
+      };
+
+      const result = await StartWebSocketsServerTask.run(baseOptions, context);
+      const client1 = new MockWebSocketClientImpl();
+      const client2 = new MockWebSocketClientImpl();
+
+      result.server.emit('connection', client1, { url: '?source=browser' });
+      result.server.emit('connection', client2, {
+        url: '?source=plugin-window',
       });
-      const mockClient = new MockWebSocketClientImpl();
 
-      result.server.emit('connection', mockClient);
-      mockClient.emit('close');
+      const message = {
+        pluginMessage: { event: 'test', message: 'hello' },
+        pluginId: '*',
+      };
+      client1.emit('message', Buffer.from(JSON.stringify(message)));
 
-      expect(result.server.clients.size).toBe(0);
+      expect(client2.send).toHaveBeenCalledWith(
+        expect.stringContaining('test'),
+      );
+      expect(client1.send).not.toHaveBeenCalledWith(
+        expect.stringContaining('test'),
+      );
+    });
+
+    test('should handle client disconnection', async () => {
+      const context = {
+        [GetFilesTask.name]: createMockGetFilesResult(),
+      };
+
+      const result = await StartWebSocketsServerTask.run(baseOptions, context);
+      const client1 = new MockWebSocketClientImpl();
+      const client2 = new MockWebSocketClientImpl();
+
+      result.server.emit('connection', client1, { url: '?source=browser' });
+      result.server.emit('connection', client2, {
+        url: '?source=plugin-window',
+      });
+
+      client1.emit('close');
+
+      expect(client2.send).toHaveBeenCalledWith(
+        expect.stringContaining('"event":"client_disconnected"'),
+      );
+    });
+
+    test('should handle server errors', async () => {
+      const context = {
+        [GetFilesTask.name]: createMockGetFilesResult(),
+      };
+
+      const result = await StartWebSocketsServerTask.run(baseOptions, context);
+
+      await expect(() =>
+        result.server.emit('error', new Error('Server error')),
+      ).rejects.toThrow('Server creation failed');
+    });
+
+    test('should handle message parsing errors', async () => {
+      const context = {
+        [GetFilesTask.name]: createMockGetFilesResult(),
+      };
+
+      const result = await StartWebSocketsServerTask.run(baseOptions, context);
+      const client = new MockWebSocketClientImpl();
+
+      result.server.emit('connection', client, { url: '?source=browser' });
+      client.emit('message', Buffer.from('invalid json'));
+
+      // Should not throw and handle error gracefully
+      expect(client.send).not.toHaveBeenCalled();
+    });
+
+    test('should register cleanup handler', async () => {
+      const { registerCleanup } = await import('#utils/cleanup.js');
+
+      const context = {
+        [GetFilesTask.name]: createMockGetFilesResult(),
+      };
+
+      await StartWebSocketsServerTask.run(baseOptions, context);
+
+      expect(registerCleanup).toHaveBeenCalledWith(expect.any(Function));
+    });
+
+    test('should handle missing get-files result', async () => {
+      const context = {} as ResultsOfTask<GetFilesTask>;
+
+      await expect(
+        StartWebSocketsServerTask.run(baseOptions, context),
+      ).rejects.toThrow('get-files task must run first');
     });
   });
 });

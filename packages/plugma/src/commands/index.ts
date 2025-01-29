@@ -7,3 +7,6 @@ export * from './release.js';
 export * from './test/index.js';
 export * from './types.js';
 //@endindex
+
+// Re-export test command types
+export type { TestCommandOptions } from './test/types.js';

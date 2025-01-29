@@ -1,7 +1,7 @@
-import { type MockFs, createMockFs } from '#tests/utils/mock-fs.js';
-import { createMockViteConfig } from '#tests/utils/mock-vite-config.js';
 import { createViteConfigs } from '#utils/config/create-vite-configs.js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { type MockFs, createMockFs } from '../../../test/utils/mock-fs.js';
+import { createMockViteConfig } from '../../../test/utils/mock-vite-config.js';
 import { GetFilesTask } from './get-files.js';
 
 vi.mock('node:fs', () => {
@@ -194,6 +194,59 @@ describe('get-files Task', () => {
 
       await expect(GetFilesTask.run(baseOptions, baseContext)).rejects.toThrow(
         'Failed to create configs',
+      );
+    });
+
+    it('should handle production mode config', async () => {
+      const { getUserFiles } = await import('#utils/config/get-user-files.js');
+      const mockPackageJson = {
+        name: 'prod-plugin',
+        version: '2.0.0',
+        plugma: {
+          manifest: {
+            name: 'Production Plugin',
+            main: 'src/main.ts',
+            api: '1.0.0',
+          },
+        },
+      };
+
+      vi.mocked(getUserFiles).mockResolvedValue({
+        manifest: mockPackageJson.plugma.manifest,
+        userPkgJson: mockPackageJson,
+      });
+
+      const result = await GetFilesTask.run(
+        { ...baseOptions, mode: 'production' },
+        baseContext,
+      );
+
+      expect(result.config.ui.build.mode).toBe('production');
+      expect(result.config.main.build.mode).toBe('production');
+    });
+
+    it('should handle missing manifest in package.json', async () => {
+      const { getUserFiles } = await import('#utils/config/get-user-files.js');
+      const mockPackageJson = {
+        name: 'no-manifest-plugin',
+        version: '1.0.0',
+      };
+
+      vi.mocked(getUserFiles).mockRejectedValue(
+        new Error('Missing manifest configuration'),
+      );
+
+      await expect(GetFilesTask.run(baseOptions, baseContext)).rejects.toThrow(
+        'Missing manifest configuration',
+      );
+    });
+
+    it('should handle invalid package.json structure', async () => {
+      const { readJson } = await import('#utils');
+      vi.mocked(readJson).mockResolvedValue({ invalid: 'structure' });
+
+      await expect(GetFilesTask.run(baseOptions, baseContext)).rejects.toThrow(
+        'Invalid package.json structure',
       );
     });
   });

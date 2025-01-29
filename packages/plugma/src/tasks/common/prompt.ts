@@ -8,6 +8,7 @@ import type {
   ResultsOfTask,
 } from '#core/types.js';
 import { Logger } from '#utils/log/logger.js';
+import chalk from 'chalk';
 import { task } from '../runner.js';
 import { GetFilesTask } from './get-files.js';
 
@@ -35,10 +36,12 @@ const showPlugmaPrompt = async (
 
     const log = new Logger({ debug: options.debug });
 
-    log.debug(`
-Plugma v${fileResult.version}
-A modern Figma plugin development toolkit
-`);
+    // Match original formatting with chalk
+    log.text(
+      `${chalk.blue.bold('Plugma')} ${chalk.grey(`v${fileResult.version}`)}
+	A modern Figma plugin development toolkit
+`,
+    );
 
     if (
       options.command === 'dev' ||

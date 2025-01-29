@@ -23,7 +23,7 @@ export function createMockTask<TOptions = any, TResults = any, TContext = any>(
 /**
  * Creates a mock task context with the given options and results
  */
-export function createMockContext<T extends Record<string, unknown>>(
+export function createMockTaskContext<T extends Record<string, unknown>>(
   options: Record<string, unknown>,
   results?: T,
 ): ResultsOfTask<any> {

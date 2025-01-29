@@ -7,10 +7,12 @@ import {
   type BuildCommandOptions,
   type DevCommandOptions,
   type ReleaseCommandOptions,
+  type TestCommandOptions,
   build,
   dev,
   preview,
   release,
+  test,
 } from '#commands';
 import { colorStringify } from '#utils/cli/colorStringify.js';
 import { defaultLogger } from '#utils/log/logger.js';
@@ -46,6 +48,10 @@ const handleDebug = (
 program
   .command('dev')
   .description('Start a server to develop your plugin')
+  .addHelpText(
+    'after',
+    '\nStart a server to develop your plugin. This command builds the ui.html and points it to the dev server making it easier to develop and debug your plugin.',
+  )
   .option('-p, --port <number>', 'Specify a port number for the plugin preview')
   .option('-t, --toolbar', 'Display the developer toolbar within the plugin UI')
   .option('-m, --mode <mode>', 'Specify the mode', 'development')
@@ -69,6 +75,10 @@ program
 program
   .command('preview')
   .description('Preview your plugin')
+  .addHelpText(
+    'after',
+    '\nPreview your plugin in any browser to see how it looks and works. Make sure the plugin is open in the Figma desktop app for this to work.',
+  )
   .option('-p, --port <number>', 'Specify a port number for the plugin preview')
   .option('-t, --toolbar', 'Display the developer toolbar within the plugin UI')
   .option('-m, --mode <mode>', 'Specify the mode', 'development')
@@ -90,6 +100,10 @@ program
 program
   .command('build')
   .description('Create a build ready for publishing')
+  .addHelpText(
+    'after',
+    '\nThis command compiles and bundles your plugin, preparing it for distribution.',
+  )
   .option('-w, --watch', 'Watch for changes and rebuild automatically')
   .option('-m, --mode <mode>', 'Specify the mode', 'production')
   .option('-o, --output <path>', 'Specify the output directory', 'dist')
@@ -156,6 +170,28 @@ program
     Examples:
       plugma release
       plugma release alpha --title "Alpha Release" --notes "Initial alpha release"
+  `,
+  );
+
+// Test Command
+program
+  .command('test')
+  .description('Run tests for your plugin')
+  .option('-w, --watch', 'Watch for changes and rerun tests')
+  .option('-t, --timeout <number>', 'Test timeout in milliseconds', '10000')
+  .option('-p, --port <number>', 'WebSocket server port')
+  .option('-d, --debug', 'Enable debug mode', false)
+  .action(function (this: Command, options: TestCommandOptions) {
+    handleDebug(this.name(), options);
+    test(options);
+  })
+  .addHelpText(
+    'after',
+    `
+    Examples:
+      plugma test
+      plugma test --watch
+      plugma test --timeout 5000
   `,
   );
 

@@ -1,91 +1,227 @@
-import type { ResultsOfTask } from '#core/task-runner/types.js';
-import {
-  mockBuildOptions,
-  resetMocks,
-  setupFsMocks,
-} from '#tests/utils/mock-build.js';
-import {
-  createMockGetFilesResult,
-  createMockGetFilesResultWithoutUi,
-} from '#tests/utils/mock-get-files.js';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { GetFilesTask } from '../common/get-files.js';
+import { Logger } from '#utils/log/logger.js';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { createMockFs } from '../../../test/utils/mock-fs.js';
+import { createMockTaskContext } from '../../../test/utils/mock-task.js';
 import { BuildPlaceholderUiTask } from './placeholder-ui.js';
 
-// Setup mocks
-setupFsMocks();
+// Create a mock file system instance
+const mockFs = createMockFs();
 
-describe('Placeholder UI Task', () => {
+// Base options for tests
+const baseOptions = {
+  command: 'dev' as const,
+  mode: 'development',
+  port: 3000,
+  output: 'dist',
+  instanceId: 'test',
+  debug: false,
+};
+
+describe('BuildPlaceholderUiTask', () => {
   beforeEach(() => {
-    resetMocks();
+    vi.clearAllMocks();
   });
 
-  test('should create placeholder UI when UI is specified', async () => {
-    const { writeFile, mkdir } = await import('node:fs/promises');
+  afterEach(() => {
+    vi.clearAllMocks();
+    mockFs.clear();
+  });
 
-    // Mock fs operations
-    vi.mocked(writeFile).mockResolvedValue(undefined);
-    vi.mocked(mkdir).mockResolvedValue(undefined);
+  test('should create UI when manifest has UI and file exists', async () => {
+    const log = new Logger({ debug: false });
+    const templateContent = '<html><body>Bridge</body></html>';
+    const uiPath = '/path/to/ui.html';
 
-    const context = {
-      [GetFilesTask.name]: createMockGetFilesResult(),
-    };
+    // Setup mock file system
+    mockFs.addFiles({
+      [uiPath]: 'existing UI file content',
+      'apps/figma-bridge.html': templateContent,
+    });
 
-    const result = await BuildPlaceholderUiTask.run(mockBuildOptions, context);
+    const result = await BuildPlaceholderUiTask.run(
+      baseOptions,
+      createMockTaskContext({
+        files: {
+          manifest: { ui: uiPath },
+        },
+      }),
+    );
 
     // Verify output path
     expect(result.outputPath).toBe('dist/ui.html');
 
-    // Verify file operations
-    expect(mkdir).toHaveBeenCalledWith('dist', { recursive: true });
-    expect(writeFile).toHaveBeenCalledWith(
-      'dist/ui.html',
-      expect.stringContaining('Welcome to Your Plugma Plugin'),
-      'utf-8',
+    // Verify template was read
+    const writtenContent = await mockFs.readFile('dist/ui.html');
+    expect(writtenContent).toContain(templateContent);
+    expect(writtenContent).toContain('window.runtimeData');
+
+    // Verify logging
+    expect(log.debug).toHaveBeenCalledWith(
+      expect.stringContaining('Creating placeholder UI'),
+    );
+    expect(log.success).toHaveBeenCalledWith(
+      'Placeholder UI created successfully',
     );
   });
 
-  test('should skip placeholder UI when UI is not specified', async () => {
-    const { writeFile, mkdir } = await import('node:fs/promises');
+  test('should skip when manifest has no UI', async () => {
+    const log = new Logger({ debug: false });
 
-    // Mock fs operations
-    vi.mocked(writeFile).mockResolvedValue(undefined);
-    vi.mocked(mkdir).mockResolvedValue(undefined);
+    const result = await BuildPlaceholderUiTask.run(
+      baseOptions,
+      createMockTaskContext({
+        files: {
+          manifest: {},
+        },
+      }),
+    );
 
-    const context = {
-      [GetFilesTask.name]: createMockGetFilesResultWithoutUi(),
+    expect(result.outputPath).toBe('dist/ui.html');
+    expect(log.debug).toHaveBeenCalledWith(
+      'No UI specified in manifest, skipping placeholder UI',
+    );
+  });
+
+  test('should skip when UI file does not exist', async () => {
+    const log = new Logger({ debug: false });
+
+    const result = await BuildPlaceholderUiTask.run(
+      baseOptions,
+      createMockTaskContext({
+        files: {
+          manifest: { ui: '/path/to/nonexistent.html' },
+        },
+      }),
+    );
+
+    expect(result.outputPath).toBe('dist/ui.html');
+    expect(log.debug).toHaveBeenCalledWith(
+      expect.stringContaining('UI file not found'),
+    );
+  });
+
+  test('should inject runtime data correctly', async () => {
+    const templateContent = '<html><body>Bridge</body></html>';
+    const uiPath = '/path/to/ui.html';
+    const options = {
+      ...baseOptions,
+      port: 3000,
     };
 
-    const result = await BuildPlaceholderUiTask.run(mockBuildOptions, context);
+    mockFs.addFiles({
+      [uiPath]: 'existing UI file content',
+      'apps/figma-bridge.html': templateContent,
+    });
 
-    // Verify output path is still returned
-    expect(result.outputPath).toBe('dist/ui.html');
+    await BuildPlaceholderUiTask.run(
+      options,
+      createMockTaskContext({
+        files: {
+          manifest: { ui: uiPath },
+        },
+      }),
+    );
 
-    // Verify no file operations were performed
-    expect(mkdir).not.toHaveBeenCalled();
-    expect(writeFile).not.toHaveBeenCalled();
+    const writtenContent = await mockFs.readFile('dist/ui.html');
+    const runtimeData = JSON.parse(
+      writtenContent.match(/window\.runtimeData = (.*);/)?.[1] || '{}',
+    );
+
+    expect(runtimeData).toEqual({
+      ...options,
+      manifest: { ui: uiPath },
+    });
+  });
+
+  test('should handle invalid template file', async () => {
+    const uiPath = '/path/to/ui.html';
+
+    mockFs.addFiles({
+      [uiPath]: 'existing UI file content',
+      'apps/figma-bridge.html': 'invalid template without body tag',
+    });
+
+    await expect(
+      BuildPlaceholderUiTask.run(
+        baseOptions,
+        createMockTaskContext({
+          files: {
+            manifest: { ui: uiPath },
+          },
+        }),
+      ),
+    ).rejects.toThrow('Invalid template file: missing <body> tag');
+  });
+
+  test('should handle missing template file', async () => {
+    const uiPath = '/path/to/ui.html';
+
+    mockFs.addFiles({
+      [uiPath]: 'existing UI file content',
+    });
+
+    await expect(
+      BuildPlaceholderUiTask.run(
+        baseOptions,
+        createMockTaskContext({
+          files: {
+            manifest: { ui: uiPath },
+          },
+        }),
+      ),
+    ).rejects.toThrow('Template file not found');
+  });
+
+  test('should register cleanup in development mode', async () => {
+    const { rm } = await import('node:fs/promises');
+    const templateContent = '<html><body>Bridge</body></html>';
+    const uiPath = '/path/to/ui.html';
+
+    mockFs.addFiles({
+      [uiPath]: 'existing UI file content',
+      'apps/figma-bridge.html': templateContent,
+    });
+
+    await BuildPlaceholderUiTask.run(
+      baseOptions,
+      createMockTaskContext({
+        files: {
+          manifest: { ui: uiPath },
+        },
+      }),
+    );
+
+    // Get the cleanup function
+    const cleanupFn = vi.mocked(rm).mock.calls[0][0];
+    expect(cleanupFn).toBe('dist/ui.html');
+  });
+
+  test('should not register cleanup in build mode', async () => {
+    const { rm } = await import('node:fs/promises');
+    const templateContent = '<html><body>Bridge</body></html>';
+    const uiPath = '/path/to/ui.html';
+
+    mockFs.addFiles({
+      [uiPath]: 'existing UI file content',
+      'apps/figma-bridge.html': templateContent,
+    });
+
+    await BuildPlaceholderUiTask.run(
+      { ...baseOptions, command: 'build' },
+      createMockTaskContext({
+        files: {
+          manifest: { ui: uiPath },
+        },
+      }),
+    );
+
+    // Verify rm was not called
+    expect(rm).not.toHaveBeenCalled();
   });
 
   test('should handle missing get-files result', async () => {
-    const context = {} as ResultsOfTask<GetFilesTask>;
-
     await expect(
-      BuildPlaceholderUiTask.run(mockBuildOptions, context),
+      BuildPlaceholderUiTask.run(baseOptions, createMockTaskContext({})),
     ).rejects.toThrow('get-files task must run first');
-  });
-
-  test('should handle fs errors', async () => {
-    const { mkdir } = await import('node:fs/promises');
-
-    // Mock fs operations to fail
-    vi.mocked(mkdir).mockRejectedValue(new Error('Failed to create directory'));
-
-    const context = {
-      [GetFilesTask.name]: createMockGetFilesResult(),
-    };
-
-    await expect(
-      BuildPlaceholderUiTask.run(mockBuildOptions, context),
-    ).rejects.toThrow('Failed to build placeholder UI');
   });
 });

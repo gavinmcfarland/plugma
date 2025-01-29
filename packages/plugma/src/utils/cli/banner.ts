@@ -5,7 +5,7 @@ import type { PluginOptions } from '#core/types.js';
  * command history tracking, and UI customization.
  */
 interface CommandHistory {
-  previousCommand: 'dev' | 'preview' | null;
+  previousCommand: 'dev' | 'preview' | 'test' | null;
   previousInstanceId: string | null;
 }
 
@@ -278,10 +278,9 @@ function customShowUI(
 }
 
 export {
-    customResize,
-    customShowUI,
-    getCommandHistory,
-    getWindowSettings,
-    setWindowSettings
+  customResize,
+  customShowUI,
+  getCommandHistory,
+  getWindowSettings,
+  setWindowSettings,
 };
-

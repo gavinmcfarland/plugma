@@ -83,6 +83,11 @@ export class Logger {
     this.log(['\n'.repeat(amount - 1)], '', force);
   }
 
+  text(...args: string[]): this {
+    this.log(args, null, true);
+    return this; // Return the instance for chaining
+  }
+
   /**
    * Logs an informational message.
    * @param args - Arguments to log

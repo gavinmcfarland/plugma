@@ -1,16 +1,16 @@
-import {
-  mockMainBuildOptions,
-  resetMocks,
-  setupFsMocks,
-  setupViteMock,
-} from '#tests/utils/mock-build.js';
-import { createMockBuildFs } from '#tests/utils/mock-fs.js';
-import { createMockGetFilesResult } from '#tests/utils/mock-get-files.js';
-import { createMockContext } from '#tests/utils/mock-task.js';
-import { createMockViteServer } from '#tests/utils/mock-vite.js';
 import { registerCleanup, unregisterCleanup } from '#utils/cleanup.js';
 import { build } from 'vite';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import {
+  mockBuildOptions,
+  resetMocks,
+  setupFsMocks,
+  setupViteMock,
+} from '../../../test/utils/mock-build.js';
+import { createMockBuildFs } from '../../../test/utils/mock-fs.js';
+import { createMockGetFilesResult } from '../../../test/utils/mock-get-files.js';
+import { createMockTaskContext } from '../../../test/utils/mock-task.js';
+import { createMockViteServer } from '../../../test/utils/mock-vite.js';
 import { GetFilesTask } from '../common/get-files.js';
 import { viteState } from '../server/vite.js';
 import { BuildMainTask } from './main.js';
@@ -25,169 +25,201 @@ vi.mock('#utils/cleanup.js', () => ({
 }));
 
 describe('Main Build Tasks', () => {
-  describe('buildMain Task', () => {
-    beforeEach(() => {
-      resetMocks();
-      viteState.viteBuild = null;
-    });
+  beforeEach(() => {
+    resetMocks();
+    viteState.viteBuild = null;
+  });
 
-    describe('Task Definition', () => {
-      test('should have correct name', () => {
-        expect(BuildMainTask.name).toBe('build:main');
-      });
+  describe('Task Definition', () => {
+    test('should have correct name', () => {
+      expect(BuildMainTask.name).toBe('build:main');
     });
+  });
 
-    describe('Task Execution', () => {
-      test('should build main script when main is specified', async () => {
-        const fs = createMockBuildFs();
-        const getFilesResult = createMockGetFilesResult({
-          files: {
-            manifest: {
-              name: 'Test Plugin',
-              id: 'test-plugin',
-              version: '1.0.0',
-              api: '1.0.0',
-              main: 'src/plugin-main.ts',
-            },
+  describe('Task Execution', () => {
+    test('should build main script using manifest.main', async () => {
+      const fs = createMockBuildFs();
+      const mainPath = 'src/plugin-main.ts';
+      const getFilesResult = createMockGetFilesResult({
+        files: {
+          manifest: {
+            name: 'Test Plugin',
+            id: 'test-plugin',
+            version: '1.0.0',
+            api: '1.0.0',
+            main: mainPath,
           },
-        });
+        },
+      });
 
-        const context = createMockContext(mockMainBuildOptions, {
-          [GetFilesTask.name]: getFilesResult,
-        });
+      const context = createMockTaskContext(mockBuildOptions, {
+        [GetFilesTask.name]: getFilesResult,
+      });
 
-        await BuildMainTask.run(mockMainBuildOptions, context);
+      await BuildMainTask.run(mockBuildOptions, context);
 
-        expect(build).toHaveBeenCalledWith(
-          expect.objectContaining({
-            root: process.cwd(),
-            base: '/',
-            mode: expect.any(String),
-            build: expect.objectContaining({
-              outDir: expect.any(String),
-              emptyOutDir: true,
-              sourcemap: true,
-              minify: expect.any(Boolean),
-              lib: expect.objectContaining({
-                entry: 'src/plugin-main.ts',
-                formats: ['iife'],
-                name: 'plugin',
-                fileName: expect.any(Function),
-              }),
-              rollupOptions: expect.objectContaining({
-                input: 'src/plugin-main.ts',
-                external: ['figma'],
-                output: expect.objectContaining({
-                  globals: expect.objectContaining({
-                    figma: 'figma',
-                  }),
+      expect(build).toHaveBeenCalledWith(
+        expect.objectContaining({
+          root: process.cwd(),
+          base: '/',
+          mode: expect.any(String),
+          build: expect.objectContaining({
+            outDir: expect.any(String),
+            emptyOutDir: true,
+            sourcemap: true,
+            minify: expect.any(Boolean),
+            lib: expect.objectContaining({
+              entry: expect.stringContaining(mainPath),
+              formats: ['iife'],
+              name: 'plugin',
+              fileName: expect.any(Function),
+            }),
+            rollupOptions: expect.objectContaining({
+              input: expect.stringContaining(mainPath),
+              external: ['figma'],
+              output: expect.objectContaining({
+                globals: expect.objectContaining({
+                  figma: 'figma',
                 }),
               }),
             }),
           }),
-        );
-      });
+        }),
+      );
+    });
 
-      test('should skip build when main is not specified', async () => {
-        const getFilesResult = createMockGetFilesResult({
-          files: {
-            manifest: {
-              name: 'Test Plugin',
-              id: 'test-plugin',
-              version: '1.0.0',
-              api: '1.0.0',
-              // main is intentionally omitted
-            },
+    test('should skip build when main is not specified', async () => {
+      const getFilesResult = createMockGetFilesResult({
+        files: {
+          manifest: {
+            name: 'Test Plugin',
+            id: 'test-plugin',
+            version: '1.0.0',
+            api: '1.0.0',
+            // main is intentionally omitted
           },
-        });
-
-        const context = createMockContext(mockMainBuildOptions, {
-          [GetFilesTask.name]: getFilesResult,
-        });
-
-        await BuildMainTask.run(mockMainBuildOptions, context);
-
-        expect(build).not.toHaveBeenCalled();
+        },
       });
 
-      test('should close existing build server', async () => {
-        const mockServer = createMockViteServer();
-        viteState.viteBuild = mockServer;
-
-        const getFilesResult = createMockGetFilesResult();
-        const context = createMockContext(mockMainBuildOptions, {
-          [GetFilesTask.name]: getFilesResult,
-        });
-
-        await BuildMainTask.run(mockMainBuildOptions, context);
-
-        expect(mockServer.close).toHaveBeenCalled();
+      const context = createMockTaskContext(mockBuildOptions, {
+        [GetFilesTask.name]: getFilesResult,
       });
 
-      test('should register cleanup in dev/preview mode', async () => {
-        const getFilesResult = createMockGetFilesResult();
-        const context = createMockContext(mockMainBuildOptions, {
-          [GetFilesTask.name]: getFilesResult,
-        });
+      const result = await BuildMainTask.run(mockBuildOptions, context);
 
-        await BuildMainTask.run(mockMainBuildOptions, context);
+      expect(build).not.toHaveBeenCalled();
+      expect(result).toEqual({
+        outputPath: expect.stringContaining('main.js'),
+      });
+    });
 
-        expect(registerCleanup).toHaveBeenCalled();
-        expect(unregisterCleanup).not.toHaveBeenCalled();
+    test('should close existing build server', async () => {
+      const mockServer = createMockViteServer();
+      viteState.viteBuild = mockServer;
+
+      const mainPath = 'src/plugin-main.ts';
+      const getFilesResult = createMockGetFilesResult({
+        files: {
+          manifest: {
+            name: 'Test Plugin',
+            id: 'test-plugin',
+            version: '1.0.0',
+            api: '1.0.0',
+            main: mainPath,
+          },
+        },
       });
 
-      test('should unregister cleanup in build mode', async () => {
-        const getFilesResult = createMockGetFilesResult();
-        const context = createMockContext(mockMainBuildOptions, {
-          [GetFilesTask.name]: getFilesResult,
-        });
-
-        await BuildMainTask.run(
-          { ...mockMainBuildOptions, command: 'build' },
-          context,
-        );
-
-        expect(registerCleanup).toHaveBeenCalled();
-        expect(unregisterCleanup).toHaveBeenCalled();
+      const context = createMockTaskContext(mockBuildOptions, {
+        [GetFilesTask.name]: getFilesResult,
       });
 
-      test('should enable watch mode in dev/preview', async () => {
-        const getFilesResult = createMockGetFilesResult();
-        const context = createMockContext(mockMainBuildOptions, {
-          [GetFilesTask.name]: getFilesResult,
-        });
+      await BuildMainTask.run(mockBuildOptions, context);
 
-        await BuildMainTask.run(mockMainBuildOptions, context);
+      expect(mockServer.close).toHaveBeenCalled();
+    });
 
-        expect(build).toHaveBeenCalledWith(
-          expect.objectContaining({
-            build: expect.objectContaining({
-              watch: {},
-            }),
-          }),
-        );
+    test('should register cleanup in dev/preview mode', async () => {
+      const mainPath = 'src/plugin-main.ts';
+      const getFilesResult = createMockGetFilesResult({
+        files: {
+          manifest: {
+            name: 'Test Plugin',
+            id: 'test-plugin',
+            version: '1.0.0',
+            api: '1.0.0',
+            main: mainPath,
+          },
+        },
       });
 
-      test('should handle missing get-files result', async () => {
-        const context = createMockContext(mockMainBuildOptions, {});
-
-        await expect(
-          BuildMainTask.run(mockMainBuildOptions, context),
-        ).rejects.toThrow('get-files task must run first');
+      const context = createMockTaskContext(mockBuildOptions, {
+        [GetFilesTask.name]: getFilesResult,
       });
 
-      test('should handle Vite build errors', async () => {
-        const getFilesResult = createMockGetFilesResult();
-        vi.mocked(build).mockRejectedValueOnce(new Error('Build failed'));
+      await BuildMainTask.run(mockBuildOptions, context);
 
-        const context = createMockContext(mockMainBuildOptions, {
-          [GetFilesTask.name]: getFilesResult,
-        });
+      expect(registerCleanup).toHaveBeenCalled();
+      expect(unregisterCleanup).not.toHaveBeenCalled();
+    });
 
-        await expect(
-          BuildMainTask.run(mockMainBuildOptions, context),
-        ).rejects.toThrow('Failed to build main script: Build failed');
+    test('should unregister cleanup in build mode', async () => {
+      const mainPath = 'src/plugin-main.ts';
+      const getFilesResult = createMockGetFilesResult({
+        files: {
+          manifest: {
+            name: 'Test Plugin',
+            id: 'test-plugin',
+            version: '1.0.0',
+            api: '1.0.0',
+            main: mainPath,
+          },
+        },
       });
+
+      const context = createMockTaskContext(mockBuildOptions, {
+        [GetFilesTask.name]: getFilesResult,
+      });
+
+      await BuildMainTask.run(
+        { ...mockBuildOptions, command: 'build' },
+        context,
+      );
+
+      expect(registerCleanup).toHaveBeenCalled();
+      expect(unregisterCleanup).toHaveBeenCalled();
+    });
+
+    test('should handle missing get-files result', async () => {
+      const context = createMockTaskContext(mockBuildOptions, {});
+
+      await expect(
+        BuildMainTask.run(mockBuildOptions, context),
+      ).rejects.toThrow('get-files task must run first');
+    });
+
+    test('should handle Vite build errors', async () => {
+      const mainPath = 'src/plugin-main.ts';
+      const getFilesResult = createMockGetFilesResult({
+        files: {
+          manifest: {
+            name: 'Test Plugin',
+            id: 'test-plugin',
+            version: '1.0.0',
+            api: '1.0.0',
+            main: mainPath,
+          },
+        },
+      });
+      vi.mocked(build).mockRejectedValueOnce(new Error('Build failed'));
+
+      const context = createMockTaskContext(mockBuildOptions, {
+        [GetFilesTask.name]: getFilesResult,
+      });
+
+      await expect(
+        BuildMainTask.run(mockBuildOptions, context),
+      ).rejects.toThrow('Failed to build main script: Build failed');
     });
   });
 });

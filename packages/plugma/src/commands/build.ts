@@ -47,13 +47,13 @@ export async function build(options: BuildCommandOptions): Promise<void> {
     // Execute tasks in sequence
     log.info('Executing tasks...');
 
-    // Pass the task objects directly
+    // Pass the task objects directly - BuildManifestTask moved to the end
     const results = await serial(
       GetFilesTask,
       ShowPlugmaPromptTask,
-      BuildManifestTask,
       BuildMainTask,
       BuildUiTask,
+      BuildManifestTask,
     )(pluginOptions);
 
     log.debug(`Task execution results: ${JSON.stringify(results, null, 2)}`);

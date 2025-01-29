@@ -19,6 +19,11 @@ function deleteFile(options: DeleteDistOptions, platform: Platform): void {
   const file = platform === 'ui' ? 'ui.html' : 'main.js';
   const distFilePath = resolve(join(process.cwd(), options.output, file));
 
+  // Skip manifest.json
+  if (file === 'manifest.json') {
+    return;
+  }
+
   if (existsSync(distFilePath)) {
     unlinkSync(distFilePath);
     // console.warn(`Deleted ${distFilePath} due to an error.`);

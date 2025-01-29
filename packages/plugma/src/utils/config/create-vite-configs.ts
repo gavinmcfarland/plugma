@@ -10,10 +10,10 @@ import { getDirName } from '#utils/path.js';
 import {
   deepIndex,
   dotEnvLoader,
+  gatherBuildOutputs,
   htmlTransform,
   replaceMainInput,
   rewritePostMessageTargetOrigin,
-  viteCopyDirectoryPlugin,
   vitePluginInsertCustomFunctions,
 } from '#vite-plugins';
 
@@ -34,6 +34,12 @@ export type ViteConfigs = {
 
 /**
  * Creates Vite configurations for both development and build
+ *
+ * Note: The original function returned an object with the keys
+ * `vite` (for the UI) and `viteMain` (for the main).
+ * Each of those objects had the keys `dev` and `build` with the
+ * vite config for the respective plugma commands.
+ *
  * @param options - Plugin configuration options
  * @param userFiles - User's plugin files configuration
  * @returns Vite configurations for different environments
@@ -44,9 +50,13 @@ export function createViteConfigs(
 ): ViteConfigs {
   const commonVitePlugins: Plugin[] = [
     viteSingleFile(),
-    viteCopyDirectoryPlugin({
+    gatherBuildOutputs({
       sourceDir: path.join(options.output, 'node_modules', 'plugma', 'tmp'),
-      targetDir: path.join(options.output),
+      outputDir: path.join(options.output),
+      filter: () => true, // Copy all files
+      getOutputPath: (file: string) =>
+        file === 'index.html' ? 'ui.html' : file,
+      removeSourceDir: true,
     }),
   ];
 
@@ -122,6 +132,8 @@ export function createViteConfigs(
       target: 'chrome58',
       sourcemap: false,
       emptyOutDir: false,
+      write: true,
+      watch: null,
     },
     resolve: {
       extensions: ['.ts', '.js'],
@@ -156,6 +168,8 @@ export function createViteConfigs(
       target: 'chrome58',
       sourcemap: false,
       emptyOutDir: false,
+      write: true,
+      watch: null,
     },
     resolve: {
       extensions: ['.ts', '.js'],
