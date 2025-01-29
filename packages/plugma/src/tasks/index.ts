@@ -1,11 +1,19 @@
-//@index(['./*/*.ts', '!**/*.test.ts'], f => `export * from '${f.path}'`)
-export * from './build/main';
-export * from './build/manifest';
-export * from './build/placeholder-ui';
-export * from './build/ui';
-export * from './common/get-files';
-export * from './common/prompt';
-export * from './server/restart-vite';
-export * from './server/vite';
-export * from './server/websocket';
+//@index(['./*/*.ts', '!**/*.test.ts'], f => `export * from '${f.path}.js';`)
+export * from './build/main.js';
+export * from './build/manifest.js';
+export * from './build/placeholder-ui.js';
+export * from './build/ui.js';
+export * from './common/get-files.js';
+export * from './common/prompt.js';
+export * from './release/git-release.js';
+export * from './release/git-status.js';
+export * from './release/index.js';
+export * from './release/version-update.js';
+export * from './release/workflow-templates.js';
+export * from './server/restart-vite.js';
+export * from './server/vite.js';
+export * from './server/websocket.js';
+export * from './test/inject-test-code.js';
+export * from './test/run-vitest.js';
+export * from './test/start-test-server.js';
 //@endindex

@@ -1,18 +1,26 @@
+import {
+  BuildMainTask,
+  BuildManifestTask,
+  BuildUiTask,
+  GetFilesTask,
+  ShowPlugmaPromptTask,
+} from '#tasks';
+import { serial } from '#tasks/runner.js';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { BuildMainTask } from '../tasks/build/main.js';
-import { BuildManifestTask } from '../tasks/build/manifest.js';
-import { BuildUiTask } from '../tasks/build/ui.js';
-import { GetFilesTask } from '../tasks/common/get-files.js';
-import { ShowPlugmaPromptTask } from '../tasks/common/prompt.js';
-import { serial } from '../tasks/runner.js';
-import { StartViteServerTask } from '../tasks/server/vite.js';
-import { StartWebSocketsServerTask } from '../tasks/server/websocket.js';
 import { build } from './build.js';
 import type { BuildCommandOptions } from './types.js';
 
-vi.mock('../tasks/runner.js', () => ({
-  serial: vi.fn(),
-}));
+// Mock the task runner module
+vi.mock('#tasks/runner.js', () => {
+  const runTasksFn = vi.fn(() => Promise.resolve());
+  return {
+    task: vi.fn((name, fn) => ({ name, run: fn })),
+    serial: vi.fn(() => runTasksFn),
+    parallel: vi.fn(() => vi.fn(() => Promise.resolve())),
+    run: vi.fn(),
+    log: vi.fn(),
+  };
+});
 
 describe('Build Command', () => {
   beforeEach(() => {
@@ -25,13 +33,16 @@ describe('Build Command', () => {
       await build(options);
 
       expect(serial).toHaveBeenCalledWith(
-        [
-          GetFilesTask.name,
-          ShowPlugmaPromptTask.name,
-          BuildManifestTask.name,
-          BuildUiTask.name,
-          BuildMainTask.name,
-        ] as const,
+        GetFilesTask,
+        ShowPlugmaPromptTask,
+        BuildMainTask,
+        BuildUiTask,
+        BuildManifestTask,
+      );
+
+      // Verify the options passed to the returned function
+      const runTasks = vi.mocked(serial).mock.results[0].value;
+      expect(runTasks).toHaveBeenCalledWith(
         expect.objectContaining({
           ...options,
           mode: 'production',
@@ -51,8 +62,9 @@ describe('Build Command', () => {
       };
       await build(options);
 
-      expect(serial).toHaveBeenCalledWith(
-        expect.any(Array),
+      // Verify the options passed to the returned function
+      const runTasks = vi.mocked(serial).mock.results[0].value;
+      expect(runTasks).toHaveBeenCalledWith(
         expect.objectContaining({
           ...options,
           port: 3000,
@@ -64,16 +76,22 @@ describe('Build Command', () => {
     test('should not start servers in build mode', async () => {
       await build({ debug: false, command: 'build' });
 
-      const taskNames = vi.mocked(serial).mock.calls[0][0];
-      expect(taskNames).not.toContain(StartViteServerTask.name);
-      expect(taskNames).not.toContain(StartWebSocketsServerTask.name);
+      expect(serial).toHaveBeenCalledWith(
+        GetFilesTask,
+        ShowPlugmaPromptTask,
+        BuildMainTask,
+        BuildUiTask,
+        BuildManifestTask,
+      );
     });
   });
 
   describe('Error Handling', () => {
     test('should handle task execution errors', async () => {
       const error = new Error('Task execution failed');
-      vi.mocked(serial).mockRejectedValueOnce(error);
+      vi.mocked(serial).mockImplementationOnce(() => () => {
+        throw error;
+      });
 
       await expect(build({ debug: false, command: 'build' })).rejects.toThrow(
         error,

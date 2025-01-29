@@ -1,13 +1,12 @@
 import path from 'node:path';
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  WorkflowTemplateError,
-  workflowTemplates,
-} from './workflow-templates.js';
+
+import { WorkflowTemplateError, workflowTemplates } from '#tasks';
 
 // Mock node modules
-vi.mock('node:fs', () => ({
-  promises: {
+vi.mock('node:fs/promises', () => ({
+  default: {
     access: vi.fn(),
     mkdir: vi.fn(),
     readdir: vi.fn(),
@@ -22,9 +21,15 @@ vi.mock('node:child_process', () => ({
 
 import { execSync } from 'node:child_process';
 // Import after mocking
-import { promises as fs } from 'node:fs';
+import fs from 'node:fs/promises';
 
 describe('workflowTemplates', () => {
+  const releaseWorkflowPath = path.join(
+    process.cwd(),
+    '.github',
+    'workflows',
+    'plugma-create-release.yml',
+  );
   const templateDir = path.join(
     process.cwd(),
     'src',
@@ -55,6 +60,7 @@ describe('workflowTemplates', () => {
     expect(result).toEqual({
       templatesChanged: false,
       copiedTemplates: [],
+      releaseWorkflowPath,
       updatedTemplates: [],
     });
 
@@ -68,7 +74,10 @@ describe('workflowTemplates', () => {
     // Mock successful template directory check
     vi.mocked(fs.access).mockResolvedValueOnce(undefined);
     // Mock template files
-    vi.mocked(fs.readdir).mockResolvedValueOnce(['test.yml', 'other.yml']);
+    vi.mocked(fs.readdir).mockResolvedValueOnce([
+      'test.yml',
+      'other.yml',
+    ] as any);
     // Mock directory creation
     vi.mocked(fs.mkdir).mockResolvedValueOnce(undefined);
     // Mock file stats to indicate source is newer
@@ -86,6 +95,7 @@ describe('workflowTemplates', () => {
     expect(result).toEqual({
       templatesChanged: true,
       copiedTemplates: ['test.yml', 'other.yml'],
+      releaseWorkflowPath,
       updatedTemplates: [],
     });
 
@@ -96,7 +106,9 @@ describe('workflowTemplates', () => {
     // Mock successful template directory check
     vi.mocked(fs.access).mockResolvedValueOnce(undefined);
     // Mock template files
-    vi.mocked(fs.readdir).mockResolvedValueOnce(['plugma-create-release.yml']);
+    vi.mocked(fs.readdir).mockResolvedValueOnce([
+      'plugma-create-release.yml',
+    ] as any);
     // Mock directory creation
     vi.mocked(fs.mkdir).mockResolvedValueOnce(undefined);
     // Mock file stats to indicate source is newer
@@ -115,6 +127,7 @@ describe('workflowTemplates', () => {
       templatesChanged: true,
       copiedTemplates: [],
       updatedTemplates: ['plugma-create-release.yml'],
+      releaseWorkflowPath,
     });
 
     expect(execSync).toHaveBeenCalledTimes(2);
@@ -134,7 +147,7 @@ describe('workflowTemplates', () => {
     // Mock successful template directory check
     vi.mocked(fs.access).mockResolvedValueOnce(undefined);
     // Mock template files
-    vi.mocked(fs.readdir).mockResolvedValueOnce(['test.yml']);
+    vi.mocked(fs.readdir).mockResolvedValueOnce(['test.yml'] as any);
     // Mock directory creation
     vi.mocked(fs.mkdir).mockResolvedValueOnce(undefined);
     // Mock file stats to indicate source is older
@@ -147,6 +160,7 @@ describe('workflowTemplates', () => {
     expect(result).toEqual({
       templatesChanged: false,
       copiedTemplates: [],
+      releaseWorkflowPath,
       updatedTemplates: [],
     });
 
@@ -159,7 +173,7 @@ describe('workflowTemplates', () => {
 
     await expect(workflowTemplates()).rejects.toThrow(
       new WorkflowTemplateError(
-        expect.stringContaining('Template directory not found:'),
+        `Template directory not found: ${templateDir}`,
         'TEMPLATE_NOT_FOUND',
       ),
     );
@@ -169,7 +183,9 @@ describe('workflowTemplates', () => {
     // Mock successful template directory check
     vi.mocked(fs.access).mockResolvedValueOnce(undefined);
     // Mock template files
-    vi.mocked(fs.readdir).mockResolvedValueOnce(['plugma-create-release.yml']);
+    vi.mocked(fs.readdir).mockResolvedValueOnce([
+      'plugma-create-release.yml',
+    ] as any);
     // Mock directory creation
     vi.mocked(fs.mkdir).mockResolvedValueOnce(undefined);
     // Mock file stats to indicate source is newer
@@ -190,6 +206,7 @@ describe('workflowTemplates', () => {
     expect(result).toEqual({
       templatesChanged: true,
       copiedTemplates: [],
+      releaseWorkflowPath,
       updatedTemplates: ['plugma-create-release.yml'],
     });
   });

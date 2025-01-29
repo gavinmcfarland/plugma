@@ -1,16 +1,16 @@
-import { registerCleanup, unregisterCleanup } from '#utils/cleanup.js';
-import { build } from 'vite';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
 import {
+  createMockBuildFs,
+  createMockGetFilesResult,
+  createMockTaskContext,
+  createMockViteServer,
   mockBuildOptions,
   resetMocks,
   setupFsMocks,
   setupViteMock,
-} from '../../../test/utils/mock-build.js';
-import { createMockBuildFs } from '../../../test/utils/mock-fs.js';
-import { createMockGetFilesResult } from '../../../test/utils/mock-get-files.js';
-import { createMockTaskContext } from '../../../test/utils/mock-task.js';
-import { createMockViteServer } from '../../../test/utils/mock-vite.js';
+} from '#test';
+import { registerCleanup, unregisterCleanup } from '#utils/cleanup.js';
+import { build } from 'vite';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { GetFilesTask } from '../common/get-files.js';
 import { viteState } from '../server/vite.js';
 import { BuildMainTask } from './main.js';
@@ -52,7 +52,7 @@ describe('Main Build Tasks', () => {
         },
       });
 
-      const context = createMockTaskContext(mockBuildOptions, {
+      const context = createMockTaskContext({
         [GetFilesTask.name]: getFilesResult,
       });
 
@@ -101,7 +101,7 @@ describe('Main Build Tasks', () => {
         },
       });
 
-      const context = createMockTaskContext(mockBuildOptions, {
+      const context = createMockTaskContext({
         [GetFilesTask.name]: getFilesResult,
       });
 
@@ -130,7 +130,7 @@ describe('Main Build Tasks', () => {
         },
       });
 
-      const context = createMockTaskContext(mockBuildOptions, {
+      const context = createMockTaskContext({
         [GetFilesTask.name]: getFilesResult,
       });
 
@@ -153,7 +153,7 @@ describe('Main Build Tasks', () => {
         },
       });
 
-      const context = createMockTaskContext(mockBuildOptions, {
+      const context = createMockTaskContext({
         [GetFilesTask.name]: getFilesResult,
       });
 
@@ -177,7 +177,7 @@ describe('Main Build Tasks', () => {
         },
       });
 
-      const context = createMockTaskContext(mockBuildOptions, {
+      const context = createMockTaskContext({
         [GetFilesTask.name]: getFilesResult,
       });
 
@@ -191,10 +191,8 @@ describe('Main Build Tasks', () => {
     });
 
     test('should handle missing get-files result', async () => {
-      const context = createMockTaskContext(mockBuildOptions, {});
-
       await expect(
-        BuildMainTask.run(mockBuildOptions, context),
+        BuildMainTask.run(mockBuildOptions, {} as any),
       ).rejects.toThrow('get-files task must run first');
     });
 
@@ -213,7 +211,7 @@ describe('Main Build Tasks', () => {
       });
       vi.mocked(build).mockRejectedValueOnce(new Error('Build failed'));
 
-      const context = createMockTaskContext(mockBuildOptions, {
+      const context = createMockTaskContext({
         [GetFilesTask.name]: getFilesResult,
       });
 

@@ -4,7 +4,7 @@
  */
 
 import { execSync } from 'node:child_process';
-import { promises as fs } from 'node:fs';
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -37,6 +37,8 @@ export interface WorkflowTemplateResult {
   copiedTemplates: string[];
   /** List of templates that were updated */
   updatedTemplates: string[];
+  /** Path to the release workflow file */
+  releaseWorkflowPath: string;
 }
 
 /**
@@ -70,6 +72,10 @@ export async function workflowTemplates(): Promise<WorkflowTemplateResult> {
     templatesChanged: false,
     copiedTemplates: [],
     updatedTemplates: [],
+    releaseWorkflowPath: path.join(
+      process.cwd(),
+      '.github/workflows/plugma-create-release.yml',
+    ),
   };
 
   try {

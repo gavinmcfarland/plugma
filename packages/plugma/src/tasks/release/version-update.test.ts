@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import {
   VersionUpdateError,
   type VersionUpdateOptions,
   versionUpdate,
-} from './version-update.js';
+} from '#tasks';
 
 // Mock fs promises
 vi.mock('node:fs', () => ({
@@ -35,6 +36,7 @@ describe('versionUpdate', () => {
 
     expect(result).toEqual({
       previousVersion: '0',
+      newTag: 'v1',
       newVersion: '1',
       wasInitialized: true,
       releaseType: 'stable',
@@ -42,7 +44,7 @@ describe('versionUpdate', () => {
 
     expect(fs.writeFile).toHaveBeenCalledWith(
       expect.stringContaining('package.json'),
-      expect.stringContaining('"pluginVersion":"1"'),
+      expect.stringContaining('"pluginVersion": "1"'),
       'utf8',
     );
   });
@@ -59,6 +61,7 @@ describe('versionUpdate', () => {
 
     expect(result).toEqual({
       previousVersion: '1',
+      newTag: 'v42',
       newVersion: '42',
       wasInitialized: false,
       releaseType: 'stable',
@@ -88,6 +91,7 @@ describe('versionUpdate', () => {
 
     expect(result).toEqual({
       previousVersion: '1',
+      newTag: 'v2',
       newVersion: '2',
       wasInitialized: false,
       releaseType: 'stable',
@@ -102,6 +106,7 @@ describe('versionUpdate', () => {
 
     expect(result).toEqual({
       previousVersion: '1',
+      newTag: 'v1-alpha.0',
       newVersion: '1-alpha.0',
       wasInitialized: false,
       releaseType: 'alpha',
@@ -116,6 +121,7 @@ describe('versionUpdate', () => {
 
     expect(result).toEqual({
       previousVersion: '1-alpha.0',
+      newTag: 'v1-alpha.1',
       newVersion: '1-alpha.1',
       wasInitialized: false,
       releaseType: 'alpha',
@@ -130,6 +136,7 @@ describe('versionUpdate', () => {
 
     expect(result).toEqual({
       previousVersion: '1',
+      newTag: 'v1-beta.0',
       newVersion: '1-beta.0',
       wasInitialized: false,
       releaseType: 'beta',
@@ -144,6 +151,7 @@ describe('versionUpdate', () => {
 
     expect(result).toEqual({
       previousVersion: '1-beta.0',
+      newTag: 'v1-beta.1',
       newVersion: '1-beta.1',
       wasInitialized: false,
       releaseType: 'beta',
@@ -158,6 +166,7 @@ describe('versionUpdate', () => {
 
     expect(result).toEqual({
       previousVersion: '1-alpha.1',
+      newTag: 'v1-beta.0',
       newVersion: '1-beta.0',
       wasInitialized: false,
       releaseType: 'beta',
@@ -169,7 +178,7 @@ describe('versionUpdate', () => {
 
     await expect(versionUpdate()).rejects.toThrow(
       new VersionUpdateError(
-        expect.stringContaining('Invalid package.json:'),
+        'Invalid package.json: Unexpected token \'i\', "invalid json" is not valid JSON',
         'PARSE_ERROR',
       ),
     );

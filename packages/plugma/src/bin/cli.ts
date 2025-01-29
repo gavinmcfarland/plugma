@@ -6,6 +6,7 @@ import { Command } from 'commander';
 import {
   type BuildCommandOptions,
   type DevCommandOptions,
+  type PreviewCommandOptions,
   type ReleaseCommandOptions,
   type TestCommandOptions,
   build,
@@ -84,7 +85,7 @@ program
   .option('-m, --mode <mode>', 'Specify the mode', 'development')
   .option('-o, --output <path>', 'Specify the output directory', 'dist')
   .option('-d, --debug', 'Enable debug mode', false)
-  .action(function (this: Command, options: DevCommandOptions) {
+  .action(function (this: Command, options: PreviewCommandOptions) {
     handleDebug(this.name(), options);
     preview(options);
   })

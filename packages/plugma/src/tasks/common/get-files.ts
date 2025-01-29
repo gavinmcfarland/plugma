@@ -11,9 +11,22 @@ import { task } from '../runner.js';
 const __dirname = getDirName(import.meta.url);
 
 /**
+ * Custom error class for file loading operations
+ */
+export class GetFilesError extends Error {
+  constructor(
+    message: string,
+    public code: 'INVALID_PACKAGE_JSON' | 'CONFIG_ERROR' | 'FILE_ERROR',
+  ) {
+    super(message);
+    this.name = 'GetFilesError';
+  }
+}
+
+/**
  * Result type for the getFiles task
  */
-export interface GetFilesResult {
+export interface GetFilesTaskResult {
   /** The version of the plugin */
   version: string;
   /** The files to be used by the plugin */
@@ -27,18 +40,36 @@ export interface GetFilesResult {
  */
 export const getFiles = async (
   options: PluginOptions,
-): Promise<GetFilesResult> => {
-  // Get user files
-  const files = await getUserFiles(options);
+): Promise<GetFilesTaskResult> => {
+  try {
+    // Get user files
+    const files = await getUserFiles(options);
 
-  // Create configs
-  const config = createViteConfigs(options, files);
+    // Create configs
+    const config = createViteConfigs(options, files);
 
-  return {
-    version: files.userPkgJson.version,
-    files,
-    config,
-  };
+    return {
+      version: files.userPkgJson.version,
+      files,
+      config,
+    };
+  } catch (err) {
+    if (err instanceof Error) {
+      if (err.message.includes('manifest configuration')) {
+        throw new GetFilesError(
+          'Invalid package.json structure',
+          'INVALID_PACKAGE_JSON',
+        );
+      }
+      if (err.message.includes('create configs')) {
+        throw new GetFilesError(err.message, 'CONFIG_ERROR');
+      }
+    }
+    throw new GetFilesError(
+      `Failed to load files: ${err instanceof Error ? err.message : 'Unknown error'}`,
+      'FILE_ERROR',
+    );
+  }
 };
 
 export const GetFilesTask = task('common:get-files', getFiles);

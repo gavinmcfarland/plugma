@@ -1,11 +1,11 @@
-import type { ViteDevServer } from 'vite';
-import { createServer } from 'vite';
+import { type ViteDevServer, createServer } from 'vite';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { type MockFs, createMockFs } from '../../../test/utils/mock-fs.js';
-import { createMockGetFilesResult } from '../../../test/utils/mock-get-files.js';
-import { createMockViteServer } from '../../../test/utils/mock-vite.js';
-import { GetFilesTask } from '../common/get-files.js';
-import { RestartViteServerTask } from './restart-vite.js';
+
+import type { ResultsOfTask, UserFiles } from '#core/types.js';
+import { GetFilesTask, RestartViteServerTask } from '#tasks';
+import { type MockFs, createMockFs, createMockGetFilesResult } from '#test';
+import { createMockViteConfig } from '#test/mocks/vite/mock-vite-config.js';
+import { createMockViteServer } from '#test/mocks/vite/mock-vite.js';
 import { viteState } from './vite.js';
 
 vi.mock('vite', () => ({
@@ -15,6 +15,7 @@ vi.mock('vite', () => ({
 describe('Restart Vite Server Tasks', () => {
   let mockFs: MockFs;
   let mockServer: ViteDevServer;
+  let mockConfig: ReturnType<typeof createMockViteConfig>;
 
   const baseOptions = {
     command: 'dev' as const,
@@ -28,7 +29,8 @@ describe('Restart Vite Server Tasks', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockFs = createMockFs();
-    mockServer = createMockViteServer();
+    mockConfig = createMockViteConfig();
+    mockServer = createMockViteServer({ config: mockConfig.ui.dev } as any);
     vi.mocked(createServer).mockResolvedValue(mockServer);
     viteState.viteServer = null;
   });
@@ -116,10 +118,10 @@ describe('Restart Vite Server Tasks', () => {
     });
 
     test('should skip restart if no UI is specified', async () => {
-      const context = {
+      const context: ResultsOfTask<GetFilesTask> = {
         [GetFilesTask.name]: {
           ...createMockGetFilesResult(),
-          files: { manifest: {} },
+          files: { manifest: {} } as unknown as UserFiles,
         },
       };
 
@@ -194,13 +196,37 @@ describe('Restart Vite Server Tasks', () => {
 
     test('should merge UI dev config from get-files', async () => {
       const context = {
-        [GetFilesTask.name]: createMockGetFilesResult(),
+        [GetFilesTask.name]: {
+          ...createMockGetFilesResult(),
+          config: mockConfig,
+        },
       };
 
       await RestartViteServerTask.run(baseOptions, context);
 
       expect(createServer).toHaveBeenCalledWith(
-        expect.objectContaining(context[GetFilesTask.name].config.ui.dev),
+        expect.objectContaining({
+          ...mockConfig.ui.dev,
+          root: process.cwd(),
+          base: '/',
+          server: {
+            port: baseOptions.port,
+            strictPort: true,
+            cors: true,
+            host: 'localhost',
+            middlewareMode: false,
+            sourcemapIgnoreList: expect.any(Function),
+            hmr: {
+              port: baseOptions.port,
+              protocol: 'ws',
+              host: 'localhost',
+            },
+          },
+          optimizeDeps: {
+            entries: expect.any(Array),
+          },
+          logLevel: 'error',
+        }),
       );
     });
   });

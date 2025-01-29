@@ -40,13 +40,13 @@ export async function test(options: TestCommandOptions): Promise<void> {
 
     // Execute tasks in sequence
     log.info('Executing test tasks...');
-    const { success } = await serial(
+    const results = await serial(
       InjectTestCodeTask, // Inject test framework
       StartTestServerTask, // Start WebSocket server
       RunVitestTask, // Run tests with Vitest
     )(pluginOptions);
 
-    if (success) {
+    if (results['test:run-vitest'].success) {
       log.success('All tests passed');
     } else {
       log.error('Some tests failed');

@@ -50,9 +50,9 @@ export async function dev(options: DevCommandOptions): Promise<void> {
     await serial(
       GetFilesTask,
       ShowPlugmaPromptTask,
-      BuildManifestTask,
-      BuildUiTask,
       BuildMainTask,
+      BuildUiTask,
+      BuildManifestTask,
       StartViteServerTask,
       RestartViteServerTask,
       StartWebSocketsServerTask,

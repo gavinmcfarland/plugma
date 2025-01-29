@@ -1,26 +1,34 @@
-import type { ViteDevServer } from 'vite';
-import { createServer } from 'vite';
+import { type ViteDevServer, createServer } from 'vite';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { type MockFs, createMockFs } from '../../../test/utils/mock-fs.js';
+
+import type { ResultsOfTask } from '#core/types.js';
+import { GetFilesTask, StartViteServerTask } from '#tasks';
 import {
+  type MockFs,
+  createMockFs,
   createMockGetFilesResult,
   createMockGetFilesResultWithoutUi,
-} from '../../../test/utils/mock-get-files.js';
-import { createMockViteServer } from '../../../test/utils/mock-vite.js';
-import { GetFilesTask } from '../common/get-files.js';
-import { StartViteServerTask, viteState } from './vite.js';
+} from '#test';
+import { createMockViteConfig } from '#test/mocks/vite/mock-vite-config.js';
+import { createMockViteServer } from '#test/mocks/vite/mock-vite.js';
+import { viteState } from './vite.js';
+
+const mocks = vi.hoisted(() => ({
+  registerCleanup: vi.fn(),
+}));
 
 vi.mock('vite', () => ({
   createServer: vi.fn(),
 }));
 
 vi.mock('#utils/cleanup.js', () => ({
-  registerCleanup: vi.fn(),
+  registerCleanup: mocks.registerCleanup,
 }));
 
 describe('Vite Server Tasks', () => {
   let mockFs: MockFs;
   let mockServer: ViteDevServer;
+  let mockConfig: ReturnType<typeof createMockViteConfig>;
 
   const baseOptions = {
     command: 'dev' as const,
@@ -34,7 +42,8 @@ describe('Vite Server Tasks', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockFs = createMockFs();
-    mockServer = createMockViteServer();
+    mockConfig = createMockViteConfig();
+    mockServer = createMockViteServer({ config: mockConfig.ui.dev } as any);
     vi.mocked(createServer).mockResolvedValue(mockServer);
     viteState.viteServer = null;
   });
@@ -49,29 +58,37 @@ describe('Vite Server Tasks', () => {
     describe('Server Lifecycle', () => {
       test('should start server with correct configuration', async () => {
         const context = {
-          [GetFilesTask.name]: createMockGetFilesResult(),
+          [GetFilesTask.name]: {
+            ...createMockGetFilesResult(),
+            config: mockConfig,
+          },
         };
 
         const result = await StartViteServerTask.run(baseOptions, context);
 
         expect(result.server).toBe(mockServer);
-        expect(createServer).toHaveBeenCalledWith(
-          expect.objectContaining({
-            server: expect.objectContaining({
-              port: 3000,
-              strictPort: true,
+        expect(createServer).toHaveBeenCalledWith({
+          ...mockConfig.ui.dev,
+          root: process.cwd(),
+          base: '/',
+          server: {
+            port: baseOptions.port,
+            strictPort: true,
+            cors: true,
+            host: 'localhost',
+            middlewareMode: false,
+            sourcemapIgnoreList: expect.any(Function),
+            hmr: {
+              port: baseOptions.port,
+              protocol: 'ws',
               host: 'localhost',
-              cors: true,
-              middlewareMode: false,
-              sourcemapIgnoreList: expect.any(Function),
-              hmr: expect.objectContaining({
-                port: 3000,
-                protocol: 'ws',
-                host: 'localhost',
-              }),
-            }),
-          }),
-        );
+            },
+          },
+          optimizeDeps: {
+            entries: expect.any(Array),
+          },
+          logLevel: 'error',
+        });
         expect(mockServer.listen).toHaveBeenCalled();
       });
 
@@ -91,21 +108,21 @@ describe('Vite Server Tasks', () => {
       });
 
       test('should register cleanup handler', async () => {
-        const { registerCleanup } = await import('#utils/cleanup.js');
-
         const context = {
           [GetFilesTask.name]: createMockGetFilesResult(),
         };
 
         await StartViteServerTask.run(baseOptions, context);
 
-        expect(registerCleanup).toHaveBeenCalledWith(expect.any(Function));
+        expect(mocks.registerCleanup).toHaveBeenCalledWith(
+          expect.any(Function),
+        );
       });
     });
 
     describe('Error Handling', () => {
       test('should handle missing get-files result', async () => {
-        const context = {};
+        const context = {} as ResultsOfTask<GetFilesTask>;
 
         await expect(
           StartViteServerTask.run(baseOptions, context),
@@ -161,11 +178,9 @@ describe('Vite Server Tasks', () => {
           [GetFilesTask.name]: createMockGetFilesResult(),
         };
 
-        await StartViteServerTask.run(baseOptions, context);
-
-        // Should still create new server even if closing old one fails
-        expect(createServer).toHaveBeenCalled();
-        expect(mockServer.listen).toHaveBeenCalled();
+        await expect(
+          StartViteServerTask.run(baseOptions, context),
+        ).rejects.toThrow('Vite server task failed: Close failed');
       });
     });
 
@@ -201,28 +216,38 @@ describe('Vite Server Tasks', () => {
         );
       });
 
-      test('should merge base config from get-files', async () => {
+      test('should merge configurations from get-files', async () => {
         const context = {
-          [GetFilesTask.name]: createMockGetFilesResult(),
+          [GetFilesTask.name]: {
+            ...createMockGetFilesResult(),
+            config: mockConfig,
+          },
         };
 
         await StartViteServerTask.run(baseOptions, context);
 
-        expect(createServer).toHaveBeenCalledWith(
-          expect.objectContaining(context[GetFilesTask.name].config.vite.dev),
-        );
-      });
-
-      test('should merge UI config from get-files', async () => {
-        const context = {
-          [GetFilesTask.name]: createMockGetFilesResult(),
-        };
-
-        await StartViteServerTask.run(baseOptions, context);
-
-        expect(createServer).toHaveBeenCalledWith(
-          expect.objectContaining(context[GetFilesTask.name].config.ui.dev),
-        );
+        expect(createServer).toHaveBeenCalledWith({
+          ...mockConfig.ui.dev,
+          root: process.cwd(),
+          base: '/',
+          server: {
+            port: baseOptions.port,
+            strictPort: true,
+            cors: true,
+            host: 'localhost',
+            middlewareMode: false,
+            sourcemapIgnoreList: expect.any(Function),
+            hmr: {
+              port: baseOptions.port,
+              protocol: 'ws',
+              host: 'localhost',
+            },
+          },
+          optimizeDeps: {
+            entries: expect.any(Array),
+          },
+          logLevel: 'error',
+        });
       });
     });
   });

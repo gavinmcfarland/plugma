@@ -1,12 +1,20 @@
-import type { ResultsOfTask } from '#core/types.js';
-import { EventEmitter } from 'node:events';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { WebSocketServer } from 'ws';
-import { type MockFs, createMockFs } from '../../../test/utils/mock-fs.js';
-import { createMockGetFilesResult } from '../../../test/utils/mock-get-files.js';
-import { GetFilesTask } from '../common/get-files.js';
-import { StartWebSocketsServerTask } from './websocket.js';
 
+import type { ResultsOfTask } from '#core/types.js';
+import { GetFilesTask, StartWebSocketsServerTask } from '#tasks';
+import { type MockFs, createMockFs, createMockGetFilesResult } from '#test';
+import {
+  type MockWebSocketClient,
+  MockWebSocketClientImpl,
+  MockWebSocketServer,
+} from '#test/mocks/server/mock-websocket.js';
+
+const mocks = vi.hoisted(() => ({
+  registerCleanup: vi.fn(),
+}));
+
+// Mock modules
 vi.mock('ws', () => ({
   WebSocketServer: vi.fn(),
   WebSocket: {
@@ -15,65 +23,12 @@ vi.mock('ws', () => ({
 }));
 
 vi.mock('#utils/cleanup.js', () => ({
-  registerCleanup: vi.fn(),
+  registerCleanup: mocks.registerCleanup,
 }));
 
 vi.mock('uuid', () => ({
   v4: vi.fn().mockReturnValue('test-client-id'),
 }));
-
-interface MockWebSocketClient extends EventEmitter {
-  readyState: number;
-  OPEN: number;
-  send: ReturnType<typeof vi.fn>;
-  close: ReturnType<typeof vi.fn>;
-}
-
-class MockWebSocketServer extends EventEmitter {
-  clients: Set<MockWebSocketClient>;
-  close: ReturnType<typeof vi.fn>;
-  options: Record<string, unknown>;
-  path: string;
-  address: () => { port: number };
-  handleUpgrade: ReturnType<typeof vi.fn>;
-  shouldHandle: ReturnType<typeof vi.fn>;
-
-  constructor() {
-    super();
-    this.clients = new Set();
-    this.close = vi.fn().mockResolvedValue(undefined);
-    this.options = {};
-    this.path = '';
-    this.address = () => ({ port: 3003 });
-    this.handleUpgrade = vi.fn();
-    this.shouldHandle = vi.fn();
-
-    this.on('connection', (client: MockWebSocketClient) => {
-      this.clients.add(client);
-      client.on('close', () => {
-        this.clients.delete(client);
-      });
-      client.on('message', (data: Buffer) => {
-        try {
-          const message = JSON.parse(data.toString());
-          client.send(JSON.stringify({ type: 'response', data: message }));
-        } catch (error) {
-          // Invalid JSON
-        }
-      });
-    });
-  }
-}
-
-class MockWebSocketClientImpl
-  extends EventEmitter
-  implements MockWebSocketClient
-{
-  readyState = 1;
-  OPEN = 1;
-  send = vi.fn();
-  close = vi.fn();
-}
 
 describe('WebSocket Server Tasks', () => {
   let mockFs: MockFs;
@@ -116,6 +71,7 @@ describe('WebSocket Server Tasks', () => {
       });
       expect(result.server).toBe(mockServer);
       expect(result.port).toBe(baseOptions.port + 1);
+      expect(mocks.registerCleanup).toHaveBeenCalledWith(expect.any(Function));
     });
 
     test('should handle client connection with source identification', async () => {
@@ -150,18 +106,17 @@ describe('WebSocket Server Tasks', () => {
         url: '?source=plugin-window',
       });
 
+      // Clear the initial client list messages
+      vi.clearAllMocks();
+
       const message = {
         pluginMessage: { event: 'test', message: 'hello' },
         pluginId: '*',
       };
       client1.emit('message', Buffer.from(JSON.stringify(message)));
 
-      expect(client2.send).toHaveBeenCalledWith(
-        expect.stringContaining('test'),
-      );
-      expect(client1.send).not.toHaveBeenCalledWith(
-        expect.stringContaining('test'),
-      );
+      expect(client2.send).toHaveBeenCalledWith(JSON.stringify(message));
+      expect(client1.send).not.toHaveBeenCalled();
     });
 
     test('should handle client disconnection', async () => {
@@ -178,6 +133,9 @@ describe('WebSocket Server Tasks', () => {
         url: '?source=plugin-window',
       });
 
+      // Clear the initial client list messages
+      vi.clearAllMocks();
+
       client1.emit('close');
 
       expect(client2.send).toHaveBeenCalledWith(
@@ -190,10 +148,17 @@ describe('WebSocket Server Tasks', () => {
         [GetFilesTask.name]: createMockGetFilesResult(),
       };
 
-      const result = await StartWebSocketsServerTask.run(baseOptions, context);
+      const { server } = await StartWebSocketsServerTask.run(
+        baseOptions,
+        context,
+      );
 
-      await expect(() =>
-        result.server.emit('error', new Error('Server error')),
+      await expect(
+        () =>
+          new Promise((resolve, reject) => {
+            server.on('error', reject);
+            server.emit('error', new Error('Server error'));
+          }),
       ).rejects.toThrow('Server creation failed');
     });
 
@@ -206,22 +171,23 @@ describe('WebSocket Server Tasks', () => {
       const client = new MockWebSocketClientImpl();
 
       result.server.emit('connection', client, { url: '?source=browser' });
+
+      // Clear just the send mock
+      client.send.mockClear();
+
       client.emit('message', Buffer.from('invalid json'));
 
-      // Should not throw and handle error gracefully
-      expect(client.send).not.toHaveBeenCalled();
+      expect(client.send).toHaveBeenCalledTimes(0);
     });
 
     test('should register cleanup handler', async () => {
-      const { registerCleanup } = await import('#utils/cleanup.js');
-
       const context = {
         [GetFilesTask.name]: createMockGetFilesResult(),
       };
 
       await StartWebSocketsServerTask.run(baseOptions, context);
 
-      expect(registerCleanup).toHaveBeenCalledWith(expect.any(Function));
+      expect(mocks.registerCleanup).toHaveBeenCalledWith(expect.any(Function));
     });
 
     test('should handle missing get-files result', async () => {

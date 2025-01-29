@@ -12,27 +12,28 @@
     "strict": true,
     "resolveJsonModule": true,
     "types": ["@figma/plugin-typings"],
-    "baseUrl": "src",
+    "baseUrl": ".",
     "paths": {
-      "#core": ["core/index.ts"],
-      "#core/*": ["core/*"],
-      "#commands": ["commands/index.ts"],
-      "#commands/*": ["commands/*"],
-      "#tasks": ["tasks/index.ts"],
-      "#tasks/*": ["tasks/*"],
-      "#utils": ["utils/index.ts"],
-      "#utils/*": ["utils/*"],
-      "#vite-plugins": ["vite-plugins/index.ts"],
-      "#vite-plugins/*": ["vite-plugins/*"],
-      "#tests/*": ["../tests/*"]
+      "#core": ["src/core/index.ts"],
+      "#core/*": ["src/core/*"],
+      "#commands": ["src/commands/index.ts"],
+      "#commands/*": ["src/commands/*"],
+      "#tasks": ["src/tasks/index.ts"],
+      "#tasks/*": ["src/tasks/*"],
+      "#utils": ["src/utils/index.ts"],
+      "#utils/*": ["src/utils/*"],
+      "#vite-plugins": ["src/vite-plugins/index.ts"],
+      "#vite-plugins/*": ["src/vite-plugins/*"],
+      "#test": ["test/index.ts"],
+      "#test/*": ["test/*"]
     }
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.svelte",
     "src/**/*.tsx",
-    "archive/demo.ts",
-    "archive/helpers.ts"
+    "src/**/*.test.ts",
+    "test/**/*.ts"
   ],
   "exclude": ["archive", "dist", "node_modules"]
 }

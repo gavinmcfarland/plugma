@@ -3,3 +3,30 @@
 - when importing node native modules, like fs or url, always prepend them with 'node:', like in 'node:fs' and 'node:url'
 - Always document exported functions, classes, types, etc with a robust TSDoc comment. Also document complex functions, even if not exported.
 - Use "for ... of" loops instead `.forEach`.
+- to prevent issues with commands being aliased, always use `command BUILTIN` for built-in commands, like `command cat` or `command ls`.
+- When fixing test failures:
+  1. Analyze test structure and organization:
+     - Verify all imports are hoisted to the top
+     - Check that vi.hoisted() is used for mock objects
+     - Ensure mock implementations are defined before use
+  2. Review mock setup and implementation:
+     - Verify centralized mocks object contains all required mocks
+     - Check mock functions return appropriate values/promises
+     - Ensure consistent mocking patterns are used
+  3. Validate module mocking:
+     - Confirm all external modules are mocked with vi.mock()
+     - Verify mocked implementations reference hoisted mocks
+     - Check mock implementations match expected behavior
+  4. Inspect test lifecycle management:
+     - Review beforeEach/afterEach setup and cleanup
+     - Verify mocks are cleared between test runs
+     - Check initialization state is correct
+  5. Debug test execution:
+     - Run tests and capture detailed error output
+     - Analyze failure messages and stack traces
+     - Fix issues iteratively, verifying each change
+  6. Common failure points to check:
+     - File operations match mock filesystem state
+     - Async operations resolve in expected order
+     - Event handlers and watchers trigger correctly
+     - Collections/sets have proper initial state

@@ -30,7 +30,7 @@ export async function release(options: ReleaseCommandOptions): Promise<void> {
   }
 
   // Update workflow templates
-  const { templatesUpdated, releaseWorkflowPath } = await workflowTemplates();
+  const { updatedTemplates, releaseWorkflowPath } = await workflowTemplates();
 
   // Update version in package.json
   const { newTag } = await versionUpdate({
@@ -40,20 +40,24 @@ export async function release(options: ReleaseCommandOptions): Promise<void> {
 
   // Commit changes and create release
   const filesToStage = ['package.json'];
-  if (templatesUpdated) {
+  if (updatedTemplates) {
     filesToStage.push(releaseWorkflowPath);
+  }
+
+  // Stage files before creating release
+  const { execSync } = await import('node:child_process');
+  for (const file of filesToStage) {
+    execSync(`git add ${file}`, { stdio: 'inherit' });
   }
 
   const releaseResult = await gitRelease({
     tag: newTag,
     title: options.title,
     notes: options.notes,
-    files: filesToStage,
   });
 
   // If release was successful, run build
   if (releaseResult.pushed) {
-    const { execSync } = await import('node:child_process');
     execSync('plugma build', { stdio: 'inherit' });
   }
 }

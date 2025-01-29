@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { GitReleaseError, gitRelease } from './git-release.js';
+
+import { GitReleaseError, gitRelease } from '#tasks';
 
 // Mock child_process.execSync
 vi.mock('node:child_process', () => ({
@@ -146,21 +147,19 @@ describe('gitRelease', () => {
 
   it('should handle rollback failure', async () => {
     vi.mocked(execSync)
-      .mockReturnValueOnce(Buffer.from('')) // git add
-      .mockReturnValueOnce(Buffer.from('')) // git commit
-      .mockReturnValueOnce(Buffer.from('')) // git tag
+      .mockImplementationOnce(() => Buffer.from('')) // add
+      .mockImplementationOnce(() => Buffer.from('')) // commit
+      .mockImplementationOnce(() => Buffer.from('')) // tag
       .mockImplementationOnce(() => {
         throw new Error('push error');
-      }) // git push
+      }) // push
       .mockImplementationOnce(() => {
         throw new Error('rollback error');
-      }); // git reset
+      }); // rollback
 
     await expect(gitRelease({ tag: 'v1' })).rejects.toThrow(
       new GitReleaseError(
-        expect.stringContaining(
-          'Failed to rollback changes after error: rollback error',
-        ),
+        'Failed to rollback changes after error: rollback error. Original error: Failed to push changes: push error',
         'ROLLBACK_ERROR',
       ),
     );

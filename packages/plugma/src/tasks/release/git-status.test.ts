@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { GitStatusError, gitStatus } from './git-status.js';
+
+import { GitStatusError, gitStatus } from '#tasks';
 
 // Mock child_process.execSync
 vi.mock('node:child_process', () => ({
@@ -17,11 +18,11 @@ describe('gitStatus', () => {
   it('should detect a clean git repository', async () => {
     vi.mocked(execSync)
       // First call - check if git repo
-      .mockReturnValueOnce(Buffer.from(''))
+      .mockReturnValueOnce('')
       // Second call - check uncommitted changes
-      .mockReturnValueOnce(Buffer.from(''))
+      .mockReturnValueOnce('')
       // Third call - check staged changes
-      .mockReturnValueOnce(Buffer.from(''));
+      .mockReturnValueOnce('');
 
     const result = await gitStatus();
 
@@ -52,9 +53,9 @@ describe('gitStatus', () => {
 
   it('should throw GitStatusError for uncommitted changes', async () => {
     vi.mocked(execSync)
-      .mockReturnValueOnce(Buffer.from('')) // is git repo
-      .mockReturnValueOnce(Buffer.from('modified-file.txt\nother-file.txt')) // uncommitted changes
-      .mockReturnValueOnce(Buffer.from('')); // no staged changes
+      .mockReturnValueOnce('') // is git repo
+      .mockReturnValueOnce('modified-file.txt\nother-file.txt') // uncommitted changes
+      .mockReturnValueOnce(''); // no staged changes
 
     await expect(gitStatus()).rejects.toThrow(
       new GitStatusError(
@@ -66,9 +67,9 @@ describe('gitStatus', () => {
 
   it('should throw GitStatusError for staged changes', async () => {
     vi.mocked(execSync)
-      .mockReturnValueOnce(Buffer.from('')) // is git repo
-      .mockReturnValueOnce(Buffer.from('')) // no uncommitted changes
-      .mockReturnValueOnce(Buffer.from('staged-file.txt')); // staged changes
+      .mockReturnValueOnce('') // is git repo
+      .mockReturnValueOnce('') // no uncommitted changes
+      .mockReturnValueOnce('staged-file.txt'); // staged changes
 
     await expect(gitStatus()).rejects.toThrow(
       new GitStatusError(
@@ -80,9 +81,9 @@ describe('gitStatus', () => {
 
   it('should throw GitStatusError for both uncommitted and staged changes', async () => {
     vi.mocked(execSync)
-      .mockReturnValueOnce(Buffer.from('')) // is git repo
-      .mockReturnValueOnce(Buffer.from('modified.txt')) // uncommitted changes
-      .mockReturnValueOnce(Buffer.from('staged.txt')); // staged changes
+      .mockReturnValueOnce('') // is git repo
+      .mockReturnValueOnce('modified.txt') // uncommitted changes
+      .mockReturnValueOnce('staged.txt'); // staged changes
 
     await expect(gitStatus()).rejects.toThrow(
       new GitStatusError(

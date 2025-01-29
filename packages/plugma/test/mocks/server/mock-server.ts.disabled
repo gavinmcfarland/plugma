@@ -4,47 +4,7 @@
 
 import type { ViteDevServer } from 'vite';
 import { type Mock, vi } from 'vitest';
-import type { WebSocket, WebSocketServer } from 'ws';
-
-/**
- * Creates a mock WebSocket server
- * @returns Mock WebSocket server
- */
-export function createMockWsServer(): WebSocketServer {
-  const clients = new Set<WebSocket>();
-
-  const server = {
-    clients,
-    on: vi.fn(),
-    close: vi.fn(async () => {
-      clients.clear();
-    }),
-  } as unknown as WebSocketServer;
-
-  // Setup default event handler
-  (server.on as Mock).mockImplementation((event: string, handler: Function) => {
-    if (event === 'connection') {
-      const mockWs = createMockWebSocket();
-      clients.add(mockWs);
-      handler(mockWs);
-    }
-  });
-
-  return server;
-}
-
-/**
- * Creates a mock WebSocket client
- * @returns Mock WebSocket client
- */
-export function createMockWebSocket(): WebSocket {
-  return {
-    on: vi.fn(),
-    send: vi.fn(),
-    close: vi.fn(),
-    readyState: 1, // WebSocket.OPEN
-  } as unknown as WebSocket;
-}
+import type { WebSocket } from 'ws';
 
 /**
  * Creates a mock Vite server for testing
@@ -115,15 +75,15 @@ export function createMockFailingViteServer(
  */
 export function createMockWebSocketServer(
   options: Partial<{
-    on: (event: string, handler: (...args: any[]) => void) => void;
+    on: (event: string, handler: (...args: unknown[]) => void) => void;
     close: (cb: () => void) => void;
-    clients: Set<any>;
+    clients: Set<WebSocket>;
   }> = {},
 ) {
   return {
     on: vi.fn(),
     close: vi.fn((cb) => cb()),
-    clients: new Set(),
+    clients: new Set<WebSocket>(),
     ...options,
   };
 }

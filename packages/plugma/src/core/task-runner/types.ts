@@ -47,7 +47,6 @@ export type RegisteredTask<
 > = {
   name: Name;
   run: (options: TOptions, context: TContext) => Promise<TResults>;
-  supportedCommands?: string[];
 };
 
 /**

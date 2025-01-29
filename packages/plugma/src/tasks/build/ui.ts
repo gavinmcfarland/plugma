@@ -1,7 +1,3 @@
-/**
- * UI build task implementation
- */
-
 import type {
   GetTaskTypeFor,
   PluginOptions,
@@ -9,7 +5,7 @@ import type {
 } from '#core/types.js';
 import { registerCleanup, unregisterCleanup } from '#utils/cleanup.js';
 import { cleanManifestFiles } from '#utils/config/clean-manifest-files.js';
-import { createConfigs } from '#utils/config/create-configs.js';
+import { createViteConfigs } from '#utils/config/create-vite-configs.js';
 import { Logger } from '#utils/log/logger.js';
 import { access, rm } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
@@ -98,7 +94,7 @@ const buildUi = async (
     registerCleanup(cleanup);
 
     // Get Vite config from createConfigs
-    const config = createConfigs(options, files);
+    const config = createViteConfigs(options, files);
 
     // Start build timer as close to build as possible
     const startTime = performance.now();
@@ -127,7 +123,7 @@ const buildUi = async (
                 },
               },
             },
-            config.vite.build,
+            config.ui?.build,
           ) as InlineConfig;
 
           const watcher = await build(watchConfig);
@@ -153,7 +149,7 @@ const buildUi = async (
               printUrls: () => {},
               bindCLIShortcuts: () => {},
               restart: async () => {},
-            } as ViteDevServer;
+            } as any as ViteDevServer;
           }
         } else {
           await build(
@@ -168,7 +164,7 @@ const buildUi = async (
                   },
                 },
               },
-              config.vite.build,
+              config.ui?.build,
             ) as InlineConfig,
           );
         }

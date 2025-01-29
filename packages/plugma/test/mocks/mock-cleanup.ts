@@ -2,62 +2,64 @@
  * Test utilities for mocking cleanup functionality
  */
 
-import { vi } from 'vitest';
+import { beforeEach, vi } from 'vitest';
 
-/**
- * Creates a mock cleanup handler
- * @returns Mock cleanup handler and tracking functions
- */
-export function createMockCleanupHandler() {
-  let cleanupCount = 0;
-  let lastError: Error | null = null;
+// /**
+//  * Creates a mock cleanup handler
+//  * @returns Mock cleanup handler and tracking functions
+//  */
+// export function createMockCleanupHandler() {
+//   let cleanupCount = 0;
+//   let lastError: Error | null = null;
 
-  const handler = vi.fn(async () => {
-    cleanupCount++;
-    if (lastError) {
-      throw lastError;
-    }
-  });
+//   const handler = vi.fn(async () => {
+//     cleanupCount++;
+//     if (lastError) {
+//       throw lastError;
+//     }
+//   });
 
-  return {
-    handler,
-    setError: (error: Error) => {
-      lastError = error;
-    },
-    clearError: () => {
-      lastError = null;
-    },
-    getCleanupCount: () => cleanupCount,
-    reset: () => {
-      cleanupCount = 0;
-      lastError = null;
-      handler.mockClear();
-    },
-  };
-}
+//   return {
+//     handler,
+//     setError: (error: Error) => {
+//       lastError = error;
+//     },
+//     clearError: () => {
+//       lastError = null;
+//     },
+//     getCleanupCount: () => cleanupCount,
+//     reset: () => {
+//       cleanupCount = 0;
+//       lastError = null;
+//       handler.mockClear();
+//     },
+//   };
+// }
+
+type CleanupHandler = () => void | Promise<void>;
 
 /**
  * Creates a mock process with signal handling
  * @returns Mock process and signal emitter
  */
 export function createMockProcess() {
-  const handlers: Record<string, Function[]> = {
+  const handlers: Record<string, CleanupHandler[]> = {
     SIGINT: [],
     SIGTERM: [],
     exit: [],
   };
 
   const mockProcess = {
-    on: vi.fn((signal: string, handler: Function) => {
+    on: vi.fn((signal: string, handler: CleanupHandler) => {
       handlers[signal] = handlers[signal] || [];
       handlers[signal].push(handler);
     }),
-    off: vi.fn((signal: string, handler: Function) => {
+    off: vi.fn((signal: string, handler: CleanupHandler) => {
       handlers[signal] = (handlers[signal] || []).filter((h) => h !== handler);
     }),
-    exit: vi.fn((code = 0) => {
+    exit: vi.fn(() => {
       for (const handler of handlers.exit) {
-        handler(code);
+        handler();
       }
     }),
   };
@@ -88,14 +90,14 @@ export function createMockProcess() {
  * @returns Mock cleanup registry and tracking functions
  */
 export function createMockCleanupRegistry() {
-  const handlers = new Set<Function>();
+  const handlers = new Set<CleanupHandler>();
   let cleanupCount = 0;
 
-  const register = vi.fn((handler: Function) => {
+  const register = vi.fn((handler: CleanupHandler) => {
     handlers.add(handler);
   });
 
-  const unregister = vi.fn((handler: Function) => {
+  const unregister = vi.fn((handler: CleanupHandler) => {
     handlers.delete(handler);
   });
 
@@ -120,3 +122,19 @@ export function createMockCleanupRegistry() {
     },
   };
 }
+
+// Export a shared instance for use in tests
+export const mockRegisterCleanup = vi.fn();
+export const mockUnregisterCleanup = vi.fn();
+
+// Mock the cleanup module
+vi.mock('#utils/cleanup.js', () => ({
+  registerCleanup: mockRegisterCleanup,
+  unregisterCleanup: mockUnregisterCleanup,
+}));
+
+// Reset mocks before each test
+beforeEach(() => {
+  mockRegisterCleanup.mockClear();
+  mockUnregisterCleanup.mockClear();
+});

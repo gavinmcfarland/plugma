@@ -1,11 +1,11 @@
-import type { TaskOptions } from '#core/types.js';
+import type { PluginOptions } from '#core/types';
 
 /**
  * Creates mock task options with default values for testing.
  */
 export function createMockTaskOptions(
-  overrides: Partial<TaskOptions> = {},
-): TaskOptions {
+  overrides: Partial<PluginOptions> = {},
+): PluginOptions {
   return {
     command: 'dev',
     mode: 'development',

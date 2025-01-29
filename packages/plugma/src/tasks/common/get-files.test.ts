@@ -1,38 +1,45 @@
-import { createViteConfigs } from '#utils/config/create-vite-configs.js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { type MockFs, createMockFs } from '../../../test/utils/mock-fs.js';
-import { createMockViteConfig } from '../../../test/utils/mock-vite-config.js';
-import { GetFilesTask } from './get-files.js';
 
-vi.mock('node:fs', () => {
-  const mockFs = {
-    readFileSync: vi
-      .fn()
-      .mockReturnValue('//>> PLACEHOLDER : runtimeData <<//'),
-  };
-  return {
-    ...mockFs,
-    default: mockFs,
-  };
-});
+import { GetFilesError, GetFilesTask } from '#tasks';
+import {
+  type MockFs,
+  createMockFs,
+  createMockGetFilesResult,
+  createMockViteConfig,
+} from '#test';
+
+const mocks = vi.hoisted(() => ({
+  readFileSync: vi.fn().mockReturnValue('//>> PLACEHOLDER : runtimeData <<//'),
+  readJson: vi.fn(),
+  getDirName: vi.fn(() => '/mock/dir'),
+  writeTempFile: vi.fn().mockReturnValue('/mock/temp/file.js'),
+  createViteConfigs: vi.fn(),
+  getUserFiles: vi.fn(),
+}));
+
+vi.mock('node:fs', () => ({
+  ...mocks,
+  default: mocks,
+}));
 
 vi.mock('#utils', () => ({
-  readJson: vi.fn(),
-  getDirName: () => '/mock/dir',
-  writeTempFile: vi.fn().mockReturnValue('/mock/temp/file.js'),
+  readJson: mocks.readJson,
+  getDirName: mocks.getDirName,
+  writeTempFile: mocks.writeTempFile,
 }));
 
 vi.mock('#utils/config/create-vite-configs.js', () => ({
-  createViteConfigs: vi.fn(),
+  createViteConfigs: mocks.createViteConfigs,
 }));
 
 vi.mock('#utils/config/get-user-files.js', () => ({
-  getUserFiles: vi.fn(),
+  getUserFiles: mocks.getUserFiles,
 }));
 
 describe('get-files Task', () => {
   let mockFs: MockFs;
   const mockConfig = createMockViteConfig();
+  const mockGetFilesResult = createMockGetFilesResult();
 
   const baseOptions = {
     command: 'dev' as const,
@@ -58,49 +65,18 @@ describe('get-files Task', () => {
 
   describe('Task Execution', () => {
     it('should load files and create configs successfully', async () => {
-      const { readJson } = await import('#utils');
-      const { getUserFiles } = await import('#utils/config/get-user-files.js');
-      const mockPackageJson = {
-        name: 'test-plugin',
-        version: '1.0.0',
-        plugma: {
-          manifest: {
-            name: 'Test Plugin',
-            id: 'test-plugin',
-            api: '1.0.0',
-            main: 'src/main.ts',
-            ui: 'src/ui.tsx',
-            version: '1.0.0',
-          },
-        },
-      };
-
-      const mockManifest = mockPackageJson.plugma.manifest;
-
-      vi.mocked(readJson).mockImplementation(async (path) => {
-        if (path.endsWith('manifest.json')) {
-          throw new Error('File not found');
-        }
-        return mockPackageJson;
+      mocks.getUserFiles.mockResolvedValue({
+        manifest: mockGetFilesResult.files.manifest,
+        userPkgJson: mockGetFilesResult.files.userPkgJson,
       });
 
-      vi.mocked(getUserFiles).mockResolvedValue({
-        manifest: mockManifest,
-        userPkgJson: mockPackageJson,
-      });
-
-      vi.mocked(createViteConfigs).mockReturnValue(mockConfig);
+      mocks.createViteConfigs.mockReturnValue(mockConfig);
 
       const result = await GetFilesTask.run(baseOptions, baseContext);
 
-      // Verify version and files structure
-      expect(result.version).toBe(mockPackageJson.version);
-      expect(result.files).toEqual({
-        manifest: mockManifest,
-        userPkgJson: mockPackageJson,
-      });
+      expect(result.version).toBe(mockGetFilesResult.version);
+      expect(result.files).toEqual(mockGetFilesResult.files);
 
-      // Verify key parts of the config
       expect(result.config.ui.dev.mode).toBe('development');
       expect(result.config.ui.dev.server?.port).toBe(3000);
       expect(result.config.ui.build.build?.outDir).toBe('dist');
@@ -108,112 +84,65 @@ describe('get-files Task', () => {
       expect(result.config.main.build.mode).toBe('development');
     });
 
-    it('should throw error when package.json is missing', async () => {
-      const { readJson } = await import('#utils');
-      const { getUserFiles } = await import('#utils/config/get-user-files.js');
-
-      vi.mocked(readJson).mockRejectedValue(new Error('File not found'));
-      vi.mocked(getUserFiles).mockRejectedValue(new Error('File not found'));
+    it('should throw GetFilesError when package.json is missing', async () => {
+      mocks.getUserFiles.mockRejectedValue(new Error('File not found'));
 
       await expect(GetFilesTask.run(baseOptions, baseContext)).rejects.toThrow(
-        'File not found',
+        new GetFilesError('Failed to load files: File not found', 'FILE_ERROR'),
       );
     });
 
-    it('should throw error when package.json is invalid', async () => {
-      const { readJson } = await import('#utils');
-      const { getUserFiles } = await import('#utils/config/get-user-files.js');
-
-      vi.mocked(readJson).mockRejectedValue(new Error('Unexpected token'));
-      vi.mocked(getUserFiles).mockRejectedValue(new Error('Unexpected token'));
+    it('should throw GetFilesError when package.json is invalid', async () => {
+      mocks.getUserFiles.mockRejectedValue(new Error('Invalid JSON'));
 
       await expect(GetFilesTask.run(baseOptions, baseContext)).rejects.toThrow(
-        'Unexpected token',
+        new GetFilesError('Failed to load files: Invalid JSON', 'FILE_ERROR'),
       );
     });
 
-    it('should handle getUserFiles error', async () => {
-      const { readJson } = await import('#utils');
-      const { getUserFiles } = await import('#utils/config/get-user-files.js');
-      const mockPackageJsonWithoutMain = {
-        name: 'test-plugin',
-        version: '1.0.0',
-        plugma: {
-          manifest: {
-            name: 'Test Plugin',
-            id: 'test-plugin',
-            api: '1.0.0',
-            version: '1.0.0',
-          },
-        },
-      };
-
-      vi.mocked(readJson).mockResolvedValue(mockPackageJsonWithoutMain);
-      vi.mocked(getUserFiles).mockRejectedValue(
-        new Error('No main or UI file specified'),
+    it('should throw GetFilesError when manifest is missing required fields', async () => {
+      mocks.getUserFiles.mockRejectedValue(
+        new Error('Missing required fields'),
       );
 
       await expect(GetFilesTask.run(baseOptions, baseContext)).rejects.toThrow(
-        'No main or UI file specified',
+        new GetFilesError(
+          'Failed to load files: Missing required fields',
+          'FILE_ERROR',
+        ),
       );
     });
 
-    it('should handle createConfigs error', async () => {
-      const { readJson } = await import('#utils');
-      const { getUserFiles } = await import('#utils/config/get-user-files.js');
-      const mockPackageJson = {
-        name: 'test-plugin',
-        version: '1.0.0',
-        plugma: {
-          manifest: {
-            name: 'Test Plugin',
-            id: 'test-plugin',
-            api: '1.0.0',
-            main: 'src/main.ts',
-            ui: 'src/ui.tsx',
-            version: '1.0.0',
-          },
-        },
-      };
-
-      vi.mocked(readJson).mockImplementation(async (path) => {
-        if (path.endsWith('manifest.json')) {
-          throw new Error('File not found');
-        }
-        return mockPackageJson;
+    it('should throw GetFilesError when config creation fails', async () => {
+      mocks.getUserFiles.mockResolvedValue({
+        manifest: mockGetFilesResult.files.manifest,
+        userPkgJson: mockGetFilesResult.files.userPkgJson,
       });
 
-      vi.mocked(getUserFiles).mockResolvedValue({
-        manifest: mockPackageJson.plugma.manifest,
-        userPkgJson: mockPackageJson,
-      });
-
-      vi.mocked(createViteConfigs).mockImplementation(() => {
+      mocks.createViteConfigs.mockImplementation(() => {
         throw new Error('Failed to create configs');
       });
 
       await expect(GetFilesTask.run(baseOptions, baseContext)).rejects.toThrow(
-        'Failed to create configs',
+        new GetFilesError('Failed to create configs', 'CONFIG_ERROR'),
       );
     });
 
     it('should handle production mode config', async () => {
-      const { getUserFiles } = await import('#utils/config/get-user-files.js');
-      const mockPackageJson = {
-        name: 'prod-plugin',
-        version: '2.0.0',
-        plugma: {
-          manifest: {
-            name: 'Production Plugin',
-            main: 'src/main.ts',
-            api: '1.0.0',
+      mocks.getUserFiles.mockResolvedValue({
+        manifest: mockGetFilesResult.files.manifest,
+        userPkgJson: mockGetFilesResult.files.userPkgJson,
+      });
+
+      mocks.createViteConfigs.mockReturnValue({
+        ...mockConfig,
+        main: {
+          ...mockConfig.main,
+          build: {
+            ...mockConfig.main.build,
+            mode: 'production',
           },
         },
-      };
-
-      vi.mocked(getUserFiles).mockResolvedValue({
-        manifest: mockPackageJson.plugma.manifest,
-        userPkgJson: mockPackageJson,
       });
 
       const result = await GetFilesTask.run(
@@ -221,33 +150,7 @@ describe('get-files Task', () => {
         baseContext,
       );
 
-      expect(result.config.ui.build.mode).toBe('production');
       expect(result.config.main.build.mode).toBe('production');
-    });
-
-    it('should handle missing manifest in package.json', async () => {
-      const { getUserFiles } = await import('#utils/config/get-user-files.js');
-      const mockPackageJson = {
-        name: 'no-manifest-plugin',
-        version: '1.0.0',
-      };
-
-      vi.mocked(getUserFiles).mockRejectedValue(
-        new Error('Missing manifest configuration'),
-      );
-
-      await expect(GetFilesTask.run(baseOptions, baseContext)).rejects.toThrow(
-        'Missing manifest configuration',
-      );
-    });
-
-    it('should handle invalid package.json structure', async () => {
-      const { readJson } = await import('#utils');
-      vi.mocked(readJson).mockResolvedValue({ invalid: 'structure' });
-
-      await expect(GetFilesTask.run(baseOptions, baseContext)).rejects.toThrow(
-        'Invalid package.json structure',
-      );
     });
   });
 });

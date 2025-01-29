@@ -14,7 +14,7 @@ import { GetFilesTask } from '../tasks/common/get-files.js';
 import { ShowPlugmaPromptTask } from '../tasks/common/prompt.js';
 import { serial } from '../tasks/runner.js';
 import { StartViteServerTask } from '../tasks/server/vite.js';
-import type { DevCommandOptions } from './types.js';
+import type { PreviewCommandOptions } from './types.js';
 
 /**
  * Main preview command implementation
@@ -28,7 +28,7 @@ import type { DevCommandOptions } from './types.js';
  * - Supports WebSocket communication
  * - Enables testing plugin functionality
  */
-export async function preview(options: DevCommandOptions): Promise<void> {
+export async function preview(options: PreviewCommandOptions): Promise<void> {
   const log = new Logger({ debug: options.debug });
 
   try {
@@ -48,9 +48,9 @@ export async function preview(options: DevCommandOptions): Promise<void> {
     await serial(
       GetFilesTask,
       ShowPlugmaPromptTask,
-      BuildManifestTask,
       BuildMainTask,
       BuildUiTask,
+      BuildManifestTask,
       StartViteServerTask,
     )(pluginOptions);
 

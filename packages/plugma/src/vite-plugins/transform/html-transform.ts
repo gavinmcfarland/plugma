@@ -22,7 +22,7 @@ export function htmlTransform(options: HtmlTransformOptions = {}): Plugin {
       try {
         // Can't use template with ejs template directly, so we have to add our file to it first
         const devServerAppProxyDev = readFileSync(
-          join(__dirname, './dist/apps/dev-server.html'),
+          join(__dirname, '../../apps/dev-server.html'),
           'utf8',
         );
 

@@ -2,7 +2,11 @@
  * Test utilities for mocking tasks and their results
  */
 
-import type { RegisteredTask, ResultsOfTask } from '#core/task-runner/types.js';
+import type {
+  RegisteredTask,
+  ResultsOfTask,
+  TaskDef,
+} from '#core/task-runner/types.js';
 
 /**
  * Creates a mock task with the given result
@@ -23,25 +27,24 @@ export function createMockTask<TOptions = any, TResults = any, TContext = any>(
 /**
  * Creates a mock task context with the given options and results
  */
-export function createMockTaskContext<T extends Record<string, unknown>>(
-  options: Record<string, unknown>,
-  results?: T,
-): ResultsOfTask<any> {
+export function createMockTaskContext<Tasks extends TaskDef = any>(
+  data: ResultsOfTask<Tasks>,
+): ResultsOfTask<Tasks> {
   return {
-    ...results,
-  } as ResultsOfTask<any>;
+    ...data,
+  };
 }
 
 /**
  * Creates a mock task result with the given name and data
  */
-export function createMockTaskResult<T>(
-  taskName: string,
-  data: T,
-): ResultsOfTask<any> {
+export function createMockTaskResult<T extends TaskDef>(
+  taskName: T['name'],
+  data: ResultsOfTask<T>[T['name']],
+): ResultsOfTask<T> {
   return {
     [taskName]: data,
-  } as ResultsOfTask<any>;
+  } as ResultsOfTask<T>;
 }
 
 /**

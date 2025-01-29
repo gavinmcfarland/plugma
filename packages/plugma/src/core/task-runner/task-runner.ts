@@ -1,17 +1,12 @@
 import { Logger } from '#utils/log/logger.js';
-import type { Simplify } from 'type-fest';
-import type {
-  RegisteredTask,
-  TaskGroupOptions,
-  ValidateTaskOrder,
-} from './types.js';
+import type { RegisteredTask, ResultsOfTask } from './types.js';
 
 /**
  * TaskRunner class for managing and executing tasks in a type-safe manner.
  * This class provides functionality to register, run, and manage tasks with proper dependency validation.
  */
 export class TaskRunner<
-  AvailableTasks extends RegisteredTask<any, any, any, any> = never,
+  AvailableTasks extends RegisteredTask<string, object, any, object> = never,
 > {
   private tasks: Map<
     AvailableTasks['name'],
@@ -105,112 +100,34 @@ export class TaskRunner<
   /**
    * Run multiple tasks in series with proper dependency validation
    */
-  async serial<
-    T extends AvailableTasks,
-    First extends RegisteredTask<any, any, any, any> & { name: T['name'] },
-    Rest extends (RegisteredTask<any, any, any, any> & { name: T['name'] })[],
-  >(
+  async serial<First extends AvailableTasks, Rest extends AvailableTasks[]>(
     firstTask: First,
     options: Parameters<First['run']>[0],
     ...otherTasks: Rest
-  ): Promise<Record<T['name'], unknown>>;
-
-  async serial<
-    T extends AvailableTasks,
-    First extends T['name'],
-    Rest extends T['name'][],
-  >(
-    firstTask: [First, ...Rest] extends ValidateTaskOrder<[First, ...Rest], T>
-      ? First
-      : ValidateTaskOrder<[First, ...Rest], T>,
-    ...otherTasks: Rest
-  ): Promise<Record<First | Rest[number], unknown>>;
-
-  async serial<
-    T extends AvailableTasks,
-    First extends T['name'],
-    Rest extends T['name'][],
-  >(
-    firstTask: [First, ...Rest] extends ValidateTaskOrder<[First, ...Rest], T>
-      ? First
-      : ValidateTaskOrder<[First, ...Rest], T>,
-    options: Simplify<TaskGroupOptions<T, [First, ...Rest]>>,
-    ...otherTasks: Rest
-  ): Promise<Record<First | Rest[number], unknown>>;
-
-  async serial<
-    T extends AvailableTasks,
-    First extends T['name'],
-    Rest extends T['name'][],
-  >(
-    firstTask: First | RegisteredTask<any, any, any, any>,
-    optionsOrTask?: any,
-    ...otherTasks: (Rest | RegisteredTask<any, any, any, any>)[]
-  ): Promise<Record<string, unknown>> {
+  ): Promise<ResultsOfTask<First | Rest[number]>> {
     this.logger.format({ indent: 1 });
     this.logger.debug('Starting serial task execution');
     this.logger.debug(`First task: ${JSON.stringify(firstTask)}`);
-    this.logger.debug(`Options: ${JSON.stringify(optionsOrTask)}`);
+    this.logger.debug(`Options: ${JSON.stringify(options)}`);
     this.logger.debug(`Other tasks: ${JSON.stringify(otherTasks)}`);
 
-    // Handle case where first argument is a RegisteredTask
-    if (typeof firstTask === 'object') {
-      const tasks = [firstTask, ...otherTasks] as RegisteredTask<
-        any,
-        any,
-        any,
-        any
-      >[];
-      const context = {} as Record<string, unknown>;
+    const context = {} as ResultsOfTask<First | Rest[number]>;
+    const tasks = [firstTask, ...otherTasks] as ((First | Rest[number]) & {
+      name: keyof typeof context;
+    })[];
 
-      for (const task of tasks) {
-        const registeredTask = this.tasks.get(task.name);
-        if (!registeredTask) {
-          throw new Error(`Task "${task.name}" not found`);
-        }
-        if (
-          registeredTask.supportedCommands &&
-          !registeredTask.supportedCommands.includes(optionsOrTask.command)
-        ) {
-          throw new Error(
-            `Task "${task.name}" does not support the "${optionsOrTask.command}" command`,
-          );
-        }
-        this.logger.format({ indent: 2 }).debug(`Executing task: ${task.name}`);
-        const result = await registeredTask.run(optionsOrTask, context);
-        context[task.name] = result;
-        this.logger
-          .format({ indent: 2 })
-          .debug(`Task ${task.name} result: `, result);
+    for (const task of tasks) {
+      const registeredTask = this.tasks.get(task.name);
+      if (!registeredTask) {
+        throw new Error(`Task "${task.name}" not found`);
       }
 
-      return context;
-    }
-
-    // Handle case where first argument is a task name
-    const tasks = [firstTask, ...otherTasks] as string[];
-    const context = {} as Record<string, unknown>;
-    const options = optionsOrTask || {};
-
-    for (const taskName of tasks) {
-      const task = this.tasks.get(taskName);
-      if (!task) {
-        throw new Error(`Task "${taskName}" not found`);
-      }
-      if (
-        task.supportedCommands &&
-        !task.supportedCommands.includes(options.command)
-      ) {
-        throw new Error(
-          `Task "${taskName}" does not support the "${options.command}" command`,
-        );
-      }
-      this.logger.format({ indent: 2 }).debug(`Executing task: ${taskName}`);
-      const result = await task.run(options, context);
-      context[taskName] = result;
+      this.logger.format({ indent: 2 }).debug(`Executing task: ${task.name}`);
+      const result = await registeredTask.run(options, context);
+      context[task.name] = result;
       this.logger
         .format({ indent: 2 })
-        .debug(`Task ${taskName} result:`, result);
+        .debug(`Task ${task.name} result: `, result);
     }
 
     return context;
@@ -248,9 +165,9 @@ export class TaskRunner<
  * Creates a set of helper functions for working with a TaskRunner instance.
  * These helpers are pre-typed with the available tasks, making them more convenient to use.
  */
-export function createHelpers<T extends RegisteredTask<any, any, any, any>>(
-  runner: TaskRunner<T>,
-) {
+export function createHelpers<
+  AvailableTasks extends RegisteredTask<any, any, any, any>,
+>(runner: TaskRunner<AvailableTasks>) {
   return {
     log: (message: string) => runner.log(message),
 
@@ -259,48 +176,23 @@ export function createHelpers<T extends RegisteredTask<any, any, any, any>>(
       handler: (options: TOptions, context: TContext) => Promise<TResults>,
     ) => runner.task<TName, TOptions, TResults, TContext>(name, handler),
 
-    run: <
-      Task extends RegisteredTask<any, any, any, any> & { name: T['name'] },
-    >(
+    run: <Task extends AvailableTasks>(
       task: Task,
       options: Parameters<Task['run']>[0],
       context: Parameters<Task['run']>[1],
     ) => runner.run<Task>(task, options, context),
 
     serial:
-      <Tasks extends (T | T['name'])[]>(...tasks: Tasks) =>
-      (
-        options: Tasks[0] extends T
-          ? Parameters<Tasks[0]['run']>[0]
-          : Simplify<TaskGroupOptions<T, Extract<Tasks[number], string>[]>>,
-      ) => {
-        const firstTask = tasks[0];
-        const restTasks = tasks.slice(1);
-        return runner.serial(firstTask, options, ...restTasks);
-      },
-
-    serialTasks:
-      <
-        First extends RegisteredTask<any, any, any, any> & { name: T['name'] },
-        Rest extends (RegisteredTask<any, any, any, any> & {
-          name: T['name'];
-        })[],
-      >(
-        firstTask: [
-          First['name'],
-          ...{ [K in keyof Rest]: Rest[K]['name'] },
-        ] extends ValidateTaskOrder<
-          [First['name'], ...{ [K in keyof Rest]: Rest[K]['name'] }],
-          T
-        >
-          ? First
-          : never,
+      <First extends AvailableTasks, Rest extends AvailableTasks[]>(
+        firstTask: First,
         ...otherTasks: Rest
       ) =>
       (options: Parameters<First['run']>[0]) =>
         runner.serial(firstTask, options, ...otherTasks),
 
-    parallel: (tasks: T['name'][], options: Parameters<T['run']>[0]) =>
-      runner.parallel<T>(tasks, options),
+    parallel: (
+      tasks: AvailableTasks['name'][],
+      options: Parameters<AvailableTasks['run']>[0],
+    ) => runner.parallel<AvailableTasks>(tasks, options),
   };
 }

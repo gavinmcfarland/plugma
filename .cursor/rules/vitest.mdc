@@ -1,0 +1,163 @@
+---
+description: Vitest usage guide
+globs: **/*.test.ts
+---
+ # Vitest Usage Guide
+
+## Basic Test Structure
+
+Tests are organized following these patterns:
+
+~~~typescript
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+
+describe('Component/Feature Name', () => {
+  // Setup and teardown
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe('Specific Aspect', () => {
+    test('should do something specific', () => {
+      // Test implementation
+    });
+  });
+});
+~~~
+
+## Mocking Patterns
+
+### Module Mocking
+
+1. **Hoisted Mocks**: Use `vi.hoisted()` for mocks needed across multiple tests:
+~~~typescript
+const mocks = vi.hoisted(() => ({
+  registerCleanup: vi.fn(),
+  getDirName: vi.fn(),
+}));
+
+vi.mock('#utils/cleanup.js', () => ({
+  registerCleanup: mocks.registerCleanup,
+}));
+~~~
+
+2. **Partial Module Mocks**: Keep original functionality while mocking specific exports:
+~~~typescript
+vi.mock('node:fs', () => ({
+  ...vi.importActual('node:fs'),
+  readFileSync: vi.fn((path) => {
+    // Custom implementation
+  }),
+}));
+~~~
+
+3. **External Module Mocks**: Mock external dependencies:
+~~~typescript
+vi.mock('vite', () => ({
+  createServer: vi.fn(),
+}));
+~~~
+
+### Mock Implementations
+
+1. **Mock Classes**: Create mock implementations for complex objects:
+~~~typescript
+class MockWebSocketServer extends EventEmitter {
+  clients = new Set();
+  close = vi.fn().mockResolvedValue(undefined);
+  // ... other methods
+}
+~~~
+
+2. **Mock Functions**: Use `vi.fn()` with specific implementations:
+~~~typescript
+const mockFn = vi.fn()
+  .mockReturnValue(defaultValue)
+  .mockImplementation((arg) => {
+    // Custom implementation
+  });
+~~~
+
+3. **Async Mocks**: Handle promises in mocks:
+~~~typescript
+mockFunction.mockResolvedValue(value);  // for Promise.resolve
+mockFunction.mockRejectedValue(error);   // for Promise.reject
+~~~
+
+## Testing Patterns
+
+### Cleanup and Reset
+
+1. **Clear Mocks**: Reset all mocks before each test:
+~~~typescript
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+~~~
+
+2. **Mock Reset**: Reset specific mocks:
+~~~typescript
+mockFunction.mockClear();  // Clear usage data
+mockFunction.mockReset();  // Clear usage and implementation
+mockFunction.mockRestore(); // Restore original implementation
+~~~
+
+### Assertions
+
+1. **Function Calls**:
+~~~typescript
+expect(mockFn).toHaveBeenCalled();
+expect(mockFn).toHaveBeenCalledWith(expect.any(Function));
+expect(mockFn).toHaveBeenCalledTimes(1);
+~~~
+
+2. **Objects and Values**:
+~~~typescript
+expect(result).toBe(value);  // Strict equality
+expect(object).toEqual(expected);  // Deep equality
+expect(object).toMatchObject(partial);  // Partial object match
+~~~
+
+3. **Async Tests**:
+~~~typescript
+await expect(asyncFn()).rejects.toThrow('error message');
+await expect(asyncFn()).resolves.toBe(value);
+~~~
+
+### Event Testing
+
+1. **Event Emitters**:
+~~~typescript
+mockServer.emit('connection', mockClient, { url: '?source=test' });
+expect(mockClient.send).toHaveBeenCalledWith(
+  expect.stringContaining('"event":"client_list"')
+);
+~~~
+
+2. **Error Events**:
+~~~typescript
+await expect(
+  () => new Promise((_, reject) => {
+    server.on('error', reject);
+    server.emit('error', new Error('Test error'));
+  })
+).rejects.toThrow('Expected error');
+~~~
+
+## Best Practices
+
+1. **Organize Tests**: Group related tests using nested `describe` blocks
+2. **Mock Isolation**: Use `beforeEach` to reset mocks and state
+3. **Type Safety**: Maintain type safety in mocks using TypeScript interfaces
+4. **Error Cases**: Test both success and error scenarios
+5. **Clear Descriptions**: Use descriptive test names that explain the expected behavior
+6. **Avoid Test Interdependence**: Each test should be independent and not rely on other tests
+
+## Common Gotchas
+
+1. **Async Cleanup**: Always handle async cleanup in tests
+2. **Mock Scope**: Be aware of mock hoisting and scoping rules
+3. **Event Order**: Consider event timing in async tests
+4. **Type Assertions**: Use proper type assertions for mocked objects
+5. **Promise Handling**: Always await promises in async tests
+~~~

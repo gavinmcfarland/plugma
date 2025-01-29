@@ -46,6 +46,8 @@ export interface VersionUpdateResult {
   previousVersion: string;
   /** New version */
   newVersion: string;
+  /** New version tag (v prefix) */
+  newTag: string;
   /** Whether this was a new plugin initialization */
   wasInitialized: boolean;
   /** Type of release */
@@ -166,6 +168,7 @@ export async function versionUpdate(
     return {
       previousVersion: currentVersion,
       newVersion,
+      newTag: `v${newVersion}`,
       wasInitialized,
       releaseType,
     };

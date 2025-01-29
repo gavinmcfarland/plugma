@@ -16,7 +16,7 @@ import { task } from '../runner.js';
  */
 interface Result {
   /** Path to the built UI HTML file */
-  outputPath: string;
+  outputPath: string | undefined;
 }
 
 /**
@@ -51,87 +51,88 @@ const buildPlaceholderUi = async (
   options: PluginOptions,
   context: ResultsOfTask<GetFilesTask>,
 ): Promise<Result> => {
-  try {
-    const log = new Logger({ debug: options.debug });
-    const fileResult = context[GetFilesTask.name];
-    if (!fileResult) {
-      throw new Error('get-files task must run first');
-    }
+  const log = new Logger({ debug: options.debug });
+  if (!context[GetFilesTask.name]) {
+    throw new Error('get-files task must run first');
+  }
 
-    const { files } = fileResult;
-    const outputPath = join(options.output || 'dist', 'ui.html');
+  const { files } = context[GetFilesTask.name];
 
-    // Register cleanup handler for development mode
-    const cleanup = async () => {
-      log.debug('Cleaning up placeholder UI...');
-      try {
-        await rm(outputPath, { force: true });
-        log.success('Cleaned up placeholder UI');
-      } catch (error) {
-        log.error('Failed to clean up placeholder UI:', error);
-      }
-    };
+  // Only create if UI specified AND file exists
+  if (files.manifest.ui) {
+    const uiPath = resolve(files.manifest.ui);
+    const fileExists = await access(uiPath)
+      .then(() => true)
+      .catch(() => false);
 
-    if (options.command !== 'build') {
-      registerCleanup(cleanup);
-    }
+    if (fileExists) {
+      const outputPath: string = join(options.output || 'dist', 'ui.html');
+      log.debug(`Creating placeholder UI for ${files.manifest.ui}...`);
 
-    // Only create if UI specified AND file exists
-    if (files.manifest.ui) {
-      const uiPath = resolve(files.manifest.ui);
-      const fileExists = await access(uiPath)
-        .then(() => true)
-        .catch(() => false);
-
-      if (fileExists) {
-        log.debug(`Creating placeholder UI for ${files.manifest.ui}...`);
-
-        // Read template from apps directory
-        const __dirname = dirname(fileURLToPath(import.meta.url));
-        const templatePath = resolve(
-          `${__dirname}/../../../apps/figma-bridge.html`,
-        );
-
+      // Register cleanup handler for development mode
+      const cleanup = async () => {
+        log.debug('Cleaning up placeholder UI...');
         try {
-          // Read and verify template
-          let htmlContent = await readFile(templatePath, 'utf-8');
-          if (!htmlContent.includes('<body>')) {
-            throw new Error('Invalid template file: missing <body> tag');
-          }
-
-          // Inject runtime data
-          const runtimeData = `<script>
-            window.runtimeData = ${JSON.stringify({
-              ...options,
-              manifest: files.manifest,
-            })};
-          </script>`;
-          htmlContent = htmlContent.replace(/^/, runtimeData);
-
-          // Create output directory and write file
-          await mkdir(dirname(outputPath), { recursive: true });
-          await writeFile(outputPath, htmlContent, 'utf-8');
-          log.success('Placeholder UI created successfully');
+          await rm(outputPath, { force: true });
+          log.success('Cleaned up placeholder UI');
         } catch (error) {
-          if (error instanceof Error && error.message.includes('ENOENT')) {
-            throw new Error(`Template file not found: ${templatePath}`);
-          }
-          throw error;
+          log.error('Failed to clean up placeholder UI:', error);
         }
-      } else {
-        log.debug(`UI file not found at ${uiPath}, skipping placeholder UI`);
+      };
+
+      if (options.command !== 'build') {
+        registerCleanup(cleanup);
+      }
+
+      // Read template from apps directory
+      const __dirname = dirname(fileURLToPath(import.meta.url));
+      const templatePath = resolve(
+        `${__dirname}/../../../apps/figma-bridge.html`,
+      );
+
+      try {
+        // Read and verify template
+        let htmlContent = await readFile(templatePath, 'utf-8');
+        if (!htmlContent.includes('<body>')) {
+          throw new Error('Invalid template file: missing <body> tag');
+        }
+
+        // Inject runtime data
+        const runtimeData = `<script>
+          window.runtimeData = ${JSON.stringify({
+            ...options,
+            manifest: files.manifest,
+          })};
+        </script>`;
+        htmlContent = htmlContent.replace(/^/, runtimeData);
+
+        // Create output directory and write file
+        await mkdir(dirname(outputPath), { recursive: true });
+        await writeFile(outputPath, htmlContent, 'utf-8');
+        log.success('Placeholder UI created successfully');
+        return { outputPath };
+      } catch (error) {
+        // Ensure we're always working with Error instances
+        const err = error instanceof Error ? error : new Error(String(error));
+
+        // For ENOENT, we want to provide a more user-friendly message
+        if (err.message.includes('ENOENT')) {
+          err.message = 'Template file not found';
+        }
+
+        // Log the error and rethrow
+        log.error('Failed to create placeholder UI:', err);
+        throw err;
       }
     } else {
-      log.debug('No UI specified in manifest, skipping placeholder UI');
+      log.debug(`UI file not found at ${uiPath}, skipping placeholder UI`);
+      return { outputPath: undefined };
     }
-
-    return { outputPath };
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to build placeholder UI: ${errorMessage}`);
+  } else {
+    log.debug('No UI specified in manifest, skipping placeholder UI');
+    return { outputPath: undefined };
   }
 };
-
 export const BuildPlaceholderUiTask = task(
   'build:placeholder-ui',
   buildPlaceholderUi,

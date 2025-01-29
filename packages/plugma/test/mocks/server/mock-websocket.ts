@@ -40,17 +40,44 @@ export class MockWebSocketServer extends EventEmitter {
 
     this.on('connection', (client: MockWebSocketClient) => {
       this.clients.add(client);
-      client.on('close', () => {
-        this.clients.delete(client);
-      });
+
       client.on('message', (data: Buffer) => {
-        try {
-          const message = JSON.parse(data.toString());
-          client.send(JSON.stringify({ type: 'response', data: message }));
-        } catch (error) {
-          // Invalid JSON
+        // Forward message to other clients
+        for (const c of this.clients) {
+          if (c !== client && c.readyState === c.OPEN) {
+            c.send(data.toString());
+          }
         }
       });
+
+      client.on('close', () => {
+        this.clients.delete(client);
+        // Broadcast disconnect to other clients
+        for (const c of this.clients) {
+          if (c !== client && c.readyState === c.OPEN) {
+            c.send(
+              JSON.stringify({
+                pluginMessage: {
+                  event: 'client_disconnected',
+                  client: { id: 'test-client-id' },
+                },
+                pluginId: '*',
+              }),
+            );
+          }
+        }
+      });
+
+      // Send initial client list
+      client.send(
+        JSON.stringify({
+          pluginMessage: {
+            event: 'client_list',
+            clients: [{ id: 'test-client-id', source: 'test' }],
+          },
+          pluginId: '*',
+        }),
+      );
     });
   }
 }

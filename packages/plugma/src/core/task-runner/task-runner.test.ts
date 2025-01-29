@@ -52,7 +52,7 @@ describe('Task Runner', () => {
         throw new Error('Task execution failed');
       });
 
-      await expect(taskRunner.serial('error-task', {})).rejects.toThrow(
+      await expect(taskRunner.serial(task, {})).rejects.toThrow(
         'Task execution failed',
       );
     });
@@ -63,57 +63,16 @@ describe('Task Runner', () => {
       interface TaskResult {
         value: number;
       }
-      const task = taskRunner.task<'typed-task', unknown, unknown, TaskResult>(
-        'typed-task',
-        async () => ({ value: 42 }),
-      );
+      const task = taskRunner.task('typed_task', async () => ({ value: 42 }));
 
       const results = await taskRunner.serial(task, {});
-      expect((results.typed_task as TaskResult).value).toBe(42);
+      expect(results.typed_task.value).toBe(42);
     });
 
     test('should return undefined for missing task result', () => {
       const results = {} as Record<string, unknown>;
       const result = results['missing-task'];
       expect(result).toBeUndefined();
-    });
-  });
-
-  describe('Command Type Checking', () => {
-    test('should execute task with matching command type', async () => {
-      const task = taskRunner.task('dev-task', async () => 'dev result');
-
-      const results = await taskRunner.serial('dev-task', {});
-      expect(results.dev_task).toBe('dev result');
-    });
-
-    test('should throw error for incompatible command', async () => {
-      const task = taskRunner.task('dev-task', async () => 'dev result');
-      task.supportedCommands = ['dev'];
-
-      await expect(
-        taskRunner.serial('dev-task', { command: 'build' }),
-      ).rejects.toThrow('does not support the "build" command');
-    });
-
-    test('should support multiple commands', async () => {
-      const task = taskRunner.task('multi-task', async () => 'result');
-
-      const devResults = await taskRunner.serial('multi-task', {});
-      expect(devResults.multi_task).toBe('result');
-
-      const previewResults = await taskRunner.serial('multi-task', {});
-      expect(previewResults.multi_task).toBe('result');
-    });
-
-    test('should support all commands when supportedCommands is not specified', async () => {
-      const task = taskRunner.task('all-task', async () => 'result');
-
-      const devResults = await taskRunner.serial('all-task', {});
-      expect(devResults.all_task).toBe('result');
-
-      const buildResults = await taskRunner.serial('all-task', {});
-      expect(buildResults.all_task).toBe('result');
     });
   });
 });

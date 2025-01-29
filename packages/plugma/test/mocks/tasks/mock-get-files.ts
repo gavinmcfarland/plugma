@@ -1,4 +1,4 @@
-import type { GetFilesResult } from '#tasks/common/get-files.js';
+import type { GetFilesTaskResult } from '#tasks/common/get-files.js';
 import type { PartialDeep } from 'type-fest';
 
 /**
@@ -6,9 +6,9 @@ import type { PartialDeep } from 'type-fest';
  * This mock is used across multiple test files to ensure consistency.
  */
 export function createMockGetFilesResult(
-  overrides: PartialDeep<GetFilesResult> = {},
-): GetFilesResult {
-  const defaultResult: GetFilesResult = {
+  overrides: PartialDeep<GetFilesTaskResult> = {},
+): GetFilesTaskResult {
+  const defaultResult: GetFilesTaskResult = {
     version: '1.0.0',
     files: {
       manifest: {
@@ -77,13 +77,13 @@ export function createMockGetFilesResult(
       ...defaultResult.config,
       ...(overrides.config || {}),
     },
-  } as GetFilesResult;
+  } as GetFilesTaskResult;
 }
 
 /**
  * Creates a mock GetFilesResult without UI fields for testing scenarios that don't require UI.
  */
-export function createMockGetFilesResultWithoutUi(): GetFilesResult {
+export function createMockGetFilesResultWithoutUi(): GetFilesTaskResult {
   const result = createMockGetFilesResult();
   const { ui: _, ...manifestWithoutUi } = result.files.manifest;
   const { ui: __, ...plugmaManifestWithoutUi } =
