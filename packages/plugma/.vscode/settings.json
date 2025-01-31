@@ -59,5 +59,6 @@
   "yaml.format.singleQuote": true,
   "[jsonc]": {
     "editor.defaultFormatter": "biomejs.biome"
-  }
+  },
+  "vitest.rootConfig": "vitest.config.ts"
 }

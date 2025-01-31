@@ -1,3 +1,4 @@
+import { createMockViteConfig } from '#test/mocks/vite/mock-vite-config.js';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 // Hoist mocks
@@ -26,18 +27,15 @@ const mocks = vi.hoisted(() => {
     mkdir: vi.fn().mockResolvedValue(undefined),
     readFile: vi.fn(),
     writeFile: vi.fn(),
-    rm: vi.fn().mockResolvedValue(undefined),
     path: {
       ...pathMock,
       default: pathMock,
     },
     Logger: vi.fn().mockImplementation(() => loggerMock),
     loggerInstance: loggerMock,
-    registerCleanup: vi.fn(),
-    unregisterCleanup: vi.fn(),
-    cleanManifestFiles: vi.fn(),
+    validateOutputFiles: vi.fn(),
     createViteConfigs: vi.fn().mockReturnValue({
-      vite: {
+      ui: {
         build: {},
       },
     }),
@@ -56,7 +54,6 @@ vi.mock('node:fs/promises', () => ({
   mkdir: mocks.mkdir,
   readFile: mocks.readFile,
   writeFile: mocks.writeFile,
-  rm: mocks.rm,
 }));
 
 vi.mock('node:path', () => mocks.path);
@@ -65,13 +62,8 @@ vi.mock('#utils/log/logger.js', () => ({
   Logger: mocks.Logger,
 }));
 
-vi.mock('#utils/cleanup.js', () => ({
-  registerCleanup: mocks.registerCleanup,
-  unregisterCleanup: mocks.unregisterCleanup,
-}));
-
-vi.mock('#utils/config/clean-manifest-files.js', () => ({
-  cleanManifestFiles: mocks.cleanManifestFiles,
+vi.mock('#utils/config/validate-output-files.js', () => ({
+  validateOutputFiles: mocks.validateOutputFiles,
 }));
 
 vi.mock('#utils/config/create-vite-configs.js', () => ({
@@ -182,104 +174,52 @@ describe('BuildUiTask', () => {
     expect(mocks.build).not.toHaveBeenCalled();
   });
 
-  test('should register cleanup in development mode', async () => {
-    const uiContent = '<html><body>UI Content</body></html>';
-    const uiPath = '/path/to/ui.html';
-
-    mockFs.addFiles({
-      [uiPath]: uiContent,
-    });
-
-    const context = createMockTaskContext({
-      [GetFilesTask.name]: {
-        files: {
-          manifest: {
-            ui: uiPath,
-          },
-        },
-      },
-    });
-
-    await BuildUiTask.run({ ...baseOptions, command: 'dev' }, context);
-
-    expect(mocks.registerCleanup).toHaveBeenCalledWith(expect.any(Function));
-
-    // Call the cleanup function
-    const cleanupFn = mocks.registerCleanup.mock.calls[0][0];
-    await cleanupFn();
-
-    expect(mocks.loggerInstance.debug).toHaveBeenCalledWith(
-      'Cleaning up UI build...',
-    );
-    expect(mocks.rm).toHaveBeenCalledWith('dist/ui.html', { force: true });
-    expect(mocks.loggerInstance.success).toHaveBeenCalledWith(
-      'Cleaned up UI build output',
-    );
-  });
-
-  test('should handle cleanup errors', async () => {
-    const uiContent = '<html><body>UI Content</body></html>';
-    const uiPath = '/path/to/ui.html';
-    const error = new Error('Failed to remove file');
-
-    mockFs.addFiles({
-      [uiPath]: uiContent,
-    });
-
-    const context = createMockTaskContext({
-      [GetFilesTask.name]: {
-        files: {
-          manifest: {
-            ui: uiPath,
-          },
-        },
-      },
-    });
-
-    await BuildUiTask.run({ ...baseOptions, command: 'dev' }, context);
-
-    // Mock rm to throw an error
-    mocks.rm.mockRejectedValueOnce(error);
-
-    // Call the cleanup function
-    const cleanupFn = mocks.registerCleanup.mock.calls[0][0];
-    await cleanupFn();
-
-    expect(mocks.loggerInstance.error).toHaveBeenCalledWith(
-      'Failed to clean up UI build output:',
-      error,
-    );
-  });
-
-  test('should not register cleanup in build mode', async () => {
-    const uiContent = '<html><body>UI Content</body></html>';
-    const uiPath = '/path/to/ui.html';
-
-    mockFs.addFiles({
-      [uiPath]: uiContent,
-    });
-
-    const context = createMockTaskContext({
-      [GetFilesTask.name]: {
-        files: {
-          manifest: {
-            ui: uiPath,
-          },
-        },
-      },
-    });
-
-    await BuildUiTask.run({ ...baseOptions, command: 'build' }, context);
-
-    expect(mocks.registerCleanup).toHaveBeenCalled();
-    expect(mocks.unregisterCleanup).toHaveBeenCalled();
-  });
-
   test('should handle missing get-files result', async () => {
     const context = createMockTaskContext({});
 
     await expect(BuildUiTask.run(baseOptions, context)).rejects.toThrow(
       'get-files task must run first',
+    );
+  });
+
+  test('should validate output files after build', async () => {
+    const uiContent = '<html><body>UI Content</body></html>';
+    const uiPath = '/path/to/ui.html';
+    const mainPath = 'src/main.ts';
+    const mainContent = 'export default {}';
+
+    mockFs.addFiles({
+      [uiPath]: uiContent,
+      [mainPath]: mainContent,
+    });
+
+    // Mock resolve to return the same path
+    mocks.path.resolve.mockImplementation((p: string) => p);
+
+    // Mock access to always return true for both UI and main files
+    mocks.access.mockImplementation(() => Promise.resolve());
+
+    // Mock successful build
+    mocks.build.mockResolvedValue(undefined);
+
+    const context = createMockTaskContext({
+      [GetFilesTask.name]: {
+        files: {
+          manifest: {
+            ui: uiPath,
+            main: mainPath,
+          },
+        },
+        config: createMockViteConfig(),
+      },
+    });
+
+    await BuildUiTask.run(baseOptions, context);
+
+    expect(mocks.validateOutputFiles).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.any(Object),
+      'plugin-built',
     );
   });
 });

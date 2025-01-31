@@ -1,18 +1,17 @@
-import type {
-  GetTaskTypeFor,
-  PluginOptions,
-  ResultsOfTask,
-} from '#core/types.js';
-import { registerCleanup, unregisterCleanup } from '#utils/cleanup.js';
-import { cleanManifestFiles } from '#utils/config/clean-manifest-files.js';
-import { createViteConfigs } from '#utils/config/create-vite-configs.js';
-import { Logger } from '#utils/log/logger.js';
-import { access, rm } from 'node:fs/promises';
+import { access } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import type { ModuleFormat } from 'rollup';
 import type { ViteDevServer } from 'vite';
 import { type InlineConfig, build, mergeConfig } from 'vite';
+import type {
+  GetTaskTypeFor,
+  PluginOptions,
+  ResultsOfTask,
+} from '#core/types.js';
+import { createViteConfigs } from '#utils/config/create-vite-configs.js';
+import { validateOutputFiles } from '#utils/config/validate-output-files.js';
+import { Logger } from '#utils/log/logger.js';
 import { GetFilesTask } from '../common/get-files.js';
 import { task } from '../runner.js';
 import { viteState } from '../server/vite.js';
@@ -37,14 +36,15 @@ interface Result {
  *    - Manages HTML and JS output
  * 2. Managing build state:
  *    - Closes existing UI server if any
- *    - Handles cleanup of build artifacts
+ *    - Validates output files against source files
  *    - Manages watch mode for development
+ *    - Ensures output integrity
  *
  * The UI is built from the path specified in manifest.ui and outputs to ui.html.
  * In development mode:
  * - Source maps are enabled for better debugging
  * - Watch mode is enabled for rebuilding on changes
- * - Build artifacts are cleaned up on exit
+ * - Output files are validated against source files
  *
  * In production mode:
  * - Output is minified
@@ -74,24 +74,6 @@ const buildUi = async (
     if (viteState.viteUi) {
       await viteState.viteUi.close();
     }
-
-    // Register cleanup handler
-    const cleanup = async () => {
-      log.debug('Cleaning up UI build...');
-      if (viteState.viteUi) {
-        await viteState.viteUi.close();
-      }
-      // In dev/preview, we want to clean up the build output
-      if (options.command !== 'build') {
-        try {
-          await rm(outputPath, { force: true });
-          log.success('Cleaned up UI build output');
-        } catch (error) {
-          log.error('Failed to clean up UI build output:', error);
-        }
-      }
-    };
-    registerCleanup(cleanup);
 
     // Get Vite config from createConfigs
     const config = createViteConfigs(options, files);
@@ -194,13 +176,8 @@ const buildUi = async (
       }
     }
 
-    // Clean manifest files
-    cleanManifestFiles(options, files, 'plugin-built');
-
-    // Unregister cleanup handler in build mode
-    if (options.command === 'build') {
-      unregisterCleanup(cleanup);
-    }
+    // Validate output files
+    await validateOutputFiles(options, files, 'plugin-built');
 
     return { outputPath, duration };
   } catch (error) {

@@ -1,4 +1,3 @@
-import { rm } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { build } from 'vite';
 /**
@@ -10,7 +9,6 @@ import type {
   ResultsOfTask,
 } from '#core/types.js';
 // import type { TaskDefinition } from '#core/task-runner/types.js';
-import { registerCleanup, unregisterCleanup } from '#utils/cleanup.js';
 import { Logger } from '#utils/log/logger.js';
 import { GetFilesTask } from '../common/get-files.js';
 import { task } from '../runner.js';
@@ -34,14 +32,14 @@ interface Result {
  *    - Handles source maps and minification
  * 2. Managing build state:
  *    - Closes existing build server if any
- *    - Handles cleanup of build artifacts
+ *    - Validates output files against source files
  *    - Manages watch mode for development
  *
  * The main script is built from the path specified in manifest.main and outputs to main.js.
  * In development mode:
  * - Builds are not minified for better debugging
  * - Watch mode is enabled for rebuilding on changes
- * - Build artifacts are cleaned up on exit
+ * - Output files are validated against source files
  *
  * In production mode:
  * - Output is minified
@@ -71,24 +69,6 @@ const buildMain = async (
     if (viteState.viteBuild) {
       await viteState.viteBuild.close();
     }
-
-    // Register cleanup handler
-    const cleanup = async () => {
-      log.debug('Cleaning up main build...');
-      if (viteState.viteBuild) {
-        await viteState.viteBuild.close();
-      }
-      // In dev/preview, we want to clean up the build output
-      if (options.command !== 'build') {
-        try {
-          await rm(outputPath, { force: true });
-          log.success('Cleaned up main build output');
-        } catch (error) {
-          log.error('Failed to clean up main build output:', error);
-        }
-      }
-    };
-    registerCleanup(cleanup);
 
     // Only build if main script is specified
     if (!files.manifest.main) {
@@ -129,11 +109,6 @@ const buildMain = async (
     });
 
     log.success('Main script built successfully at dist/main.js\n');
-
-    // Unregister cleanup handler in build mode
-    if (options.command === 'build') {
-      unregisterCleanup(cleanup);
-    }
 
     return { outputPath };
   } catch (error) {

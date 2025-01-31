@@ -61,6 +61,7 @@ const mocks = vi.hoisted(() => {
     registerCleanup: vi.fn(),
     unregisterCleanup: vi.fn(),
     cleanManifestFiles: vi.fn(),
+    validateOutputFiles: vi.fn(),
     getFilesRecursively: vi.fn().mockResolvedValue([]),
     BuildMainTask: buildMainTask,
     RestartViteServerTask: {
@@ -124,6 +125,10 @@ vi.mock('chokidar', () => ({
 }));
 
 vi.mock('node:process', () => mocks.process);
+
+vi.mock('#utils/config/validateOutputFiles.js', () => ({
+  validateOutputFiles: mocks.validateOutputFiles,
+}));
 
 import { BuildManifestTask, GetFilesTask } from '#tasks';
 import { type MockFs, createMockFs, createMockTaskContext } from '#test';

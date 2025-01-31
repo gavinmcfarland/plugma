@@ -3,20 +3,21 @@
  * Handles development server and file watching for plugin development
  */
 
-import type { PluginOptions } from '#core/types.js';
-import { getRandomPort } from '#utils/get-random-port.js';
+import type { DevCommandOptions } from '#commands/types.js';
+import {
+  BuildMainTask,
+  BuildManifestTask,
+  BuildUiTask,
+  GetFilesTask,
+  ShowPlugmaPromptTask,
+  StartViteServerTask,
+  StartWebSocketsServerTask,
+} from '#tasks';
+import { serial } from '#tasks/runner.js';
+import { RestartViteServerTask } from '#tasks/server/restart-vite.js';
 import { Logger } from '#utils/log/logger.js';
 import { nanoid } from 'nanoid';
-import { BuildMainTask } from '../tasks/build/main.js';
-import { BuildManifestTask } from '../tasks/build/manifest.js';
-import { BuildUiTask } from '../tasks/build/ui.js';
-import { GetFilesTask } from '../tasks/common/get-files.js';
-import { ShowPlugmaPromptTask } from '../tasks/common/prompt.js';
-import { serial } from '../tasks/runner.js';
-import { RestartViteServerTask } from '../tasks/server/restart-vite.js';
-import { StartViteServerTask } from '../tasks/server/vite.js';
-import { StartWebSocketsServerTask } from '../tasks/server/websocket.js';
-import type { DevCommandOptions } from './types.js';
+import { getRandomPort } from '../utils/get-random-port.js';
 
 /**
  * Main development command implementation
@@ -29,6 +30,7 @@ import type { DevCommandOptions } from './types.js';
  * - Development UI with placeholder
  * - WebSocket communication
  * - Vite development server
+ * - Output file validation to ensure integrity
  */
 export async function dev(options: DevCommandOptions): Promise<void> {
   const log = new Logger({ debug: options.debug });
@@ -36,13 +38,13 @@ export async function dev(options: DevCommandOptions): Promise<void> {
   try {
     log.info('Starting development server...');
 
-    const pluginOptions: PluginOptions = {
+    const pluginOptions = {
       ...options,
       mode: options.mode || 'development',
       instanceId: nanoid(),
       port: options.port || getRandomPort(),
       output: options.output || 'dist',
-      command: 'dev',
+      command: 'dev' as const,
     };
 
     // Execute tasks in sequence
@@ -50,8 +52,8 @@ export async function dev(options: DevCommandOptions): Promise<void> {
     await serial(
       GetFilesTask,
       ShowPlugmaPromptTask,
-      BuildMainTask,
       BuildUiTask,
+      BuildMainTask,
       BuildManifestTask,
       StartViteServerTask,
       RestartViteServerTask,

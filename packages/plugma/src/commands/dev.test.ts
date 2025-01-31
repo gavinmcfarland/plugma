@@ -38,9 +38,9 @@ describe('Dev Command', () => {
       expect(serial).toHaveBeenCalledWith(
         GetFilesTask,
         ShowPlugmaPromptTask,
-        BuildManifestTask,
         BuildUiTask,
         BuildMainTask,
+        BuildManifestTask,
         StartViteServerTask,
         RestartViteServerTask,
         StartWebSocketsServerTask,

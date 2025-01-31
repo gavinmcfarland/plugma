@@ -3,9 +3,8 @@ import type {
   PluginOptions,
   ResultsOfTask,
 } from '#core/types.js';
-import { registerCleanup } from '#utils/cleanup.js';
 import { Logger } from '#utils/log/logger.js';
-import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { GetFilesTask } from '../common/get-files.js';
@@ -29,7 +28,7 @@ interface Result {
  *    - Provides development-specific features
  * 2. Managing file state:
  *    - Creates output directory if needed
- *    - Handles cleanup of temporary files
+ *    - Validates output files against source files
  *    - Verifies template and UI file existence
  *
  * The development UI is created when:
@@ -41,7 +40,7 @@ interface Result {
  * 1. Reads the bridge template
  * 2. Injects runtime configuration
  * 3. Writes the modified file
- * 4. Registers cleanup for temporary files
+ * 4. Validates output against source files
  *
  * @param options - Plugin build options including command, output path, etc
  * @param context - Task context containing results from previous tasks
@@ -68,21 +67,6 @@ const buildPlaceholderUi = async (
     if (fileExists) {
       const outputPath: string = join(options.output || 'dist', 'ui.html');
       log.debug(`Creating placeholder UI for ${files.manifest.ui}...`);
-
-      // Register cleanup handler for development mode
-      const cleanup = async () => {
-        log.debug('Cleaning up placeholder UI...');
-        try {
-          await rm(outputPath, { force: true });
-          log.success('Cleaned up placeholder UI');
-        } catch (error) {
-          log.error('Failed to clean up placeholder UI:', error);
-        }
-      };
-
-      if (options.command !== 'build') {
-        registerCleanup(cleanup);
-      }
 
       // Read template from apps directory
       const __dirname = dirname(fileURLToPath(import.meta.url));

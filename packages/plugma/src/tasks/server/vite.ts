@@ -43,7 +43,7 @@ export const viteState = {
  * 1. Server Lifecycle:
  *    - Starting the Vite dev server
  *    - Managing server state
- *    - Handling cleanup on exit
+ *    - Ensuring proper server shutdown
  * 2. Configuration:
  *    - Setting up HMR and middleware
  *    - Configuring source maps
@@ -91,7 +91,7 @@ const startViteServer = async (
     }
 
     // Register cleanup handler
-    const cleanup = async () => {
+    registerCleanup(async () => {
       log.debug('Cleaning up Vite server...');
       if (viteState.viteServer) {
         try {
@@ -102,8 +102,7 @@ const startViteServer = async (
           log.error('Failed to close Vite server:', error);
         }
       }
-    };
-    registerCleanup(cleanup);
+    });
 
     log.debug('Starting Vite server...');
 

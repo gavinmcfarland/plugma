@@ -76,7 +76,7 @@ export interface StartWebSocketsServerResult {
  * 1. Server Lifecycle:
  *    - Starting the WebSocket server
  *    - Managing client connections
- *    - Handling cleanup on exit
+ *    - Ensuring proper server shutdown
  * 2. Client Management:
  *    - Tracking connected clients
  *    - Managing client sources

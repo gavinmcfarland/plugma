@@ -31,6 +31,9 @@ export function createMockViteServer(
     ssrTransform: vi.fn().mockResolvedValue({ code: '' }),
     reloadModule: vi.fn(),
     openBrowser: vi.fn(),
+    waitForRequestsIdle: vi.fn(),
+    ssrFetchModule: vi.fn().mockResolvedValue({}),
+    hot: {} as any,
   };
 
   return {

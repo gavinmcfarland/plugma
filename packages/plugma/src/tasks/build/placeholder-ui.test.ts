@@ -22,7 +22,6 @@ const mocks = vi.hoisted(() => {
     mkdir: vi.fn().mockResolvedValue(undefined),
     readFile: vi.fn(),
     writeFile: vi.fn(),
-    rm: vi.fn().mockResolvedValue(undefined),
     fileURLToPath: vi.fn().mockReturnValue('src/tasks/build/placeholder-ui.ts'),
     path: {
       ...pathMock,
@@ -30,7 +29,6 @@ const mocks = vi.hoisted(() => {
     },
     Logger: vi.fn().mockImplementation(() => loggerMock),
     loggerInstance: loggerMock,
-    registerCleanup: vi.fn(),
   };
 });
 
@@ -40,7 +38,6 @@ vi.mock('node:fs/promises', () => ({
   mkdir: mocks.mkdir,
   readFile: mocks.readFile,
   writeFile: mocks.writeFile,
-  rm: mocks.rm,
 }));
 
 vi.mock('node:path', () => mocks.path);
@@ -51,10 +48,6 @@ vi.mock('node:url', () => ({
 
 vi.mock('#utils/log/logger.js', () => ({
   Logger: mocks.Logger,
-}));
-
-vi.mock('#utils/cleanup.js', () => ({
-  registerCleanup: mocks.registerCleanup,
 }));
 
 import { BuildPlaceholderUiTask, GetFilesTask } from '#tasks';
@@ -242,76 +235,6 @@ describe('BuildPlaceholderUiTask', () => {
     expect(mocks.loggerInstance.error).toHaveBeenCalledWith(
       'Failed to create placeholder UI:',
       expect.any(Error),
-    );
-  });
-
-  test('should register cleanup in development mode', async () => {
-    const templateContent =
-      '<html><head></head><body><div id="app"></div></body></html>';
-    const uiPath = '/path/to/ui.html';
-    const templatePath = 'src/tasks/build/../../../apps/figma-bridge.html';
-
-    mockFs.addFiles({
-      [uiPath]: templateContent,
-      [templatePath]: templateContent,
-    });
-
-    const context = createMockTaskContext({
-      [GetFilesTask.name]: {
-        files: {
-          manifest: {
-            ui: uiPath,
-          },
-        },
-      },
-    });
-
-    await BuildPlaceholderUiTask.run(
-      { ...baseOptions, command: 'dev' },
-      context,
-    );
-
-    expect(mocks.registerCleanup).toHaveBeenCalledWith(expect.any(Function));
-    expect(mocks.loggerInstance.debug).toHaveBeenCalledWith(
-      'Creating placeholder UI for /path/to/ui.html...',
-    );
-    expect(mocks.loggerInstance.success).toHaveBeenCalledWith(
-      'Placeholder UI created successfully',
-    );
-  });
-
-  test('should not register cleanup in build mode', async () => {
-    const templateContent =
-      '<html><head></head><body><div id="app"></div></body></html>';
-    const uiPath = '/path/to/ui.html';
-    const templatePath = 'src/tasks/build/../../../apps/figma-bridge.html';
-
-    mockFs.addFiles({
-      [uiPath]: templateContent,
-      [templatePath]: templateContent,
-    });
-
-    const context = createMockTaskContext({
-      [GetFilesTask.name]: {
-        files: {
-          manifest: {
-            ui: uiPath,
-          },
-        },
-      },
-    });
-
-    await BuildPlaceholderUiTask.run(
-      { ...baseOptions, command: 'build' },
-      context,
-    );
-
-    expect(mocks.registerCleanup).not.toHaveBeenCalled();
-    expect(mocks.loggerInstance.debug).toHaveBeenCalledWith(
-      'Creating placeholder UI for /path/to/ui.html...',
-    );
-    expect(mocks.loggerInstance.success).toHaveBeenCalledWith(
-      'Placeholder UI created successfully',
     );
   });
 

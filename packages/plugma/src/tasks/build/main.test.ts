@@ -8,7 +8,6 @@ import {
   setupFsMocks,
   setupViteMock,
 } from '#test';
-import { registerCleanup, unregisterCleanup } from '#utils/cleanup.js';
 import { build } from 'vite';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { GetFilesTask } from '../common/get-files.js';
@@ -18,11 +17,6 @@ import { BuildMainTask } from './main.js';
 // Setup mocks
 setupFsMocks();
 setupViteMock();
-
-vi.mock('#utils/cleanup.js', () => ({
-  registerCleanup: vi.fn(),
-  unregisterCleanup: vi.fn(),
-}));
 
 describe('Main Build Tasks', () => {
   beforeEach(() => {
@@ -137,57 +131,6 @@ describe('Main Build Tasks', () => {
       await BuildMainTask.run(mockBuildOptions, context);
 
       expect(mockServer.close).toHaveBeenCalled();
-    });
-
-    test('should register cleanup in dev/preview mode', async () => {
-      const mainPath = 'src/plugin-main.ts';
-      const getFilesResult = createMockGetFilesResult({
-        files: {
-          manifest: {
-            name: 'Test Plugin',
-            id: 'test-plugin',
-            version: '1.0.0',
-            api: '1.0.0',
-            main: mainPath,
-          },
-        },
-      });
-
-      const context = createMockTaskContext({
-        [GetFilesTask.name]: getFilesResult,
-      });
-
-      await BuildMainTask.run(mockBuildOptions, context);
-
-      expect(registerCleanup).toHaveBeenCalled();
-      expect(unregisterCleanup).not.toHaveBeenCalled();
-    });
-
-    test('should unregister cleanup in build mode', async () => {
-      const mainPath = 'src/plugin-main.ts';
-      const getFilesResult = createMockGetFilesResult({
-        files: {
-          manifest: {
-            name: 'Test Plugin',
-            id: 'test-plugin',
-            version: '1.0.0',
-            api: '1.0.0',
-            main: mainPath,
-          },
-        },
-      });
-
-      const context = createMockTaskContext({
-        [GetFilesTask.name]: getFilesResult,
-      });
-
-      await BuildMainTask.run(
-        { ...mockBuildOptions, command: 'build' },
-        context,
-      );
-
-      expect(registerCleanup).toHaveBeenCalled();
-      expect(unregisterCleanup).toHaveBeenCalled();
     });
 
     test('should handle missing get-files result', async () => {

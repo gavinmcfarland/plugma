@@ -39,9 +39,9 @@ describe('Preview Command', () => {
       expect(serial).toHaveBeenCalledWith(
         GetFilesTask,
         ShowPlugmaPromptTask,
-        BuildManifestTask,
         BuildMainTask,
         BuildUiTask,
+        BuildManifestTask,
         StartViteServerTask,
       );
 

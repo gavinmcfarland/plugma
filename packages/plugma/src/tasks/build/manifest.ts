@@ -10,7 +10,7 @@ import {
 } from '#tasks/common/get-files.js';
 import RestartViteServerTask from '#tasks/server/restart-vite.js';
 import { registerCleanup } from '#utils/cleanup.js';
-import { cleanManifestFiles } from '#utils/config/clean-manifest-files.js';
+import { validateOutputFiles } from '#utils/config/validate-output-files.js';
 import { filterNullProps } from '#utils/filter-null-props.js';
 import { getFilesRecursively } from '#utils/fs/get-files-recursively.js';
 import { defaultLogger as log } from '#utils/log/logger.js';
@@ -40,7 +40,7 @@ export interface BuildManifestResult {
  *    - Watching src directory for file additions/removals
  *    - Triggering server restart when needed
  *    - Rebuilding main script when its path changes
- *    - Managing cleanup of temporary files
+ *    - Validating output files against source files
  * 3. In build mode:
  *    - Creating the final manifest for production
  *    - Preserving build artifacts
@@ -93,6 +93,9 @@ const buildManifest = async (
       manifestWatcher.on('change', async () => {
         const { raw } = await _buildManifestFile(options, files);
 
+        // Validate output files
+        validateOutputFiles(options, files, 'manifest-changed');
+
         // Trigger server restart
         await RestartViteServerTask.run(options, context);
 
@@ -101,9 +104,6 @@ const buildManifest = async (
           previousMainValue = raw.main;
           await BuildMainTask.run(options, context);
         }
-
-        // Clean manifest files
-        cleanManifestFiles(options, files, 'manifest-changed');
       });
 
       // Watch src directory
@@ -126,7 +126,7 @@ const buildManifest = async (
           await BuildMainTask.run(options, context);
         }
 
-        cleanManifestFiles(options, files, 'file-added');
+        validateOutputFiles(options, files, 'file-added');
       });
 
       // Register cleanup for watchers
