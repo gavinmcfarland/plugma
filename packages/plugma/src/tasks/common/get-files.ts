@@ -1,14 +1,10 @@
-/**
- * File loading task implementation
- */
+import PlugmaPackageJson from '#packageJson' with { type: 'json' };
+import type { PackageJson } from 'type-fest';
 
 import type { GetTaskTypeFor, PluginOptions, UserFiles } from '#core/types.js';
 import { createViteConfigs } from '#utils/config/create-vite-configs.js';
 import { getUserFiles } from '#utils/config/get-user-files.js';
-import { getDirName } from '#utils/path.js';
 import { task } from '../runner.js';
-
-const __dirname = getDirName(import.meta.url);
 
 /**
  * Custom error class for file loading operations
@@ -28,7 +24,7 @@ export class GetFilesError extends Error {
  */
 export interface GetFilesTaskResult {
   /** The version of the plugin */
-  version: string;
+  plugmaPkg: PackageJson;
   /** The files to be used by the plugin */
   files: UserFiles;
   /** The configuration objects */
@@ -41,29 +37,48 @@ export interface GetFilesTaskResult {
 export const getFiles = async (
   options: PluginOptions,
 ): Promise<GetFilesTaskResult> => {
+  let plugmaPkg: PackageJson;
+  let files: UserFiles;
+  let config: ReturnType<typeof createViteConfigs>;
+
   try {
-    // Get user files
-    const files = await getUserFiles(options);
-
-    // Create configs
-    const config = createViteConfigs(options, files);
-
-    return {
-      version: files.userPkgJson.version,
-      files,
-      config,
-    };
-  } catch (err) {
-    if (err instanceof Error) {
-      if (err.message.includes('manifest configuration')) {
+    try {
+      // Get user files
+      files = await getUserFiles(options);
+    } catch (err) {
+      if (
+        err instanceof Error &&
+        err.message.includes('manifest configuration')
+      ) {
         throw new GetFilesError(
           'Invalid package.json structure',
           'INVALID_PACKAGE_JSON',
         );
       }
-      if (err.message.includes('create configs')) {
-        throw new GetFilesError(err.message, 'CONFIG_ERROR');
-      }
+      throw new GetFilesError(
+        `Failed to get user files: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        'FILE_ERROR',
+      );
+    }
+
+    try {
+      // Create configs
+      config = createViteConfigs(options, files);
+    } catch (err) {
+      throw new GetFilesError(
+        `Failed to create configs: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        'CONFIG_ERROR',
+      );
+    }
+
+    return {
+      plugmaPkg: PlugmaPackageJson as PackageJson,
+      files,
+      config,
+    };
+  } catch (err) {
+    if (err instanceof GetFilesError) {
+      throw err;
     }
     throw new GetFilesError(
       `Failed to load files: ${err instanceof Error ? err.message : 'Unknown error'}`,

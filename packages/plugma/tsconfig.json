@@ -25,7 +25,8 @@
       "#vite-plugins": ["src/vite-plugins/index.ts"],
       "#vite-plugins/*": ["src/vite-plugins/*"],
       "#test": ["test/index.ts"],
-      "#test/*": ["test/*"]
+      "#test/*": ["test/*"],
+      "#packageJson": ["package.json"]
     }
   },
   "include": [
@@ -33,7 +34,8 @@
     "src/**/*.svelte",
     "src/**/*.tsx",
     "src/**/*.test.ts",
-    "test/**/*.ts"
+    "test/**/*.ts",
+    "./package.json"
   ],
   "exclude": ["archive", "dist", "node_modules"]
 }

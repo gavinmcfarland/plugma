@@ -1,17 +1,7 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "skipLibCheck": true,
-    "lib": ["DOM", "esnext"],
-    "module": "esnext",
-    "target": "esnext",
-    "moduleResolution": "node",
-    "outDir": "./dist",
     "rootDir": "./src",
-    "strict": true,
-    "resolveJsonModule": true,
-    "types": ["@figma/plugin-typings"],
     "baseUrl": "src",
     "paths": {
       "#core": ["core/index.ts"],
@@ -24,7 +14,7 @@
       "#utils/*": ["utils/*"],
       "#vite-plugins": ["vite-plugins/index.ts"],
       "#vite-plugins/*": ["vite-plugins/*"],
-      "#tests/*": ["../tests/*"]
+      "#packageJson": ["../package.json"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
@@ -32,7 +22,7 @@
     "archive",
     "dist",
     "node_modules",
-    "tests",
+    "test",
     "**/*.test.ts",
     "**/*.test.tsx",
     "**/__tests__/**"

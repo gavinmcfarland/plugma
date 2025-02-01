@@ -17,16 +17,36 @@ import { transformObject } from './transform-object.js';
  * The manifest object is transformed to handle special cases like networkAccess.
  *
  * @throws Error if no manifest is found in either location
+ *
+ * Tracking:
+ * - [x] Add manifest loading
+ *   - Verified manifest handling:
+ *   - Primary manifest.json support
+ *   - Fallback to package.json plugma.manifest
+ *   - Proper error handling for missing files
+ * - [x] Implement validation
+ *   - Verified validation features:
+ *   - Required fields checking (main/ui)
+ *   - Name field warning
+ *   - Proper error messages
+ * - [x] Add configuration transformation
+ *   - Verified transformation:
+ *   - Network access configuration
+ *   - Port replacement in domains
+ *   - Deep object cloning
+ * - [x] Handle file resolution
+ *   - Verified resolution features:
+ *   - Workspace root resolution
+ *   - Package.json parsing
+ *   - Proper path handling
  */
 
 export async function getUserFiles(options: PluginOptions): Promise<UserFiles> {
   try {
     // Resolve package.json from the workspace root
-    const userPkgJson = await readJson<{
-      name: string;
-      version: string;
-      plugma?: { manifest?: ManifestFile };
-    }>(path.resolve(process.cwd(), 'package.json'));
+    const userPkgJson = await readJson<UserFiles['userPkgJson']>(
+      path.resolve(process.cwd(), 'package.json'),
+    );
 
     if (!userPkgJson) {
       throw new Error('package.json not found');

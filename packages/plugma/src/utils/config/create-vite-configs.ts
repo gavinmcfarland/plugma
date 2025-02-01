@@ -19,6 +19,8 @@ import {
 
 const __dirname = getDirName(import.meta.url);
 
+const uiHtml = path.join(__dirname, '../../../templates/ui.html');
+
 export type ViteConfigs = {
   ui: {
     dev: UserConfig;
@@ -43,20 +45,56 @@ export type ViteConfigs = {
  * @param options - Plugin configuration options
  * @param userFiles - User's plugin files configuration
  * @returns Vite configurations for different environments
+ *
+ * Tracking:
+ * - [x] Add UI configuration
+ *   - Verified comprehensive UI config handling:
+ *   - Dev mode: HMR, port config, plugins (replaceMainInput, htmlTransform, deepIndex)
+ *   - Build mode: Single file output, proper file naming, asset handling
+ * - [x] Implement main configuration
+ *   - Verified main config features:
+ *   - Dev mode: Environment vars, custom functions injection, CJS format
+ *   - Build mode: Library build, Chrome target, sourcemap control
+ * - [x] Add plugin integration
+ *   - Verified plugin system:
+ *   - Common plugins: viteSingleFile, gatherBuildOutputs
+ *   - UI plugins: replaceMainInput, htmlTransform, deepIndex
+ *   - Main plugins: dotEnvLoader, insertCustomFunctions
+ * - [x] Handle environment features
+ *   - Verified environment handling:
+ *   - Mode configuration (dev/prod)
+ *   - Environment variables
+ *   - Chrome target compatibility
+ *   - Source map control
+ *   - Watch mode management
  */
 export function createViteConfigs(
   options: PluginOptions,
   userFiles: UserFiles,
 ): ViteConfigs {
+  console.log('Creating Vite configs with:', {
+    browserIndexPath: uiHtml,
+    outputDir: options.output,
+    cwd: process.cwd(),
+  });
+
   const commonVitePlugins: Plugin[] = [
     viteSingleFile(),
     gatherBuildOutputs({
-      sourceDir: path.join(options.output, 'node_modules', 'plugma', 'tmp'),
+      sourceDir: path.dirname(uiHtml),
       outputDir: path.join(options.output),
-      filter: () => true, // Copy all files
-      getOutputPath: (file: string) =>
-        file === 'index.html' ? 'ui.html' : file,
-      removeSourceDir: true,
+      filter: () => true,
+      getOutputPath: (file: string) => {
+        console.log('getOutputPath called with:', {
+          file,
+          basename: path.basename(file),
+          dirname: path.dirname(file),
+        });
+        return path.basename(file) === 'browser-index.html'
+          ? 'ui.html'
+          : path.basename(file);
+      },
+      removeSourceDir: false,
     }),
   ];
 
@@ -77,7 +115,7 @@ export function createViteConfigs(
           input: userFiles.manifest.ui,
         }),
         htmlTransform(options),
-        deepIndex(),
+        deepIndex({ path: uiHtml }),
         rewritePostMessageTargetOrigin(),
         ...commonVitePlugins,
       ],
@@ -89,7 +127,21 @@ export function createViteConfigs(
       build: {
         outDir: path.join(options.output),
         emptyOutDir: false,
-        rollupOptions: { input: 'node_modules/plugma/tmp/index.html' },
+        rollupOptions: {
+          input: {
+            ui: path.resolve(process.cwd(), 'templates/ui.html'),
+          },
+          output: {
+            entryFileNames: '[name].js',
+            chunkFileNames: '[name].js',
+            assetFileNames: (assetInfo: { name?: string }) => {
+              if (assetInfo.name === 'browser-shell.html') {
+                return 'ui.html';
+              }
+              return '[name].[ext]';
+            },
+          },
+        },
       },
       plugins: [
         replaceMainInput({

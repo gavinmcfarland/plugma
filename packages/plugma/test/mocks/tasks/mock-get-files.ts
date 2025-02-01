@@ -1,5 +1,9 @@
+import PlugmaPackageJson from '#packageJson' with { type: 'json' };
 import type { GetFilesTaskResult } from '#tasks/common/get-files.js';
-import type { PartialDeep } from 'type-fest';
+import userPkgJson from '#test/fixtures/user-package.json' with {
+  type: 'json',
+};
+import type { PackageJson, PartialDeep } from 'type-fest';
 
 /**
  * Creates a mock GetFilesResult with all required fields for testing.
@@ -9,8 +13,9 @@ export function createMockGetFilesResult(
   overrides: PartialDeep<GetFilesTaskResult> = {},
 ): GetFilesTaskResult {
   const defaultResult: GetFilesTaskResult = {
-    version: '1.0.0',
+    plugmaPkg: PlugmaPackageJson as PackageJson,
     files: {
+      userPkgJson: userPkgJson as PackageJson,
       manifest: {
         name: 'Test Plugin',
         id: 'test-plugin',
@@ -18,20 +23,6 @@ export function createMockGetFilesResult(
         ui: 'src/ui.tsx',
         version: '1.0.0',
         api: '1.0.0',
-      },
-      userPkgJson: {
-        name: 'test-plugin',
-        version: '1.0.0',
-        plugma: {
-          manifest: {
-            name: 'Test Plugin',
-            id: 'test-plugin',
-            main: 'src/main.ts',
-            ui: 'src/ui.tsx',
-            version: '1.0.0',
-            api: '1.0.0',
-          },
-        },
       },
     },
     config: {
@@ -102,7 +93,7 @@ export function createMockGetFilesResultWithoutUi(): GetFilesTaskResult {
           ...result.files.userPkgJson.plugma!,
           manifest: plugmaManifestWithoutUi,
         },
-      },
+      } as PackageJson,
     },
   };
 }

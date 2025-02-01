@@ -32,7 +32,7 @@ export function replaceMainInput(
         // Replace plugin name if provided
         if (options.pluginName) {
           transformedHtml = transformedHtml.replace(
-            '{pluginName}',
+            '<!--[ PLUGIN_NAME ]-->',
             options.pluginName,
           );
         }
@@ -40,7 +40,7 @@ export function replaceMainInput(
         // Replace script source with the provided input path
         if (options.input) {
           transformedHtml = transformedHtml.replace(
-            '<script type="module" id="entry" src="/src/ui.ts"></script>',
+            '<!--[ PLUGIN_UI ]-->',
             `<script type="module" id="entry" src="/${options.input}"></script>`,
           );
         }

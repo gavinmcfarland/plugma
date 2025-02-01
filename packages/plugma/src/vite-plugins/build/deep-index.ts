@@ -7,13 +7,13 @@ import type { Plugin, ViteDevServer } from 'vite';
  * @param options - Optional configuration options for the plugin (currently unused)
  * @returns A Vite plugin configuration object
  */
-export function deepIndex(options = {}): Plugin {
+export function deepIndex(options: { path: string }): Plugin {
   return {
     name: 'deep-index',
     configureServer(server: ViteDevServer) {
       server.middlewares.use((req, res, next) => {
         if (req.url === '/') {
-          req.url = '/node_modules/plugma/tmp/index.html';
+          req.url = options.path;
         }
         next();
       });

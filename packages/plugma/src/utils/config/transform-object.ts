@@ -5,6 +5,23 @@ import type { ManifestFile, PluginOptions } from '#core/types';
  * @param input - The manifest file to transform, can be undefined
  * @param options - Plugin configuration options
  * @returns Transformed manifest file
+ *
+ * Tracking:
+ * - [x] Add network access handling
+ *   - Verified network configuration:
+ *   - devAllowedDomains transformation
+ *   - Port replacement in localhost URLs
+ *   - Domain pattern matching
+ * - [x] Implement object cloning
+ *   - Verified cloning features:
+ *   - Deep object cloning
+ *   - JSON serialization safety
+ *   - Proper error handling
+ * - [x] Add validation
+ *   - Verified validation:
+ *   - Input existence check
+ *   - Proper error messages
+ *   - Type safety
  */
 
 export function transformObject(

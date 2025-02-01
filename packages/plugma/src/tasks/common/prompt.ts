@@ -29,17 +29,16 @@ const showPlugmaPrompt = async (
   context: ResultsOfTask<GetFilesTask>,
 ): Promise<ShowPlugmaPromptResult> => {
   try {
-    const fileResult = context[GetFilesTask.name];
-    if (!fileResult) {
+    if (!context[GetFilesTask.name]) {
       throw new Error('get-files task must run first');
     }
 
     const log = new Logger({ debug: options.debug });
 
+    const { version } = context[GetFilesTask.name].plugmaPkg;
     // Match original formatting with chalk
     log.text(
-      `${chalk.blue.bold('Plugma')} ${chalk.grey(`v${fileResult.version}`)}
-	A modern Figma plugin development toolkit
+      `${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}`)} - A modern Figma plugin development toolkit
 `,
     );
 

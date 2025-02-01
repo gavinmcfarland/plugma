@@ -1,6 +1,33 @@
 /**
  * Validates output files against source files and manifest entries.
  * Removes output files that are invalid or stale.
+ * @param options - Plugin configuration options
+ * @param files - User files
+ * @param type - Event that triggered the validation
+ *
+ * Tracking:
+ * - [x] Add file validation
+ *   - Verified validation features:
+ *   - Main file existence check
+ *   - UI file existence check
+ *   - Path resolution
+ *   - Proper error messages
+ * - [x] Implement cleanup
+ *   - Verified cleanup features:
+ *   - File removal for missing entries
+ *   - Directory handling
+ *   - Safe file operations
+ * - [x] Add status logging
+ *   - Verified logging features:
+ *   - Change type messages
+ *   - Error reporting
+ *   - Terminal scrolling
+ * - [x] Handle events
+ *   - Verified event handling:
+ *   - Manifest changes
+ *   - File additions
+ *   - Plugin builds
+ *   - Initialization
  */
 
 import type { PluginOptions, UserFiles } from '#core/types.js';

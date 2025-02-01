@@ -5,11 +5,11 @@ import { viteSingleFile } from 'vite-plugin-singlefile';
 import gatherBuildOutputs from '../src/vite-plugins/build/gather-build-outputs';
 
 const apps = {
-  'figma-bridge': {
-    entry: 'figma-bridge/main.js',
-  },
   'dev-server': {
     entry: 'dev-server/main.ts',
+  },
+  'figma-bridge': {
+    entry: 'figma-bridge/main.js',
   },
 };
 
@@ -57,7 +57,7 @@ export default defineConfig(() => {
         sourceDir: 'dist',
         outputDir: '../dist/apps',
         getOutputPath: (file) => `${path.dirname(file)}.html`,
-        removeSourceDir: true,
+        removeSourceDir: false,
       }),
     ],
 

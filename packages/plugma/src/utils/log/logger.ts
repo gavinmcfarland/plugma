@@ -5,6 +5,7 @@ export interface LogOptions {
   showTimestamp?: boolean;
   timestampFormat?: string;
   debug?: boolean;
+  tag?: string;
 }
 
 /**
@@ -12,7 +13,7 @@ export interface LogOptions {
  * indentation support, and timestamp options.
  */
 export class Logger {
-  private options: Required<LogOptions>;
+  private options: Required<LogOptions> & { tag: string | undefined };
   private currentIndent: number;
 
   /**
@@ -25,6 +26,7 @@ export class Logger {
       showTimestamp: false,
       timestampFormat: 'YYYY-MM-DD HH:mm:ss',
       debug: false,
+      tag: '',
       ...options,
     };
 
@@ -147,7 +149,8 @@ export class Logger {
   ): string {
     const indent = ' '.repeat(indentLevel * 2);
     const prefix = this.getPrefix(type);
-    return `${indent}${prefix}${message}`;
+    const tag = this.options.tag ? chalk.cyan(`[${this.options.tag}] `) : '';
+    return `${indent}${prefix}${tag}${message}`;
   }
 
   /**

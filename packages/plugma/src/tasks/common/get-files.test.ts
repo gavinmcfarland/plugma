@@ -74,7 +74,9 @@ describe('get-files Task', () => {
 
       const result = await GetFilesTask.run(baseOptions, baseContext);
 
-      expect(result.version).toBe(mockGetFilesResult.version);
+      expect(result.plugmaPkg.version).toBe(
+        mockGetFilesResult.plugmaPkg.version,
+      );
       expect(result.files).toEqual(mockGetFilesResult.files);
 
       expect(result.config.ui.dev.mode).toBe('development');

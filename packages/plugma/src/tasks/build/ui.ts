@@ -1,9 +1,3 @@
-import { access } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
-import { performance } from 'node:perf_hooks';
-import type { ModuleFormat } from 'rollup';
-import type { ViteDevServer } from 'vite';
-import { type InlineConfig, build, mergeConfig } from 'vite';
 import type {
   GetTaskTypeFor,
   PluginOptions,
@@ -12,10 +6,15 @@ import type {
 import { createViteConfigs } from '#utils/config/create-vite-configs.js';
 import { validateOutputFiles } from '#utils/config/validate-output-files.js';
 import { Logger } from '#utils/log/logger.js';
+import { access } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
+import { performance } from 'node:perf_hooks';
+import type { ModuleFormat } from 'rollup';
+import type { ViteDevServer } from 'vite';
+import { type InlineConfig, build, mergeConfig } from 'vite';
 import { GetFilesTask } from '../common/get-files.js';
 import { task } from '../runner.js';
 import { viteState } from '../server/vite.js';
-
 /**
  * Result type for the build-ui task
  */
@@ -59,9 +58,9 @@ const buildUi = async (
   options: PluginOptions,
   context: ResultsOfTask<GetFilesTask>,
 ): Promise<Result> => {
-  try {
-    const log = new Logger({ debug: options.debug });
+  const logger = new Logger({ debug: options.debug });
 
+  try {
     const fileResult = context[GetFilesTask.name];
     if (!fileResult) {
       throw new Error('get-files task must run first');
@@ -88,7 +87,7 @@ const buildUi = async (
         .catch(() => false);
 
       if (uiExists) {
-        log.debug(`Building UI from ${files.manifest.ui}...`);
+        logger.debug(`Building UI from ${files.manifest.ui}...`);
 
         // Build UI with Vite
         if (options.command === 'build' && options.watch) {
@@ -109,6 +108,7 @@ const buildUi = async (
           ) as InlineConfig;
 
           const watcher = await build(watchConfig);
+
           if ('close' in watcher) {
             viteState.viteUi = {
               close: async () => {
@@ -134,21 +134,37 @@ const buildUi = async (
             } as any as ViteDevServer;
           }
         } else {
-          await build(
-            mergeConfig(
-              {
-                build: {
-                  minify: true,
-                  rollupOptions: {
-                    output: {
-                      format: 'iife' as ModuleFormat,
+          const mergedConfig = mergeConfig(
+            {
+              root: process.cwd(),
+              base: '/',
+              build: {
+                minify: true,
+                outDir: join(options.output),
+                emptyOutDir: false,
+                rollupOptions: {
+                  output: {
+                    format: 'iife' as ModuleFormat,
+                    entryFileNames: '[name].js',
+                    chunkFileNames: '[name].js',
+                    assetFileNames: (assetInfo: { name?: string }) => {
+                      if (assetInfo.name === 'browser-index.html') {
+                        return 'ui.html';
+                      }
+                      return '[name].[ext]';
                     },
                   },
                 },
               },
-              config.ui?.build,
-            ) as InlineConfig,
+            },
+            config.ui?.build,
+          ) as InlineConfig;
+
+          logger.debug(
+            'Merged Vite config:',
+            JSON.stringify(mergedConfig, null, 2),
           );
+          await build(mergedConfig);
         }
       }
     }
@@ -172,7 +188,7 @@ const buildUi = async (
             .then(() => true)
             .catch(() => false)))
       ) {
-        log.success(`build created in ${duration}ms\n`);
+        logger.success(`build created in ${duration}ms\n`);
       }
     }
 
@@ -180,9 +196,14 @@ const buildUi = async (
     await validateOutputFiles(options, files, 'plugin-built');
 
     return { outputPath, duration };
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to build UI: ${errorMessage}`);
+  } catch (err) {
+    const error = err instanceof Error ? err : new Error();
+
+    error.message = `Failed to build UI: ${String(err)}`;
+
+    logger.debug(error);
+
+    throw error;
   }
 };
 

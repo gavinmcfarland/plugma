@@ -18,7 +18,8 @@
     "#tasks/*": "./dist/tasks/*",
     "#vite-plugins": "./dist/vite-plugins/index.js",
     "#vite-plugins/*": "./dist/vite-plugins/*",
-    "#tests/*": "./tests/*"
+    "#tests/*": "./tests/*",
+    "#packageJson": "./package.json"
   },
   "exports": {
     "core": "./dist/core/index.js",
@@ -29,15 +30,18 @@
     "testing": "./dist/testing/index.js"
   },
   "scripts": {
-    "build:apps": "nr build:figma-bridge && nr build:dev-server",
-    "build:figma-bridge": "cd apps && PLUGMA_APP_NAME=figma-bridge vite build",
+    "build:apps": "nr build:dev-server && nr build:figma-bridge",
     "build:dev-server": "cd apps && PLUGMA_APP_NAME=dev-server vite build",
-    "build": "nr clean && nr build:apps && tsc -p tsconfig.build.json",
+    "build:figma-bridge": "cd apps && PLUGMA_APP_NAME=figma-bridge vite build",
+    "build:plugma": "tsc -p tsconfig.build.json",
+    "build": "nr clean && concurrently -n apps,plugma 'nr build:apps' 'nr build:plugma'",
+    "test-cmd": "nr clean && nr build && cd ../../sandbox && ../packages/plugma/bin/plugma",
     "check": "tsc --noEmit",
-    "clean": "rm -rf dist/*",
-    "clean:apps": "rm -rf apps/dist/apps",
+    "clean": "rm -rf dist && rm -rf apps/dist",
     "copy-workflows": "cp -r ./templates/github/ .github/",
-    "dev": "concurrently -n tsc,biome 'nr build --watch' 'nr lint --watch'",
+    "dev:apps": "nr build:dev-server --watch && nr build:figma-bridge --watch",
+    "dev:plugma": "tsc -p tsconfig.build.json --watch",
+    "dev": "nr clean && concurrently -n apps,plugma 'nr dev:apps' 'nr dev:plugma'",
     "lint:fix": "biome check --fix .",
     "lint:unsafe-fix": "biome check --unsafe-fix .",
     "lint": "biome check .",
