@@ -1,16 +1,12 @@
-/**
- * Preview command implementation
- * Handles preview server for testing plugin builds
- */
-
 import type { PluginOptions } from '#core/types.js';
 import {
   BuildMainTask,
   BuildManifestTask,
-  BuildUiTask,
+  BuildPlaceholderUiTask,
   GetFilesTask,
   ShowPlugmaPromptTask,
   StartViteServerTask,
+  StartWebSocketsServerTask,
 } from '#tasks';
 import { getRandomPort } from '#utils';
 import { Logger } from '#utils/log/logger.js';
@@ -50,9 +46,10 @@ export async function preview(options: PreviewCommandOptions): Promise<void> {
     await serial(
       GetFilesTask,
       ShowPlugmaPromptTask,
-      BuildMainTask,
-      BuildUiTask,
       BuildManifestTask,
+      BuildPlaceholderUiTask,
+      BuildMainTask,
+      StartWebSocketsServerTask,
       StartViteServerTask,
     )(pluginOptions);
 

@@ -56,7 +56,7 @@ export const getFiles = async (
         );
       }
       throw new GetFilesError(
-        `Failed to get user files: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        `Failed to load files: ${err instanceof Error ? err.message : 'Unknown error'}`,
         'FILE_ERROR',
       );
     }
@@ -65,10 +65,7 @@ export const getFiles = async (
       // Create configs
       config = createViteConfigs(options, files);
     } catch (err) {
-      throw new GetFilesError(
-        `Failed to create configs: ${err instanceof Error ? err.message : 'Unknown error'}`,
-        'CONFIG_ERROR',
-      );
+      throw new GetFilesError('Failed to create configs', 'CONFIG_ERROR');
     }
 
     return {

@@ -47,7 +47,7 @@ export async function build(options: BuildCommandOptions): Promise<void> {
     // Execute tasks in sequence
     log.info('Executing tasks...');
 
-    // Pass the task objects directly - BuildManifestTask moved to the end
+    // Pass the task objects directly - BuildMainTask first, BuildManifestTask last
     const results = await serial(
       GetFilesTask,
       ShowPlugmaPromptTask,

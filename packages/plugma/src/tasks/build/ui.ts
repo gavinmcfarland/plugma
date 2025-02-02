@@ -91,15 +91,27 @@ const buildUi = async (
 
         // Build UI with Vite
         if (options.command === 'build' && options.watch) {
-          // FIXME: For some reason, it rebuilds ui.html when not specified in manifest during watch
+          logger.debug('Starting UI build in watch mode...');
           const watchConfig = mergeConfig(
             {
+              root: process.cwd(),
+              base: '/',
               build: {
                 watch: {},
                 minify: true,
+                outDir: join(options.output),
+                emptyOutDir: false,
                 rollupOptions: {
                   output: {
                     format: 'iife' as ModuleFormat,
+                    entryFileNames: '[name].js',
+                    chunkFileNames: '[name].js',
+                    assetFileNames: (assetInfo: { name?: string }) => {
+                      if (assetInfo.name === 'browser-index.html') {
+                        return 'ui.html';
+                      }
+                      return '[name].[ext]';
+                    },
                   },
                 },
               },
@@ -115,11 +127,11 @@ const buildUi = async (
                 await watcher.close();
               },
               // Implement required ViteDevServer interface
-              config: {} as any,
+              config: watchConfig,
               pluginContainer: {} as any,
               middlewares: {} as any,
               httpServer: null,
-              watcher: null as any,
+              watcher: watcher as any,
               ws: null as any,
               moduleGraph: null as any,
               transformRequest: null as any,

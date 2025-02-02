@@ -104,7 +104,7 @@ const buildMain = async (
             },
           },
         },
-        watch: options.command !== 'build' ? {} : undefined,
+        watch: options.watch ? {} : undefined,
       },
     });
 

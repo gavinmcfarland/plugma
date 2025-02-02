@@ -9,12 +9,12 @@ import {
   BuildManifestTask,
   BuildUiTask,
   GetFilesTask,
+  RestartViteServerTask,
   ShowPlugmaPromptTask,
   StartViteServerTask,
   StartWebSocketsServerTask,
 } from '#tasks';
 import { serial } from '#tasks/runner.js';
-import { RestartViteServerTask } from '#tasks/server/restart-vite.js';
 import { Logger } from '#utils/log/logger.js';
 import { nanoid } from 'nanoid';
 import { getRandomPort } from '../utils/get-random-port.js';

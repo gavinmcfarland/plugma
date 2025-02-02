@@ -89,15 +89,20 @@ const buildManifest = async (
       }
 
       // Watch manifest and package.json
-      const manifestWatcher = chokidar.watch([manifestPath, userPkgPath]);
+      const manifestWatcher = chokidar.watch([manifestPath, userPkgPath], {
+        persistent: true,
+        ignoreInitial: false,
+      });
       manifestWatcher.on('change', async () => {
         const { raw } = await _buildManifestFile(options, files);
 
         // Validate output files
         validateOutputFiles(options, files, 'manifest-changed');
 
-        // Trigger server restart
-        await RestartViteServerTask.run(options, context);
+        // Trigger server restart if not in build mode
+        if (options.command !== 'build') {
+          await RestartViteServerTask.run(options, context);
+        }
 
         // Rebuild main if needed
         if (raw.main !== previousMainValue) {
@@ -120,7 +125,9 @@ const buildManifest = async (
         const { raw } = await _buildManifestFile(options, files);
 
         if (relativePath === raw.ui) {
-          await RestartViteServerTask.run(options, context);
+          if (options.command !== 'build') {
+            await RestartViteServerTask.run(options, context);
+          }
         }
         if (relativePath === raw.main) {
           await BuildMainTask.run(options, context);
