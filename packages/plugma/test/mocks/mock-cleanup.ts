@@ -138,3 +138,18 @@ beforeEach(() => {
   mockRegisterCleanup.mockClear();
   mockUnregisterCleanup.mockClear();
 });
+
+/**
+ * Mock cleanup function for resetting test state
+ * This is called during test environment setup to ensure a clean state
+ */
+export const mockCleanup = vi.fn(() => {
+  // Reset all mocks
+  vi.clearAllMocks();
+  vi.clearAllTimers();
+
+  // Clear any global state that might affect tests
+  process.env = { ...process.env };
+
+  // Add any additional cleanup logic here
+});

@@ -1,44 +1,33 @@
-import type { RegisteredTask } from '#core/task-runner/types.js';
 import { vi } from 'vitest';
 
-const mockTask = vi.fn((name: string, fn: () => Promise<any>) => ({
-  name,
-  run: fn,
-}));
-
-const mockSerial = vi.fn(
-  (...tasks: RegisteredTask<any, any, any, any>[]) =>
-    async (options: any) => {
-      const results = [];
-      for (const task of tasks) {
-        results.push(await task.run(options, {}));
-      }
-      return results;
-    },
-);
-
-const mockParallel = vi.fn(
-  (...tasks: RegisteredTask<any, any, any, any>[]) =>
-    async (options: any) => {
-      return Promise.all(tasks.map((task) => task.run(options, {})));
-    },
-);
-
-const mockRun = vi.fn();
-const mockLog = vi.fn();
-
-// Export the mocks directly
-export const task = mockTask;
-export const serial = mockSerial;
-export const parallel = mockParallel;
-export const run = mockRun;
-export const log = mockLog;
+/**
+ * Mock task runner for testing
+ */
+export const mockTaskRunner = {
+  task: vi.fn((name, fn) => ({ name, run: fn })),
+  serial: vi.fn((...tasks) => {
+    const runTasks = vi.fn(async () => {
+      // Mock successful task execution without actually running tasks
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      return undefined;
+    });
+    return runTasks;
+  }),
+  parallel: vi.fn((...tasks) => {
+    const runTasks = vi.fn(async () => {
+      // Mock successful task execution without actually running tasks
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      return undefined;
+    });
+    return runTasks;
+  }),
+  run: vi.fn(async () => {
+    // Mock successful task execution without actually running tasks
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    return undefined;
+  }),
+  log: vi.fn(),
+};
 
 // Mock the task runner module
-vi.mock('#tasks/runner.js', () => ({
-  task: mockTask,
-  serial: mockSerial,
-  parallel: mockParallel,
-  run: mockRun,
-  log: mockLog,
-}));
+vi.mock('#tasks/runner.js', () => mockTaskRunner);

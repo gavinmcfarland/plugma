@@ -3,6 +3,7 @@
  */
 
 import type { Dirent } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { vi } from 'vitest';
 
 /**
@@ -29,10 +30,11 @@ export function createMockDirent(name: string, isDirectory = false): Dirent {
  */
 export class MockFs {
   private files: Map<string, string> = new Map();
+  private directories: Set<string> = new Set();
 
   constructor(initialFiles: Record<string, string> = {}) {
     for (const [path, content] of Object.entries(initialFiles)) {
-      this.files.set(path, content);
+      this.writeFileSync(path, content);
     }
   }
 
@@ -41,7 +43,7 @@ export class MockFs {
    */
   addFiles(files: Record<string, string>): MockFs {
     for (const [path, content] of Object.entries(files)) {
-      this.files.set(path, content);
+      this.writeFileSync(path, content);
     }
     return this;
   }
@@ -51,79 +53,172 @@ export class MockFs {
    */
   clear(): void {
     this.files.clear();
+    this.directories.clear();
   }
 
   /**
    * Check if a file exists in the mock filesystem
    */
   exists(path: string): boolean {
-    return this.files.has(path);
+    const normalizedPath = this.normalizePath(path);
+    return (
+      this.files.has(normalizedPath) || this.directories.has(normalizedPath)
+    );
+  }
+
+  /**
+   * Check if a directory exists in the mock filesystem
+   */
+  existsDir(path: string): boolean {
+    return this.directories.has(this.normalizePath(path));
+  }
+
+  /**
+   * Normalize a file path
+   */
+  private normalizePath(path: string): string {
+    // Remove leading ./ and multiple slashes
+    const normalized = join(path)
+      .replace(/^\.\//, '')
+      .replace(/\/+/g, '/')
+      .replace(/\\/g, '/');
+    return normalized === '.' ? '' : normalized;
+  }
+
+  /**
+   * Create parent directories for a file path
+   */
+  private createParentDirectories(path: string): void {
+    const dir = dirname(path);
+    if (dir === '.' || dir === '') return;
+
+    const normalizedDir = this.normalizePath(dir);
+    this.directories.add(normalizedDir);
+
+    // Create parent directories recursively
+    this.createParentDirectories(dir);
   }
 
   // Async methods
   async access(path: string): Promise<void> {
-    if (!this.exists(path)) {
+    const normalizedPath = this.normalizePath(path);
+    if (!this.exists(normalizedPath)) {
       throw new Error('ENOENT: no such file or directory');
     }
     return Promise.resolve();
   }
 
   async readFile(path: string): Promise<string> {
-    if (!this.exists(path)) {
+    const normalizedPath = this.normalizePath(path);
+    if (!this.files.has(normalizedPath)) {
       throw new Error('ENOENT: no such file or directory');
     }
-    return Promise.resolve(this.files.get(path)!);
+    return Promise.resolve(this.files.get(normalizedPath)!);
   }
 
   async writeFile(path: string, content: string): Promise<void> {
-    this.files.set(path, content);
+    const normalizedPath = this.normalizePath(path);
+    this.createParentDirectories(normalizedPath);
+    this.files.set(normalizedPath, content);
     return Promise.resolve();
   }
 
-  async rm(path: string): Promise<void> {
-    if (!this.exists(path)) {
+  async rm(path: string, options?: { recursive?: boolean }): Promise<void> {
+    const normalizedPath = this.normalizePath(path);
+    if (!this.exists(normalizedPath)) {
       throw new Error('ENOENT: no such file or directory');
     }
-    this.files.delete(path);
+
+    if (options?.recursive) {
+      // Remove all files and directories under this path
+      for (const filePath of this.files.keys()) {
+        if (filePath.startsWith(normalizedPath)) {
+          this.files.delete(filePath);
+        }
+      }
+      for (const dirPath of this.directories) {
+        if (dirPath.startsWith(normalizedPath)) {
+          this.directories.delete(dirPath);
+        }
+      }
+    } else {
+      this.files.delete(normalizedPath);
+      this.directories.delete(normalizedPath);
+    }
+
     return Promise.resolve();
   }
 
-  async mkdir(): Promise<void> {
+  async mkdir(path: string, options?: { recursive?: boolean }): Promise<void> {
+    const normalizedPath = this.normalizePath(path);
+    if (options?.recursive) {
+      this.createParentDirectories(normalizedPath);
+    }
+    this.directories.add(normalizedPath);
     return Promise.resolve();
   }
 
   // Sync methods
   readFileSync(path: string): string {
-    if (!this.exists(path)) {
+    const normalizedPath = this.normalizePath(path);
+    if (!this.files.has(normalizedPath)) {
       throw new Error('ENOENT: no such file or directory');
     }
-    return this.files.get(path)!;
+    return this.files.get(normalizedPath)!;
   }
 
   writeFileSync(path: string, content: string): void {
-    this.files.set(path, content);
+    const normalizedPath = this.normalizePath(path);
+    this.createParentDirectories(normalizedPath);
+    this.files.set(normalizedPath, content);
   }
 
-  rmSync(path: string): void {
-    if (!this.exists(path)) {
+  mkdirSync(path: string, options?: { recursive?: boolean }): void {
+    const normalizedPath = this.normalizePath(path);
+    if (options?.recursive) {
+      this.createParentDirectories(normalizedPath);
+    }
+    this.directories.add(normalizedPath);
+  }
+
+  rmSync(path: string, options?: { recursive?: boolean }): void {
+    const normalizedPath = this.normalizePath(path);
+    if (!this.exists(normalizedPath)) {
       throw new Error('ENOENT: no such file or directory');
     }
-    this.files.delete(path);
-  }
 
-  mkdirSync(): void {
-    // No-op in mock
+    if (options?.recursive) {
+      // Remove all files and directories under this path
+      for (const filePath of this.files.keys()) {
+        if (filePath.startsWith(normalizedPath)) {
+          this.files.delete(filePath);
+        }
+      }
+      for (const dirPath of this.directories) {
+        if (dirPath.startsWith(normalizedPath)) {
+          this.directories.delete(dirPath);
+        }
+      }
+    } else {
+      this.files.delete(normalizedPath);
+      this.directories.delete(normalizedPath);
+    }
   }
 }
 
 /**
- * Create a mock fs instance with initial files
+ * Create a new mock filesystem instance
  */
 export function createMockFs(
   initialFiles: Record<string, string> = {},
 ): MockFs {
   return new MockFs(initialFiles);
 }
+
+/**
+ * Mock filesystem instance for testing
+ */
+export const mockFs = createMockFs();
 
 // Vitest mock functions
 export const mockAccess = vi

@@ -41,3 +41,18 @@ export function createMockViteServer(
     ...overrides,
   };
 }
+
+/**
+ * Mock Vite server instance for testing
+ */
+export const mockViteServer = createMockViteServer();
+
+/**
+ * Mock Vite module for testing
+ */
+export const mockVite = {
+  createServer: vi.fn().mockResolvedValue(mockViteServer),
+  build: vi.fn().mockResolvedValue(undefined),
+  mergeConfig: vi.fn((config1, config2) => ({ ...config1, ...config2 })),
+  defineConfig: vi.fn((config) => config),
+};
