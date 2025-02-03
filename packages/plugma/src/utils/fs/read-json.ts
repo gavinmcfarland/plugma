@@ -1,4 +1,7 @@
+import type { PlugmaPackageJson, UserPackageJson } from '#core/types';
+import { getDirName } from '#utils/path.js';
 import { promises as fsPromises } from 'node:fs';
+import { join } from 'node:path';
 
 /**
  * Reads and parses a JSON file asynchronously.
@@ -43,4 +46,36 @@ export async function readJson<T>(filePath: string): Promise<T> {
     }
     throw new Error('Unknown error reading JSON file');
   }
+}
+
+/**
+ * Reads Plugma's own package.json file
+ *
+ * @returns Promise resolving to Plugma's package.json contents
+ * @throws {Error} If package.json can't be found or parsed
+ */
+export async function readPlugmaPackageJson(): Promise<PlugmaPackageJson> {
+  const plugmaPkgPath = join(
+    getDirName(import.meta.url),
+    '..',
+    '..',
+    '..', // Adjust based on actual path from utils/fs to project root
+    'package.json',
+  );
+  return readJson<PlugmaPackageJson>(plugmaPkgPath);
+}
+
+/**
+ * Reads user's project package.json file
+ *
+ * @param cwd - Current working directory to search from
+ * @returns Promise resolving to user's package.json contents
+ * @throws {Error} If package.json can't be found or parsed
+ */
+export async function readUserPackageJson(
+  cwd?: string,
+): Promise<UserPackageJson> {
+  const searchPath = cwd || process.cwd();
+  const userPkgPath = join(searchPath, 'package.json');
+  return readJson<UserPackageJson>(userPkgPath);
 }

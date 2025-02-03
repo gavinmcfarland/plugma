@@ -1,3 +1,4 @@
+import type { FSWatcher } from 'chokidar';
 import chokidar from 'chokidar';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -107,7 +108,7 @@ function createEnvConfig(env: EnvRecord): UserConfig {
 export function dotEnvLoader(options = {}): Plugin {
   let server: ViteDevServer | undefined;
   let mode: string;
-  let watcher: chokidar.FSWatcher | undefined;
+  let watcher: FSWatcher | undefined;
 
   return {
     name: 'custom-env-loader',
@@ -139,7 +140,7 @@ export function dotEnvLoader(options = {}): Plugin {
           persistent: true,
         });
 
-        watcher.on('change', async (path) => {
+        watcher.on('change', async (path: string) => {
           console.log(`[custom-env-loader] Environment file changed: ${path}`);
 
           try {
@@ -162,7 +163,7 @@ export function dotEnvLoader(options = {}): Plugin {
           }
         });
 
-        watcher.on('error', (error) => {
+        watcher.on('error', (error: Error) => {
           console.error(`[custom-env-loader] Watcher error: ${error}`);
         });
       } catch (error) {

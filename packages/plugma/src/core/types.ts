@@ -18,6 +18,8 @@ export interface PluginOptions {
   debug?: boolean;
   watch?: boolean;
   manifest?: ManifestFile;
+  /** The working directory for the plugin */
+  cwd?: string;
   [key: string]: unknown;
 }
 
@@ -37,16 +39,19 @@ export interface ManifestFile {
   [key: string]: unknown;
 }
 
+export type PlugmaPackageJson = typeof import('#packageJson');
+export type UserPackageJson = PackageJson & {
+  plugma?: {
+    manifest?: ManifestFile;
+  };
+};
+
 /**
  * User files configuration
  */
 export interface UserFiles {
   manifest: ManifestFile;
-  userPkgJson: PackageJson & {
-    plugma?: {
-      manifest?: ManifestFile;
-    };
-  };
+  userPkgJson: UserPackageJson;
 }
 
 export interface ViteConfigs {

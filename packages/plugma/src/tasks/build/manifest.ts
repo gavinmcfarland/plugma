@@ -13,9 +13,9 @@ import { registerCleanup } from '#utils/cleanup.js';
 import { validateOutputFiles } from '#utils/config/validate-output-files.js';
 import { filterNullProps } from '#utils/filter-null-props.js';
 import { getFilesRecursively } from '#utils/fs/get-files-recursively.js';
-import { defaultLogger as log } from '#utils/log/logger.js';
+import { Logger, defaultLogger as log } from '#utils/log/logger.js';
 import chokidar from 'chokidar';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { access, mkdir, writeFile } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
 import { task } from '../runner.js';
 import BuildMainTask from './main.js';
@@ -175,13 +175,29 @@ async function _buildManifestFile(
   options: PluginOptions,
   files: GetFilesTaskResult['files'],
 ): Promise<BuildManifestResult> {
-  const outputDirPath = resolve(process.cwd(), options.output || 'dist');
+  const logger = new Logger({
+    debug: options.debug,
+    prefix: 'build:manifest',
+  });
+  const outputDirPath = resolve(
+    options.cwd || process.cwd(),
+    options.output || 'dist',
+  );
   const manifestPath = join(outputDirPath, 'manifest.json');
 
-  log.debug(`Writing manifest to ${manifestPath}...`);
+  logger.debug('Building manifest file...', {
+    outputDirPath,
+    manifestPath,
+    files: {
+      manifest: files.manifest,
+      userPkgJson: files.userPkgJson,
+    },
+  });
 
   // Ensure output directory exists
+  logger.debug('Ensuring output directory exists...');
   await mkdir(outputDirPath, { recursive: true });
+  logger.debug('Output directory created/verified');
 
   // Define default and overridden values
   const defaultValues = {
@@ -192,10 +208,12 @@ async function _buildManifestFile(
 
   // Override main/ui paths with their output filenames
   if (files.manifest.main) {
+    logger.debug('Setting main path to main.js');
     overriddenValues.main = 'main.js';
   }
 
   if (files.manifest.ui) {
+    logger.debug('Setting ui path to ui.html');
     overriddenValues.ui = 'ui.html';
   }
 
@@ -206,10 +224,28 @@ async function _buildManifestFile(
     ...overriddenValues,
   });
 
-  // Write manifest file
-  await writeFile(manifestPath, JSON.stringify(processed, null, 2), 'utf-8');
+  logger.debug('Final manifest content:', processed);
 
-  log.debug('Manifest file written successfully');
+  // Write manifest file
+  logger.debug('Writing manifest file...');
+  await writeFile(manifestPath, JSON.stringify(processed, null, 2), 'utf-8');
+  logger.debug('Manifest file written successfully');
+
+  // Check if manifest file exists when debugging this task
+  if (process.env.PLUGMA_DEBUG_TASK === 'build:manifest') {
+    try {
+      const manifestExists = await access(manifestPath)
+        .then(() => true)
+        .catch(() => false);
+      if (manifestExists) {
+        logger.debug('✓ Verified manifest.json exists at:', manifestPath);
+      } else {
+        logger.debug('✗ manifest.json was not created at:', manifestPath);
+      }
+    } catch (err) {
+      logger.debug('Error checking manifest file:', err);
+    }
+  }
 
   return {
     raw: files.manifest,

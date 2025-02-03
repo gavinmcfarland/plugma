@@ -45,6 +45,7 @@ export async function dev(options: DevCommandOptions): Promise<void> {
       port: options.port || getRandomPort(),
       output: options.output || 'dist',
       command: 'dev' as const,
+      cwd: options.cwd || process.cwd(),
     };
 
     // Execute tasks in sequence

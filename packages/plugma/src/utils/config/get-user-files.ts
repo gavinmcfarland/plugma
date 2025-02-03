@@ -1,7 +1,7 @@
 import path from 'node:path';
 
 import type { ManifestFile, PluginOptions, UserFiles } from '#core/types';
-import { readJson } from '#utils';
+import { readJson, readUserPackageJson } from '#utils';
 import { transformObject } from './transform-object.js';
 
 /**
@@ -43,10 +43,8 @@ import { transformObject } from './transform-object.js';
 
 export async function getUserFiles(options: PluginOptions): Promise<UserFiles> {
   try {
-    // Resolve package.json from the workspace root
-    const userPkgJson = await readJson<UserFiles['userPkgJson']>(
-      path.resolve(process.cwd(), 'package.json'),
-    );
+    // Replace existing package.json reading code with:
+    const userPkgJson = await readUserPackageJson(options.cwd);
 
     if (!userPkgJson) {
       throw new Error('package.json not found');
@@ -56,7 +54,10 @@ export async function getUserFiles(options: PluginOptions): Promise<UserFiles> {
 
     try {
       // Try reading standalone manifest first
-      const manifestPath = path.resolve('./manifest.json');
+      const manifestPath = path.resolve(
+        options.cwd || process.cwd(),
+        'manifest.json',
+      );
       const rawManifest = await readJson<ManifestFile>(manifestPath);
       rootManifest = transformObject(rawManifest, options);
     } catch {}

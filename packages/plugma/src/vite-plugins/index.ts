@@ -6,7 +6,7 @@ export * from './dev/suppress-logs.js';
 export * from './test/index.js';
 export * from './transform/html-transform.js';
 export * from './transform/insert-custom-functions.js';
-export * from './transform/replace-main-input.js';
+export * from './transform/replace-placeholders.js';
 export * from './transform/rewrite-postmessage-origin.js';
 export * from './utils/dot-env-loader.js';
 //@endindex

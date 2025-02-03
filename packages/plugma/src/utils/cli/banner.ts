@@ -30,7 +30,7 @@ interface ShowUIOptions {
 
 // Global runtime data
 // Vite will inject the runtimeData object below
-//>> PLACEHOLDER : runtimeData <<//
+/*--[ RUNTIME_DATA ]--*/
 declare const runtimeData: PluginOptions;
 
 /**

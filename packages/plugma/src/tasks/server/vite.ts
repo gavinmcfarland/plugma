@@ -9,6 +9,7 @@ import type {
 } from '#core/types.js';
 import { registerCleanup } from '#utils/cleanup.js';
 import { Logger } from '#utils/log/logger.js';
+import type { RollupWatcher } from 'rollup';
 import type { ViteDevServer } from 'vite';
 import { createServer } from 'vite';
 import { GetFilesTask } from '../common/get-files.js';
@@ -30,8 +31,8 @@ export interface StartViteServerResult {
 export const viteState = {
   /** Main Vite development server */
   viteServer: null as ViteDevServer | null,
-  /** Build-specific Vite server */
-  viteBuild: null as ViteDevServer | null,
+  /** Build-specific Vite watcher */
+  viteMainWatcher: null as RollupWatcher | null,
   /** UI-specific Vite server */
   viteUi: null as ViteDevServer | null,
 };

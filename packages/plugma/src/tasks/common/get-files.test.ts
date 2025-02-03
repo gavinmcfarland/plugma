@@ -9,7 +9,7 @@ import {
 } from '#test';
 
 const mocks = vi.hoisted(() => ({
-  readFileSync: vi.fn().mockReturnValue('//>> PLACEHOLDER : runtimeData <<//'),
+  readFileSync: vi.fn().mockReturnValue('/*--[ RUNTIME_DATA ]--*/'),
   readJson: vi.fn(),
   getDirName: vi.fn(() => '/mock/dir'),
   writeTempFile: vi.fn().mockReturnValue('/mock/temp/file.js'),

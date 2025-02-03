@@ -16,7 +16,7 @@ export class TaskRunner<
 
   constructor(options?: { debug: boolean }) {
     this.tasks = new Map();
-    this.logger = new Logger({ debug: options?.debug || false });
+    this.logger = new Logger({ debug: options?.debug ?? false });
     this.logger.debug('TaskRunner initialized');
   }
 
@@ -98,7 +98,7 @@ export class TaskRunner<
   }
 
   /**
-   * Run multiple tasks in series with proper dependency validation
+   * Run multiple tasks in series with proper dependency validation and guaranteed serial execution
    */
   async serial<First extends AvailableTasks, Rest extends AvailableTasks[]>(
     firstTask: First,
@@ -106,28 +106,48 @@ export class TaskRunner<
     ...otherTasks: Rest
   ): Promise<ResultsOfTask<First | Rest[number]>> {
     this.logger.format({ indent: 1 });
-    this.logger.debug('Starting serial task execution');
-    this.logger.debug(`First task: ${JSON.stringify(firstTask)}`);
-    this.logger.debug(`Options: ${JSON.stringify(options)}`);
-    this.logger.debug(`Other tasks: ${JSON.stringify(otherTasks)}`);
+    this.logger.debug(
+      `Starting execution of task series ${firstTask.name}, ${otherTasks
+        .map((task) => task.name)
+        .join(', ')}`,
+    );
 
     const context = {} as ResultsOfTask<First | Rest[number]>;
     const tasks = [firstTask, ...otherTasks] as ((First | Rest[number]) & {
       name: keyof typeof context;
     })[];
 
+    // Use for...of to ensure sequential execution
     for (const task of tasks) {
       const registeredTask = this.tasks.get(task.name);
       if (!registeredTask) {
         throw new Error(`Task "${task.name}" not found`);
       }
 
-      this.logger.format({ indent: 2 }).debug(`Executing task: ${task.name}`);
-      const result = await registeredTask.run(options, context);
-      context[task.name] = result;
-      this.logger
-        .format({ indent: 2 })
-        .debug(`Task ${task.name} result: `, result);
+      this.logger.format({ indent: 2 }).debug(`Starting task: ${task.name}`);
+
+      try {
+        // Await each task explicitly to ensure serial execution
+        const result = await registeredTask.run(options, context);
+
+        // Store result in context before proceeding to next task
+        context[task.name] = result;
+
+        this.logger
+          .format({ indent: 2 })
+          .debug(`Completed task ${task.name} with result:`, result);
+      } catch (error) {
+        this.logger
+          .format({ indent: 2 })
+          .error(`Task ${task.name} failed:`, error);
+
+        // Rethrow with enhanced context
+        throw new Error(
+          `Serial execution failed at task "${task.name}": ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
+      }
     }
 
     return context;

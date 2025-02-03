@@ -4,6 +4,7 @@
  */
 
 import type { PluginOptions } from '#core/types.js';
+import EnsureDistTask from '#tasks/common/ensure-dist.js';
 import { Logger } from '#utils/log/logger.js';
 import { nanoid } from 'nanoid';
 import { BuildMainTask } from '../tasks/build/main.js';
@@ -51,12 +52,13 @@ export async function build(options: BuildCommandOptions): Promise<void> {
     const results = await serial(
       GetFilesTask,
       ShowPlugmaPromptTask,
-      BuildMainTask,
-      BuildUiTask,
-      BuildManifestTask,
+      EnsureDistTask, // ensures a clean dist directory
+      BuildManifestTask, // creates a manifest
+      BuildUiTask, // copies and transforms UI
+      BuildMainTask, // builds the main script
     )(pluginOptions);
 
-    log.debug(`Task execution results: ${JSON.stringify(results, null, 2)}`);
+    // log.debug(`Task execution results: ${JSON.stringify(results, null, 2)}`);
 
     log.success('Production build completed successfully');
   } catch (error) {

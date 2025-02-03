@@ -33,7 +33,10 @@ const showPlugmaPrompt = async (
       throw new Error('get-files task must run first');
     }
 
-    const log = new Logger({ debug: options.debug });
+    const log = new Logger({
+      debug: options.debug,
+      prefix: 'common:show-plugma-prompt',
+    });
 
     const { version } = context[GetFilesTask.name].plugmaPkg;
     // Match original formatting with chalk

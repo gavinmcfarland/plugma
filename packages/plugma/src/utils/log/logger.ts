@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { mapToSourceSync } from '../fs/map-to-source.js';
 
 export interface LogOptions {
   defaultIndentLevel?: number;
@@ -6,7 +7,13 @@ export interface LogOptions {
   timestampFormat?: string;
   debug?: boolean;
   tag?: string;
+  prefix?: string;
 }
+
+// Available colors for logger prefixes
+const COLORS = ['blue', 'magenta', 'cyan', 'green', 'yellow', 'red'] as const;
+
+let nextColorIndex = 0;
 
 /**
  * A configurable logging utility that provides formatted console output with various log levels,
@@ -15,6 +22,7 @@ export interface LogOptions {
 export class Logger {
   private options: Required<LogOptions> & { tag: string | undefined };
   private currentIndent: number;
+  private prefixColor: (typeof COLORS)[number];
 
   /**
    * Creates a new Log instance with the specified options.
@@ -27,10 +35,13 @@ export class Logger {
       timestampFormat: 'YYYY-MM-DD HH:mm:ss',
       debug: false,
       tag: '',
+      prefix: '',
       ...options,
     };
 
     this.currentIndent = this.options.defaultIndentLevel;
+    this.prefixColor = COLORS[nextColorIndex];
+    nextColorIndex = (nextColorIndex + 1) % COLORS.length;
   }
 
   public setOptions(options: LogOptions) {
@@ -50,6 +61,60 @@ export class Logger {
   }
 
   /**
+   * Gets the call site location from the stack trace, mapped to source when possible.
+   * @returns {string} The call site information from the error stack.
+   */
+  private getCallSite(): string {
+    const stack = new Error().stack?.split('\n');
+    if (!stack) return '';
+
+    const extractFilePath = (frame: string) => {
+      const line = frame.trim();
+      const parenMatch = line.match(/\((?:file:\/\/)?(.*?)(?::(\d+):(\d+))?\)/);
+      if (parenMatch) {
+        const [, path, line, column] = parenMatch;
+        return path + (line ? `:${line}${column ? `:${column}` : ''}` : '');
+      }
+      return line.substring(3);
+    };
+
+    // Find first non-logger.js stack frame
+    for (const frame of stack.slice(1)) {
+      if (!frame.includes('logger.js')) {
+        const rawPath = extractFilePath(frame);
+        // Normalize Windows paths
+        const normalizedPath = rawPath.replace(/\\/g, '/');
+        const sourcePath = mapToSourceSync(normalizedPath);
+        return chalk.gray(sourcePath);
+      }
+    }
+
+    return '';
+  }
+
+  /**
+   * Formats a log message with indentation and prefix.
+   * @param message - Message to format
+   * @param type - Type of log message
+   * @param indentLevel - Level of indentation
+   */
+  private formatLog(
+    message: string,
+    type: string | null,
+    indentLevel = 0,
+  ): { formattedMessage: string; callSite: string } {
+    const indent = ' '.repeat(indentLevel * 2);
+    const prefix = this.getPrefix(type);
+    const tag = this.options.tag ? chalk.cyan(`[${this.options.tag}] `) : '';
+    let callSite = '';
+    if (type === 'debug') {
+      callSite = this.getCallSite();
+    }
+    const formattedMessage = `${indent}${prefix}${tag}${message}`;
+    return { formattedMessage, callSite };
+  }
+
+  /**
    * Internal method to handle log message formatting and output.
    * @param args - Arguments to be logged
    * @param type - Log type (info, success, error, warning)
@@ -64,12 +129,16 @@ export class Logger {
       return;
     }
 
-    const formattedMessage = this.formatLog(
+    const { formattedMessage, callSite } = this.formatLog(
       String(args[0]),
       type,
       this.currentIndent,
     );
     const newArgs = [formattedMessage, ...args.slice(1)];
+
+    if (callSite) {
+      newArgs.push(callSite);
+    }
 
     if (this.options.showTimestamp) {
       const timestamp = new Date().toISOString();
@@ -87,14 +156,26 @@ export class Logger {
 
   text(...args: string[]): this {
     this.log(args, null, true);
-    return this; // Return the instance for chaining
+    return this;
   }
 
   /**
-   * Logs an informational message.
+   * Logs a debug message.
+   * Only logs if debug is enabled and if PLUGMA_DEBUG_TASK matches the logger's prefix.
    * @param args - Arguments to log
    */
   debug(...args: unknown[]): this {
+    if (!this.options.debug) {
+      return this;
+    }
+
+    const debugTask = process.env.PLUGMA_DEBUG_TASK;
+    if (debugTask) {
+      if (!this.options.prefix || !this.options.prefix.startsWith(debugTask)) {
+        return this;
+      }
+    }
+
     this.log(args, 'debug');
     return this;
   }
@@ -137,34 +218,15 @@ export class Logger {
   }
 
   /**
-   * Formats a log message with indentation and prefix.
-   * @param message - Message to format
-   * @param type - Type of log message
-   * @param indentLevel - Level of indentation
-   */
-  private formatLog(
-    message: string,
-    type: string | null,
-    indentLevel = 0,
-  ): string {
-    const indent = ' '.repeat(indentLevel * 2);
-    const prefix = this.getPrefix(type);
-    const tag = this.options.tag ? chalk.cyan(`[${this.options.tag}] `) : '';
-    return `${indent}${prefix}${tag}${message}`;
-  }
-
-  /**
-   * Resets formatting to default values.
-   */
-  private resetFormatting(): void {
-    this.currentIndent = this.options.defaultIndentLevel;
-  }
-
-  /**
    * Gets the prefix for a given log type.
    * @param type - Type of log message
    */
   private getPrefix(type: string | null): string {
+    // Only show prefix for debug logs
+    if (type === 'debug' && this.options.prefix) {
+      return chalk[this.prefixColor](`[${this.options.prefix}] `);
+    }
+
     switch (type) {
       case 'info':
         return chalk.blue.bold('INFO: ');
@@ -180,6 +242,15 @@ export class Logger {
         return '';
     }
   }
+
+  /**
+   * Resets formatting to default values.
+   */
+  private resetFormatting(): void {
+    this.currentIndent = this.options.defaultIndentLevel;
+  }
 }
 
-export const defaultLogger = new Logger();
+export const defaultLogger = new Logger({ prefix: 'plugma' });
+
+export const debugLogger = new Logger({ debug: true });

@@ -1,4 +1,5 @@
 import { join, resolve } from 'node:path';
+import type { RollupWatcher } from 'rollup';
 import { build } from 'vite';
 /**
  * Main script build task implementation
@@ -8,6 +9,7 @@ import type {
   PluginOptions,
   ResultsOfTask,
 } from '#core/types.js';
+import { createViteConfigs } from '#utils/config/create-vite-configs.js';
 // import type { TaskDefinition } from '#core/task-runner/types.js';
 import { Logger } from '#utils/log/logger.js';
 import { GetFilesTask } from '../common/get-files.js';
@@ -27,7 +29,7 @@ interface Result {
  *
  * This task is responsible for:
  * 1. Building the main script using Vite:
- *    - Configures Vite for IIFE output format
+ *    - Configures Vite for CommonJS output format
  *    - Sets up Figma API externals
  *    - Handles source maps and minification
  * 2. Managing build state:
@@ -55,7 +57,10 @@ const buildMain = async (
   context: ResultsOfTask<GetFilesTask>,
 ): Promise<Result> => {
   try {
-    const log = new Logger({ debug: options.debug });
+    const log = new Logger({
+      debug: options.debug,
+      prefix: 'build:main',
+    });
 
     const fileResult = context[GetFilesTask.name];
     if (!fileResult) {
@@ -66,8 +71,8 @@ const buildMain = async (
     const outputPath = join(options.output || 'dist', 'main.js');
 
     // Close existing build server if any
-    if (viteState.viteBuild) {
-      await viteState.viteBuild.close();
+    if (viteState.viteMainWatcher) {
+      await viteState.viteMainWatcher.close();
     }
 
     // Only build if main script is specified
@@ -77,38 +82,22 @@ const buildMain = async (
     }
 
     const mainPath = resolve(files.manifest.main);
-    log.debug(`Building main script from ${mainPath}...`);
+    log.debug(`Building main script from: ${mainPath}`);
 
-    // Build main script with Vite
-    await build({
-      root: process.cwd(),
-      base: '/',
-      mode: options.mode,
-      build: {
-        outDir: options.output || 'dist',
-        emptyOutDir: true,
-        sourcemap: true,
-        minify: options.command === 'build', // Only minify in build command
-        lib: {
-          entry: mainPath,
-          formats: ['iife'],
-          name: 'plugin',
-          fileName: () => 'main.js',
-        },
-        rollupOptions: {
-          input: mainPath,
-          external: ['figma'],
-          output: {
-            globals: {
-              figma: 'figma',
-            },
-          },
-        },
-        watch: options.watch ? {} : undefined,
-      },
-    });
+    // Get the appropriate Vite config from createViteConfigs
+    const configs = createViteConfigs(options, files);
+    const config =
+      options.command === 'build' ? configs.main.build : configs.main.dev;
 
-    log.success('Main script built successfully at dist/main.js\n');
+    // Build main script with Vite using the correct config
+    const buildResult = await build(config);
+
+    // Only store the watcher in watch mode
+    if (options.watch || ['dev', 'preview'].includes(options.command ?? '')) {
+      viteState.viteMainWatcher = buildResult as RollupWatcher;
+    }
+
+    log.success('Main script built successfully at dist/main.js');
 
     return { outputPath };
   } catch (error) {

@@ -21,7 +21,7 @@ setupViteMock();
 describe('Main Build Tasks', () => {
   beforeEach(() => {
     resetMocks();
-    viteState.viteBuild = null;
+    viteState.viteMainWatcher = null;
   });
 
   describe('Task Definition', () => {
@@ -109,7 +109,7 @@ describe('Main Build Tasks', () => {
 
     test('should close existing build server', async () => {
       const mockServer = createMockViteServer();
-      viteState.viteBuild = mockServer;
+      viteState.viteMainWatcher = mockServer;
 
       const mainPath = 'src/plugin-main.ts';
       const getFilesResult = createMockGetFilesResult({

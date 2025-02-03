@@ -58,9 +58,14 @@ const buildUi = async (
   options: PluginOptions,
   context: ResultsOfTask<GetFilesTask>,
 ): Promise<Result> => {
-  const logger = new Logger({ debug: options.debug });
+  const logger = new Logger({
+    debug: options.debug,
+    prefix: 'build:ui',
+  });
 
   try {
+    logger.debug('Starting build:ui task...');
+
     const fileResult = context[GetFilesTask.name];
     if (!fileResult) {
       throw new Error('get-files task must run first');
@@ -69,20 +74,34 @@ const buildUi = async (
     const { files } = fileResult;
     const outputPath = join(options.output || 'dist', 'ui.html');
 
+    logger.debug('Task context:', {
+      files: {
+        manifest: files.manifest,
+        userPkgJson: files.userPkgJson,
+      },
+      outputPath,
+    });
+
     // Close existing UI server if any
     if (viteState.viteUi) {
+      logger.debug('Closing existing UI server...');
       await viteState.viteUi.close();
+      logger.debug('UI server closed');
     }
 
     // Get Vite config from createConfigs
+    logger.debug('Creating Vite configs...');
     const config = createViteConfigs(options, files);
+    logger.debug('Vite configs created');
 
     // Start build timer as close to build as possible
     const startTime = performance.now();
 
     // Only build if UI is specified and file exists
     if (files.manifest.ui) {
-      const uiExists = await access(resolve(files.manifest.ui))
+      const uiPath = resolve(files.manifest.ui);
+      logger.debug('Checking UI file existence:', uiPath);
+      const uiExists = await access(uiPath)
         .then(() => true)
         .catch(() => false);
 
@@ -95,7 +114,7 @@ const buildUi = async (
           const watchConfig = mergeConfig(
             {
               root: process.cwd(),
-              base: '/',
+              base: './',
               build: {
                 watch: {},
                 minify: true,
@@ -107,19 +126,24 @@ const buildUi = async (
                     entryFileNames: '[name].js',
                     chunkFileNames: '[name].js',
                     assetFileNames: (assetInfo: { name?: string }) => {
-                      if (assetInfo.name === 'browser-index.html') {
+                      logger.debug('assetFileNames called with:', assetInfo);
+                      if (assetInfo.name === 'index.html') {
                         return 'ui.html';
                       }
                       return '[name].[ext]';
                     },
                   },
+                  input: files.manifest.ui,
                 },
+                write: true,
               },
             },
             config.ui?.build,
           ) as InlineConfig;
 
+          logger.debug('Watch config:', watchConfig);
           const watcher = await build(watchConfig);
+          logger.debug('Watch build completed');
 
           if ('close' in watcher) {
             viteState.viteUi = {
@@ -149,7 +173,7 @@ const buildUi = async (
           const mergedConfig = mergeConfig(
             {
               root: process.cwd(),
-              base: '/',
+              base: './',
               build: {
                 minify: true,
                 outDir: join(options.output),
@@ -160,13 +184,16 @@ const buildUi = async (
                     entryFileNames: '[name].js',
                     chunkFileNames: '[name].js',
                     assetFileNames: (assetInfo: { name?: string }) => {
-                      if (assetInfo.name === 'browser-index.html') {
+                      logger.debug('assetFileNames called with:', assetInfo);
+                      if (assetInfo.name === 'index.html') {
                         return 'ui.html';
                       }
                       return '[name].[ext]';
                     },
                   },
+                  input: files.manifest.ui,
                 },
+                write: true,
               },
             },
             config.ui?.build,
@@ -176,9 +203,15 @@ const buildUi = async (
             'Merged Vite config:',
             JSON.stringify(mergedConfig, null, 2),
           );
+          logger.debug('Starting production build...');
           await build(mergedConfig);
+          logger.debug('Production build completed');
         }
+      } else {
+        logger.debug(`UI file not found at ${uiPath}, skipping build`);
       }
+    } else {
+      logger.debug('No UI specified in manifest, skipping build');
     }
 
     // Calculate elapsed time in milliseconds
@@ -205,7 +238,26 @@ const buildUi = async (
     }
 
     // Validate output files
+    logger.debug('Validating output files...');
     await validateOutputFiles(options, files, 'plugin-built');
+    logger.debug('Output files validated');
+
+    // Check if ui.html file exists when debugging this task
+    if (process.env.PLUGMA_DEBUG_TASK === 'build:ui') {
+      try {
+        const uiHtmlPath = join(options.output || 'dist', 'ui.html');
+        const uiHtmlExists = await access(uiHtmlPath)
+          .then(() => true)
+          .catch(() => false);
+        if (uiHtmlExists) {
+          logger.debug('✓ Verified ui.html exists at:', uiHtmlPath);
+        } else {
+          logger.debug('✗ ui.html was not created at:', uiHtmlPath);
+        }
+      } catch (err) {
+        logger.debug('Error checking ui.html file:', err);
+      }
+    }
 
     return { outputPath, duration };
   } catch (err) {

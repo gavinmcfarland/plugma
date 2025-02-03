@@ -14,6 +14,7 @@ export interface BaseCommandOptions {
   debug?: boolean;
   mode?: string;
   output?: string;
+  cwd?: string;
 }
 
 /**

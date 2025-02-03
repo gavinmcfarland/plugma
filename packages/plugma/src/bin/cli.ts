@@ -1,5 +1,4 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { readPlugmaPackageJson } from '#utils/fs/read-json.js';
 
 import { Command } from 'commander';
 
@@ -15,33 +14,43 @@ import {
   release,
   test,
 } from '#commands';
-import { colorStringify } from '#utils/cli/colorStringify.js';
-import { defaultLogger } from '#utils/log/logger.js';
-import { getDirName } from '#utils/path.js';
+import { colorStringify, debugLogger, defaultLogger } from '#utils';
+import chalk from 'chalk';
 import type { ReleaseType } from './types.js';
 
 // Read package.json to get the version
-const __dirname = getDirName(import.meta.url);
-const packageJsonPath = join(__dirname, '../../package.json');
-const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf-8'));
+const packageJson = await readPlugmaPackageJson();
 const version = packageJson.version;
 
 // Initialize Commander
 const program = new Command();
 
 // Set version for the program
-program.version(version, '-v, --version', 'Output the current version');
+program
+  .name('plugma')
+  .description('A modern Figma plugin development toolkit')
+  .version(version, '-v, --version', 'Output the current version')
+  .addHelpText(
+    'beforeAll',
+    `${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}`)}\n`,
+  );
 
 // Global Debug Option
-const handleDebug = (
+const handleDebug = async (
   command: string,
   options: Record<string, any> & { debug?: boolean },
-): void => {
+): Promise<void> => {
   if (options.debug) {
+    process.env.PLUGMA_DEBUG = 'true';
     defaultLogger.setOptions({ debug: true });
-    console.log('Debug mode enabled');
-    console.log('Command:', command);
-    console.log('Arguments:', `${colorStringify(options)}\n`);
+    debugLogger.info('Debug mode enabled - preloading source maps...');
+
+    // Preload source maps before any logging occurs
+    const { preloadSourceMaps } = await import('#utils/fs/map-to-source.js');
+    await preloadSourceMaps();
+
+    debugLogger.info(`command: ${command}`);
+    debugLogger.info(`arguments: ${colorStringify(options)}\n`);
   }
 };
 

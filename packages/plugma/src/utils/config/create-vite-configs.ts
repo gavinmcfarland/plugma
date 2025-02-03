@@ -5,21 +5,26 @@ import type { Plugin, UserConfig } from 'vite';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 
 import type { PluginOptions, UserFiles } from '#core/types.js';
-import { writeTempFile } from '#utils';
+import { defaultLogger, writeTempFile } from '#utils';
 import { getDirName } from '#utils/path.js';
 import {
   deepIndex,
   dotEnvLoader,
-  gatherBuildOutputs,
   htmlTransform,
-  replaceMainInput,
+  replacePlaceholders,
   rewritePostMessageTargetOrigin,
   vitePluginInsertCustomFunctions,
 } from '#vite-plugins';
 
-const __dirname = getDirName(import.meta.url);
+const projectRoot = path.join(getDirName(import.meta.url), '../../..');
 
-const uiHtml = path.join(__dirname, '../../../templates/ui.html');
+const uiHtml = path.join(projectRoot, 'templates/ui.html');
+
+// Read the compiled banner code from dist
+const bannerCode = fs.readFileSync(
+  path.join(projectRoot, 'dist/utils/cli/banner.js'),
+  'utf8',
+);
 
 export type ViteConfigs = {
   ui: {
@@ -72,30 +77,32 @@ export function createViteConfigs(
   options: PluginOptions,
   userFiles: UserFiles,
 ): ViteConfigs {
-  console.log('Creating Vite configs with:', {
+  defaultLogger.debug('Creating Vite configs with:', {
     browserIndexPath: uiHtml,
     outputDir: options.output,
     cwd: process.cwd(),
   });
 
+  // Copy template to the current working directory
+  const localUiHtml = path.join(process.cwd(), 'ui.html');
+  fs.copyFileSync(uiHtml, localUiHtml);
+
   const commonVitePlugins: Plugin[] = [
+    // gatherBuildOutputs({
+    //   sourceDir: options.output,
+    //   outputDir: options.output,
+    //   filter: (file) => !file.includes('plugma-create-release.yml'),
+    //   getOutputPath: (file: string) => {
+    //     defaultLogger.debug('getOutputPath called with:', {
+    //       file,
+    //       basename: path.basename(file),
+    //       dirname: path.dirname(file),
+    //     });
+    //     return path.basename(file);
+    //   },
+    //   removeSourceDir: false,
+    // }),
     viteSingleFile(),
-    gatherBuildOutputs({
-      sourceDir: path.dirname(uiHtml),
-      outputDir: path.join(options.output),
-      filter: () => true,
-      getOutputPath: (file: string) => {
-        console.log('getOutputPath called with:', {
-          file,
-          basename: path.basename(file),
-          dirname: path.dirname(file),
-        });
-        return path.basename(file) === 'browser-index.html'
-          ? 'ui.html'
-          : path.basename(file);
-      },
-      removeSourceDir: false,
-    }),
   ];
 
   const tempFilePath = writeTempFile(
@@ -105,17 +112,18 @@ export function createViteConfigs(
   );
   options.manifest = userFiles.manifest;
 
-  const viteConfig = {
+  const placeholders = {
+    pluginName: userFiles.manifest.name,
+    pluginUi: `<script type="module" src="${userFiles.manifest.ui}"></script>`,
+  };
+  const viteConfigUI = {
     dev: {
       mode: options.mode,
       define: { 'process.env.NODE_ENV': JSON.stringify(options.mode) },
       plugins: [
-        replaceMainInput({
-          pluginName: userFiles.manifest.name,
-          input: userFiles.manifest.ui,
-        }),
+        replacePlaceholders(placeholders),
         htmlTransform(options),
-        deepIndex({ path: uiHtml }),
+        deepIndex({ path: localUiHtml }),
         rewritePostMessageTargetOrigin(),
         ...commonVitePlugins,
       ],
@@ -124,43 +132,33 @@ export function createViteConfigs(
       },
     },
     build: {
+      root: process.cwd(),
+      base: './',
       build: {
-        outDir: path.join(options.output),
+        outDir: path.resolve(process.cwd(), options.output),
         emptyOutDir: false,
+        write: true,
         rollupOptions: {
-          input: {
-            ui: path.resolve(process.cwd(), 'templates/ui.html'),
-          },
+          input: localUiHtml,
           output: {
             entryFileNames: '[name].js',
             chunkFileNames: '[name].js',
             assetFileNames: (assetInfo: { name?: string }) => {
-              if (assetInfo.name === 'browser-shell.html') {
-                return 'ui.html';
-              }
-              return '[name].[ext]';
+              defaultLogger.debug('assetFileNames called with:', assetInfo);
+              if (!assetInfo.name) return '[name].[ext]';
+              const basename = path.basename(assetInfo.name);
+              return basename === 'ui.html' ? 'ui.html' : basename;
             },
           },
         },
       },
-      plugins: [
-        replaceMainInput({
-          pluginName: userFiles.manifest.name,
-          input: userFiles.manifest.ui,
-        }),
-        ...commonVitePlugins,
-      ],
+      plugins: [replacePlaceholders(placeholders), ...commonVitePlugins],
     },
   };
 
-  // Read the banner code from utils/cli/banner.js
-  const bannerCode = fs.readFileSync(
-    path.join(__dirname, '..', 'cli', 'banner.js'),
-    'utf8',
-  );
   const injectedCode = bannerCode.replace(
-    '//>> PLACEHOLDER : runtimeData <<//',
-    `let runtimeData = ${JSON.stringify(options)};`,
+    '/*--[ RUNTIME_DATA ]--*/',
+    `const runtimeData = ${JSON.stringify(options)};`, // Remove 'as const' since it's JS now
   );
 
   const viteConfigMainBuild: UserConfig = {
@@ -173,16 +171,25 @@ export function createViteConfigs(
       lib: {
         entry: tempFilePath,
         formats: ['cjs'],
+        fileName: () => 'main.js',
       },
       rollupOptions: {
         output: {
-          dir: path.join(options.output),
+          dir: options.output,
           entryFileNames: 'main.js',
           inlineDynamicImports: true,
+          format: 'cjs',
+          exports: 'auto',
+          generatedCode: {
+            constBindings: true,
+            objectShorthand: true,
+          },
         },
+        external: ['figma'],
       },
       target: 'chrome58',
       sourcemap: false,
+      minify: options.command === 'build',
       emptyOutDir: false,
       write: true,
       watch: null,
@@ -196,11 +203,19 @@ export function createViteConfigs(
     mode: options.mode,
     define: {
       'process.env.NODE_ENV': JSON.stringify(options.mode),
+      'process.env.COMMAND': JSON.stringify(options.command),
+      'process.env.DEBUG': JSON.stringify(!!options.debug),
+      // Figma function replacements
       'figma.ui.resize': 'customResize',
       'figma.showUI': 'customShowUI',
+      'figma.clientStorage': 'customClientStorage',
     },
     plugins: [
-      dotEnvLoader(options),
+      dotEnvLoader({
+        ...options,
+        // Add additional env file patterns if needed
+        patterns: ['*.env.*'],
+      }),
       vitePluginInsertCustomFunctions({
         codeToPrepend: injectedCode,
       }),
@@ -209,10 +224,11 @@ export function createViteConfigs(
       lib: {
         entry: tempFilePath,
         formats: ['cjs'],
+        fileName: () => 'main.js',
       },
       rollupOptions: {
         output: {
-          dir: `${options.output}`,
+          dir: options.output,
           entryFileNames: 'main.js',
           inlineDynamicImports: true,
         },
@@ -221,7 +237,13 @@ export function createViteConfigs(
       sourcemap: false,
       emptyOutDir: false,
       write: true,
-      watch: null,
+      watch:
+        options.watch || ['dev', 'preview'].includes(options.command ?? '')
+          ? {
+              clearScreen: false,
+              exclude: ['node_modules/**'],
+            }
+          : null,
     },
     resolve: {
       extensions: ['.ts', '.js'],
@@ -229,7 +251,7 @@ export function createViteConfigs(
   } satisfies UserConfig;
 
   return {
-    ui: viteConfig,
+    ui: viteConfigUI,
     main: {
       dev: viteConfigMainDev,
       build: viteConfigMainBuild,

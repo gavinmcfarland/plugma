@@ -1,3 +1,4 @@
+import { defaultLogger } from '#utils';
 import fs from 'node:fs';
 import path from 'node:path';
 import type { Plugin, ResolvedConfig } from 'vite';
@@ -45,16 +46,16 @@ interface GatherOptions {
  */
 const deleteDirectoryRecursively = (dirPath: string): void => {
   if (fs.existsSync(dirPath)) {
-    console.log('Deleting directory:', dirPath);
-    fs.readdirSync(dirPath).forEach((file) => {
+    defaultLogger.debug('Deleting directory:', dirPath);
+    for (const file of fs.readdirSync(dirPath)) {
       const curPath = path.join(dirPath, file);
       if (fs.statSync(curPath).isDirectory()) {
         deleteDirectoryRecursively(curPath);
       } else {
-        console.log('Deleting file:', curPath);
+        defaultLogger.debug('Deleting file:', curPath);
         fs.unlinkSync(curPath);
       }
-    });
+    }
     fs.rmdirSync(dirPath);
   }
 };
@@ -64,7 +65,7 @@ const deleteDirectoryRecursively = (dirPath: string): void => {
  * @internal
  */
 const findFiles = (dir: string, base = ''): string[] => {
-  console.log('Finding files in directory:', dir);
+  defaultLogger.debug('Finding files in directory:', dir);
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   const files: string[] = [];
 
@@ -73,10 +74,10 @@ const findFiles = (dir: string, base = ''): string[] => {
     const fullPath = path.join(dir, entry.name);
 
     if (entry.isDirectory()) {
-      console.log('Found directory:', fullPath);
+      defaultLogger.debug('Found directory:', fullPath);
       files.push(...findFiles(fullPath, relativePath));
     } else {
-      console.log('Found file:', fullPath);
+      defaultLogger.debug('Found file:', fullPath);
       files.push(relativePath);
     }
   }
@@ -133,7 +134,7 @@ export function gatherBuildOutputs(
 
     configResolved(resolvedConfig) {
       config = resolvedConfig;
-      console.log('Plugin config resolved:', {
+      defaultLogger.debug('Plugin config resolved:', {
         root: config.root,
         sourceDir,
         outputDir,
@@ -146,7 +147,7 @@ export function gatherBuildOutputs(
         ? path.resolve(config.root, outputDir)
         : sourcePath;
 
-      console.log('Gathering build outputs:', {
+      defaultLogger.debug('Gathering build outputs:', {
         sourcePath,
         targetPath,
         removeSourceDir,
@@ -154,19 +155,19 @@ export function gatherBuildOutputs(
 
       // Skip if source directory doesn't exist
       if (!fs.existsSync(sourcePath)) {
-        console.warn(`Source directory ${sourcePath} does not exist!`);
+        defaultLogger.warn(`Source directory ${sourcePath} does not exist!`);
         return;
       }
 
       // Create target directory if it doesn't exist
       if (outputDir && !fs.existsSync(targetPath)) {
-        console.log('Creating target directory:', targetPath);
+        defaultLogger.debug('Creating target directory:', targetPath);
         fs.mkdirSync(targetPath, { recursive: true });
       }
 
       // Find and filter all files
       const files = findFiles(sourcePath).filter(filter);
-      console.log('Found files:', files);
+      defaultLogger.debug('Found files:', files);
 
       // Copy files to target directory
       for (const file of files) {
@@ -174,7 +175,7 @@ export function gatherBuildOutputs(
         const outputName = getOutputFilename(file);
         const targetFilePath = path.join(targetPath, outputName);
 
-        console.log('Processing file:', {
+        defaultLogger.debug('Processing file:', {
           source: sourceFilePath,
           output: outputName,
           target: targetFilePath,
@@ -183,18 +184,23 @@ export function gatherBuildOutputs(
         // Create target subdirectories if needed
         const targetDir = path.dirname(targetFilePath);
         if (!fs.existsSync(targetDir)) {
-          console.log('Creating target subdirectory:', targetDir);
+          defaultLogger.debug('Creating target subdirectory:', targetDir);
           fs.mkdirSync(targetDir, { recursive: true });
         }
 
         // Copy the file
         fs.copyFileSync(sourceFilePath, targetFilePath);
-        console.log('Copied file:', sourceFilePath, '->', targetFilePath);
+        defaultLogger.debug(
+          'Copied file:',
+          sourceFilePath,
+          '->',
+          targetFilePath,
+        );
       }
 
       // Remove source directory if requested
       if (removeSourceDir) {
-        console.log('Removing source directory:', sourcePath);
+        defaultLogger.debug('Removing source directory:', sourcePath);
         deleteDirectoryRecursively(sourcePath);
       }
     },

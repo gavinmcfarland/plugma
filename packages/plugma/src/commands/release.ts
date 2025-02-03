@@ -1,8 +1,3 @@
-/**
- * Release command implementation
- * Handles plugin release process including version management and Git operations
- */
-
 import {
   gitRelease,
   gitStatus,
@@ -18,6 +13,7 @@ import type { ReleaseCommandOptions } from './types.js';
 export async function release(options: ReleaseCommandOptions): Promise<void> {
   // Check Git repository status
   const status = await gitStatus();
+
   if (!status.isGitRepo) {
     throw new Error(
       'This is not a Git repository. Please initialize a Git repository before proceeding.',
@@ -60,4 +56,7 @@ export async function release(options: ReleaseCommandOptions): Promise<void> {
   if (releaseResult.pushed) {
     execSync('plugma build', { stdio: 'inherit' });
   }
+
+  // TODO: review this...
+  // CreateReleaseYmlTask.run(options as any);
 }
