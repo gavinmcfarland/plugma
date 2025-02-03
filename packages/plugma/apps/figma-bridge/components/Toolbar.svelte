@@ -164,10 +164,10 @@
 </div>
 
 <style>
-	.Toolbar-spacer {
+	/* .Toolbar-spacer {
 		padding-bottom: 1px;
 		margin-bottom: 40px;
-	}
+	} */
 
 	.Toolbar {
 		background-color: var(--figma-color-bg-brand-tertiary);
@@ -183,9 +183,9 @@
 		border-bottom: 1px solid var(--figma-color-border);
 	}
 
-	svg {
+	/* svg {
 		flex-grow: 0;
-	}
+	} */
 
 	.spacer {
 		flex-grow: 1;

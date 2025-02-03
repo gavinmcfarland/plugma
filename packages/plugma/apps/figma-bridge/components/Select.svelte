@@ -5,7 +5,7 @@
 	} from "../../shared/stores";
 	import Icon from "./Icon.svelte";
 
-	export let label = "Choose an option"; // Default label
+	// export let label = "Choose an option"; // Default label
 	export let options = []; // Array of options passed into the component
 	export let selected = ""; // Bound value for selected option
 

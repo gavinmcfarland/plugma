@@ -8,7 +8,7 @@
     "target": "esnext",
     "moduleResolution": "node",
     "outDir": "./dist",
-    "rootDir": "./",
+    "rootDir": "../",
     "strict": true,
     "resolveJsonModule": true,
     "types": ["@figma/plugin-typings"],

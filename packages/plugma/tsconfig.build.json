@@ -15,7 +15,9 @@
       "#vite-plugins": ["vite-plugins/index.ts"],
       "#vite-plugins/*": ["vite-plugins/*"],
       "#packageJson": ["../package.json"]
-    }
+    },
+    "sourceMap": true,
+    "sourceRoot": "src"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": [

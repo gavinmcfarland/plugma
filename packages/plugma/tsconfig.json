@@ -35,7 +35,8 @@
     "src/**/*.tsx",
     "src/**/*.test.ts",
     "test/**/*.ts",
-    "./package.json"
+    "./package.json",
+    "src/vite-plugins/build/gather-build-outputs.ts"
   ],
   "exclude": ["archive", "dist", "node_modules"]
 }
