@@ -359,6 +359,13 @@ export class MockWebSocketServer extends EventEmitter {
   clearMessageHandlers(): void {
     this.messageHandlers = [];
   }
+
+  /**
+   * Clear all clients
+   */
+  clearClients(): void {
+    this.clients.clear();
+  }
 }
 
 /**

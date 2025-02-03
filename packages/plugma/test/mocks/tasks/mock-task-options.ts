@@ -13,6 +13,7 @@ export function createMockTaskOptions(
     output: 'dist',
     instanceId: 'test',
     debug: false,
+    cwd: process.cwd(),
     ...overrides,
   };
 }

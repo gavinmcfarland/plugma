@@ -1,8 +1,8 @@
 import { existsSync } from 'node:fs';
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { vi } from 'vitest';
-import { createMockFs } from '../mocks/fs/mock-fs.js';
+import { mockFs } from '../mocks/fs/mock-fs.js';
 import { mockCleanup } from '../mocks/mock-cleanup.js';
 import { mockWebSocket } from '../mocks/server/mock-websocket.js';
 import { mockVite } from '../mocks/vite/mock-vite.js';
@@ -12,12 +12,12 @@ import { mockVite } from '../mocks/vite/mock-vite.js';
  */
 export interface TestEnvironmentOptions {
   /** Files to create in the test environment */
-  files: Record<string, string>;
+  files?: Record<string, string>;
   /** Port to use for servers (default: random) */
   port?: number;
   /** Enable debug logging */
   debug?: boolean;
-  /** Custom test directory (default: .test-plugin) */
+  /** Custom test directory (default: test/sandbox) */
   testDir?: string;
 }
 
@@ -35,19 +35,16 @@ export async function setupTestEnvironment(
     files,
     port = Math.floor(Math.random() * 10000) + 3000,
     debug = false,
-    testDir = '.test-plugin',
+    testDir = 'test/sandbox',
   } = options;
 
-  // Set up mock fs
-  const mockFs = createMockFs(files);
+  // Clear mock fs
+  mockFs.clear();
 
-  // Create test directory and files
-  await mkdir(testDir, { recursive: true });
-  for (const [path, content] of Object.entries(files)) {
+  // Add test files to mock fs
+  for (const [path, content] of Object.entries(files || {})) {
     const fullPath = join(testDir, path);
-    const dir = fullPath.split('/').slice(0, -1).join('/');
-    await mkdir(dir, { recursive: true });
-    await writeFile(fullPath, content);
+    await mockFs.writeFile(fullPath, content);
   }
 
   // Mock fs functions
@@ -55,6 +52,7 @@ export async function setupTestEnvironment(
   const originalWriteFile = writeFile;
   const originalRm = rm;
   const originalExistsSync = existsSync;
+  const originalReadFile = readFile;
 
   // @ts-expect-error - Mocking global functions
   global.mkdir = mockFs.mkdir.bind(mockFs);
@@ -64,6 +62,8 @@ export async function setupTestEnvironment(
   global.rm = mockFs.rm.bind(mockFs);
   // @ts-expect-error - Mocking global functions
   global.existsSync = (path: string) => mockFs.exists(path);
+  // @ts-expect-error - Mocking global functions
+  global.readFile = mockFs.readFile.bind(mockFs);
 
   // Mock Vite
   vi.mock('vite', () => mockVite);
@@ -86,12 +86,14 @@ export async function setupTestEnvironment(
     global.rm = originalRm;
     // @ts-expect-error - Restoring global functions
     global.existsSync = originalExistsSync;
+    // @ts-expect-error - Restoring global functions
+    global.readFile = originalReadFile;
 
     // Restore process.cwd
     process.cwd = originalCwd;
 
-    // Clean up test directory
-    await rm(testDir, { recursive: true, force: true });
+    // Clear mock fs
+    mockFs.clear();
   };
 }
 

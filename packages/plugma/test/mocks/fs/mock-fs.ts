@@ -3,7 +3,6 @@
  */
 
 import type { Dirent } from 'node:fs';
-import { dirname, join } from 'node:path';
 import { vi } from 'vitest';
 
 /**
@@ -52,6 +51,7 @@ export class MockFs {
    * Clear all files from the mock filesystem
    */
   clear(): void {
+    console.log('Clearing mock filesystem');
     this.files.clear();
     this.directories.clear();
   }
@@ -61,9 +61,12 @@ export class MockFs {
    */
   exists(path: string): boolean {
     const normalizedPath = this.normalizePath(path);
-    return (
-      this.files.has(normalizedPath) || this.directories.has(normalizedPath)
-    );
+    const exists =
+      this.files.has(normalizedPath) || this.directories.has(normalizedPath);
+    console.log(`Checking if ${normalizedPath} exists:`, exists);
+    console.log('Files:', Array.from(this.files.keys()));
+    console.log('Directories:', Array.from(this.directories));
+    return exists;
   }
 
   /**
@@ -77,26 +80,35 @@ export class MockFs {
    * Normalize a file path
    */
   private normalizePath(path: string): string {
+    if (!path || path === '.' || path === '/') {
+      return '';
+    }
+
     // Remove leading ./ and multiple slashes
-    const normalized = join(path)
+    return path
       .replace(/^\.\//, '')
       .replace(/\/+/g, '/')
-      .replace(/\\/g, '/');
-    return normalized === '.' ? '' : normalized;
+      .replace(/\\/g, '/')
+      .replace(/\/$/, ''); // Remove trailing slash
   }
 
   /**
    * Create parent directories for a file path
    */
   private createParentDirectories(path: string): void {
-    const dir = dirname(path);
-    if (dir === '.' || dir === '') return;
+    const normalizedPath = this.normalizePath(path);
+    if (!normalizedPath) return;
 
-    const normalizedDir = this.normalizePath(dir);
-    this.directories.add(normalizedDir);
+    const parts = normalizedPath.split('/');
+    let currentPath = '';
 
-    // Create parent directories recursively
-    this.createParentDirectories(dir);
+    // Create each directory in the path
+    for (let i = 0; i < parts.length - 1; i++) {
+      currentPath = currentPath ? `${currentPath}/${parts[i]}` : parts[i];
+      if (currentPath) {
+        this.directories.add(currentPath);
+      }
+    }
   }
 
   // Async methods
@@ -117,6 +129,7 @@ export class MockFs {
   }
 
   async writeFile(path: string, content: string): Promise<void> {
+    console.log('Writing file:', path, content);
     const normalizedPath = this.normalizePath(path);
     this.createParentDirectories(normalizedPath);
     this.files.set(normalizedPath, content);
@@ -207,18 +220,20 @@ export class MockFs {
 }
 
 /**
+ * Mock filesystem instance for testing
+ */
+export const mockFs = createMockFs();
+
+/**
  * Create a new mock filesystem instance
+ * @deprecated Use the shared mockFs instance instead
  */
 export function createMockFs(
   initialFiles: Record<string, string> = {},
 ): MockFs {
-  return new MockFs(initialFiles);
+  const fs = new MockFs(initialFiles);
+  return fs;
 }
-
-/**
- * Mock filesystem instance for testing
- */
-export const mockFs = createMockFs();
 
 // Vitest mock functions
 export const mockAccess = vi
