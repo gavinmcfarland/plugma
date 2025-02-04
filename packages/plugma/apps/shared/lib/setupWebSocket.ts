@@ -1,14 +1,12 @@
+import createDebugger from 'debug';
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import { Logger } from '../../../src/utils/log/logger';
 import {
-    localClientConnected,
-    pluginWindowClients,
-    remoteClients,
-} from '../stores'; // Import the Svelte stores
+	localClientConnected,
+	pluginWindowClients,
+	remoteClients,
+} from '../stores.js';
 
-const log = new Logger({
-  debug: window.runtimeData.debug,
-});
+const logger = createDebugger('plugma:setupWebSocket');
 
 const isInsideIframe = window.self !== window.top;
 const isInsideFigma = typeof figma !== 'undefined';
@@ -101,7 +99,7 @@ export function setupWebSocket(
   }
 
   function postMessageVia(via, message) {
-    log.info(`--- ws post, ${via}`, message);
+    logger.info(`--- ws post, ${via}`, message);
     if (
       via === 'iframe' &&
       iframeTarget &&
@@ -204,7 +202,7 @@ export function setupWebSocket(
       });
       ws.close();
     } else {
-      log.info('WebSocket is not open, nothing to close.');
+      logger.info('WebSocket is not open, nothing to close.');
       if (callback) {
         callback();
       }
@@ -243,10 +241,10 @@ export function setupWebSocket(
 
     ws.onmessage = (event) => {
       try {
-        log.info('Received raw WebSocket message:', event.data);
+        logger.info('Received raw WebSocket message:', event.data);
 
         if (!event.data) {
-          log.warn('Received empty message');
+          logger.warn('Received empty message');
           return;
         }
 
@@ -254,7 +252,7 @@ export function setupWebSocket(
         try {
           message = decodeMessage(event.data);
         } catch (error) {
-          log.warn('Failed to parse WebSocket message:', event.data);
+          logger.warn('Failed to parse WebSocket message:', event.data);
           return;
         }
 
@@ -378,7 +376,7 @@ export function setupWebSocket(
           }
         }
       } catch (error) {
-        log.error('Error in message listener:', error);
+        logger.error('Error in message listener:', error);
       }
     };
 

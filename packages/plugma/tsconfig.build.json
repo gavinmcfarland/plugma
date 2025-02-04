@@ -3,6 +3,7 @@
   "compilerOptions": {
     "rootDir": "./src",
     "baseUrl": "src",
+    "declaration": true,
     "paths": {
       "#core": ["core/index.ts"],
       "#core/*": ["core/*"],

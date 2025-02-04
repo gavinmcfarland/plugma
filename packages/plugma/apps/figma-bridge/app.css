@@ -21,7 +21,7 @@
   --color-border-menu: var(--ramp-grey-700);
 }
 
-#FigmaBridge {
+#figma-bridge {
   display: flex;
   flex-direction: column;
   flex-grow: 1;

@@ -5,7 +5,6 @@
 	import { monitorUrl } from "../shared/lib/monitorUrl";
 	import { pluginWindowClients } from "../shared/stores";
 
-	import { Logger } from "#utils/log/logger";
 	import { setupWebSocket } from "../shared/lib/setupWebSocket";
 	import { triggerDeveloperTools } from "../shared/lib/triggerDeveloperTools";
 
@@ -21,14 +20,6 @@
 	// let ws = new WebSocket('ws://localhost:9001/ws')
 	let ws = setupWebSocket(null, window.runtimeData.websockets, true);
 	let url = `http://localhost:${window.runtimeData.port}`;
-
-	// let isWindowResized = window.runtimeData.command === 'preview'
-
-	// console.log('command', isWindowResized)
-
-	const log = new Logger({
-		debug: window.runtimeData.debug,
-	});
 
 	const processedMessages = new Set();
 

@@ -1,10 +1,8 @@
-import path from 'node:path';
-
+import { gatherBuildOutputs } from '#vite-plugins';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+import path from 'node:path';
 import { defineConfig } from 'vite';
 import { viteSingleFile } from 'vite-plugin-singlefile';
-
-import { gatherBuildOutputs } from '../src/vite-plugins/build/gather-build-outputs';
 
 const apps = {
   'dev-server': {
