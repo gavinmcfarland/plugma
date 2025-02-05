@@ -16,8 +16,8 @@
 	let message = null;
 	let isWebsocketServerActive = false;
 	let isWebsocketsEnabled = window.runtimeData.websockets || false;
+	let isServerActive = false;
 
-	// let ws = new WebSocket('ws://localhost:9001/ws')
 	let ws = setupWebSocket(null, window.runtimeData.websockets, true);
 	let url = `http://localhost:${window.runtimeData.port}`;
 
@@ -215,8 +215,6 @@
 		isWebsocketServerActive = false;
 	});
 
-	let isServerActive = true;
-
 	$: monitorUrl(url, null, (isActive) => {
 		isServerActive = isActive;
 	});
@@ -269,13 +267,22 @@
 {#if !(isInsideIframe || isInsideFigma)}
 	{#if isServerActive}
 		{#if !isWebsocketsEnabled}
-			<ServerStatus message="Websockets disababled"></ServerStatus>
+			<ServerStatus
+				message="Websockets disababled"
+				isConnected={isServerActive && isWebsocketServerActive}
+			/>
 		{:else if !isWebsocketServerActive}
-			<ServerStatus message="Connecting to websocket server..."></ServerStatus>
+			<ServerStatus
+				message="Connecting to websocket server..."
+				isConnected={isServerActive && isWebsocketServerActive}
+			/>
 		{:else if $pluginWindowClients.length < 1}
-			<ServerStatus message="Open plugin inside Figma"></ServerStatus>
+			<ServerStatus
+				message="Open plugin inside Figma"
+				isConnected={isServerActive && isWebsocketServerActive}
+			/>
 		{/if}
 	{:else}
-		<ServerStatus></ServerStatus>
+		<ServerStatus isConnected={isServerActive && isWebsocketServerActive} />
 	{/if}
 {/if}

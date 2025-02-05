@@ -1,5 +1,5 @@
 import type { PlugmaPackageJson, UserPackageJson } from '#core/types';
-import { getDirName } from '#utils/path.js';
+import { getDirName } from '#utils/get-dir-name.js';
 import { promises as fsPromises } from 'node:fs';
 import { join } from 'node:path';
 
@@ -56,7 +56,7 @@ export async function readJson<T>(filePath: string): Promise<T> {
  */
 export async function readPlugmaPackageJson(): Promise<PlugmaPackageJson> {
   const plugmaPkgPath = join(
-    getDirName(import.meta.url),
+    getDirName(),
     '..',
     '..',
     '..', // Adjust based on actual path from utils/fs to project root

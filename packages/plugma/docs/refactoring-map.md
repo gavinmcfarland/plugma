@@ -28,10 +28,11 @@ This document maps the correspondence between files in the old architecture (@pl
 | `scripts/run-script.js#start-websockets-server` | [`src/tasks/dev/start-websockets-server.ts`](../src/tasks/dev/start-websockets-server.ts)               | 🔄 ([3 items](#start-websockets-server))   |                                              |
 | `scripts/run-script.js#start-vite-server`     | [`src/tasks/dev/start-vite-server.ts`](../src/tasks/dev/start-vite-server.ts)                         | 🔄 ([3 items](#start-vite-server))       |                                              |
 | **Vite Plugins**                              |                                                                                                     |                                         |                                              |
-| `lib/vite-plugins/vite-plugin-deep-index.js`  | [`src/vite-plugins/dev/deep-index.ts`](../src/vite-plugins/dev/deep-index.ts)                         | 🔄 ([3 items](#deep-index))              |                                              |
-| `lib/vite-plugins/vite-plugin-html-transform.js` | [`src/vite-plugins/transform/html-transform.ts`](../src/vite-plugins/transform/html-transform.ts)     | 🔄 ([3 items](#html-transform))          |                                              |
-| `lib/vite-plugins/vite-plugin-copy-dir.js`    | [`src/vite-plugins/build/copy-dir.ts`](../src/vite-plugins/build/copy-dir.ts)                           | 🔄 ([3 items](#copy-dir))                |                                              |
-| `lib/vite-plugins/vite-plugin-replace-main-input.js` | [`src/vite-plugins/transform/replace-main-input.ts`](../src/vite-plugins/transform/replace-main-input.ts) | ✅                                      |                                              |
+| `lib/vite-plugins/vite-plugin-deep-index.js`  | Removed                                                                                                | ✅                                      | Replaced by serve-ui plugin                   |
+| `lib/vite-plugins/vite-plugin-html-transform.js` | [`src/vite-plugins/transform/html-transform.ts`](../src/vite-plugins/transform/html-transform.ts)     | ✅                                      | Enhanced with better template processing      |
+| `lib/vite-plugins/vite-plugin-copy-dir.js`    | [`src/vite-plugins/build/gather-build-outputs.ts`](../src/vite-plugins/build/gather-build-outputs.ts)   | ✅                                      | Improved file handling and validation         |
+| `lib/vite-plugins/vite-plugin-replace-main-input.js` | Split into multiple plugins                                                                      | ✅                                      | Functionality split between replace-placeholders and inject-runtime |
+| New                                           | [`src/vite-plugins/dev/serve-ui.ts`](../src/vite-plugins/dev/serve-ui.ts)                               | ✅                                      | New plugin for root path UI serving           |
 | **Utils**                                   |                                                                                                     |                                         |                                              |
 | `scripts/utils.js`                            | [`src/utils/config/create-vite-configs.ts`](../src/utils/config/create-vite-configs.ts)                 | 🔄 ([3 items](#create-vite-configs))     | Split into multiple utility files            |
 | `scripts/utils.js`                            | [`src/utils/config/create-manifest.ts`](../src/utils/config/create-manifest.ts)                         | 🔄 ([3 items](#create-manifest))         | Split into multiple utility files            |
@@ -219,7 +220,7 @@ This document maps the correspondence between files in the old architecture (@pl
     - Error handling
     - Output validation
 
-#### Start WebSockets Server ([`src/tasks/dev/start-websockets-server.ts`](../src/tasks/dev/start-websockets-server.ts))
+#### Start WebSockets Server ([`src/tasks/server/websocket.ts`](../src/tasks/server/websocket.ts))
 - [x] Add connection handling
   • Verified: Comprehensive connection management:
     - Unique client ID generation
@@ -253,8 +254,22 @@ This document maps the correspondence between files in the old architecture (@pl
     - Client disconnection
     - Error scenarios
     - Server cleanup
+- [ ] **Remove Express dependency**
+  • Current: Still using Express in ws-server.cts
+  • Target: Pure WebSocket server without Express
+  • Tasks:
+    - Remove Express server creation
+    - Handle static file serving through Vite
+    - Update WebSocket server initialization
+- [ ] **Improve WebSocket integration**
+  • Current: Separate WebSocket and Vite servers
+  • Target: Better integration between servers
+  • Tasks:
+    - Document WebSocket/Vite interaction
+    - Clarify server responsibilities
+    - Add proper error handling between servers
 
-#### Start Vite Server ([`src/tasks/dev/start-vite-server.ts`](../src/tasks/dev/start-vite-server.ts))
+#### Start Vite Server ([`src/tasks/server/vite.ts`](../src/tasks/server/vite.ts))
 - [x] Add development middleware
   • Verified: Comprehensive middleware setup:
     - HMR configuration
@@ -290,6 +305,25 @@ This document maps the correspondence between files in the old architecture (@pl
     - Server cleanup
     - Error scenarios
     - State management
+- [ ] **Fix CORS and serving issues**
+  • Current issues:
+    - CORS headers not being set correctly
+    - ui.html not served at root path
+    - Configuration in create-vite-configs.ts not taking effect
+  • Required changes:
+    - Update Vite server configuration
+    - Add proper CORS headers
+    - Configure root path serving
+    - Fix middleware setup
+- [ ] **Improve server documentation**
+  • Missing documentation:
+    - Server architecture overview
+    - Interaction between servers
+    - Development workflow
+  • Required additions:
+    - Add architecture.md
+    - Document server setup
+    - Explain development flow
 
 ### Vite Plugins
 
@@ -427,5 +461,66 @@ This document maps the correspondence between files in the old architecture (@pl
    - Apps built into HTML files in dist/apps
    - Separate apps for development and Figma bridge
    - Improved developer experience
+
+## Server Architecture
+
+The plugin development server setup involves three main components:
+
+1. **Vite Dev Server**
+   - Purpose: Serves the plugin UI during development
+   - Features:
+     - Hot Module Replacement (HMR)
+     - Static file serving
+     - Source maps
+     - Development middleware
+   - Configuration:
+     - Port: User specified or default
+     - CORS: Enabled for Figma
+     - Root serving: ui.html at /
+
+2. **WebSocket Server**
+   - Purpose: Handles plugin communication
+   - Features:
+     - Client tracking
+     - Message broadcasting
+     - Connection management
+   - Configuration:
+     - Port: Vite port + 1
+     - No Express dependency
+     - Pure WebSocket implementation
+
+3. **Dev Server App**
+   - Purpose: Development UI and tooling
+   - Features:
+     - Plugin preview
+     - Development tools
+     - Status monitoring
+   - Integration:
+     - Connects to WebSocket server
+     - Displays plugin UI
+     - Provides development features
+
+### Server Interaction Flow
+
+1. Development Start:
+   - Vite server starts on port N
+   - WebSocket server starts on port N+1
+   - Dev server app loads in browser
+
+2. Plugin Communication:
+   - Plugin UI connects to WebSocket server
+   - Dev server connects to WebSocket server
+   - Messages broadcast between clients
+
+3. Development Features:
+   - HMR through Vite server
+   - Plugin updates via WebSocket
+   - UI served from Vite server
+   - Static assets through Vite
+
+4. Error Handling:
+   - Server errors logged and recovered
+   - Connection issues managed
+   - Resource cleanup on shutdown
 
 ~~~ 

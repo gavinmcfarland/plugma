@@ -32,9 +32,6 @@
     "apps/**/*.js",
     "apps/**/*.svelte",
     "src/**/*.js",
-    "src/**/*.svelte",
-    "apps/dev-server/main.ts",
-    "apps/dev-server/main.ts",
-    "apps/vite.config.ts"
+    "src/**/*.svelte"
   ]
 }

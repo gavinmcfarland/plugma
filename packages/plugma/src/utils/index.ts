@@ -4,8 +4,9 @@ export * from './cli/index.js';
 export * from './config/index.js';
 export * from './filter-null-props.js';
 export * from './fs/index.js';
+export * from './get-dir-name.js';
 export * from './get-random-port.js';
+export * from './is-node.js';
 export * from './log/index.js';
-export * from './path.js';
 export * from './time.js';
 //@endindex

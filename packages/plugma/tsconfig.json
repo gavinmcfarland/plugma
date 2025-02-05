@@ -35,7 +35,6 @@
     "src/**/*.tsx",
     "src/**/*.test.ts",
     "test/**/*.ts",
-    "./package.json"
-  ],
+    "./package.json"],
   "exclude": ["archive", "dist", "node_modules"]
 }

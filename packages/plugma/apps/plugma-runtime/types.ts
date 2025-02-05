@@ -1,6 +1,6 @@
-import type { PluginOptions } from '#core/types.js';
+import type { PlugmaCommand, PlugmaRuntimeData } from '#core/types.js';
 
-export type PlugmaRuntimeData = PluginOptions;
+export type { PlugmaRuntimeData };
 
 /**
  * Interface for window settings that can be persisted
@@ -18,7 +18,7 @@ export interface WindowSettings {
 }
 
 export interface CommandHistory {
-  previousCommand: 'dev' | 'preview' | 'test' | null;
+  previousCommand: PlugmaCommand | null;
   previousInstanceId: string | null;
 }
 

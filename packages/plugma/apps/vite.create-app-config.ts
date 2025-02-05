@@ -8,12 +8,7 @@ import { gatherBuildOutputs } from '../src/vite-plugins/build/gather-build-outpu
 export const createAppConfig = (app: string) => ({
 	build: {
 		// outDir: `../dist/${app}`,
-		minify: 'terser' as const,
-		terserOptions: {
-			format: {
-				comments: false,
-			},
-    },
+		minify: false,
     cssCodeSplit: false
   },
 
@@ -35,19 +30,19 @@ export const createAppConfig = (app: string) => ({
 		}),
     viteSingleFile(),
     gatherBuildOutputs({
-      sourceDir: `dist`,
-      outputDir: '../../dist/apps',
-      getOutputPath: (file) => file === 'index.html' ? `${app}.html` : file,
-      removeSourceDir: true,
+      from: `dist`,
+      to: '../../dist/apps',
+      transformPath: (file) => file === 'index.html' ? `${app}.html` : file,
+      removeSource: true,
     }),
   ],
 
   resolve: {
     alias: {
-      '#core': path.resolve(__dirname, '../../src/core'),
-      '#tasks': path.resolve(__dirname, '../../src/tasks'),
-      '#utils': path.resolve(__dirname, '../../src/utils'),
-      '#vite-plugins': path.resolve(__dirname, '../../src/vite-plugins'),
+      '#core': path.resolve(__dirname, '../src/core'),
+      '#tasks': path.resolve(__dirname, '../src/tasks'),
+      '#utils': path.resolve(__dirname, '../src/utils'),
+      '#vite-plugins': path.resolve(__dirname, '../src/vite-plugins'),
     },
   },
   });

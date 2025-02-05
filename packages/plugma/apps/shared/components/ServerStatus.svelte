@@ -1,11 +1,22 @@
 <script lang="ts">
-	export let message: string | null = null
+	export let message: string | null = null;
+	export let isConnected: boolean = false;
+
+	$: displayMessage = isConnected
+		? message || "Dev server active"
+		: "Dev server inactive";
 </script>
 
 <div id="plugma-status" class="container">
 	<div class="panel">
-		<div class="server-not-active">
-			<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<div class="server-status" class:active={isConnected}>
+			<svg
+				width="32"
+				height="32"
+				viewBox="0 0 32 32"
+				fill="none"
+				xmlns="http://www.w3.org/2000/svg"
+			>
 				<path
 					fill-rule="evenodd"
 					clip-rule="evenodd"
@@ -14,11 +25,7 @@
 					fill-opacity="0.8"
 				/>
 			</svg>
-			{#if message}
-				{message}
-			{:else}
-				<p>Dev server inactive</p>
-			{/if}
+			<p>{displayMessage}</p>
 		</div>
 	</div>
 </div>
@@ -43,15 +50,19 @@
 		font-display: optional;
 		font-size: 12px;
 		box-sizing: border-box;
-		/* 11/16 */
 		justify-content: center;
 		align-items: center;
 		height: 100%;
 	}
 
-	.server-not-active {
+	.server-status {
 		display: flex;
 		gap: 4px;
 		align-items: center;
+		color: var(--figma-color-text-danger);
+	}
+
+	.server-status.active {
+		color: var(--figma-color-text-success);
 	}
 </style>

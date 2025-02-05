@@ -3,16 +3,16 @@ import { readPlugmaPackageJson } from '#utils/fs/read-json.js';
 import { Command } from 'commander';
 
 import {
-  type BuildCommandOptions,
-  type DevCommandOptions,
-  type PreviewCommandOptions,
-  type ReleaseCommandOptions,
-  type TestCommandOptions,
-  build,
-  dev,
-  preview,
-  release,
-  test,
+	type BuildCommandOptions,
+	type DevCommandOptions,
+	type PreviewCommandOptions,
+	type ReleaseCommandOptions,
+	type TestCommandOptions,
+	build,
+	dev,
+	preview,
+	release,
+	test,
 } from '#commands';
 import { colorStringify, debugLogger, defaultLogger } from '#utils';
 import chalk from 'chalk';

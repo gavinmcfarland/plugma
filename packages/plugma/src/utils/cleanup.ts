@@ -4,70 +4,55 @@
 
 import { Logger } from './log/logger.js';
 
-type CleanupFn = () => Promise<void>;
-const cleanupHandlers = new Set<CleanupFn>();
-const log = new Logger();
+const log = new Logger({ debug: false });
+const cleanupFunctions: (() => Promise<void>)[] = [];
 
 /**
- * Registers a cleanup handler to be run on process exit
- * @param handler - Async function to run during cleanup
+ * Registers a cleanup function to be called when the process exits
+ * @param fn - Async function to be called during cleanup
  */
-export function registerCleanup(handler: CleanupFn): void {
-  cleanupHandlers.add(handler);
+export function registerCleanup(fn: () => Promise<void>): void {
+  cleanupFunctions.push(fn);
 }
 
 /**
- * Removes a cleanup handler
- * @param handler - Handler to remove
+ * Executes all registered cleanup functions
  */
-export function unregisterCleanup(handler: CleanupFn): void {
-  cleanupHandlers.delete(handler);
-}
-
-/**
- * Runs all registered cleanup handlers
- */
-export async function runCleanup(): Promise<void> {
-  log.debug('Running cleanup handlers...');
-
-  for (const handler of cleanupHandlers) {
+async function executeCleanup(): Promise<void> {
+  log.debug('Executing cleanup functions...');
+  for (const fn of cleanupFunctions) {
     try {
-      await handler();
+      await fn();
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      log.error('Cleanup handler failed:', errorMessage);
+      log.error('Error during cleanup:', error);
     }
   }
-
-  cleanupHandlers.clear();
-  log.success('Cleanup complete');
+  log.debug('Cleanup complete');
 }
 
-// Register process cleanup
+// Handle process termination signals
 process.on('SIGINT', async () => {
-  log.debug('\nReceived SIGINT. Cleaning up...');
-  await runCleanup();
+  log.info('Received SIGINT. Cleaning up...');
+  await executeCleanup();
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-  log.debug('Received SIGTERM. Cleaning up...');
-  await runCleanup();
+  log.info('Received SIGTERM. Cleaning up...');
+  await executeCleanup();
   process.exit(0);
 });
 
-process.on('exit', () => {
-  // Note: 'exit' handlers must be synchronous, so we run cleanup sync
-  for (const handler of cleanupHandlers) {
-    try {
-      // Convert async handler to sync using void
-      void handler();
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      log.error('Cleanup handler failed:', errorMessage);
-    }
-  }
-  cleanupHandlers.clear();
+// Handle uncaught exceptions
+process.on('uncaughtException', async (error) => {
+  log.error('Uncaught exception:', error);
+  await executeCleanup();
+  process.exit(1);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', async (reason, promise) => {
+  log.error('Unhandled promise rejection:', reason);
+  await executeCleanup();
+  process.exit(1);
 });

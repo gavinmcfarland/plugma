@@ -2,12 +2,12 @@
  * Vite plugin for injecting test framework code
  */
 
-import { getDirName } from '#utils/path.js';
+import { getDirName } from '#utils/get-dir-name.js';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Plugin } from 'vite';
 
-const __dirname = getDirName(import.meta.url);
+const __dirname = getDirName();
 
 /**
  * Creates a virtual module with our test framework code
@@ -46,11 +46,11 @@ export const test = async (name, fn) => {
   // In Node: Create a Vitest test that communicates with Figma
   return vitestTest(name, { timeout: 30000 }, async () => {
     const testRunId = \`\${name}-\${Date.now()}\`;
-    
+
     try {
       // Wait for test results
       const assertionsPromise = testClient.waitForTestResult(testRunId);
-      
+
       // Send test execution message
       await testClient.send({
         type: 'RUN_TEST',
@@ -60,7 +60,7 @@ export const test = async (name, fn) => {
 
       // Wait for and process results
       const result = await assertionsPromise;
-      
+
       if (result.type === 'TEST_ERROR') {
         throw new Error(result.error);
       }

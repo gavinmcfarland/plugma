@@ -3,9 +3,9 @@
  */
 
 import type {
-  GetTaskTypeFor,
-  PluginOptions,
-  ResultsOfTask,
+	GetTaskTypeFor,
+	PluginOptions,
+	ResultsOfTask,
 } from '#core/types.js';
 import { registerCleanup } from '#utils/cleanup.js';
 import { Logger } from '#utils/log/logger.js';
@@ -26,7 +26,7 @@ export interface StartViteServerResult {
 }
 
 /**
- * Shared Vite server state to manage server instances
+ * Shared Vite server state to manage server instances and build queue
  */
 export const viteState = {
   /** Main Vite development server */
@@ -35,6 +35,10 @@ export const viteState = {
   viteMainWatcher: null as RollupWatcher | null,
   /** UI-specific Vite server */
   viteUi: null as ViteDevServer | null,
+  /** Flag to track if a build is in progress */
+  isBuilding: false,
+  /** Queue of messages to process after build */
+  messageQueue: [] as Array<{ message: string; senderId: string }>,
 };
 
 /**
@@ -94,6 +98,8 @@ const startViteServer = async (
     // Register cleanup handler
     registerCleanup(async () => {
       log.debug('Cleaning up Vite server...');
+
+      // Close the Vite server if it exists
       if (viteState.viteServer) {
         try {
           await viteState.viteServer.close();
@@ -103,13 +109,39 @@ const startViteServer = async (
           log.error('Failed to close Vite server:', error);
         }
       }
+
+      // Close the main watcher if it exists
+      if (viteState.viteMainWatcher) {
+        try {
+          await viteState.viteMainWatcher.close();
+          viteState.viteMainWatcher = null;
+          log.success('Vite main watcher closed');
+        } catch (error) {
+          log.error('Failed to close Vite main watcher:', error);
+        }
+      }
+
+      // Close the UI server if it exists
+      if (viteState.viteUi) {
+        try {
+          await viteState.viteUi.close();
+          viteState.viteUi = null;
+          log.success('Vite UI server closed');
+        } catch (error) {
+          log.error('Failed to close Vite UI server:', error);
+        }
+      }
+
+      // Reset state
+      viteState.isBuilding = false;
+      viteState.messageQueue = [];
     });
 
     log.debug('Starting Vite server...');
 
-    // Configure Vite server
+    // Configure Vite server with caching workarounds
     const server = await createServer({
-      ...config.ui.dev, // Use UI dev config from get-files
+      ...config.ui.dev,
       root: process.cwd(),
       base: '/',
       server: {
@@ -124,12 +156,25 @@ const startViteServer = async (
           protocol: 'ws',
           host: 'localhost',
         },
+        fs: {
+          // Disable Vite's caching for certain files
+          strict: false,
+          allow: ['.'],
+        },
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
+          'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Range',
+          'Access-Control-Expose-Headers': 'Content-Range',
+        },
       },
       optimizeDeps: {
-        entries: [files.manifest.ui || '', files.manifest.main || ''].filter(
-          Boolean,
-        ),
+        entries: [files.manifest.ui || '', files.manifest.main || ''].filter(Boolean),
+        // Force Vite to rebuild dependencies
+        force: true,
       },
+      // Clear module cache on file changes
+      clearScreen: false,
       logLevel: options.debug ? 'info' : 'error',
     }).catch((error) => {
       const message = error instanceof Error ? error.message : String(error);
@@ -138,8 +183,31 @@ const startViteServer = async (
 
     // Start the server
     try {
-      await server.listen();
       const resolvedPort = server.config.server.port || options.port;
+      await server.listen();
+
+      // Setup file watchers with caching workarounds
+      server.watcher.on('change', async (file) => {
+        if (viteState.isBuilding) {
+          log.debug('Build in progress, queueing file change:', file);
+          return;
+        }
+        viteState.isBuilding = true;
+        try {
+          // Clear module cache
+          server.moduleGraph.invalidateAll();
+          // Force HMR update
+          server.ws.send({ type: 'full-reload' });
+        } finally {
+          viteState.isBuilding = false;
+          // Process queued messages
+          for (const { message, senderId } of viteState.messageQueue) {
+            server.ws.send(message, { senderId });
+          }
+          viteState.messageQueue = [];
+        }
+      });
+
       log.success(`Vite server running at http://localhost:${resolvedPort}`);
 
       // Store server instance

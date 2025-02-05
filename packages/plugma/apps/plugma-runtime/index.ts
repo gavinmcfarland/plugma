@@ -19,11 +19,21 @@ import {
 	handleMinimizeWindow,
 	handleSaveWindowSettings
 } from './handlers/index.js';
+
 import type { PlugmaRuntimeData } from './types.js';
 
 // NOTE: the comment must come after the declare stmt
 // otherwise tsc will remove it
 export declare const runtimeData: PlugmaRuntimeData;
+
+/**
+ * Global runtime data
+ * Vite will inject the runtimeData object below
+ * DO NOT REMOVE THE COMMENT BELOW! IT IS A VITE INJECTION POINT
+ */
+/*--[ RUNTIME_DATA ]--*/
+
+export * from './figma-api-interceptors';
 
 /**
  * Map of event handlers for window management

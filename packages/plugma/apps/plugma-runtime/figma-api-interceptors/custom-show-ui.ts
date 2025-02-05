@@ -37,10 +37,8 @@ export function customShowUI(
 
           const zoom = figma.viewport.zoom;
           options.position = {
-            x: figma.viewport.bounds.x + 12 / zoom,
-            y:
-              figma.viewport.bounds.y +
-              (figma.viewport.bounds.height - (80 + 12) / zoom),
+            x: figma.viewport.bounds.x + (12 / zoom),
+            y: figma.viewport.bounds.y + (figma.viewport.bounds.height - ((80 + 12) / zoom))
           };
         }
 

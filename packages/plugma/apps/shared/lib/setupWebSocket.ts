@@ -1,4 +1,5 @@
-import createDebugger from 'debug';
+import type { PlugmaRuntimeData } from '#core/types.js';
+
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import {
 	localClientConnected,
@@ -6,7 +7,14 @@ import {
 	remoteClients,
 } from '../stores.js';
 
-const logger = createDebugger('plugma:setupWebSocket');
+import { Logger } from '#utils/log/logger.js';
+
+declare const runtimeData: PlugmaRuntimeData;
+
+const logger = new Logger({
+	prefix: 'plugma:setupWebSocket',
+	debug: true,
+});
 
 const isInsideIframe = window.self !== window.top;
 const isInsideFigma = typeof figma !== 'undefined';
@@ -166,8 +174,11 @@ export function setupWebSocket(
     }
   }
 
+  // Calculate WebSocket port (Vite port + 1)
+  const wsPort = parseInt(String(runtimeData.port)) + 1;
+
   const ws = new ReconnectingWebSocket(
-    `ws://localhost:9001/ws${source}`,
+    `ws://localhost:${wsPort}/ws${source}`,
   ) as ExtendedWebSocket;
 
   ws.post = (messages, via = ['ws']) => {

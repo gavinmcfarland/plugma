@@ -4,7 +4,6 @@ import path from 'node:path';
 import { cwd } from 'node:process';
 
 import type { PluginOptions, UserFiles } from '#core/types.js';
-import { replaceBackslashInString } from '../path.js';
 
 const CURR_DIR = cwd();
 
@@ -34,9 +33,10 @@ export function writeTempFile(
   options: PluginOptions,
 ): string {
   const tempFilePath = path.join(os.tmpdir(), fileName);
-  const modifiedContentPath = replaceBackslashInString(
-    path.join(CURR_DIR, userFiles.manifest.main),
-  );
+  const stringPath = path.join(CURR_DIR, userFiles.manifest.main);
+	const modifiedContentPath = path.sep === "\\"
+		? path.resolve(stringPath).split(path.sep).join('/')
+		: stringPath
   const modifiedContent = `import plugmaMain from '${modifiedContentPath}';
     plugmaMain();`;
   writeFileSync(tempFilePath, modifiedContent);

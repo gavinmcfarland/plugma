@@ -1,30 +1,36 @@
-import { defaultLogger } from '#utils';
 import fs from 'node:fs';
 import path from 'node:path';
+
+import createDebug from 'debug';
 import type { Plugin, ResolvedConfig } from 'vite';
+
+const debug = createDebug('plugma:vite-plugin:gather-build-outputs');
 
 /**
  * Options for gathering build outputs
  */
 interface GatherOptions {
   /**
-   * Source directory containing the build outputs, relative to project root
-   * @default 'dist'
+   * Source path (file or directory) containing build outputs, relative to project root.
+   * For directories: all matching files will be processed
+   * For files: only the specified file will be processed
    */
-  sourceDir?: string;
+  from: string;
 
   /**
-   * Target directory where outputs will be gathered, relative to project root
-   * If not provided, files will stay in their original directory
+   * Target path where outputs will be gathered. Interpretation depends on source type:
+   * - If source is file: can be either directory or full file path
+   * - If source is directory: must be a directory path
    */
-  outputDir?: string;
+  to: string;
 
   /**
-   * Custom naming function for the gathered files
+   * Optional function to transform the output path of a path
+	 *
    * @param filePath - The file path relative to sourceDir
    * @returns The desired output path relative to outputDir
    */
-  getOutputPath?: (filePath: string) => string;
+  transformPath?: (filePath: string) => string;
 
   /**
    * Filter function to determine which files to gather
@@ -34,10 +40,13 @@ interface GatherOptions {
   filter?: (filePath: string) => boolean;
 
   /**
-   * Whether to remove the source directory after gathering
+   * Whether to remove the source path after gathering
+   * @remarks
+   * - For directories: removes entire directory recursively
+   * - For files: removes only the specified file
    * @default false
    */
-  removeSourceDir?: boolean;
+  removeSource?: boolean;
 }
 
 /**
@@ -46,13 +55,13 @@ interface GatherOptions {
  */
 const deleteDirectoryRecursively = (dirPath: string): void => {
   if (fs.existsSync(dirPath)) {
-    defaultLogger.debug('Deleting directory:', dirPath);
+    debug('Deleting directory:', dirPath);
     for (const file of fs.readdirSync(dirPath)) {
       const curPath = path.join(dirPath, file);
       if (fs.statSync(curPath).isDirectory()) {
         deleteDirectoryRecursively(curPath);
       } else {
-        defaultLogger.debug('Deleting file:', curPath);
+        debug('Deleting file:', curPath);
         fs.unlinkSync(curPath);
       }
     }
@@ -61,23 +70,26 @@ const deleteDirectoryRecursively = (dirPath: string): void => {
 };
 
 /**
- * Recursively finds all files in a directory
+ * Recursively finds all files in a directory or returns single file path
  * @internal
  */
-const findFiles = (dir: string, base = ''): string[] => {
-  defaultLogger.debug('Finding files in directory:', dir);
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
+const findFiles = (sourcePath: string, base = ''): string[] => {
+  if (fs.statSync(sourcePath).isFile()) {
+    debug('Found single file:', sourcePath);
+    return [path.basename(sourcePath)];
+  }
+
+  debug('Finding files in directory:', sourcePath);
+  const entries = fs.readdirSync(sourcePath, { withFileTypes: true });
   const files: string[] = [];
 
   for (const entry of entries) {
     const relativePath = path.join(base, entry.name);
-    const fullPath = path.join(dir, entry.name);
+    const fullPath = path.join(sourcePath, entry.name);
 
     if (entry.isDirectory()) {
-      defaultLogger.debug('Found directory:', fullPath);
       files.push(...findFiles(fullPath, relativePath));
     } else {
-      defaultLogger.debug('Found file:', fullPath);
       files.push(relativePath);
     }
   }
@@ -113,18 +125,25 @@ const findFiles = (dir: string, base = ''): string[] => {
  * @returns A Vite plugin
  */
 export function gatherBuildOutputs(
-  options: string | GatherOptions = {},
+  options: string | GatherOptions,
 ): Plugin {
   // Normalize options
-  const normalizedOptions: GatherOptions =
-    typeof options === 'string' ? { outputDir: options } : options;
+  const normalizedOptions: GatherOptions = (() => {
+    if (typeof options === 'string') {
+      if (!options) throw new Error('Missing required "to" parameter');
+      return { from: 'dist', to: options };
+    }
+    if (!options.from) throw new Error('Missing required "from" in options');
+    if (!options.to) throw new Error('Missing required "to" in options');
+    return options;
+  })();
 
   const {
-    sourceDir = 'dist',
-    outputDir,
-    getOutputPath: getOutputFilename = (file) => file,
+    from: sourceDir,
+    to: outputDir,
+    transformPath = (file) => file,
     filter = () => true,
-    removeSourceDir = false,
+    removeSource = false,
   } = normalizedOptions;
 
   let config: ResolvedConfig;
@@ -134,76 +153,95 @@ export function gatherBuildOutputs(
 
     configResolved(resolvedConfig) {
       config = resolvedConfig;
-      defaultLogger.debug('Plugin config resolved:', {
+      debug('Plugin config resolved:', {
         root: config.root,
         sourceDir,
         outputDir,
       });
     },
 
-    closeBundle() {
-      const sourcePath = path.resolve(config.root, sourceDir);
-      const targetPath = outputDir
-        ? path.resolve(config.root, outputDir)
-        : sourcePath;
+    writeBundle: {
+      sequential: true,
+      handler() {
+        try {
+          const sourcePath = path.resolve(config.root, sourceDir);
+          const targetPath = path.resolve(config.root, outputDir);
 
-      defaultLogger.debug('Gathering build outputs:', {
-        sourcePath,
-        targetPath,
-        removeSourceDir,
-      });
+          debug('Resolved paths:', { sourcePath, targetPath });
 
-      // Skip if source directory doesn't exist
-      if (!fs.existsSync(sourcePath)) {
-        defaultLogger.warn(`Source directory ${sourcePath} does not exist!`);
-        return;
-      }
+          // Validate source existence and accessibility
+          if (!fs.existsSync(sourcePath)) {
+            throw new Error(`Source path not found: ${sourcePath}`);
+          }
+          try {
+            fs.accessSync(sourcePath, fs.constants.R_OK);
+          } catch (error) {
+            throw new Error(`No read access to source path: ${sourcePath}`);
+          }
 
-      // Create target directory if it doesn't exist
-      if (outputDir && !fs.existsSync(targetPath)) {
-        defaultLogger.debug('Creating target directory:', targetPath);
-        fs.mkdirSync(targetPath, { recursive: true });
-      }
+          const isSourceFile = fs.statSync(sourcePath).isFile();
+          const files = findFiles(sourcePath).filter(filter);
 
-      // Find and filter all files
-      const files = findFiles(sourcePath).filter(filter);
-      defaultLogger.debug('Found files:', files);
+          // Enforce directory-to-directory rules
+          if (!isSourceFile) {
+            const targetIsDirectory = fs.existsSync(targetPath)
+              ? fs.statSync(targetPath).isDirectory()
+              : path.extname(targetPath) === '';
 
-      // Copy files to target directory
-      for (const file of files) {
-        const sourceFilePath = path.join(sourcePath, file);
-        const outputName = getOutputFilename(file);
-        const targetFilePath = path.join(targetPath, outputName);
+            if (!targetIsDirectory) {
+              throw new Error('When moving directories, target must be a directory');
+            }
+          }
 
-        defaultLogger.debug('Processing file:', {
-          source: sourceFilePath,
-          output: outputName,
-          target: targetFilePath,
-        });
+          // Create target directory structure
+          const targetDirToCreate = isSourceFile
+            ? path.dirname(targetPath)
+            : targetPath;
 
-        // Create target subdirectories if needed
-        const targetDir = path.dirname(targetFilePath);
-        if (!fs.existsSync(targetDir)) {
-          defaultLogger.debug('Creating target subdirectory:', targetDir);
-          fs.mkdirSync(targetDir, { recursive: true });
+          if (!fs.existsSync(targetDirToCreate)) {
+            debug('Creating target directory structure:', targetDirToCreate);
+            fs.mkdirSync(targetDirToCreate, { recursive: true });
+          }
+
+          for (const file of files) {
+            const sourceFilePath = isSourceFile
+              ? sourcePath
+              : path.join(sourcePath, file);
+
+            let outputName = transformPath(file);
+            let finalTargetPath = targetPath;
+
+            if (isSourceFile) {
+              if (fs.statSync(targetPath).isDirectory()) {
+                finalTargetPath = path.join(targetPath, outputName);
+              }
+            } else {
+              finalTargetPath = path.join(targetPath, outputName);
+            }
+
+            fs.mkdirSync(path.dirname(finalTargetPath), { recursive: true });
+            fs.copyFileSync(sourceFilePath, finalTargetPath);
+            debug('Copied:', sourceFilePath, '->', finalTargetPath);
+          }
+
+          if (removeSource) {
+            if (isSourceFile) {
+              fs.unlinkSync(sourcePath);
+            } else {
+              deleteDirectoryRecursively(sourcePath);
+            }
+          }
+
+          // Final check for directory targets
+          if (!isSourceFile && !fs.statSync(targetPath).isDirectory()) {
+            throw new Error('Directory operations require directory target');
+          }
+        } catch (error) {
+          console.error('GatherBuildOutputs failed:', error);
+          throw error;
         }
-
-        // Copy the file
-        fs.copyFileSync(sourceFilePath, targetFilePath);
-        defaultLogger.debug(
-          'Copied file:',
-          sourceFilePath,
-          '->',
-          targetFilePath,
-        );
       }
-
-      // Remove source directory if requested
-      if (removeSourceDir) {
-        defaultLogger.debug('Removing source directory:', sourcePath);
-        deleteDirectoryRecursively(sourcePath);
-      }
-    },
+    }
   };
 }
 

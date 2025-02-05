@@ -3,7 +3,7 @@ import type { IndexHtmlTransformContext, Plugin } from 'vite';
 
 const logger = new Logger({
   prefix: 'vite-plugin:placeholders',
-  debug: !process.env.PLUGMA_DEBUG,
+  debug: !!process.env.PLUGMA_DEBUG,
 });
 
 /**

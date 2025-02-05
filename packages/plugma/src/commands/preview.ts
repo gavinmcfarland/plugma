@@ -5,12 +5,13 @@
 
 import type { PluginOptions } from '#core/types.js';
 import {
-  BuildMainTask,
-  BuildManifestTask,
-  BuildUiTask,
-  GetFilesTask,
-  ShowPlugmaPromptTask,
-  StartViteServerTask,
+	BuildMainTask,
+	BuildManifestTask,
+	BuildPlaceholderUiTask,
+	GetFilesTask,
+	ShowPlugmaPromptTask,
+	StartViteServerTask,
+	StartWebSocketsServerTask,
 } from '#tasks';
 import { getRandomPort } from '#utils';
 import { Logger } from '#utils/log/logger.js';
@@ -42,7 +43,9 @@ export async function preview(options: PreviewCommandOptions): Promise<void> {
       instanceId: nanoid(),
       port: options.port || getRandomPort(),
       output: options.output || 'dist',
-      command: 'preview',
+      command: 'preview' as const,
+      cwd: options.cwd || process.cwd(),
+      websockets: options.websockets ?? true,
     };
 
     // Execute tasks in sequence
@@ -50,9 +53,10 @@ export async function preview(options: PreviewCommandOptions): Promise<void> {
     await serial(
       GetFilesTask,
       ShowPlugmaPromptTask,
-      BuildMainTask,
-      BuildUiTask,
       BuildManifestTask,
+      BuildPlaceholderUiTask,
+      BuildMainTask,
+      StartWebSocketsServerTask,
       StartViteServerTask,
     )(pluginOptions);
 

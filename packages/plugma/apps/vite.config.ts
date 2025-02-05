@@ -30,16 +30,23 @@ if (!appConfig) {
 }
 
 export default defineConfig({
+  build: {
+		target: 'es6',
+		minify: false,
+    outDir: `dist/${app}`,
+    cssCodeSplit: false
+  },
+
   define: {
     'import.meta.env.PLUGMA_APP_NAME': JSON.stringify(app),
   },
 
   resolve: {
     alias: {
-      '#core': path.resolve(__dirname, '../src/core'),
-      '#tasks': path.resolve(__dirname, '../src/tasks'),
-      '#utils': path.resolve(__dirname, '../src/utils'),
-      '#vite-plugins': path.resolve(__dirname, '../src/vite-plugins'),
+      '#core': path.resolve(__dirname, 'src/core'),
+      '#tasks': path.resolve(__dirname, 'src/tasks'),
+      '#utils': path.resolve(__dirname, '../../src/utils'),
+      '#vite-plugins': path.resolve(__dirname, 'src/vite-plugins'),
     },
   },
 
@@ -57,10 +64,10 @@ export default defineConfig({
     },
     viteSingleFile(),
     gatherBuildOutputs({
-      sourceDir: 'dist',
-      outputDir: '../dist/apps',
-      getOutputPath: (file) => `${path.dirname(file)}.html`,
-      removeSourceDir: false,
+      from: 'dist',
+      to: '../dist/apps',
+      transformPath: (file) => `${path.dirname(file)}.html`,
+      removeSource: false,
     }),
   ],
 
@@ -69,22 +76,4 @@ export default defineConfig({
   },
 
 	root: app,
-
-  build: {
-    outDir: `dist/${app}`,
-    minify: 'terser' as const,
-    terserOptions: {
-      format: {
-        comments: false,
-      },
-    },
-    cssCodeSplit: false,
-    // rollupOptions: {
-    //   input: 'index.html',
-    //   output: {
-    //     manualChunks: undefined,
-		// 		format: 'cjs',
-    //   },
-    // },
-  },
 });

@@ -1,9 +1,9 @@
-import { getDirName } from '#utils/path.js';
+import { getDirName } from '#utils/get-dir-name.js';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Plugin } from 'vite';
 
-const __dirname = getDirName(import.meta.url);
+const __dirname = getDirName();
 
 interface HtmlTransformOptions {
   [key: string]: unknown;

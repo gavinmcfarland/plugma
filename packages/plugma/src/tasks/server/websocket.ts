@@ -1,7 +1,7 @@
 import type {
-  GetTaskTypeFor,
-  PluginOptions,
-  ResultsOfTask,
+	GetTaskTypeFor,
+	PluginOptions,
+	ResultsOfTask,
 } from '#core/types.js';
 import { registerCleanup } from '#utils/cleanup.js';
 import { Logger } from '#utils/log/logger.js';
@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { WebSocket, WebSocketServer } from 'ws';
 import { GetFilesTask } from '../common/get-files.js';
 import { task } from '../runner.js';
+import { viteState } from './vite.js';
 
 /**
  * Client information type
@@ -108,7 +109,7 @@ export const startWebSocketsServer = async (
     }
 
     // Calculate WebSocket port (Vite port + 1)
-    const wsPort = options.port + 1;
+    const wsPort = parseInt(String(options.port)) + 1;
     log.debug(`Starting WebSocket server on port ${wsPort}...`);
 
     // Create WebSocket server
@@ -119,6 +120,13 @@ export const startWebSocketsServer = async (
 
     // Function to broadcast messages to clients except sender
     function broadcastMessage(message: string, senderId: string): void {
+      if (viteState.isBuilding) {
+        // Queue message if build is in progress
+        viteState.messageQueue.push({ message, senderId });
+        log.debug('Build in progress, queueing message from:', senderId);
+        return;
+      }
+
       clients.forEach(({ ws }, clientId) => {
         if (clientId !== senderId && ws.readyState === WebSocket.OPEN) {
           ws.send(message);
@@ -135,6 +143,18 @@ export const startWebSocketsServer = async (
     // Register cleanup handler
     registerCleanup(async () => {
       log.debug('Cleaning up WebSocket server...');
+
+      // Close all client connections first
+      for (const [clientId, { ws }] of clients.entries()) {
+        try {
+          ws.close();
+          clients.delete(clientId);
+        } catch (error) {
+          log.error(`Failed to close client ${clientId}:`, error);
+        }
+      }
+
+      // Close the server
       await new Promise<void>((resolve) => {
         wss.close(() => {
           log.success('WebSocket server closed');
@@ -152,6 +172,17 @@ export const startWebSocketsServer = async (
       // Store client info
       clients.set(clientId, { ws, source: clientSource });
       log.debug(`Client connected: ${clientId} (${clientSource})`);
+
+      // Send server status message
+      const statusMessage: WebSocketMessage = {
+        pluginMessage: {
+          event: 'server_status',
+          message: 'Dev server active',
+          source: 'server',
+        },
+        pluginId: '*',
+      };
+      ws.send(JSON.stringify(statusMessage));
 
       // Send initial client list
       const initialMessage: WebSocketMessage = {

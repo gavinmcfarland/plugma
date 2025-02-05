@@ -25,14 +25,12 @@ taskCaller((task, run) => {
 Handles bidirectional communication with Adobe apps.
 
 ```typescript
-import { createServer } from './ws-server'
-
-const server = await createServer({
-  port: 8080,
-  onMessage: (msg) => {
-    // Handle incoming messages
-  }
-})
+// const server = await createServer({
+//   port: 8080,
+//   onMessage: (msg) => {
+//     // Handle incoming messages
+//   }
+// })
 ```
 
 ### Global Shims (`global-shim.ts`)
@@ -89,17 +87,17 @@ task('name', function* (opts) {
 ### WebSocket Communication
 ```typescript
 // 1. Create server
-const server = await createServer(config)
+// const server = await createServer(config)
 
 // 2. Send message
-await server.send({ type: 'update', data: {} })
+// await server.send({ type: 'update', data: {} })
 
 // 3. Handle response
-server.on('message', (msg) => {
-  switch (msg.type) {
-    case 'response':
-      // Handle response
-      break
-  }
-})
+// server.on('message', (msg) => {
+//   switch (msg.type) {
+//     case 'response':
+//       // Handle response
+//       break
+//   }
+// })
 ```

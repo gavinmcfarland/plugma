@@ -24,12 +24,8 @@ export async function getCommandHistory(): Promise<CommandHistory> {
   const previousCommand = commandHistory.previousCommand;
   const previousInstanceId = commandHistory.previousInstanceId;
 
-  // Update command history
-  commandHistory.previousCommand = runtimeData.command
-    ? runtimeData.command === 'build'
-      ? null
-      : runtimeData.command
-    : null;
+  // Set the current command as the new previous command for future retrievals
+  commandHistory.previousCommand = runtimeData.command ?? null;
   commandHistory.previousInstanceId = runtimeData.instanceId;
   await figma.clientStorage.setAsync('PLUGMA_COMMAND_HISTORY', commandHistory);
 

@@ -5,14 +5,13 @@
 
 import type { DevCommandOptions } from '#commands/types.js';
 import {
-  BuildMainTask,
-  BuildManifestTask,
-  BuildUiTask,
-  GetFilesTask,
-  RestartViteServerTask,
-  ShowPlugmaPromptTask,
-  StartViteServerTask,
-  StartWebSocketsServerTask,
+	BuildMainTask,
+	BuildManifestTask,
+	BuildPlaceholderUiTask,
+	GetFilesTask,
+	ShowPlugmaPromptTask,
+	StartViteServerTask,
+	StartWebSocketsServerTask,
 } from '#tasks';
 import { serial } from '#tasks/runner.js';
 import { Logger } from '#utils/log/logger.js';
@@ -47,18 +46,24 @@ export async function dev(options: DevCommandOptions): Promise<void> {
       command: 'dev' as const,
       cwd: options.cwd || process.cwd(),
     };
+    // 'get-files',
+    // 'show-plugma-prompt',
+    // 'build-manifest',
+    // 'build-placeholder-ui',
+    // 'build-main',
+    // 'start-websockets-server',
+    // 'start-vite-server',
 
     // Execute tasks in sequence
     log.info('Executing tasks...');
     await serial(
       GetFilesTask,
       ShowPlugmaPromptTask,
-      BuildUiTask,
-      BuildMainTask,
       BuildManifestTask,
-      StartViteServerTask,
-      RestartViteServerTask,
+      BuildPlaceholderUiTask,
+      BuildMainTask,
       StartWebSocketsServerTask,
+      StartViteServerTask,
     )(pluginOptions);
 
     log.success('Development server started successfully');

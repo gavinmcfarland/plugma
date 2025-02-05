@@ -31,6 +31,8 @@ export const DEFAULT_WINDOW_SETTINGS: {
   test: defaultSettings,
 } as const;
 
+const TOOLBAR_HEIGHT = 41;
+
 /**
  * Retrieves window settings from client storage based on the current command mode.
  * @param options - Optional UI options that may override stored settings
@@ -76,8 +78,8 @@ export async function getWindowSettings(
     pluginWindowSettings.height = 300;
     pluginWindowSettings.width = 400;
 
-    if (pluginWindowSettings?.toolbarEnabled) {
-      pluginWindowSettings.height = 341; // 300 + 41 (toolbar height)
+    if (pluginWindowSettings.toolbarEnabled) {
+      pluginWindowSettings.height += TOOLBAR_HEIGHT;
     }
   }
 

@@ -6,25 +6,26 @@ import { viteSingleFile } from 'vite-plugin-singlefile';
 
 import type { PluginOptions, UserFiles } from '#core/types.js';
 import { defaultLogger, writeTempFile } from '#utils';
-import { getDirName } from '#utils/path.js';
+import { getDirName } from '#utils/get-dir-name.js';
 import {
-  deepIndex,
-  dotEnvLoader,
-  htmlTransform,
-  replacePlaceholders,
-  rewritePostMessageTargetOrigin,
-  vitePluginInsertCustomFunctions,
+	dotEnvLoader,
+	htmlTransform,
+	injectRuntime,
+	replacePlaceholders,
+	rewritePostMessageTargetOrigin,
+	serveUi,
 } from '#vite-plugins';
 
-const projectRoot = path.join(getDirName(import.meta.url), '../../..');
-
+const projectRoot = path.join(getDirName(), '../../..');
 const uiHtml = path.join(projectRoot, 'templates/ui.html');
 
-// Read the compiled banner code from dist
-const bannerCode = fs.readFileSync(
-  path.join(projectRoot, 'dist/utils/cli/banner.js'),
-  'utf8',
+// Before using the runtime code, bundle it
+const runtimeBundlePath = path.join(
+  projectRoot,
+  'dist/apps/plugma-runtime.js',
 );
+
+const plugmaRuntimeCode = fs.readFileSync(runtimeBundlePath, 'utf8');
 
 export type ViteConfigs = {
   ui: {
@@ -37,41 +38,12 @@ export type ViteConfigs = {
   };
 };
 
-// TODO Check if this should become a task
-
 /**
  * Creates Vite configurations for both development and build
- *
- * Note: The original function returned an object with the keys
- * `vite` (for the UI) and `viteMain` (for the main).
- * Each of those objects had the keys `dev` and `build` with the
- * vite config for the respective plugma commands.
  *
  * @param options - Plugin configuration options
  * @param userFiles - User's plugin files configuration
  * @returns Vite configurations for different environments
- *
- * Tracking:
- * - [x] Add UI configuration
- *   - Verified comprehensive UI config handling:
- *   - Dev mode: HMR, port config, plugins (replaceMainInput, htmlTransform, deepIndex)
- *   - Build mode: Single file output, proper file naming, asset handling
- * - [x] Implement main configuration
- *   - Verified main config features:
- *   - Dev mode: Environment vars, custom functions injection, CJS format
- *   - Build mode: Library build, Chrome target, sourcemap control
- * - [x] Add plugin integration
- *   - Verified plugin system:
- *   - Common plugins: viteSingleFile, gatherBuildOutputs
- *   - UI plugins: replaceMainInput, htmlTransform, deepIndex
- *   - Main plugins: dotEnvLoader, insertCustomFunctions
- * - [x] Handle environment features
- *   - Verified environment handling:
- *   - Mode configuration (dev/prod)
- *   - Environment variables
- *   - Chrome target compatibility
- *   - Source map control
- *   - Watch mode management
  */
 export function createViteConfigs(
   options: PluginOptions,
@@ -87,35 +59,13 @@ export function createViteConfigs(
   const localUiHtml = path.join(process.cwd(), 'ui.html');
   fs.copyFileSync(uiHtml, localUiHtml);
 
-  const commonVitePlugins: Plugin[] = [
-    // gatherBuildOutputs({
-    //   sourceDir: options.output,
-    //   outputDir: options.output,
-    //   filter: (file) => !file.includes('plugma-create-release.yml'),
-    //   getOutputPath: (file: string) => {
-    //     defaultLogger.debug('getOutputPath called with:', {
-    //       file,
-    //       basename: path.basename(file),
-    //       dirname: path.dirname(file),
-    //     });
-    //     return path.basename(file);
-    //   },
-    //   removeSourceDir: false,
-    // }),
-    viteSingleFile(),
-  ];
-
-  const tempFilePath = writeTempFile(
-    `temp_${Date.now()}.js`,
-    userFiles,
-    options,
-  );
-  options.manifest = userFiles.manifest;
+  const commonVitePlugins: Plugin[] = [viteSingleFile()];
 
   const placeholders = {
     pluginName: userFiles.manifest.name,
     pluginUi: `<script type="module" src="${userFiles.manifest.ui}"></script>`,
   };
+
   const viteConfigUI = {
     dev: {
       mode: options.mode,
@@ -123,14 +73,24 @@ export function createViteConfigs(
       plugins: [
         replacePlaceholders(placeholders),
         htmlTransform(options),
-        deepIndex({ path: localUiHtml }),
         rewritePostMessageTargetOrigin(),
+        serveUi(options),
         ...commonVitePlugins,
       ],
       server: {
         port: options.port,
+        cors: true,
+        host: 'localhost',
+        strictPort: true,
+        middlewareMode: false,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+          'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization',
+        },
       },
-    },
+      logLevel: options.debug ? 'info' : 'error',
+    } satisfies UserConfig,
     build: {
       root: process.cwd(),
       base: './',
@@ -153,20 +113,32 @@ export function createViteConfigs(
         },
       },
       plugins: [replacePlaceholders(placeholders), ...commonVitePlugins],
-    },
+    } satisfies UserConfig,
   };
 
-  const injectedCode = bannerCode.replace(
-    '/*--[ RUNTIME_DATA ]--*/',
-    `const runtimeData = ${JSON.stringify(options)};`, // Remove 'as const' since it's JS now
+	const configKey = options.command === 'build' ?  'build' : 'dev';
+	defaultLogger.debug(`Vite config UI (configKey):`, viteConfigUI[configKey]);
+
+  const tempFilePath = writeTempFile(
+    `temp_${Date.now()}.js`,
+    userFiles,
+    options,
   );
+
+  options.manifest = userFiles.manifest;
 
   const viteConfigMainBuild: UserConfig = {
     mode: options.mode,
     define: {
       'process.env.NODE_ENV': JSON.stringify(options.mode),
     },
-    plugins: [dotEnvLoader(options)],
+    plugins: [
+      dotEnvLoader(options),
+      injectRuntime({
+        runtimeCode: plugmaRuntimeCode,
+        pluginOptions: options,
+      }),
+    ],
     build: {
       lib: {
         entry: tempFilePath,
@@ -187,8 +159,8 @@ export function createViteConfigs(
         },
         external: ['figma'],
       },
-      target: 'chrome58',
-      sourcemap: false,
+      target: 'es6',
+      sourcemap: 'inline',
       minify: options.command === 'build',
       emptyOutDir: false,
       write: true,
@@ -205,19 +177,17 @@ export function createViteConfigs(
       'process.env.NODE_ENV': JSON.stringify(options.mode),
       'process.env.COMMAND': JSON.stringify(options.command),
       'process.env.DEBUG': JSON.stringify(!!options.debug),
-      // Figma function replacements
       'figma.ui.resize': 'customResize',
       'figma.showUI': 'customShowUI',
-      'figma.clientStorage': 'customClientStorage',
     },
     plugins: [
       dotEnvLoader({
         ...options,
-        // Add additional env file patterns if needed
         patterns: ['*.env.*'],
       }),
-      vitePluginInsertCustomFunctions({
-        codeToPrepend: injectedCode,
+      injectRuntime({
+        runtimeCode: plugmaRuntimeCode,
+        pluginOptions: options,
       }),
     ],
     build: {
@@ -233,8 +203,8 @@ export function createViteConfigs(
           inlineDynamicImports: true,
         },
       },
-      target: 'chrome58',
-      sourcemap: false,
+      target: 'es6',
+      sourcemap: 'inline',
       emptyOutDir: false,
       write: true,
       watch:
@@ -250,6 +220,8 @@ export function createViteConfigs(
     },
   } satisfies UserConfig;
 
+
+	defaultLogger.debug(`Vite config Main (configKey):`, configKey === 'dev' ? viteConfigMainDev : viteConfigMainBuild);
   return {
     ui: viteConfigUI,
     main: {

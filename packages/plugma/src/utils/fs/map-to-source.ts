@@ -1,16 +1,12 @@
 import { type RawSourceMap, SourceMapConsumer } from 'source-map';
 
-import { getDirName } from '#utils';
+import { getDirName } from '#utils/get-dir-name.js';
+import { isNode } from '#utils/is-node.js';
 
 /** Tracks if source map preloading has completed */
 let preloadCompleted = false;
 
 const sourceMapCache = new Map<string, SourceMapConsumer>();
-
-// Add environment detection helper
-function isNode() {
-  return typeof process !== 'undefined' && process.versions?.node;
-}
 
 /**
  * Maps a position from a compiled file to its original source location using sourcemaps.
@@ -124,7 +120,7 @@ export async function preloadSourceMaps(): Promise<void> {
   const { join } = await import('node:path');
 
   // Get package's own dist directory
-  const packageDistPath = join(getDirName(import.meta.url), '../../');
+  const packageDistPath = join(getDirName(), '../../');
 
   async function walkDir(dir: string): Promise<void> {
     const entries = readdirSync(dir, { withFileTypes: true });

@@ -9,7 +9,6 @@ import { Logger } from '#utils/log/logger.js';
 import { access } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
-import type { ModuleFormat } from 'rollup';
 import type { ViteDevServer } from 'vite';
 import { type InlineConfig, build, mergeConfig } from 'vite';
 import { GetFilesTask } from '../common/get-files.js';
@@ -111,35 +110,14 @@ const buildUi = async (
         // Build UI with Vite
         if (options.command === 'build' && options.watch) {
           logger.debug('Starting UI build in watch mode...');
-          const watchConfig = mergeConfig(
-            {
-              root: process.cwd(),
-              base: './',
-              build: {
-                watch: {},
-                minify: true,
-                outDir: join(options.output),
-                emptyOutDir: false,
-                rollupOptions: {
-                  output: {
-                    format: 'iife' as ModuleFormat,
-                    entryFileNames: '[name].js',
-                    chunkFileNames: '[name].js',
-                    assetFileNames: (assetInfo: { name?: string }) => {
-                      logger.debug('assetFileNames called with:', assetInfo);
-                      if (assetInfo.name === 'index.html') {
-                        return 'ui.html';
-                      }
-                      return '[name].[ext]';
-                    },
-                  },
-                  input: files.manifest.ui,
-                },
-                write: true,
-              },
+          const watchConfig = mergeConfig(config.ui.build, {
+            build: {
+              watch: {},
+              minify: true,
+              outDir: join(options.output),
+              emptyOutDir: false,
             },
-            config.ui?.build,
-          ) as InlineConfig;
+          }) as InlineConfig;
 
           logger.debug('Watch config:', watchConfig);
           const watcher = await build(watchConfig);
@@ -150,7 +128,6 @@ const buildUi = async (
               close: async () => {
                 await watcher.close();
               },
-              // Implement required ViteDevServer interface
               config: watchConfig,
               pluginContainer: {} as any,
               middlewares: {} as any,
@@ -170,41 +147,16 @@ const buildUi = async (
             } as any as ViteDevServer;
           }
         } else {
-          const mergedConfig = mergeConfig(
-            {
-              root: process.cwd(),
-              base: './',
-              build: {
-                minify: true,
-                outDir: join(options.output),
-                emptyOutDir: false,
-                rollupOptions: {
-                  output: {
-                    format: 'iife' as ModuleFormat,
-                    entryFileNames: '[name].js',
-                    chunkFileNames: '[name].js',
-                    assetFileNames: (assetInfo: { name?: string }) => {
-                      logger.debug('assetFileNames called with:', assetInfo);
-                      if (assetInfo.name === 'index.html') {
-                        return 'ui.html';
-                      }
-                      return '[name].[ext]';
-                    },
-                  },
-                  input: files.manifest.ui,
-                },
-                write: true,
-              },
+          const buildConfig = mergeConfig(config.ui.build, {
+            build: {
+              minify: true,
+              outDir: join(options.output),
+              emptyOutDir: false,
             },
-            config.ui?.build,
-          ) as InlineConfig;
+          }) as InlineConfig;
 
-          logger.debug(
-            'Merged Vite config:',
-            JSON.stringify(mergedConfig, null, 2),
-          );
-          logger.debug('Starting production build...');
-          await build(mergedConfig);
+          logger.debug('Build config:', buildConfig);
+          await build(buildConfig);
           logger.debug('Production build completed');
         }
       } else {
@@ -261,12 +213,9 @@ const buildUi = async (
 
     return { outputPath, duration };
   } catch (err) {
-    const error = err instanceof Error ? err : new Error();
-
-    error.message = `Failed to build UI: ${String(err)}`;
-
+    const error = err instanceof Error ? err : new Error(String(err));
+    error.message = `Failed to build UI: ${error.message}`;
     logger.debug(error);
-
     throw error;
   }
 };

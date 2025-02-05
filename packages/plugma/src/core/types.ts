@@ -1,19 +1,21 @@
 //@index('./**/types.ts', f => `export * from '${f.path}.js';`)
-export * from './listeners/types.js';
 export * from './task-runner/types.js';
 import type { PackageJson } from 'type-fest';
 //@endindex
 
 import type { UserConfig } from 'vite';
 
+
+export type PlugmaCommand = 'preview' | 'dev' | 'build' | 'test';
+
 /**
  * Plugin options for configuring the build process
- */
+*/
 export interface PluginOptions {
-  mode: string;
+	mode: string;
   port: number;
   output: string;
-  command?: 'preview' | 'dev' | 'build' | 'test';
+  command?: PlugmaCommand;
   instanceId: string;
   debug?: boolean;
   watch?: boolean;
@@ -22,6 +24,8 @@ export interface PluginOptions {
   cwd?: string;
   [key: string]: unknown;
 }
+
+export type PlugmaRuntimeData = PluginOptions;
 
 /**
  * Manifest file structure for Figma plugins

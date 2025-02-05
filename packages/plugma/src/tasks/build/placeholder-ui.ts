@@ -1,25 +1,29 @@
 import type {
-  GetTaskTypeFor,
-  PluginOptions,
-  ResultsOfTask,
+	GetTaskTypeFor,
+	PluginOptions,
+	ResultsOfTask,
 } from '#core/types.js';
+import { getDirName } from '#utils/get-dir-name.js';
 import { Logger } from '#utils/log/logger.js';
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import path, { dirname, join, resolve } from 'node:path';
 import { GetFilesTask } from '../common/get-files.js';
 import { task } from '../runner.js';
+
+const plugmaRoot = path.join(getDirName(), '../../..');
+const templatePath = path.join(plugmaRoot, 'dist/apps/figma-bridge.html');
 
 /**
  * Result type for the build-placeholder-ui task
  */
-interface Result {
+interface BuildPlaceholderUiTaskResult {
   /** Path to the built UI HTML file */
   outputPath: string | undefined;
 }
 
 /**
  * Task that creates a development-mode UI file.
+ * This task injects runtime configuration into the Figma bridge template (formerly PluginWindow.html).
  *
  * This task is responsible for:
  * 1. Creating a development UI file that:
@@ -36,11 +40,29 @@ interface Result {
  * - The UI file exists
  * - Running in development mode
  *
- * The task:
- * 1. Reads the bridge template
- * 2. Injects runtime configuration
- * 3. Writes the modified file
- * 4. Validates output against source files
+ * Runtime data structure:
+ * ~~~js
+ * window.runtimeData = {
+ *   command: string;      // Current command (dev/preview)
+ *   debug: boolean;       // Debug mode flag
+ *   mode: string;        // Environment mode
+ *   output: string;      // Output directory
+ *   port: number;        // Dev server port
+ *   instanceId: string;  // Unique instance ID
+ *   manifest: {          // Plugin manifest data (injected by create-vite-configs)
+ *     name: string;
+ *     main?: string;
+ *     ui?: string;
+ *     api: string;
+ *   }
+ * };
+ * ~~~
+ *
+ * The task flow:
+ * 1. Verifies UI file exists in manifest
+ * 2. Reads the bridge template from dist/apps/figma-bridge.html
+ * 3. Injects runtime configuration at the start of the file
+ * 4. Creates the development UI file in the output directory
  *
  * @param options - Plugin build options including command, output path, etc
  * @param context - Task context containing results from previous tasks
@@ -49,13 +71,26 @@ interface Result {
 const buildPlaceholderUi = async (
   options: PluginOptions,
   context: ResultsOfTask<GetFilesTask>,
-): Promise<Result> => {
-  const log = new Logger({ debug: options.debug });
+): Promise<BuildPlaceholderUiTaskResult> => {
+  const logger = new Logger({
+    debug: options.debug,
+    prefix: 'build:placeholder-ui',
+  });
+
+  logger.debug('Starting build:placeholder-ui task...', {
+    templatePath,
+    outputDir: options.output,
+  });
+
   if (!context[GetFilesTask.name]) {
     throw new Error('get-files task must run first');
   }
 
   const { files } = context[GetFilesTask.name];
+  logger.debug('Task context loaded', {
+    manifest: files.manifest,
+    hasUI: !!files.manifest.ui,
+  });
 
   // Only create if UI specified AND file exists
   if (files.manifest.ui) {
@@ -66,34 +101,27 @@ const buildPlaceholderUi = async (
 
     if (fileExists) {
       const outputPath: string = join(options.output || 'dist', 'ui.html');
-      log.debug(`Creating placeholder UI for ${files.manifest.ui}...`);
-
-      // Read template from apps directory
-      const __dirname = dirname(fileURLToPath(import.meta.url));
-      const templatePath = resolve(
-        `${__dirname}/../../../apps/figma-bridge.html`,
-      );
+      logger.debug(`Creating placeholder UI for ${files.manifest.ui}...`, {
+        uiPath,
+        outputPath,
+      });
 
       try {
-        // Read and verify template
-        let htmlContent = await readFile(templatePath, 'utf-8');
-        if (!htmlContent.includes('<body>')) {
-          throw new Error('Invalid template file: missing <body> tag');
-        }
-
         // Inject runtime data
-        const runtimeData = `<script>
-          window.runtimeData = ${JSON.stringify({
-            ...options,
-            manifest: files.manifest,
-          })};
-        </script>`;
-        htmlContent = htmlContent.replace(/^/, runtimeData);
+        const runtimeData = `<script>\nwindow.runtimeData = ${JSON.stringify(options, null, 2)};\n</script>`;
+        logger.debug('Runtime data prepared', {
+          command: options.command,
+          mode: options.mode,
+          port: options.port,
+        });
+
+        const template = runtimeData + (await readFile(templatePath, 'utf-8'));
+        logger.debug('Template loaded and runtime data injected');
 
         // Create output directory and write file
         await mkdir(dirname(outputPath), { recursive: true });
-        await writeFile(outputPath, htmlContent, 'utf-8');
-        log.success('Placeholder UI created successfully');
+        await writeFile(outputPath, template, 'utf-8');
+        logger.success('Placeholder UI created successfully');
         return { outputPath };
       } catch (error) {
         // Ensure we're always working with Error instances
@@ -105,15 +133,15 @@ const buildPlaceholderUi = async (
         }
 
         // Log the error and rethrow
-        log.error('Failed to create placeholder UI:', err);
+        logger.error('Failed to create placeholder UI:', err);
         throw err;
       }
     } else {
-      log.debug(`UI file not found at ${uiPath}, skipping placeholder UI`);
+      logger.debug(`UI file not found at ${uiPath}, skipping placeholder UI`);
       return { outputPath: undefined };
     }
   } else {
-    log.debug('No UI specified in manifest, skipping placeholder UI');
+    logger.debug('No UI specified in manifest, skipping placeholder UI');
     return { outputPath: undefined };
   }
 };

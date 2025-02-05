@@ -1,5 +1,5 @@
 // Add the event listener
-let runtimeData = {"mode":"development","output":"dist","websockets":false,"debug":false,"command":"dev","instanceId":"MBJ8ZM8dBYchA80s1hvs1","port":5976,"manifest":{"id":"plugma-svelte-sandbox-replace","name":"plugma-svelte-sandbox","main":"src/main.ts","ui":"src/ui.ts","editorType":["figma","figjam"],"networkAccess":{"allowedDomains":["none"],"devAllowedDomains":["http://localhost:5976","ws://localhost:9001"]}}};
+let runtimeData = {"mode":"development","output":"dist","websockets":false,"debug":false,"command":"dev","instanceId":"zi6GqxUOPhAQlAtkWlHTe","port":3864,"manifest":{"id":"plugma-svelte-sandbox-replace","name":"plugma-svelte-sandbox","main":"src/main.ts","ui":"src/ui.ts","editorType":["figma","figjam"],"networkAccess":{"allowedDomains":["none"],"devAllowedDomains":["http://localhost:3864","ws://localhost:9001"]}}};
 
 
 async function getCommandHistory() {

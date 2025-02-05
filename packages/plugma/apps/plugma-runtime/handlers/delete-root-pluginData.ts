@@ -1,9 +1,4 @@
 /**
- * Global runtime data
- * Vite will inject the runtimeData object below
- */
-/*--[ RUNTIME_DATA ]--*/
-/**
  * Handles deletion of all plugin data from the root node
  */
 export async function handleDeleteRootPluginData() {

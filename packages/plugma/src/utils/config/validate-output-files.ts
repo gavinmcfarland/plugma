@@ -36,81 +36,105 @@ import { access, lstat, rm, unlink } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { formatTime } from '../time.js';
 
+type ValidationEventType =
+  | 'manifest-changed'
+  | 'file-added'
+  | 'plugin-built'
+  | 'on-initialisation';
+
 /**
- * Validates output files against source files and manifest entries.
- * Removes output files that are invalid or stale.
+ * Handles terminal scrolling and status message display.
+ * Used to provide visual feedback about file system changes.
+ */
+async function displayStatusChange(
+  message: string,
+  type: ValidationEventType,
+): Promise<void> {
+  if (type === 'on-initialisation') return;
+
+  console.log('\n'.repeat(process.stdout.rows - 2));
+  process.stdout.write('\x1B[H');
+  console.log(
+    `${chalk.grey(formatTime())}${chalk.cyan(chalk.bold(' [plugma]'))}${chalk.green(
+      ` ${message}`,
+    )}`,
+  );
+}
+
+/**
+ * Safely removes a file or directory if it exists.
+ * @returns true if the file was removed, false if it didn't exist
+ */
+async function safelyRemoveFile(filePath: string): Promise<boolean> {
+  try {
+    await access(filePath);
+    const stats = await lstat(filePath);
+
+    if (stats.isDirectory()) {
+      await rm(filePath, { recursive: true, force: true });
+    } else {
+      await unlink(filePath);
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Validates the existence of a manifest entry's target file.
+ * @returns true if the file exists, false otherwise
+ */
+async function validateManifestEntry(
+  filePath: string | undefined,
+  fieldName: string,
+  files: UserFiles,
+  type: ValidationEventType,
+): Promise<boolean> {
+  if (!filePath) return false;
+
+  try {
+    await access(resolve(filePath));
+    return true;
+  } catch {
+    if (type !== 'plugin-built') {
+      await displayStatusChange(
+        type === 'manifest-changed' ? 'manifest changed' : 'file changed',
+        type,
+      );
+    }
+
+    console.error(
+      `[plugma] Error: The file specified in the manifest's '${fieldName}' field could not be found at path: ${files.manifest[fieldName]}. Please ensure the file path is correct and that the file exists.`,
+    );
+    return false;
+  }
+}
+
+/**
+ * Validates and cleans up plugin output files based on manifest entries.
+ * This is a refactored version of the original `cleanManifestFiles()` function from the JavaScript implementation.
+ * It handles three main responsibilities:
+ * 1. Validates the existence of files specified in the manifest
+ * 2. Removes output files when their source files are missing
+ * 3. Provides visual feedback about file system changes
+ *
  * @param options - Plugin configuration options
- * @param files - User files
+ * @param files - User files configuration
  * @param type - Event that triggered the validation
  */
-export async function validateOutputFiles(
+export async function cleanPluginOutputFiles(
   options: PluginOptions,
   files: UserFiles,
-  type:
-    | 'manifest-changed'
-    | 'file-added'
-    | 'plugin-built'
-    | 'on-initialisation',
+  type: ValidationEventType,
 ): Promise<void> {
-  let scrollOnce = false;
-
-  // Helper to log status change messages only once
-  const logStatusChange = (message: string) => {
-    if (!scrollOnce && type !== 'on-initialisation') {
-      console.log('\n'.repeat(process.stdout.rows - 2));
-      process.stdout.write('\x1B[H');
-      console.log(
-        `${chalk.grey(formatTime())}${chalk.cyan(chalk.bold(' [plugma]'))}${chalk.green(
-          ` ${message}`,
-        )}`,
-      );
-      scrollOnce = true;
-    }
-  };
-
+  // Show initial status for non-build events
   if (type !== 'plugin-built') {
-    logStatusChange(
+    await displayStatusChange(
       type === 'manifest-changed' ? 'manifest changed' : 'file changed',
+      type,
     );
   }
-
-  // Helper to remove file if it exists
-  const removeFileIfExists = async (filePath: string) => {
-    try {
-      await access(filePath);
-      const stats = await lstat(filePath);
-      if (stats.isDirectory()) {
-        await rm(filePath, { recursive: true, force: true });
-      } else {
-        await unlink(filePath);
-      }
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  // Helper to check file existence and log errors
-  const validateFile = async (
-    filePath: string | undefined,
-    fieldName: string,
-  ) => {
-    if (!filePath) return false;
-    try {
-      await access(resolve(filePath));
-      return true;
-    } catch {
-      if (type !== 'plugin-built') {
-        logStatusChange(
-          type === 'manifest-changed' ? 'manifest changed' : 'file changed',
-        );
-      }
-      console.error(
-        `[plugma] Error: The file specified in the manifest's '${fieldName}' field could not be found at path: ${files.manifest[fieldName]}. Please ensure the file path is correct and that the file exists.`,
-      );
-      return false;
-    }
-  };
 
   // Resolve paths based on manifest entries
   const mainFilePath =
@@ -118,34 +142,43 @@ export async function validateOutputFiles(
   const uiFilePath =
     files.manifest.ui && resolve(join(process.cwd(), files.manifest.ui));
 
-  // Validate 'main' entry
+  // Handle main entry
   if (files.manifest.main) {
-    await validateFile(mainFilePath, 'main');
+    await validateManifestEntry(mainFilePath, 'main', files, type);
   } else {
     if (type !== 'plugin-built') {
-      logStatusChange('manifest changed');
+      await displayStatusChange('manifest changed', type);
     }
     console.error(
       "[plugma] Error: The 'main' field is missing in the manifest. Please specify the 'main' entry point.",
     );
   }
 
-  // Remove 'main.js' if 'main' entry is missing or file not found
-  if (!files.manifest.main || !(await validateFile(mainFilePath, 'main'))) {
-    await removeFileIfExists(
+  // Clean up main output if needed
+  if (
+    !files.manifest.main ||
+    !(await validateManifestEntry(mainFilePath, 'main', files, type))
+  ) {
+    await safelyRemoveFile(
       resolve(join(process.cwd(), options.output, 'main.js')),
     );
   }
 
-  // Validate 'ui' entry
+  // Handle UI entry
   if (files.manifest.ui) {
-    await validateFile(uiFilePath, 'ui');
+    await validateManifestEntry(uiFilePath, 'ui', files, type);
   }
 
-  // Remove 'ui.html' if 'ui' entry is missing or file not found
-  if (!files.manifest.ui || !(await validateFile(uiFilePath, 'ui'))) {
-    await removeFileIfExists(
+  // Clean up UI output if needed
+  if (
+    !files.manifest.ui ||
+    !(await validateManifestEntry(uiFilePath, 'ui', files, type))
+  ) {
+    await safelyRemoveFile(
       resolve(join(process.cwd(), options.output, 'ui.html')),
     );
   }
 }
+
+// Re-export with the old name for backward compatibility
+export const validateOutputFiles = cleanPluginOutputFiles;

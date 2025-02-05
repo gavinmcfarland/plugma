@@ -1,21 +1,32 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { isNode } from './is-node';
+
+// Node.js specific imports (loaded only once)
+let nodeUrl: typeof import('node:url');
+let nodePath: typeof import('node:path');
 
 /**
- * Replaces backslashes with forward slashes in a path string
- */
-export function replaceBackslashInString(stringPath: string): string {
-  return path.sep === '\\'
-    ? path.resolve(stringPath).split(path.sep).join('/')
-    : stringPath;
-}
-
-/**
- * Retrieves the directory name from a given import.meta.url
+ * Gets directory name from file URL (works in both Node.js and browser)
  *
- * @param url - The URL from which to extract the directory name
- * @returns The directory name as a string
+ * @param url - import.meta.url from calling module
+ * @returns Directory path of the calling module
+ *
+ * @remarks
+ * - Node.js: Uses fileURLToPath and path.dirname
+ * - Browser: Parses URL pathname directly
  */
 export function getDirName(url: string): string {
-  return path.dirname(fileURLToPath(new URL(url)));
+  if (isNode()) {
+    // Lazy load Node.js modules only when needed
+    if (!nodeUrl || !nodePath) {
+      nodeUrl = require('node:url');
+      nodePath = require('node:path');
+    }
+    return nodePath.dirname(nodeUrl.fileURLToPath(new URL(url)));
+  }
+
+  // Browser implementation
+  const urlObj = new URL(url);
+  const pathname = urlObj.pathname;
+  const lastSlashIndex = pathname.lastIndexOf('/');
+  return lastSlashIndex >= 0 ? pathname.slice(0, lastSlashIndex) : pathname;
 }

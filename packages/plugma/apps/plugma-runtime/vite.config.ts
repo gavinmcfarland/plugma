@@ -14,19 +14,22 @@ export default defineConfig({
     rollupOptions: {
       output: {
         inlineDynamicImports: true,
+				// Prevents generating export default
+        exports: 'named'
       }
     },
+		target: 'es6',
     outDir: 'dist', // Vite default output directory
     minify: false,
     sourcemap: false,
-    emptyOutDir: true,
+    emptyOutDir: false,
   },
   plugins: [
     gatherBuildOutputs({
-      sourceDir: `dist`,
-      outputDir: '../../dist/apps',
-      // getOutputPath: (file) => path.join('plugma-runtime', file),
-      removeSourceDir: true,
+      from: `dist`,
+      to: '../../dist/apps',
+      transformPath: (file) => file.replace('.cjs', '.js'),
+      removeSource: false,
     })
   ],
 });

@@ -4,13 +4,13 @@
  */
 
 import type { GetTaskTypeFor, PluginOptions } from '#core/types.js';
+import { getDirName } from '#utils/get-dir-name.js';
 import { Logger } from '#utils/log/logger.js';
-import { getDirName } from '#utils/path.js';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { task } from '../runner.js';
 
-const __dirname = getDirName(import.meta.url);
+const __dirname = getDirName();
 
 /**
  * Result type for the injectTestCode task
