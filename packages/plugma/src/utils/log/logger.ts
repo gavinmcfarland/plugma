@@ -65,7 +65,12 @@ export class Logger {
    * @returns {string} The call site information from the error stack.
    */
   private getCallSite(): string {
+    // Return empty string if not running in Node.js environment
+    if (typeof process === 'undefined' || !process.versions?.node) {
+      return '';
+    }
     const stack = new Error().stack?.split('\n');
+
     if (!stack) return '';
 
     const extractFilePath = (frame: string) => {

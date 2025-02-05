@@ -1,8 +1,10 @@
-import { figmaApi } from '../interceptors/figma-api';
+import { figmaApi } from '../figma-api-interceptors/figma-api';
 import type { PlugmaRuntimeData, WindowSettings } from '../types';
 import { getWindowSettings } from '../utils/get-window-settings';
 
 declare const runtimeData: PlugmaRuntimeData;
+
+const TOOLBAR_HEIGHT = 41;
 
 export async function saveWindowSettings(settings: WindowSettings) {
   const command = runtimeData.command;

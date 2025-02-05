@@ -1,8 +1,8 @@
 import type { PlugmaRuntimeData, ShowUIOptions } from '../types';
 import { getCommandHistory } from '../utils/get-command-history';
 import {
-  DEFAULT_WINDOW_SETTINGS,
-  getWindowSettings,
+	DEFAULT_WINDOW_SETTINGS,
+	getWindowSettings,
 } from '../utils/get-window-settings';
 import { figmaApi } from './figma-api';
 
@@ -24,7 +24,7 @@ export function customShowUI(
   figmaApi.showUI(htmlString, mergedOptions);
 
   getCommandHistory().then((commandHistory) => {
-    getWindowSettings(DEFAULT_WINDOW_SETTINGS[options.comm]).then(
+    getWindowSettings(DEFAULT_WINDOW_SETTINGS['dev']).then(
       (pluginWindowSettings) => {
         const hasCommandChanged =
           commandHistory.previousCommand !== runtimeData.command;

@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-
 import { type RawSourceMap, SourceMapConsumer } from 'source-map';
 
 import { getDirName } from '#utils';
@@ -9,6 +7,11 @@ let preloadCompleted = false;
 
 const sourceMapCache = new Map<string, SourceMapConsumer>();
 
+// Add environment detection helper
+function isNode() {
+  return typeof process !== 'undefined' && process.versions?.node;
+}
+
 /**
  * Maps a position from a compiled file to its original source location using sourcemaps.
  * Handles paths in the format "/path/to/file.js:line:column" or just "/path/to/file.js".
@@ -17,22 +20,22 @@ const sourceMapCache = new Map<string, SourceMapConsumer>();
  * @returns The source file path starting with 'src/', or the original path if mapping fails
  */
 export async function mapToSource(filePath: string): Promise<string> {
-  // Extract path and line/column info
   const [rawPath, line, column] = filePath.split(':');
   if (!rawPath) return filePath;
 
   try {
-    // Only attempt to map if it's a compiled file
-    if (!rawPath.includes('/dist/')) {
-      return filePath.replace(/^.*?src\//, 'src/');
+    // Bail early if not in Node or not a dist file
+    if (!isNode() || !rawPath.includes('/dist/')) {
+      return cleanSourcePath(filePath);
     }
 
+    // Conditional import for Node-only modules
+    const { readFileSync } = await import('node:fs');
     const mapPath = `${rawPath}.map`;
     const rawMap = JSON.parse(readFileSync(mapPath, 'utf8')) as RawSourceMap;
 
     let result = filePath;
     try {
-      // Await the consumer creation
       const consumer = await new SourceMapConsumer(rawMap);
       const pos = consumer.originalPositionFor({
         line: Number(line) || 1,
@@ -40,7 +43,6 @@ export async function mapToSource(filePath: string): Promise<string> {
       });
 
       if (pos.source) {
-        // Extract the src/ part onwards
         const srcPath = pos.source.replace(/^.*?src\//, 'src/');
         result = pos.line ? `${srcPath}:${pos.line}` : srcPath;
       }
@@ -52,7 +54,6 @@ export async function mapToSource(filePath: string): Promise<string> {
 
     return result;
   } catch (error) {
-    // If anything fails, return the original path cleaned up
     const srcMatch = filePath.match(/src\/.+/);
     return srcMatch ? srcMatch[0] : filePath;
   }
@@ -63,8 +64,8 @@ export async function mapToSource(filePath: string): Promise<string> {
  * @warning Only for use in logging paths - blocks event loop during mapping
  */
 export function mapToSourceSync(filePath: string): string {
-  // Simple path cleanup for non-debug or non-dist files
-  if (!process.env.PLUGMA_DEBUG || !filePath.includes('/dist/')) {
+  // Browser gets simple cleanup
+  if (!isNode() || !process.env.PLUGMA_DEBUG || !filePath.includes('/dist/')) {
     return cleanSourcePath(filePath);
   }
 
@@ -115,6 +116,10 @@ function formatSourcePosition(source: string, line?: number): string {
  * Should be called once at startup when debug mode is enabled
  */
 export async function preloadSourceMaps(): Promise<void> {
+  // Bail entirely in browser
+  if (!isNode()) return;
+
+  // Keep existing Node-specific implementation
   const { readdirSync, readFileSync } = await import('node:fs');
   const { join } = await import('node:path');
 

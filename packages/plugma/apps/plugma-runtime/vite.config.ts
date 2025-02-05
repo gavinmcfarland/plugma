@@ -1,14 +1,13 @@
-import path from 'node:path';
 import { defineConfig } from 'vite';
 import { gatherBuildOutputs } from '../../src/vite-plugins/build/gather-build-outputs';
 
-const srcRoot = path.resolve(__dirname, '../../src');
-const entryFile = path.resolve(srcRoot, 'figma/plugma-runtime.ts');
+// const srcRoot = path.resolve(__dirname, '../../src');
+// const entryFile = path.resolve(srcRoot, 'figma/plugma-runtime.ts');
 
 export default defineConfig({
   build: {
     lib: {
-      entry: entryFile,
+      entry: 'index.ts',
       formats: ['es'],
       fileName: 'plugma-runtime',
     },

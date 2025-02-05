@@ -11,6 +11,10 @@ export interface WindowSettings {
   shouldPersist?: boolean;
   minimized: boolean;
   toolbarEnabled: boolean;
+  position?: {
+    x: number;
+    y: number;
+  };
 }
 
 export interface CommandHistory {
@@ -20,10 +24,6 @@ export interface CommandHistory {
 
 export interface ShowUIOptions extends WindowSettings {
   visible?: boolean;
-  position?: {
-    x: number;
-    y: number;
-  };
 } /**
  * Storage key for window settings in Figma's client storage
  */

@@ -1,4 +1,4 @@
-import { figmaApi } from '../interceptors/figma-api';
+import { figmaApi } from '../figma-api-interceptors/figma-api';
 import type { PluginMessage } from '../types';
 import { getWindowSettings } from '../utils/get-window-settings';
 import { saveWindowSettings } from './save-window-settings';

@@ -1,13 +1,20 @@
 import type { PlugmaCommand } from '#core/types.js';
 import type {
-  PlugmaRuntimeData,
-  ShowUIOptions,
-  WindowSettings,
+	PlugmaRuntimeData,
+	ShowUIOptions,
+	WindowSettings,
 } from '../types.js';
 
 declare const runtimeData: PlugmaRuntimeData;
 
 const defaultSettings: WindowSettings = {
+  width: 300,
+  height: 200,
+  minimized: false,
+  toolbarEnabled: false,
+};
+
+const defaultPreviewSettings: WindowSettings = {
   width: 300,
   height: 200,
   minimized: true,
@@ -19,7 +26,7 @@ export const DEFAULT_WINDOW_SETTINGS: {
   [key in PlugmaCommand]: WindowSettings;
 } = {
   dev: defaultSettings,
-  preview: defaultSettings,
+  preview: defaultPreviewSettings,
   build: defaultSettings,
   test: defaultSettings,
 } as const;
@@ -74,24 +81,17 @@ export async function getWindowSettings(
     }
   }
 
-  // Maintain original validation
+  // Simplified validation to match legacy behavior
   if (!pluginWindowSettings || typeof pluginWindowSettings !== 'object') {
     return DEFAULT_WINDOW_SETTINGS[command as PlugmaCommand];
   }
 
-  // Original position validation
-  if (
-    !Number.isInteger(pluginWindowSettings.x) ||
-    !Number.isInteger(pluginWindowSettings.y) ||
-    pluginWindowSettings.x < 0 ||
-    pluginWindowSettings.y < 0
-  ) {
-    return {
-      ...DEFAULT_WINDOW_SETTINGS[command as PlugmaCommand],
-      ...pluginWindowSettings,
-      x: 0,
-      y: 0,
-    };
+  // Only validate position if it exists
+  if (pluginWindowSettings.position) {
+    const { x, y } = pluginWindowSettings.position;
+    if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || y < 0) {
+      pluginWindowSettings.position = { x: 0, y: 0 };
+    }
   }
 
   return {
