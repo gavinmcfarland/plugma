@@ -1,19 +1,19 @@
-import { dev } from '#commands/dev.js';
-import { preview } from '#commands/preview.js';
+import { dev } from "#commands/dev.js";
+import { preview } from "#commands/preview.js";
 import type {
-  DevCommandOptions,
-  PreviewCommandOptions,
-} from '#commands/types.js';
-import { vi } from 'vitest';
+	DevCommandOptions,
+	PreviewCommandOptions,
+} from "#commands/types.js";
+import { vi } from "vitest";
 
 /**
  * Interface for a command process handle
  */
 export interface CommandProcess {
-  /** Terminates the command process */
-  terminate: () => Promise<void>;
-  /** Command options used */
-  options: DevCommandOptions | PreviewCommandOptions;
+	/** Terminates the command process */
+	terminate: () => Promise<void>;
+	/** Command options used */
+	options: DevCommandOptions | PreviewCommandOptions;
 }
 
 /**
@@ -29,42 +29,40 @@ export interface CommandProcess {
  * ```
  */
 export async function waitFor(ms: number): Promise<void> {
-  await new Promise<void>((resolve) => setTimeout(resolve, ms));
+	await new Promise<void>((resolve) => setTimeout(resolve, ms));
 }
 
 /**
  * Result of executing a command while waiting for specific output
  */
 export interface ExecuteUntilOutputResult {
-  /** Whether the expected output was found within the timeout */
-  matched: boolean;
-  /** The captured console output */
-  output: string;
-  /** Time waited in milliseconds */
-  elapsed: number;
+	/** Whether the expected output was found within the timeout */
+	matched: boolean;
+	/** The captured console output */
+	output: string;
+	/** Time waited in milliseconds */
+	elapsed: number;
 }
 
 /**
  * Strips ANSI color codes from a string
  */
 function stripAnsi(str: string): string {
-  return str.replace(
-    /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
-    '',
-  );
+	return str.replace(
+		/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
+		"",
+	);
 }
 
 /**
  * Strips log level prefixes from a string
  */
-function stripLogLevel(str: string): string {
-  // First strip ANSI color codes
-  const noColors = stripAnsi(str);
-  // Then strip log level prefixes and any additional formatting
-  return noColors
-    .replace(/^(?:INFO|DEBUG|ERROR|WARNING|SUCCESS):\s+/i, '')
-    .replace(/^\[.*?\]\s+/g, '') // Remove any [prefix] style tags
-    .replace(/^(?:INFO|DEBUG|ERROR|WARNING|SUCCESS):\s+/i, ''); // Run again to catch any remaining prefixes
+function stripLogPrefixes(str: string): string {
+	return str
+		.replace(/^\[.*?\]\s+/gm, "") // Remove [prefix] style tags
+		.replace(/^(?:INFO|DEBUG|ERROR|WARNING|SUCCESS):\s*/gim, "") // Remove log level prefixes
+		.replace(/^(?:INFO|DEBUG|ERROR|WARNING|SUCCESS):\s*/gim, "") // Run again to catch any remaining prefixes
+		.trim();
 }
 
 /**
@@ -90,69 +88,72 @@ function stripLogLevel(str: string): string {
  * ```
  */
 export async function executeUntilOutput(
-  pattern: RegExp,
-  fn: () => CommandProcess,
-  timeout = 5000,
+	pattern: RegExp,
+	fn: () => CommandProcess,
+	timeout = 5000,
 ): Promise<ExecuteUntilOutputResult> {
-  const consoleSpy = vi.spyOn(console, 'log');
-  const process = fn();
-  const startTime = Date.now();
-  let capturedOutput = '';
-  let matched = false;
+	const consoleSpy = vi.spyOn(console, "log");
+	const consoleInfoSpy = vi.spyOn(console, "info");
+	const consoleSuccessSpy = vi.spyOn(console, "success");
+	const process = fn();
+	const startTime = Date.now();
+	let capturedOutput = "";
+	let matched = false;
 
-  try {
-    const result = await new Promise<ExecuteUntilOutputResult>((resolve) => {
-      // Set up timeout
-      const timeoutId = setTimeout(() => {
-        console.error(
-          'DEBUG - Timeout reached. Final output:',
-          capturedOutput.trim(),
-        );
-        resolve({
-          matched,
-          output: capturedOutput.trim(),
-          elapsed: Date.now() - startTime,
-        });
-      }, timeout);
+	try {
+		const result = await new Promise<ExecuteUntilOutputResult>((resolve) => {
+			// Set up timeout
+			const timeoutId = setTimeout(() => {
+				console.error(
+					"DEBUG - Timeout reached. Final output:",
+					capturedOutput.trim(),
+				);
+				resolve({
+					matched,
+					output: capturedOutput.trim(),
+					elapsed: Date.now() - startTime,
+				});
+			}, timeout);
 
-      // Set up console spy
-      const checkOutput = (...args: unknown[]) => {
-        const output = args.join(' ');
-        capturedOutput += `${output}\n`;
+			// Set up console spies
+			const checkOutput = (...args: unknown[]) => {
+				const output = args.join(" ");
+				capturedOutput += `${output}\n`;
 
-        // Strip ANSI color codes and log level prefixes before testing the pattern
-        const strippedOutput = stripAnsi(capturedOutput)
-          .replace(/^\[.*?\]\s+/gm, '') // Remove [prefix] style tags
-          .replace(/^(?:INFO|DEBUG|ERROR|WARNING|SUCCESS):\s*/gim, '') // Remove log level prefixes
-          .replace(/^(?:INFO|DEBUG|ERROR|WARNING|SUCCESS):\s*/gim, '') // Run again to catch any remaining prefixes
-          .trim();
+				// Strip ANSI color codes and log level prefixes before testing the pattern
+				const strippedOutput = stripLogPrefixes(stripAnsi(capturedOutput));
 
-        console.error('DEBUG - Raw output:', output);
-        console.error('DEBUG - Stripped output:', strippedOutput);
-        console.error('DEBUG - Pattern:', pattern);
-        console.error(
-          'DEBUG - Pattern test result:',
-          pattern.test(strippedOutput),
-        );
-        if (!matched && pattern.test(strippedOutput)) {
-          matched = true;
-          clearTimeout(timeoutId);
-          resolve({
-            matched: true,
-            output: capturedOutput.trim(),
-            elapsed: Date.now() - startTime,
-          });
-        }
-      };
+				console.error("DEBUG - Raw output:", output);
+				console.error("DEBUG - Stripped output:", strippedOutput);
+				console.error("DEBUG - Pattern:", pattern);
+				console.error(
+					"DEBUG - Pattern test result:",
+					pattern.test(strippedOutput),
+				);
 
-      consoleSpy.mockImplementation(checkOutput);
-    });
+				if (!matched && pattern.test(strippedOutput)) {
+					matched = true;
+					clearTimeout(timeoutId);
+					resolve({
+						matched: true,
+						output: capturedOutput.trim(),
+						elapsed: Date.now() - startTime,
+					});
+				}
+			};
 
-    return result;
-  } finally {
-    consoleSpy.mockRestore();
-    await process.terminate();
-  }
+			consoleSpy.mockImplementation(checkOutput);
+			consoleInfoSpy.mockImplementation(checkOutput);
+			consoleSuccessSpy.mockImplementation(checkOutput);
+		});
+
+		return result;
+	} finally {
+		consoleSpy.mockRestore();
+		consoleInfoSpy.mockRestore();
+		consoleSuccessSpy.mockRestore();
+		await process.terminate();
+	}
 }
 
 /**
@@ -172,15 +173,15 @@ export async function executeUntilOutput(
  * ```
  */
 export async function executeForDuration(
-  duration: number,
-  fn: () => CommandProcess,
+	duration: number,
+	fn: () => CommandProcess,
 ): Promise<void> {
-  const process = fn();
-  try {
-    await waitFor(duration);
-  } finally {
-    await process.terminate();
-  }
+	const process = fn();
+	try {
+		await waitFor(duration);
+	} finally {
+		await process.terminate();
+	}
 }
 
 /**
@@ -190,32 +191,32 @@ export async function executeForDuration(
  * @returns Command process handle
  */
 export function startDevCommand(options: DevCommandOptions): CommandProcess {
-  let cleanup: (() => Promise<void>) | undefined;
-  let isTerminated = false;
+	let cleanup: (() => Promise<void>) | undefined;
+	let isTerminated = false;
 
-  // Start the command
-  const running = dev({
-    ...options,
-    cwd: options.cwd || process.cwd(),
-    onCleanup: async (cleanupFn) => {
-      cleanup = cleanupFn;
-    },
-  }).catch((error) => {
-    if (!isTerminated) {
-      console.error('Dev command failed:', error);
-    }
-  });
+	// Start the command
+	const running = dev({
+		...options,
+		cwd: options.cwd || process.cwd(),
+		onCleanup: async (cleanupFn) => {
+			cleanup = cleanupFn;
+		},
+	}).catch((error) => {
+		if (!isTerminated) {
+			console.error("Dev command failed:", error);
+		}
+	});
 
-  return {
-    options,
-    terminate: async () => {
-      isTerminated = true;
-      if (cleanup) {
-        await cleanup();
-      }
-      await running;
-    },
-  };
+	return {
+		options,
+		terminate: async () => {
+			isTerminated = true;
+			if (cleanup) {
+				await cleanup();
+			}
+			await running;
+		},
+	};
 }
 
 /**
@@ -225,31 +226,31 @@ export function startDevCommand(options: DevCommandOptions): CommandProcess {
  * @returns Command process handle
  */
 export function startPreviewCommand(
-  options: PreviewCommandOptions,
+	options: PreviewCommandOptions,
 ): CommandProcess {
-  let cleanup: (() => Promise<void>) | undefined;
-  let isTerminated = false;
+	let cleanup: (() => Promise<void>) | undefined;
+	let isTerminated = false;
 
-  // Start the command
-  const running = preview({
-    ...options,
-    onCleanup: async (cleanupFn) => {
-      cleanup = cleanupFn;
-    },
-  }).catch((error) => {
-    if (!isTerminated) {
-      console.error('Preview command failed:', error);
-    }
-  });
+	// Start the command
+	const running = preview({
+		...options,
+		onCleanup: async (cleanupFn) => {
+			cleanup = cleanupFn;
+		},
+	}).catch((error) => {
+		if (!isTerminated) {
+			console.error("Preview command failed:", error);
+		}
+	});
 
-  return {
-    options,
-    terminate: async () => {
-      isTerminated = true;
-      if (cleanup) {
-        await cleanup();
-      }
-      await running;
-    },
-  };
+	return {
+		options,
+		terminate: async () => {
+			isTerminated = true;
+			if (cleanup) {
+				await cleanup();
+			}
+			await running;
+		},
+	};
 }

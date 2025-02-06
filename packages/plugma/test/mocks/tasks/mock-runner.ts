@@ -14,11 +14,11 @@ export const mockTaskRunner = {
       'INFO: Creating serial task runner with tasks:',
       tasks.map((t) => t.name),
     );
-    return (options) => {
-      console.log('INFO: Starting development server...');
-      console.log('INFO: Executing tasks...');
+    const runTasks = vi.fn(async (options) => {
+      console.log('Starting development server...');
+      console.log('Executing tasks...');
       console.log(
-        'INFO: Executing tasks:',
+        'Executing tasks:',
         tasks.map((t) => t.name),
       );
 
@@ -26,20 +26,23 @@ export const mockTaskRunner = {
       const buildTasks = tasks.filter((task) => task.name.startsWith('build:'));
       if (buildTasks.length > 0) {
         console.log(
-          'INFO: Executing build tasks:',
+          'Executing build tasks:',
           buildTasks.map((t) => t.name),
         );
-        console.log('INFO: Development server started successfully');
-        return mockVite.build();
+        await mockVite.build();
       }
-      return Promise.resolve(undefined);
-    };
+      console.log('Development server started successfully');
+      return undefined;
+    });
+    return runTasks;
   }),
   parallel: vi.fn((...tasks) => {
-    return (options) => {
+    const runTasks = vi.fn(async (options) => {
       // Mock successful task execution without actually running tasks
-      return new Promise((resolve) => setTimeout(resolve, 100));
-    };
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      return undefined;
+    });
+    return runTasks;
   }),
   run: vi.fn(async () => {
     // Mock successful task execution without actually running tasks

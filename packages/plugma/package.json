@@ -1,11 +1,35 @@
 {
   "name": "plugma",
-  "version": "1.3.0",
+  "version": "2.0.0-beta.1",
   "description": "",
   "main": "index.js",
   "type": "module",
   "bin": {
     "plugma": "./bin/plugma"
+  },
+  "scripts": {
+    "build:all-apps": "./build/build-all-apps.sh",
+    "build:dev-server": "cd apps/dev-server && vite build",
+    "build:figma-bridge": "cd apps/figma-bridge && vite build",
+    "build:runtime": "cd apps/plugma-runtime && vite build",
+    "build:plugma": "./build/header.sh Plugma && tsc -p tsconfig.build.json",
+    "build": "nr clean && nr build:plugma && nr build:all-apps",
+    "build:watch": "concurrently -c green,blue,yellow,cyan -n plugma,dev-app,bridge,runtime 'nr dev:plugma --watch' 'nr build:dev-server --watch' 'nr build:figma-bridge --watch' 'nr build:runtime --watch'",
+    "test-cmd": "nr clean && nr build && cd ../../sandbox && ../packages/plugma/bin/plugma",
+    "check": "tsc --noEmit",
+    "clean": "rm -rf dist && rm -rf apps/dist",
+    "copy-workflows": "cp -r ./templates/github/ .github/",
+    "dev:apps": "nr build:dev-server --watch && nr build:figma-bridge --watch",
+    "dev:plugma": "tsc -p tsconfig.build.json --watch",
+    "dev": "nr clean && concurrently -n apps,plugma 'nr dev:apps' 'nr dev:plugma'",
+    "lint:fix": "biome check --fix .",
+    "lint:unsafe-fix": "biome check --unsafe-fix .",
+    "lint": "biome check .",
+    "postinstall": "node ./migration/v1/check-migration.js",
+    "prepublishOnly": "npm run build-and-copy-apps",
+    "test:coverage": "vitest --run --coverage",
+    "test:watch": "vitest",
+    "test": "vitest --run"
   },
   "imports": {
     "#core": "./dist/core/index.js",
@@ -22,35 +46,30 @@
     "#packageJson": "./package.json"
   },
   "exports": {
-    "core": "./dist/core/index.js",
-    "commands": "./dist/commands/index.js",
-    "utils": "./dist/utils/index.js",
-    "tasks": "./dist/tasks/index.js",
-    "vite-plugins": "./dist/vite-plugins/index.js",
-    "testing": "./dist/testing/index.js"
-  },
-  "scripts": {
-    "build:all-apps": "./build/build-all-apps.sh",
-    "build:dev-server": "cd apps/dev-server && vite build",
-    "build:figma-bridge": "cd apps/figma-bridge && vite build",
-    "build:runtime": "cd apps/plugma-runtime && vite build",
-    "build:plugma": "./build/header.sh Plugma && tsc -p tsconfig.build.json",
-    "build": "nr clean && nr build:plugma && nr build:all-apps",
-    "test-cmd": "nr clean && nr build && cd ../../sandbox && ../packages/plugma/bin/plugma",
-    "check": "tsc --noEmit",
-    "clean": "rm -rf dist && rm -rf apps/dist",
-    "copy-workflows": "cp -r ./templates/github/ .github/",
-    "dev:apps": "nr build:dev-server --watch && nr build:figma-bridge --watch",
-    "dev:plugma": "tsc -p tsconfig.build.json --watch",
-    "dev": "nr clean && concurrently -n apps,plugma 'nr dev:apps' 'nr dev:plugma'",
-    "lint:fix": "biome check --fix .",
-    "lint:unsafe-fix": "biome check --unsafe-fix .",
-    "lint": "biome check .",
-    "postinstall": "node ./migration/v1/check-migration.js",
-    "prepublishOnly": "npm run build-and-copy-apps",
-    "test:coverage": "vitest --run --coverage",
-    "test:watch": "vitest",
-    "test": "vitest --run"
+    "core": {
+      "import": "./dist/core/index.js",
+      "types": "./dist/core/index.d.ts"
+    },
+    "commands": {
+      "import": "./dist/commands/index.js",
+      "types": "./dist/commands/index.d.ts"
+    },
+    "utils": {
+      "import": "./dist/utils/index.js",
+      "types": "./dist/utils/index.d.ts"
+    },
+    "tasks": {
+      "import": "./dist/tasks/index.js",
+      "types": "./dist/tasks/index.d.ts"
+    },
+    "vite-plugins": {
+      "import": "./dist/vite-plugins/index.js",
+      "types": "./dist/vite-plugins/index.d.ts"
+    },
+    "testing": {
+      "import": "./dist/testing/index.js",
+      "types": "./dist/testing/index.d.ts"
+    }
   },
   "jest": {
     "transform": {}

@@ -46,7 +46,7 @@ interface WrapPluginUiTaskResult {
  *   output: string;      // Output directory
  *   port: number;        // Dev server port
  *   instanceId: string;  // Unique instance ID
- *   manifest: {          // Plugin manifest data (injected by create-vite-configs)
+ *   manifest: {          // Plugin manifest data
  *     name: string;
  *     main?: string;
  *     ui?: string;
@@ -54,12 +54,6 @@ interface WrapPluginUiTaskResult {
  *   }
  * };
  * ~~~
- *
- * The task flow:
- * 1. Verifies UI file exists in manifest
- * 2. Reads the bridge template from dist/apps/figma-bridge.html
- * 3. Injects runtime configuration at the start of the file
- * 4. Creates the development UI file in the output directory
  *
  * @param options - Plugin build options including command, output path, etc
  * @param context - Task context containing results from previous tasks
@@ -79,86 +73,77 @@ const wrapPluginUi = async (
   }
 
   const { files } = context[GetFilesTask.name];
+  logger.debug('Task context loaded', {
+    manifest: files.manifest,
+    hasUI: !!files.manifest.ui,
+  });
 
-  if (!files.manifest.ui) {
-    logger.debug(
-      'No UI specified in manifest, skipping build:wrap-plugin-ui task',
-    );
-    return { outputPath: undefined };
-  }
+  // Only create if UI specified AND file exists
+  if (files.manifest.ui) {
+    const uiPath = resolve(files.manifest.ui);
+    const fileExists = await access(uiPath)
+      .then(() => true)
+      .catch(() => false);
 
-  const uiPath = files.manifest.ui;
-  const outputPath = join(options.output || 'dist', 'ui.html');
-  const templatePath = resolve(getDirName(), '../../apps/figma-bridge.html');
+    if (fileExists) {
+      const outputPath = join(options.output || 'dist', 'ui.html');
+      logger.debug(`Wrapping user plugin UI: ${uiPath}...`, {
+        uiPath,
+        outputPath,
+      });
 
-  try {
-    // Check if UI file exists
-    try {
-      await access(uiPath);
-    } catch (error) {
+      try {
+        // Add manifest to options like in legacy version
+        options.manifest = files.manifest;
+
+        // Inject runtime data (prepended like in legacy version)
+        const runtimeData = `<script>
+        // Global variables defined on the window object
+        window.runtimeData = ${JSON.stringify(options, null, 2)};
+        </script>`;
+
+        logger.debug('Runtime data prepared', {
+          command: options.command,
+          mode: options.mode,
+          port: options.port,
+        });
+
+        // Read template and prepend runtime data
+        const templatePath = resolve(
+          getDirName(),
+          '../../apps/figma-bridge.html',
+        );
+        let template: string;
+        try {
+          template = await readFile(templatePath, 'utf-8');
+        } catch (error) {
+          throw new Error(`Template file not found at ${templatePath}`);
+        }
+        const finalContent = template.replace(/^/, runtimeData);
+        logger.debug('Template loaded and runtime data injected');
+
+        // Create output directory and write file
+        await mkdir(dirname(outputPath), { recursive: true });
+        await writeFile(outputPath, finalContent, 'utf-8');
+        logger.success('Wrapped plugin UI created successfully');
+
+        return { outputPath };
+      } catch (error) {
+        // Log the error and rethrow
+        logger.error('Failed to wrap user plugin UI:', error);
+        throw error;
+      }
+    } else {
       logger.debug(
         `UI file not found at ${uiPath}, skipping build:wrap-plugin-ui task`,
       );
       return { outputPath: undefined };
     }
-
-    logger.debug(`Wrapping user plugin UI: ${uiPath}...`);
-
-    // Check if template exists and read it
-    let templateContent: string;
-    try {
-      templateContent = await readFile(templatePath, 'utf-8');
-    } catch (error) {
-      const err = new Error(`Template file not found at ${templatePath}`);
-      logger.error('Failed to wrap user plugin UI:', err);
-      throw err;
-    }
-
-    // Validate template
-    if (!templateContent.includes('<body>')) {
-      const err = new Error('Invalid template file: missing <body> tag');
-      logger.error('Failed to wrap user plugin UI:', err);
-      throw err;
-    }
-
-    // Inject runtime data
-    const runtimeData = `<script>\nwindow.runtimeData = ${JSON.stringify(
-      options,
-      null,
-      2,
-    )};\n</script>`;
-    logger.debug('Runtime data prepared', {
-      command: options.command,
-      mode: options.mode,
-      port: options.port,
-    });
-
-    // Read user's UI content
-    const userUiContent = await readFile(uiPath, 'utf-8');
-    logger.debug('User UI content loaded');
-
-    // Replace placeholder in template with user's UI content
-    const template =
-      runtimeData +
-      templateContent.replace('<!-- UI_CONTENT -->', userUiContent);
-    logger.debug('Template loaded and runtime data injected');
-
-    // Create output directory and write file
-    await mkdir(dirname(outputPath), { recursive: true });
-    await writeFile(outputPath, template, 'utf-8');
-    logger.success('Wrapped plugin UI created successfully');
-
-    return { outputPath };
-  } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message === 'Template file not found' ||
-        error.message === 'Invalid template file: missing <body> tag')
-    ) {
-      throw error;
-    }
-    logger.error('Failed to wrap user plugin UI:', error);
-    throw error;
+  } else {
+    logger.debug(
+      'No UI specified in manifest, skipping build:wrap-plugin-ui task',
+    );
+    return { outputPath: undefined };
   }
 };
 

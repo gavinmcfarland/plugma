@@ -35,6 +35,7 @@ const mocks = vi.hoisted(() => {
       default: pathMock,
     },
     loggerInstance: loggerMock,
+    Logger: vi.fn().mockImplementation(() => loggerMock),
   };
 });
 
@@ -50,11 +51,11 @@ vi.mock('node:path', () => mocks.path);
 
 vi.mock('#utils', () => ({
   getDirName: mocks.getDirName,
-  Logger: vi.fn().mockImplementation(() => mocks.loggerInstance),
+  Logger: mocks.Logger,
 }));
 
 vi.mock('#utils/log/logger.js', () => ({
-  Logger: vi.fn().mockImplementation(() => mocks.loggerInstance),
+  Logger: mocks.Logger,
 }));
 
 import { GetFilesTask, WrapPluginUiTask } from '#tasks';
@@ -87,21 +88,25 @@ describe('WrapPluginUiTask', () => {
     buildDir = '/work/cva/plugma/packages/plugma/src/tasks/build';
     mocks.getDirName.mockReturnValue(buildDir);
 
-    // Calculate the template path the same way the source does
+    // Calculate the template path
     templatePath = mocks.path.resolve(buildDir, '../../apps/figma-bridge.html');
   });
 
   afterEach(() => {
     vi.clearAllMocks();
+    mockFs.clear();
   });
 
-  test('should create UI when manifest has UI and file exists', async () => {
-    const templateContent =
-      '<html><head></head><body><div id="app"></div></body></html>';
+  test('should create UI file with injected runtime data when manifest has UI and file exists', async () => {
+    const templateContent = '<html><head></head><body>Template</body></html>';
     const uiPath = '/path/to/ui.html';
+    const expectedRuntimeData = {
+      ...baseOptions,
+      manifest: { ui: uiPath },
+    };
 
     mockFs.addFiles({
-      [uiPath]: templateContent,
+      [uiPath]: '<div>User UI</div>',
       [templatePath]: templateContent,
     });
 
@@ -117,13 +122,35 @@ describe('WrapPluginUiTask', () => {
 
     const result = await WrapPluginUiTask.run(baseOptions, context);
 
+    // Verify output path
     expect(result.outputPath).toBe('dist/ui.html');
+
+    // Verify runtime data injection
+    const writtenContent = (await mockFs.readFile('dist/ui.html')).toString();
+    expect(writtenContent).toContain('window.runtimeData =');
+    expect(writtenContent).toContain(
+      JSON.stringify(expectedRuntimeData, null, 2),
+    );
+
+    // Verify template content is preserved
+    expect(writtenContent).toContain(templateContent);
+
+    // Verify runtime data is prepended (comes before template)
+    const runtimeDataIndex = writtenContent.indexOf('window.runtimeData');
+    const templateIndex = writtenContent.indexOf('<html>');
+    expect(runtimeDataIndex).toBeLessThan(templateIndex);
+
+    // Verify logging
     expect(mocks.loggerInstance.debug).toHaveBeenCalledWith(
-      `Wrapping user plugin UI: ${uiPath}...`,
+      'Wrapping user plugin UI: /path/to/ui.html...',
+      expect.any(Object),
+    );
+    expect(mocks.loggerInstance.success).toHaveBeenCalledWith(
+      'Wrapped plugin UI created successfully',
     );
   });
 
-  test('should skip when manifest has no UI', async () => {
+  test('should skip when manifest has no UI field', async () => {
     const context = createMockTaskContext({
       [GetFilesTask.name]: {
         files: {
@@ -138,6 +165,7 @@ describe('WrapPluginUiTask', () => {
     expect(mocks.loggerInstance.debug).toHaveBeenCalledWith(
       'No UI specified in manifest, skipping build:wrap-plugin-ui task',
     );
+    expect(mocks.writeFile).not.toHaveBeenCalled();
   });
 
   test('should skip when UI file does not exist', async () => {
@@ -159,64 +187,7 @@ describe('WrapPluginUiTask', () => {
     expect(mocks.loggerInstance.debug).toHaveBeenCalledWith(
       `UI file not found at ${uiPath}, skipping build:wrap-plugin-ui task`,
     );
-  });
-
-  test('should inject runtime data correctly', async () => {
-    const templateContent =
-      '<html><head></head><body><div id="app"></div></body></html>';
-    const uiPath = '/path/to/ui.html';
-
-    mockFs.addFiles({
-      [uiPath]: templateContent,
-      [templatePath]: templateContent,
-    });
-
-    const context = createMockTaskContext({
-      [GetFilesTask.name]: {
-        files: {
-          manifest: {
-            ui: uiPath,
-          },
-        },
-      },
-    });
-
-    const result = await WrapPluginUiTask.run(baseOptions, context);
-
-    expect(result.outputPath).toBe('dist/ui.html');
-    expect(mocks.writeFile).toHaveBeenCalledWith(
-      'dist/ui.html',
-      expect.stringContaining('window.runtimeData'),
-      'utf-8',
-    );
-  });
-
-  test('should handle invalid template file', async () => {
-    const templateContent = '<html><head></head></html>'; // No body tag
-    const uiPath = '/path/to/ui.html';
-
-    mockFs.addFiles({
-      [uiPath]: '<div>test</div>',
-      [templatePath]: templateContent,
-    });
-
-    const context = createMockTaskContext({
-      [GetFilesTask.name]: {
-        files: {
-          manifest: {
-            ui: uiPath,
-          },
-        },
-      },
-    });
-
-    await expect(WrapPluginUiTask.run(baseOptions, context)).rejects.toThrow(
-      'Invalid template file: missing <body> tag',
-    );
-    expect(mocks.loggerInstance.error).toHaveBeenCalledWith(
-      'Failed to wrap user plugin UI:',
-      expect.any(Error),
-    );
+    expect(mocks.writeFile).not.toHaveBeenCalled();
   });
 
   test('should handle missing template file', async () => {
@@ -237,7 +208,7 @@ describe('WrapPluginUiTask', () => {
     });
 
     await expect(WrapPluginUiTask.run(baseOptions, context)).rejects.toThrow(
-      'Template file not found',
+      `Template file not found at ${templatePath}`,
     );
     expect(mocks.loggerInstance.error).toHaveBeenCalledWith(
       'Failed to wrap user plugin UI:',
