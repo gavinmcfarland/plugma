@@ -63,9 +63,9 @@ export class MockFs {
     const normalizedPath = this.normalizePath(path);
     const exists =
       this.files.has(normalizedPath) || this.directories.has(normalizedPath);
-    console.log(`Checking if ${normalizedPath} exists:`, exists);
-    console.log('Files:', Array.from(this.files.keys()));
-    console.log('Directories:', Array.from(this.directories));
+    // console.log(`Checking if ${normalizedPath} exists:`, exists);
+    // console.log('Files:', Array.from(this.files.keys()));
+    // console.log('Directories:', Array.from(this.directories));
     return exists;
   }
 

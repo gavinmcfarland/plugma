@@ -5,13 +5,13 @@
 
 import type { DevCommandOptions } from '#commands/types.js';
 import {
-	BuildMainTask,
-	BuildManifestTask,
-	BuildPlaceholderUiTask,
-	GetFilesTask,
-	ShowPlugmaPromptTask,
-	StartViteServerTask,
-	StartWebSocketsServerTask,
+  BuildMainTask,
+  BuildManifestTask,
+  GetFilesTask,
+  ShowPlugmaPromptTask,
+  StartViteServerTask,
+  StartWebSocketsServerTask,
+  WrapPluginUiTask,
 } from '#tasks';
 import { serial } from '#tasks/runner.js';
 import { Logger } from '#utils/log/logger.js';
@@ -46,13 +46,6 @@ export async function dev(options: DevCommandOptions): Promise<void> {
       command: 'dev' as const,
       cwd: options.cwd || process.cwd(),
     };
-    // 'get-files',
-    // 'show-plugma-prompt',
-    // 'build-manifest',
-    // 'build-placeholder-ui',
-    // 'build-main',
-    // 'start-websockets-server',
-    // 'start-vite-server',
 
     // Execute tasks in sequence
     log.info('Executing tasks...');
@@ -60,7 +53,7 @@ export async function dev(options: DevCommandOptions): Promise<void> {
       GetFilesTask,
       ShowPlugmaPromptTask,
       BuildManifestTask,
-      BuildPlaceholderUiTask,
+      WrapPluginUiTask,
       BuildMainTask,
       StartWebSocketsServerTask,
       StartViteServerTask,

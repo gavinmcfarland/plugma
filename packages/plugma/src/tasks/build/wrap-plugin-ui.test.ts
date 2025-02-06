@@ -3,9 +3,14 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 // Hoist mocks
 const mocks = vi.hoisted(() => {
   const pathMock = {
-    dirname: vi.fn().mockReturnValue('src/tasks/build'),
-    join: vi.fn().mockImplementation((...paths: string[]) => paths.join('/')),
-    resolve: vi.fn().mockImplementation((p: string) => p),
+    dirname: vi
+      .fn()
+      .mockImplementation((p) => p.split('/').slice(0, -1).join('/')),
+    join: vi.fn().mockImplementation((...paths) => paths.join('/')),
+    resolve: vi.fn().mockImplementation((...paths) => {
+      const joined = paths.join('/');
+      return joined.startsWith('/') ? joined : `/${joined}`;
+    }),
     sep: '/',
   };
 
@@ -22,7 +27,7 @@ const mocks = vi.hoisted(() => {
     mkdir: vi.fn().mockResolvedValue(undefined),
     readFile: vi.fn(),
     writeFile: vi.fn(),
-    fileURLToPath: vi.fn().mockReturnValue('src/tasks/build/placeholder-ui.ts'),
+    fileURLToPath: vi.fn().mockReturnValue('src/tasks/build/wrap-plugin-ui.ts'),
     path: {
       ...pathMock,
       default: pathMock,
@@ -50,7 +55,7 @@ vi.mock('#utils/log/logger.js', () => ({
   Logger: mocks.Logger,
 }));
 
-import { BuildPlaceholderUiTask, GetFilesTask } from '#tasks';
+import { GetFilesTask, WrapPluginUiTask } from '#tasks';
 import { type MockFs, createMockFs, createMockTaskContext } from '#test';
 
 const baseOptions = {
@@ -60,9 +65,10 @@ const baseOptions = {
   output: 'dist',
   instanceId: 'test',
   debug: false,
+  cwd: '/work/test',
 };
 
-describe('BuildPlaceholderUiTask', () => {
+describe('WrapPluginUiTask', () => {
   let mockFs: MockFs;
 
   beforeEach(() => {
@@ -83,7 +89,7 @@ describe('BuildPlaceholderUiTask', () => {
     const templateContent =
       '<html><head></head><body><div id="app"></div></body></html>';
     const uiPath = '/path/to/ui.html';
-    const templatePath = 'src/tasks/build/../../../apps/figma-bridge.html';
+    const templatePath = '/work/test/dist/apps/figma-bridge.html';
 
     mockFs.addFiles({
       [uiPath]: templateContent,
@@ -100,11 +106,11 @@ describe('BuildPlaceholderUiTask', () => {
       },
     });
 
-    const result = await BuildPlaceholderUiTask.run(baseOptions, context);
+    const result = await WrapPluginUiTask.run(baseOptions, context);
 
     expect(result.outputPath).toBe('dist/ui.html');
     expect(mocks.loggerInstance.debug).toHaveBeenCalledWith(
-      `Creating placeholder UI for ${uiPath}...`,
+      `Wrapping user plugin UI: ${uiPath}...`,
     );
   });
 
@@ -117,17 +123,17 @@ describe('BuildPlaceholderUiTask', () => {
       },
     });
 
-    const result = await BuildPlaceholderUiTask.run(baseOptions, context);
+    const result = await WrapPluginUiTask.run(baseOptions, context);
 
     expect(result.outputPath).toBeUndefined();
     expect(mocks.loggerInstance.debug).toHaveBeenCalledWith(
-      'No UI specified in manifest, skipping placeholder UI',
+      'No UI specified in manifest, skipping build:wrap-plugin-ui task',
     );
   });
 
   test('should skip when UI file does not exist', async () => {
     const uiPath = '/path/to/nonexistent.html';
-    const templatePath = 'src/tasks/build/../../../apps/figma-bridge.html';
+    const templatePath = '/work/test/dist/apps/figma-bridge.html';
     const templateContent =
       '<html><head></head><body><div id="app"></div></body></html>';
 
@@ -145,11 +151,11 @@ describe('BuildPlaceholderUiTask', () => {
       },
     });
 
-    const result = await BuildPlaceholderUiTask.run(baseOptions, context);
+    const result = await WrapPluginUiTask.run(baseOptions, context);
 
     expect(result.outputPath).toBeUndefined();
     expect(mocks.loggerInstance.debug).toHaveBeenCalledWith(
-      `UI file not found at ${uiPath}, skipping placeholder UI`,
+      `UI file not found at ${uiPath}, skipping build:wrap-plugin-ui task`,
     );
   });
 
@@ -157,7 +163,7 @@ describe('BuildPlaceholderUiTask', () => {
     const templateContent =
       '<html><head></head><body><div id="app"></div></body></html>';
     const uiPath = '/path/to/ui.html';
-    const templatePath = 'src/tasks/build/../../../apps/figma-bridge.html';
+    const templatePath = '/work/test/dist/apps/figma-bridge.html';
 
     mockFs.addFiles({
       [uiPath]: templateContent,
@@ -174,19 +180,19 @@ describe('BuildPlaceholderUiTask', () => {
       },
     });
 
-    await BuildPlaceholderUiTask.run(baseOptions, context);
+    await WrapPluginUiTask.run(baseOptions, context);
 
     const writtenContent = await mockFs.readFile('dist/ui.html');
     expect(writtenContent).toContain('window.runtimeData');
     expect(mocks.loggerInstance.success).toHaveBeenCalledWith(
-      'Placeholder UI created successfully',
+      'Wrapped plugin UI created successfully',
     );
   });
 
   test('should handle invalid template file', async () => {
     const templateContent = '<html><head></head></html>';
     const uiPath = '/path/to/ui.html';
-    const templatePath = 'src/tasks/build/../../../apps/figma-bridge.html';
+    const templatePath = '/work/test/dist/apps/figma-bridge.html';
 
     mockFs.addFiles({
       [uiPath]: templateContent,
@@ -203,11 +209,11 @@ describe('BuildPlaceholderUiTask', () => {
       },
     });
 
-    await expect(
-      BuildPlaceholderUiTask.run(baseOptions, context),
-    ).rejects.toThrow('Invalid template file: missing <body> tag');
+    await expect(WrapPluginUiTask.run(baseOptions, context)).rejects.toThrow(
+      'Invalid template file: missing <body> tag',
+    );
     expect(mocks.loggerInstance.error).toHaveBeenCalledWith(
-      'Failed to create placeholder UI:',
+      'Failed to wrap user plugin UI:',
       expect.any(Error),
     );
   });
@@ -229,11 +235,11 @@ describe('BuildPlaceholderUiTask', () => {
       },
     });
 
-    await expect(
-      BuildPlaceholderUiTask.run(baseOptions, context),
-    ).rejects.toThrow('Template file not found');
+    await expect(WrapPluginUiTask.run(baseOptions, context)).rejects.toThrow(
+      'Template file not found',
+    );
     expect(mocks.loggerInstance.error).toHaveBeenCalledWith(
-      'Failed to create placeholder UI:',
+      'Failed to wrap user plugin UI:',
       expect.any(Error),
     );
   });
@@ -241,8 +247,8 @@ describe('BuildPlaceholderUiTask', () => {
   test('should handle missing get-files result', async () => {
     const context = createMockTaskContext({});
 
-    await expect(
-      BuildPlaceholderUiTask.run(baseOptions, context),
-    ).rejects.toThrow('get-files task must run first');
+    await expect(WrapPluginUiTask.run(baseOptions, context)).rejects.toThrow(
+      'get-files task must run first',
+    );
   });
 });

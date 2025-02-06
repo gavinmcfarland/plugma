@@ -5,13 +5,13 @@
 
 import type { PluginOptions } from '#core/types.js';
 import {
-	BuildMainTask,
-	BuildManifestTask,
-	BuildPlaceholderUiTask,
-	GetFilesTask,
-	ShowPlugmaPromptTask,
-	StartViteServerTask,
-	StartWebSocketsServerTask,
+  BuildMainTask,
+  BuildManifestTask,
+  GetFilesTask,
+  ShowPlugmaPromptTask,
+  StartViteServerTask,
+  StartWebSocketsServerTask,
+  WrapPluginUiTask,
 } from '#tasks';
 import { getRandomPort } from '#utils';
 import { Logger } from '#utils/log/logger.js';
@@ -54,7 +54,7 @@ export async function preview(options: PreviewCommandOptions): Promise<void> {
       GetFilesTask,
       ShowPlugmaPromptTask,
       BuildManifestTask,
-      BuildPlaceholderUiTask,
+      WrapPluginUiTask,
       BuildMainTask,
       StartWebSocketsServerTask,
       StartViteServerTask,

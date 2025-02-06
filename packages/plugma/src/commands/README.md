@@ -8,21 +8,35 @@ This directory contains the core command implementations for the Plugma CLI. The
 
 ```
 commands/
-├── README.md          # This file
-├── types.ts          # Command type definitions
-├── config.ts         # Configuration utilities
-├── index.ts         # Command exports
-├── tasks/           # Task implementations
-│   ├── build/       # Build-related tasks
-│   │   ├── manifest.ts
-│   │   ├── ui.ts
-│   │   └── main.ts
-│   ├── server/      # Server-related tasks
-│   │   ├── vite.ts
-│   │   └── websocket.ts
-│   └── common/      # Shared tasks
-│       ├── files.ts
-│       └── prompt.ts
+├── README.md    # This file
+├── types.ts     # Command type definitions
+├── config.ts    # Configuration utilities
+├── index.ts     # Command exports
+├── tasks
+│   ├── build
+│   │   ├── main.ts
+│   │   ├── manifest.ts
+│   │   ├── ui.ts
+│   │   └── wrap-plugin-ui.ts
+│   ├── common
+│   │   ├── ensure-dist.ts
+│   │   ├── get-files.ts
+│   │   └── prompt.ts
+│   ├── release
+│   │   ├── create-release-yml.ts
+│   │   ├── git-release.ts
+│   │   ├── git-status.ts
+│   │   ├── version-update.ts
+│   │   └── workflow-templates.ts
+│   ├── server
+│   │   ├── restart-vite.ts
+│   │   ├── vite.ts
+│   │   └── websocket.ts
+│   ├── test
+│   │   ├── inject-test-code.ts
+│   │   ├── run-vitest.ts
+│   │   └── start-test-server.ts
+│   └── runner.ts
 ├── dev.ts           # Development command
 ├── preview.ts       # Preview command
 ├── build.ts         # Build command
@@ -47,13 +61,13 @@ commands/
   - `port`: Server port (defaults to 3000)
   - `output`: Output directory (defaults to 'dist')
 - **Tasks Executed**:
-  1. `get-files`: Load plugin files and configuration
-  2. `show-plugma-prompt`: Display startup information
-  3. `build-manifest`: Generate plugin manifest
-  4. `build-placeholder-ui`: Create development UI
-  5. `build-main`: Build plugin main script
-  6. `start-websockets-server`: Start WebSocket server for live reload
-  7. `start-vite-server`: Start Vite dev server
+  1. `common:get-files`: Load plugin files and configuration
+  2. `common:show-plugma-prompt`: Display startup information
+  3. `build:manifest`: Generate plugin manifest
+  4. `build:wrap-plugin-ui`: Create development UI
+  5. `build:main`: Build plugin main script
+  6. `server:start-websockets-server`: Start WebSocket server for live reload
+  7. `server:start-vite-server`: Start Vite dev server
 
 ### `preview` Command
 - **Purpose**: Preview production build with development server
@@ -67,17 +81,17 @@ commands/
   - `mode`: Build mode (defaults to 'production')
   - `output`: Output directory (defaults to 'dist')
 - **Tasks Executed**:
-  1. `get-files`: Load plugin files and configuration
-  2. `show-plugma-prompt`: Display build information
-  3. `build-manifest`: Generate plugin manifest
-  4. `build-ui`: Build production UI
-  5. `build-main`: Build production main script
+  1. `common:get-files`: Load plugin files and configuration
+  2. `common:show-plugma-prompt`: Display build information
+  3. `build:manifest`: Generate plugin manifest
+  4. `build:ui`: Build production UI
+  5. `build:main`: Build production main script
 
 ## Tasks
 
 ### Common Tasks
 
-#### `get-files`
+#### `common:get-files`
 - **Purpose**: Loads user configuration and files
 - **Supported Commands**: All
 - **Returns**: 
@@ -90,16 +104,16 @@ commands/
   ```
 - **Location**: `tasks/common/files.ts`
 
-#### `show-plugma-prompt`
+#### `common:show-plugma-prompt`
 - **Purpose**: Displays command startup information
 - **Supported Commands**: All
 - **Returns**: void
 - **Location**: `tasks/common/prompt.ts`
-- **Requires**: Results from `get-files`
+- **Requires**: Results from `common:get-files`
 
 ### Build Tasks
 
-#### `build-manifest`
+#### `build:manifest`
 - **Purpose**: Generates plugin manifest
 - **Supported Commands**: All
 - **Returns**:
@@ -110,32 +124,32 @@ commands/
   }
   ```
 - **Location**: `tasks/build/manifest.ts`
-- **Requires**: Results from `get-files`
+- **Requires**: Results from `common:get-files`
 
-#### `build-placeholder-ui`
+#### `build:wrap-plugin-ui`
 - **Purpose**: Creates development UI if none exists
 - **Supported Commands**: dev, preview
 - **Returns**: void
 - **Location**: `tasks/build/ui.ts`
-- **Requires**: Results from `get-files`
+- **Requires**: Results from `common:get-files`
 
-#### `build-ui`
+#### `build:ui`
 - **Purpose**: Builds production UI with Vite
 - **Supported Commands**: build
 - **Returns**: void
 - **Location**: `tasks/build/ui.ts`
-- **Requires**: Results from `get-files`
+- **Requires**: Results from `common:get-files`
 
-#### `build-main`
+#### `build:main`
 - **Purpose**: Builds plugin main script
 - **Supported Commands**: All
 - **Returns**: void
 - **Location**: `tasks/build/main.ts`
-- **Requires**: Results from `get-files`, `build-manifest`
+- **Requires**: Results from `common:get-files`, `build:manifest`
 
 ### Server Tasks
 
-#### `start-websockets-server`
+#### `server:start-websockets-server`
 - **Purpose**: Starts WebSocket server for live reload
 - **Supported Commands**: dev, preview
 - **Returns**: 
@@ -146,14 +160,14 @@ commands/
   }
   ```
 - **Location**: `tasks/server/websocket.ts`
-- **Requires**: Results from `get-files`
+- **Requires**: Results from `common:get-files`
 
-#### `start-vite-server`
+#### `server:start-vite-server`
 - **Purpose**: Starts Vite development server
 - **Supported Commands**: dev, preview
 - **Returns**: void
 - **Location**: `tasks/server/vite.ts`
-- **Requires**: Results from `get-files`, `build-manifest`
+- **Requires**: Results from `common:get-files`, `build:manifest`
 
 ## Task Development
 
@@ -172,7 +186,7 @@ export interface BuildUiResult {
 }
 
 export const buildUi: TaskDefinition<BuildUiResult> = {
-  name: 'build-ui',
+  name: 'build:ui',
   supportedCommands: ['build'],
   execute: async ({ options, results }) => {
     const files = getTaskResult(results, getFiles);
