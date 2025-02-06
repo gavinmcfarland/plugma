@@ -8,6 +8,16 @@ import {
 
 // Mock fs promises
 vi.mock('node:fs', () => ({
+  default: {
+    readFileSync: vi.fn(),
+    writeFileSync: vi.fn(),
+    promises: {
+      readFile: vi.fn(),
+      writeFile: vi.fn(),
+    },
+  },
+  readFileSync: vi.fn(),
+  writeFileSync: vi.fn(),
   promises: {
     readFile: vi.fn(),
     writeFile: vi.fn(),

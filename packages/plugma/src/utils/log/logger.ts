@@ -98,6 +98,16 @@ export class Logger {
   }
 
   /**
+   * Gets the log level prefix for a given type
+   * @param type - The type of log message
+   * @returns The formatted log level prefix
+   */
+  private getLogLevelPrefix(type: string | null): string {
+    if (!type) return '';
+    return `${type.toUpperCase()}: `;
+  }
+
+  /**
    * Formats a log message with indentation and prefix.
    * @param message - Message to format
    * @param type - Type of log message
@@ -110,12 +120,13 @@ export class Logger {
   ): { formattedMessage: string; callSite: string } {
     const indent = ' '.repeat(indentLevel * 2);
     const prefix = this.getPrefix(type);
+    const logLevel = type ? `${type.toUpperCase()}: ` : '';
     const tag = this.options.tag ? chalk.cyan(`[${this.options.tag}] `) : '';
     let callSite = '';
     if (type === 'debug') {
       callSite = this.getCallSite();
     }
-    const formattedMessage = `${indent}${prefix}${tag}${message}`;
+    const formattedMessage = `${indent}${prefix}${tag}${logLevel}${message}`;
     return { formattedMessage, callSite };
   }
 

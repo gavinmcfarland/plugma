@@ -11,21 +11,34 @@ import {
 const mocks = vi.hoisted(() => ({
   readFileSync: vi.fn().mockReturnValue('/*--[ RUNTIME_DATA ]--*/'),
   readJson: vi.fn(),
+  readPlugmaPackageJson: vi.fn(),
   getDirName: vi.fn(() => '/mock/dir'),
   writeTempFile: vi.fn().mockReturnValue('/mock/temp/file.js'),
   createViteConfigs: vi.fn(),
   getUserFiles: vi.fn(),
+  promises: {
+    readFile: vi.fn().mockResolvedValue('{"name": "test"}'),
+    writeFile: vi.fn().mockResolvedValue(undefined),
+    mkdir: vi.fn().mockResolvedValue(undefined),
+    rm: vi.fn().mockResolvedValue(undefined),
+  },
 }));
 
 vi.mock('node:fs', () => ({
   ...mocks,
   default: mocks,
+  promises: mocks.promises,
 }));
 
 vi.mock('#utils', () => ({
   readJson: mocks.readJson,
   getDirName: mocks.getDirName,
   writeTempFile: mocks.writeTempFile,
+}));
+
+vi.mock('#utils/fs/read-json.js', () => ({
+  readJson: mocks.readJson,
+  readPlugmaPackageJson: mocks.readPlugmaPackageJson,
 }));
 
 vi.mock('#utils/config/create-vite-configs.js', () => ({
@@ -55,6 +68,13 @@ describe('get-files Task', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockFs = createMockFs();
+    mocks.readJson.mockImplementation(async (filePath: string) => {
+      if (filePath.endsWith('package.json')) {
+        return mockGetFilesResult.files.userPkgJson;
+      }
+      throw new Error('File not found');
+    });
+    mocks.readPlugmaPackageJson.mockResolvedValue(mockGetFilesResult.plugmaPkg);
   });
 
   describe('Task Definition', () => {
@@ -87,31 +107,29 @@ describe('get-files Task', () => {
     });
 
     it('should throw GetFilesError when package.json is missing', async () => {
-      mocks.getUserFiles.mockRejectedValue(new Error('File not found'));
+      const error = new Error('File not found');
+      mocks.getUserFiles.mockRejectedValue(error);
 
       await expect(GetFilesTask.run(baseOptions, baseContext)).rejects.toThrow(
-        new GetFilesError('Failed to load files: File not found', 'FILE_ERROR'),
+        new GetFilesError('Failed to load files', 'FILE_ERROR', error),
       );
     });
 
     it('should throw GetFilesError when package.json is invalid', async () => {
-      mocks.getUserFiles.mockRejectedValue(new Error('Invalid JSON'));
+      const error = new Error('Invalid JSON format');
+      mocks.getUserFiles.mockRejectedValue(error);
 
       await expect(GetFilesTask.run(baseOptions, baseContext)).rejects.toThrow(
-        new GetFilesError('Failed to load files: Invalid JSON', 'FILE_ERROR'),
+        new GetFilesError('Failed to load files', 'FILE_ERROR', error),
       );
     });
 
     it('should throw GetFilesError when manifest is missing required fields', async () => {
-      mocks.getUserFiles.mockRejectedValue(
-        new Error('Missing required fields'),
-      );
+      const error = new Error('Missing required fields');
+      mocks.getUserFiles.mockRejectedValue(error);
 
       await expect(GetFilesTask.run(baseOptions, baseContext)).rejects.toThrow(
-        new GetFilesError(
-          'Failed to load files: Missing required fields',
-          'FILE_ERROR',
-        ),
+        new GetFilesError('Failed to load files', 'FILE_ERROR', error),
       );
     });
 
@@ -121,12 +139,13 @@ describe('get-files Task', () => {
         userPkgJson: mockGetFilesResult.files.userPkgJson,
       });
 
+      const error = new Error('Failed to create configs');
       mocks.createViteConfigs.mockImplementation(() => {
-        throw new Error('Failed to create configs');
+        throw error;
       });
 
       await expect(GetFilesTask.run(baseOptions, baseContext)).rejects.toThrow(
-        new GetFilesError('Failed to create configs', 'CONFIG_ERROR'),
+        new GetFilesError('Failed to create configs', 'CONFIG_ERROR', error),
       );
     });
 

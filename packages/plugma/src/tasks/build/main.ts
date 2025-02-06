@@ -10,7 +10,6 @@ import type {
   ResultsOfTask,
 } from '#core/types.js';
 import { createViteConfigs } from '#utils/config/create-vite-configs.js';
-// import type { TaskDefinition } from '#core/task-runner/types.js';
 import { Logger } from '#utils/log/logger.js';
 import { GetFilesTask } from '../common/get-files.js';
 import { task } from '../runner.js';

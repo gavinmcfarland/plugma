@@ -41,6 +41,23 @@ export async function setupTestEnvironment(
   // Clear mock fs
   mockFs.clear();
 
+  // Add template file
+  await mockFs.writeFile(
+    join(testDir, 'dist', 'apps', 'figma-bridge.html'),
+    `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Figma Bridge</title>
+</head>
+<body>
+  <div id="figma-bridge"></div>
+  <!-- UI_CONTENT -->
+</body>
+</html>
+  `,
+  );
+
   // Add test files to mock fs
   for (const [path, content] of Object.entries(files || {})) {
     const fullPath = join(testDir, path);

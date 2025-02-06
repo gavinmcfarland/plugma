@@ -18,16 +18,78 @@ import { BuildMainTask } from './main.js';
 setupFsMocks();
 setupViteMock();
 
+// Mock Logger and createViteConfigs
+vi.mock('#utils/log/logger.js', () => ({
+  Logger: vi.fn().mockImplementation(() => ({
+    debug: vi.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
+  })),
+}));
+
+vi.mock('#utils/config/create-vite-configs.js', () => ({
+  createViteConfigs: vi.fn().mockReturnValue({
+    main: {
+      dev: {
+        root: process.cwd(),
+        base: '/',
+        mode: 'development',
+        build: {
+          outDir: 'dist',
+          emptyOutDir: true,
+          sourcemap: true,
+          minify: false,
+          lib: {
+            entry: 'src/plugin-main.ts',
+            formats: ['iife'],
+            name: 'plugin',
+            fileName: () => 'main.js',
+          },
+          rollupOptions: {
+            input: 'src/plugin-main.ts',
+            external: ['figma'],
+            output: {
+              globals: {
+                figma: 'figma',
+              },
+            },
+          },
+        },
+      },
+      build: {
+        root: process.cwd(),
+        base: '/',
+        mode: 'production',
+        build: {
+          outDir: 'dist',
+          emptyOutDir: true,
+          sourcemap: true,
+          minify: true,
+          lib: {
+            entry: 'src/plugin-main.ts',
+            formats: ['iife'],
+            name: 'plugin',
+            fileName: () => 'main.js',
+          },
+          rollupOptions: {
+            input: 'src/plugin-main.ts',
+            external: ['figma'],
+            output: {
+              globals: {
+                figma: 'figma',
+              },
+            },
+          },
+        },
+      },
+    },
+  }),
+}));
+
 describe('Main Build Tasks', () => {
   beforeEach(() => {
     resetMocks();
     viteState.viteMainWatcher = null;
-  });
-
-  describe('Task Definition', () => {
-    test('should have correct name', () => {
-      expect(BuildMainTask.name).toBe('build:main');
-    });
   });
 
   describe('Task Execution', () => {

@@ -1,10 +1,11 @@
 import {
   BuildMainTask,
   BuildManifestTask,
-  BuildUiTask,
   GetFilesTask,
   ShowPlugmaPromptTask,
   StartViteServerTask,
+  StartWebSocketsServerTask,
+  WrapPluginUiTask,
 } from '#tasks';
 import { serial } from '#tasks/runner.js';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
@@ -39,9 +40,10 @@ describe('Preview Command', () => {
       expect(serial).toHaveBeenCalledWith(
         GetFilesTask,
         ShowPlugmaPromptTask,
-        BuildMainTask,
-        BuildUiTask,
         BuildManifestTask,
+        WrapPluginUiTask,
+        BuildMainTask,
+        StartWebSocketsServerTask,
         StartViteServerTask,
       );
 

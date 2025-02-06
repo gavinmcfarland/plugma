@@ -45,6 +45,29 @@ export interface ExecuteUntilOutputResult {
 }
 
 /**
+ * Strips ANSI color codes from a string
+ */
+function stripAnsi(str: string): string {
+  return str.replace(
+    /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
+    '',
+  );
+}
+
+/**
+ * Strips log level prefixes from a string
+ */
+function stripLogLevel(str: string): string {
+  // First strip ANSI color codes
+  const noColors = stripAnsi(str);
+  // Then strip log level prefixes and any additional formatting
+  return noColors
+    .replace(/^(?:INFO|DEBUG|ERROR|WARNING|SUCCESS):\s+/i, '')
+    .replace(/^\[.*?\]\s+/g, '') // Remove any [prefix] style tags
+    .replace(/^(?:INFO|DEBUG|ERROR|WARNING|SUCCESS):\s+/i, ''); // Run again to catch any remaining prefixes
+}
+
+/**
  * Executes a command until specific console output is detected
  *
  * @param pattern - Regular expression to match against console output
@@ -81,6 +104,10 @@ export async function executeUntilOutput(
     const result = await new Promise<ExecuteUntilOutputResult>((resolve) => {
       // Set up timeout
       const timeoutId = setTimeout(() => {
+        console.error(
+          'DEBUG - Timeout reached. Final output:',
+          capturedOutput.trim(),
+        );
         resolve({
           matched,
           output: capturedOutput.trim(),
@@ -93,7 +120,20 @@ export async function executeUntilOutput(
         const output = args.join(' ');
         capturedOutput += `${output}\n`;
 
-        if (!matched && pattern.test(output)) {
+        // Strip ANSI color codes and log level prefixes before testing the pattern
+        const strippedOutput = stripAnsi(output)
+          .replace(/^\[.*?\]\s+/g, '') // Remove [prefix] style tags
+          .replace(/^(?:INFO|DEBUG|ERROR|WARNING|SUCCESS):\s+/i, '') // Remove log level prefixes
+          .replace(/^(?:INFO|DEBUG|ERROR|WARNING|SUCCESS):\s+/i, ''); // Run again to catch any remaining prefixes
+
+        console.error('DEBUG - Raw output:', output);
+        console.error('DEBUG - Stripped output:', strippedOutput);
+        console.error('DEBUG - Pattern:', pattern);
+        console.error(
+          'DEBUG - Pattern test result:',
+          pattern.test(strippedOutput),
+        );
+        if (!matched && pattern.test(strippedOutput)) {
           matched = true;
           clearTimeout(timeoutId);
           resolve({

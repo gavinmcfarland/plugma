@@ -2,6 +2,7 @@ import {
   BuildMainTask,
   BuildManifestTask,
   BuildUiTask,
+  EnsureDistTask,
   GetFilesTask,
   ShowPlugmaPromptTask,
 } from '#tasks';
@@ -35,9 +36,10 @@ describe('Build Command', () => {
       expect(serial).toHaveBeenCalledWith(
         GetFilesTask,
         ShowPlugmaPromptTask,
-        BuildMainTask,
-        BuildUiTask,
+        EnsureDistTask,
         BuildManifestTask,
+        BuildUiTask,
+        BuildMainTask,
       );
 
       // Verify the options passed to the returned function
@@ -79,9 +81,10 @@ describe('Build Command', () => {
       expect(serial).toHaveBeenCalledWith(
         GetFilesTask,
         ShowPlugmaPromptTask,
-        BuildMainTask,
-        BuildUiTask,
+        EnsureDistTask,
         BuildManifestTask,
+        BuildUiTask,
+        BuildMainTask,
       );
     });
   });

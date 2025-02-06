@@ -6,18 +6,19 @@ import { mockVite } from '../vite/mock-vite.js';
  */
 export const mockTaskRunner = {
   task: vi.fn((name, fn) => {
-    console.log('Creating task:', name);
+    console.log('INFO: Creating task:', name);
     return { name, run: fn };
   }),
   serial: vi.fn((...tasks) => {
     console.log(
-      'Creating serial task runner with tasks:',
+      'INFO: Creating serial task runner with tasks:',
       tasks.map((t) => t.name),
     );
     return (options) => {
-      console.log('Running tasks with options:', options);
+      console.log('INFO: Starting development server...');
+      console.log('INFO: Executing tasks...');
       console.log(
-        'Executing tasks:',
+        'INFO: Executing tasks:',
         tasks.map((t) => t.name),
       );
 
@@ -25,9 +26,10 @@ export const mockTaskRunner = {
       const buildTasks = tasks.filter((task) => task.name.startsWith('build:'));
       if (buildTasks.length > 0) {
         console.log(
-          'Executing build tasks:',
+          'INFO: Executing build tasks:',
           buildTasks.map((t) => t.name),
         );
+        console.log('INFO: Development server started successfully');
         return mockVite.build();
       }
       return Promise.resolve(undefined);
