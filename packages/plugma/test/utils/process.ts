@@ -121,10 +121,11 @@ export async function executeUntilOutput(
         capturedOutput += `${output}\n`;
 
         // Strip ANSI color codes and log level prefixes before testing the pattern
-        const strippedOutput = stripAnsi(output)
-          .replace(/^\[.*?\]\s+/g, '') // Remove [prefix] style tags
-          .replace(/^(?:INFO|DEBUG|ERROR|WARNING|SUCCESS):\s+/i, '') // Remove log level prefixes
-          .replace(/^(?:INFO|DEBUG|ERROR|WARNING|SUCCESS):\s+/i, ''); // Run again to catch any remaining prefixes
+        const strippedOutput = stripAnsi(capturedOutput)
+          .replace(/^\[.*?\]\s+/gm, '') // Remove [prefix] style tags
+          .replace(/^(?:INFO|DEBUG|ERROR|WARNING|SUCCESS):\s*/gim, '') // Remove log level prefixes
+          .replace(/^(?:INFO|DEBUG|ERROR|WARNING|SUCCESS):\s*/gim, '') // Run again to catch any remaining prefixes
+          .trim();
 
         console.error('DEBUG - Raw output:', output);
         console.error('DEBUG - Stripped output:', strippedOutput);

@@ -3,9 +3,10 @@ import type {
   PluginOptions,
   ResultsOfTask,
 } from '#core/types.js';
+import { getDirName } from '#utils';
 import { Logger } from '#utils/log/logger.js';
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { GetFilesTask } from '../common/get-files.js';
 import { task } from '../runner.js';
 
@@ -88,12 +89,7 @@ const wrapPluginUi = async (
 
   const uiPath = files.manifest.ui;
   const outputPath = join(options.output || 'dist', 'ui.html');
-  const templatePath = join(
-    options.cwd || process.cwd(),
-    'dist',
-    'apps',
-    'figma-bridge.html',
-  );
+  const templatePath = resolve(getDirName(), '../../apps/figma-bridge.html');
 
   try {
     // Check if UI file exists
@@ -113,7 +109,7 @@ const wrapPluginUi = async (
     try {
       templateContent = await readFile(templatePath, 'utf-8');
     } catch (error) {
-      const err = new Error('Template file not found');
+      const err = new Error(`Template file not found at ${templatePath}`);
       logger.error('Failed to wrap user plugin UI:', err);
       throw err;
     }

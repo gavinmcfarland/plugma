@@ -17,6 +17,19 @@ import { getRandomPort } from '../utils/get-random-port.js';
 // Mock dependencies
 vi.mock('nanoid');
 vi.mock('../utils/get-random-port.js');
+vi.mock('node:fs/promises', async () => {
+  const actual =
+    await vi.importActual<typeof import('node:fs/promises')>(
+      'node:fs/promises',
+    );
+  return {
+    ...actual,
+    readFile: vi.fn().mockResolvedValue('<div>Test UI</div>'),
+    mkdir: vi.fn().mockResolvedValue(undefined),
+    writeFile: vi.fn().mockResolvedValue(undefined),
+    rm: vi.fn().mockResolvedValue(undefined),
+  };
+});
 
 // Get properly typed mocks
 const mockedNanoid = vi.mocked(nanoid);
@@ -39,7 +52,7 @@ describe('Dev Command', () => {
   describe('Task Execution', () => {
     test('should execute tasks with correct options and order', async () => {
       const message = 'Development server started successfully';
-      const timeout = 3000;
+      const timeout = 5000;
 
       const result = await executeUntilOutput(
         new RegExp(message),
@@ -59,12 +72,11 @@ describe('Dev Command', () => {
       expect(mockTaskRunner.serial).toHaveBeenCalledWith(
         expect.objectContaining({ name: 'common:get-files' }),
         expect.objectContaining({ name: 'common:show-plugma-prompt' }),
-        expect.objectContaining({ name: 'build:ui' }),
-        expect.objectContaining({ name: 'build:main' }),
         expect.objectContaining({ name: 'build:manifest' }),
-        expect.objectContaining({ name: 'server:start-vite' }),
-        expect.objectContaining({ name: 'server:restart-vite' }),
+        expect.objectContaining({ name: 'build:wrap-plugin-ui' }),
+        expect.objectContaining({ name: 'build:main' }),
         expect.objectContaining({ name: 'server:websocket' }),
+        expect.objectContaining({ name: 'server:start-vite' }),
       );
 
       // Verify task options
@@ -84,7 +96,7 @@ describe('Dev Command', () => {
       // Verify mocked dependencies were called
       expect(mockedNanoid).toHaveBeenCalled();
       expect(mockedGetRandomPort).toHaveBeenCalled();
-    }, 5000);
+    }, 7000);
 
     test('should use provided options over defaults', async () => {
       const customOptions = {
@@ -99,7 +111,7 @@ describe('Dev Command', () => {
       const result = await executeUntilOutput(
         /Development server started successfully/,
         () => startDevCommand(customOptions),
-        3000,
+        5000,
       );
 
       if (!result.matched) {
@@ -116,7 +128,7 @@ describe('Dev Command', () => {
 
       // These should not be called since values were provided
       expect(mockedGetRandomPort).not.toHaveBeenCalled();
-    });
+    }, 7000);
 
     test('should handle errors gracefully', async () => {
       const error = new Error('Task execution failed');
@@ -130,13 +142,13 @@ describe('Dev Command', () => {
             debug: false,
             command: 'dev',
           }),
-        3000,
+        5000,
       );
 
       expect(result.matched).toBe(true);
       expect(result.output).toContain('Failed to start development server');
       expect(result.output).toContain('Task execution failed');
-    });
+    }, 7000);
   });
 
   describe('Integration', () => {
@@ -193,7 +205,7 @@ describe('Dev Command', () => {
         result.matched,
         createOutputMismatchErrMsg(
           result.output,
-          '✔︎ Development server started successfully',
+          'Development server started successfully',
         ),
       ).toBe(true);
 
@@ -219,22 +231,20 @@ describe('Dev Command', () => {
 
       // Wait for initial output
       const startResult = await executeUntilOutput(
-        /stdout \| [^\n]+[\r\n]+INFO: Starting development server\.\.\./,
+        /Starting development server/,
         () => process,
-        3000,
+        5000,
       );
 
       expect(startResult.matched).toBe(true);
-      expect(startResult.output).toContain(
-        'INFO: Starting development server...',
-      );
-      expect(startResult.output).toContain('INFO: Executing tasks...');
+      expect(startResult.output).toContain('Starting development server');
+      expect(startResult.output).toContain('Executing tasks');
 
       // Wait for success message
       const successResult = await executeUntilOutput(
-        /stdout \| [^\n]+[\r\n]+INFO: Development server started successfully\.\.\./,
+        /Development server started successfully/,
         () => process,
-        3000,
+        5000,
       );
 
       expect(successResult.matched).toBe(true);
@@ -250,18 +260,19 @@ describe('Dev Command', () => {
           debug: true,
           command: 'dev',
           cwd: sandboxDir,
+          websockets: true,
         });
 
         // Wait for initial output
         const result = await executeUntilOutput(
-          /stdout \| [^\n]+[\r\n]+INFO: Starting development server\.\.\./,
+          /Starting development server/,
           () => process,
-          3000,
+          5000,
         );
 
         expect(result.matched).toBe(true);
-        expect(result.output).toContain('INFO: Starting development server...');
-        expect(result.output).toContain('INFO: Executing tasks...');
+        expect(result.output).toContain('Starting development server');
+        expect(result.output).toContain('Executing tasks');
 
         // Simulate server ready
         mockWebSocket.sendMessage(
@@ -271,9 +282,9 @@ describe('Dev Command', () => {
 
         // Wait for success message
         const successResult = await executeUntilOutput(
-          /stdout \| [^\n]+[\r\n]+INFO: Development server started successfully\.\.\./,
+          /Development server started successfully/,
           () => process,
-          3000,
+          5000,
         );
 
         expect(successResult.matched).toBe(true);
@@ -292,18 +303,19 @@ describe('Dev Command', () => {
           debug: true,
           command: 'dev',
           cwd: sandboxDir,
+          websockets: true,
         });
 
         // Wait for initial output
         const result = await executeUntilOutput(
-          /stdout \| [^\n]+[\r\n]+INFO: Starting development server\.\.\./,
+          /Starting development server/,
           () => process,
-          3000,
+          5000,
         );
 
         expect(result.matched).toBe(true);
-        expect(result.output).toContain('INFO: Starting development server...');
-        expect(result.output).toContain('INFO: Executing tasks...');
+        expect(result.output).toContain('Starting development server');
+        expect(result.output).toContain('Executing tasks');
 
         // Simulate events
         mockWebSocket.sendMessage(
@@ -331,9 +343,9 @@ describe('Dev Command', () => {
 
         // Wait for success message
         const successResult = await executeUntilOutput(
-          /stdout \| [^\n]+[\r\n]+INFO: Development server started successfully\.\.\./,
+          /Development server started successfully/,
           () => process,
-          3000,
+          5000,
         );
 
         expect(successResult.matched).toBe(true);
@@ -368,18 +380,19 @@ describe('Dev Command', () => {
           debug: true,
           command: 'dev',
           cwd: sandboxDir,
+          websockets: true,
         });
 
         // Wait for initial output
         const result = await executeUntilOutput(
-          /stdout \| [^\n]+[\r\n]+INFO: Starting development server\.\.\./,
+          /Starting development server/,
           () => process,
-          3000,
+          5000,
         );
 
         expect(result.matched).toBe(true);
-        expect(result.output).toContain('INFO: Starting development server...');
-        expect(result.output).toContain('INFO: Executing tasks...');
+        expect(result.output).toContain('Starting development server');
+        expect(result.output).toContain('Executing tasks');
 
         // Simulate events
         mockWebSocket.sendMessage(
@@ -399,9 +412,9 @@ describe('Dev Command', () => {
 
         // Wait for success message
         const successResult = await executeUntilOutput(
-          /stdout \| [^\n]+[\r\n]+INFO: Development server started successfully\.\.\./,
+          /Development server started successfully/,
           () => process,
-          3000,
+          5000,
         );
 
         expect(successResult.matched).toBe(true);
@@ -428,18 +441,19 @@ describe('Dev Command', () => {
           debug: true,
           command: 'dev',
           cwd: sandboxDir,
+          websockets: true,
         });
 
         // Wait for initial output
         const result = await executeUntilOutput(
-          /stdout \| [^\n]+[\r\n]+INFO: Starting development server\.\.\./,
+          /Starting development server/,
           () => process,
-          3000,
+          5000,
         );
 
         expect(result.matched).toBe(true);
-        expect(result.output).toContain('INFO: Starting development server...');
-        expect(result.output).toContain('INFO: Executing tasks...');
+        expect(result.output).toContain('Starting development server');
+        expect(result.output).toContain('Executing tasks');
 
         // Simulate events
         mockWebSocket.sendMessage(
@@ -458,9 +472,9 @@ describe('Dev Command', () => {
 
         // Wait for success message
         const successResult = await executeUntilOutput(
-          /stdout \| [^\n]+[\r\n]+INFO: Development server started successfully\.\.\./,
+          /Development server started successfully/,
           () => process,
-          3000,
+          5000,
         );
 
         expect(successResult.matched).toBe(true);

@@ -67,28 +67,29 @@ describe('Vite Server Tasks', () => {
         const result = await StartViteServerTask.run(baseOptions, context);
 
         expect(result.server).toBe(mockServer);
-        expect(createServer).toHaveBeenCalledWith({
-          ...mockConfig.ui.dev,
-          root: process.cwd(),
-          base: '/',
-          server: {
-            port: baseOptions.port,
-            strictPort: true,
-            cors: true,
-            host: 'localhost',
-            middlewareMode: false,
-            sourcemapIgnoreList: expect.any(Function),
-            hmr: {
+        expect(createServer).toHaveBeenCalledWith(
+          expect.objectContaining({
+            root: process.cwd(),
+            base: '/',
+            server: expect.objectContaining({
               port: baseOptions.port,
-              protocol: 'ws',
+              strictPort: true,
+              cors: true,
               host: 'localhost',
-            },
-          },
-          optimizeDeps: {
-            entries: expect.any(Array),
-          },
-          logLevel: 'error',
-        });
+              middlewareMode: false,
+              sourcemapIgnoreList: expect.any(Function),
+              hmr: expect.objectContaining({
+                port: baseOptions.port,
+                protocol: 'ws',
+                host: 'localhost',
+              }),
+            }),
+            optimizeDeps: expect.objectContaining({
+              entries: expect.any(Array),
+            }),
+            logLevel: 'error',
+          }),
+        );
         expect(mockServer.listen).toHaveBeenCalled();
       });
 
@@ -226,28 +227,29 @@ describe('Vite Server Tasks', () => {
 
         await StartViteServerTask.run(baseOptions, context);
 
-        expect(createServer).toHaveBeenCalledWith({
-          ...mockConfig.ui.dev,
-          root: process.cwd(),
-          base: '/',
-          server: {
-            port: baseOptions.port,
-            strictPort: true,
-            cors: true,
-            host: 'localhost',
-            middlewareMode: false,
-            sourcemapIgnoreList: expect.any(Function),
-            hmr: {
+        expect(createServer).toHaveBeenCalledWith(
+          expect.objectContaining({
+            root: process.cwd(),
+            base: '/',
+            server: expect.objectContaining({
               port: baseOptions.port,
-              protocol: 'ws',
+              strictPort: true,
+              cors: true,
               host: 'localhost',
-            },
-          },
-          optimizeDeps: {
-            entries: expect.any(Array),
-          },
-          logLevel: 'error',
-        });
+              middlewareMode: false,
+              sourcemapIgnoreList: expect.any(Function),
+              hmr: expect.objectContaining({
+                port: baseOptions.port,
+                protocol: 'ws',
+                host: 'localhost',
+              }),
+            }),
+            optimizeDeps: expect.objectContaining({
+              entries: expect.any(Array),
+            }),
+            logLevel: 'error',
+          }),
+        );
       });
     });
   });

@@ -7,10 +7,7 @@ const mocks = vi.hoisted(() => {
       .fn()
       .mockImplementation((p) => p.split('/').slice(0, -1).join('/')),
     join: vi.fn().mockImplementation((...paths) => paths.join('/')),
-    resolve: vi.fn().mockImplementation((...paths) => {
-      const joined = paths.join('/');
-      return joined.startsWith('/') ? joined : `/${joined}`;
-    }),
+    resolve: vi.fn().mockImplementation((...paths) => paths.join('/')),
     sep: '/',
   };
 
@@ -23,16 +20,20 @@ const mocks = vi.hoisted(() => {
   };
 
   return {
-    access: vi.fn().mockImplementation(async () => Promise.resolve()),
+    access: vi.fn().mockImplementation(async (path) => {
+      if (path.includes('nonexistent')) {
+        throw new Error('ENOENT');
+      }
+      return Promise.resolve();
+    }),
     mkdir: vi.fn().mockResolvedValue(undefined),
     readFile: vi.fn(),
     writeFile: vi.fn(),
-    fileURLToPath: vi.fn().mockReturnValue('src/tasks/build/wrap-plugin-ui.ts'),
+    getDirName: vi.fn(),
     path: {
       ...pathMock,
       default: pathMock,
     },
-    Logger: vi.fn().mockImplementation(() => loggerMock),
     loggerInstance: loggerMock,
   };
 });
@@ -47,12 +48,13 @@ vi.mock('node:fs/promises', () => ({
 
 vi.mock('node:path', () => mocks.path);
 
-vi.mock('node:url', () => ({
-  fileURLToPath: mocks.fileURLToPath,
+vi.mock('#utils', () => ({
+  getDirName: mocks.getDirName,
+  Logger: vi.fn().mockImplementation(() => mocks.loggerInstance),
 }));
 
 vi.mock('#utils/log/logger.js', () => ({
-  Logger: mocks.Logger,
+  Logger: vi.fn().mockImplementation(() => mocks.loggerInstance),
 }));
 
 import { GetFilesTask, WrapPluginUiTask } from '#tasks';
@@ -70,15 +72,23 @@ const baseOptions = {
 
 describe('WrapPluginUiTask', () => {
   let mockFs: MockFs;
+  let buildDir: string;
+  let templatePath: string;
 
   beforeEach(() => {
     vi.clearAllMocks();
     mockFs = createMockFs();
-    mocks.access.mockImplementation((path) => mockFs.access(path));
     mocks.readFile.mockImplementation((path) => mockFs.readFile(path));
     mocks.writeFile.mockImplementation((path, content) =>
       mockFs.writeFile(path, content),
     );
+
+    // Set up the build directory path
+    buildDir = '/work/cva/plugma/packages/plugma/src/tasks/build';
+    mocks.getDirName.mockReturnValue(buildDir);
+
+    // Calculate the template path the same way the source does
+    templatePath = mocks.path.resolve(buildDir, '../../apps/figma-bridge.html');
   });
 
   afterEach(() => {
@@ -89,7 +99,6 @@ describe('WrapPluginUiTask', () => {
     const templateContent =
       '<html><head></head><body><div id="app"></div></body></html>';
     const uiPath = '/path/to/ui.html';
-    const templatePath = '/work/test/dist/apps/figma-bridge.html';
 
     mockFs.addFiles({
       [uiPath]: templateContent,
@@ -133,13 +142,6 @@ describe('WrapPluginUiTask', () => {
 
   test('should skip when UI file does not exist', async () => {
     const uiPath = '/path/to/nonexistent.html';
-    const templatePath = '/work/test/dist/apps/figma-bridge.html';
-    const templateContent =
-      '<html><head></head><body><div id="app"></div></body></html>';
-
-    mockFs.addFiles({
-      [templatePath]: templateContent,
-    });
 
     const context = createMockTaskContext({
       [GetFilesTask.name]: {
@@ -163,7 +165,6 @@ describe('WrapPluginUiTask', () => {
     const templateContent =
       '<html><head></head><body><div id="app"></div></body></html>';
     const uiPath = '/path/to/ui.html';
-    const templatePath = '/work/test/dist/apps/figma-bridge.html';
 
     mockFs.addFiles({
       [uiPath]: templateContent,
@@ -180,22 +181,22 @@ describe('WrapPluginUiTask', () => {
       },
     });
 
-    await WrapPluginUiTask.run(baseOptions, context);
+    const result = await WrapPluginUiTask.run(baseOptions, context);
 
-    const writtenContent = await mockFs.readFile('dist/ui.html');
-    expect(writtenContent).toContain('window.runtimeData');
-    expect(mocks.loggerInstance.success).toHaveBeenCalledWith(
-      'Wrapped plugin UI created successfully',
+    expect(result.outputPath).toBe('dist/ui.html');
+    expect(mocks.writeFile).toHaveBeenCalledWith(
+      'dist/ui.html',
+      expect.stringContaining('window.runtimeData'),
+      'utf-8',
     );
   });
 
   test('should handle invalid template file', async () => {
-    const templateContent = '<html><head></head></html>';
+    const templateContent = '<html><head></head></html>'; // No body tag
     const uiPath = '/path/to/ui.html';
-    const templatePath = '/work/test/dist/apps/figma-bridge.html';
 
     mockFs.addFiles({
-      [uiPath]: templateContent,
+      [uiPath]: '<div>test</div>',
       [templatePath]: templateContent,
     });
 
@@ -222,7 +223,7 @@ describe('WrapPluginUiTask', () => {
     const uiPath = '/path/to/ui.html';
 
     mockFs.addFiles({
-      [uiPath]: '<html><body>Bridge</body></html>',
+      [uiPath]: '<div>test</div>',
     });
 
     const context = createMockTaskContext({

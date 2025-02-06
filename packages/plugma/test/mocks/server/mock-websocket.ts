@@ -33,15 +33,7 @@ export class MockWebSocketClientImpl
 {
   readyState = 1;
   OPEN = 1;
-  send = vi.fn((data: string) => {
-    // Parse and emit message event
-    try {
-      const message = JSON.parse(data);
-      this.emit('message', message);
-    } catch {
-      // Ignore invalid JSON
-    }
-  });
+  send = vi.fn();
   close = vi.fn(() => {
     this.readyState = 3; // CLOSED
     this.emit('close');
@@ -49,7 +41,10 @@ export class MockWebSocketClientImpl
   clientId: string;
   source: 'toolbar' | 'plugin' | 'ui';
 
-  constructor(clientId: string, source: 'toolbar' | 'plugin' | 'ui') {
+  constructor(
+    clientId = 'test-client-id',
+    source: 'toolbar' | 'plugin' | 'ui' = 'ui',
+  ) {
     super();
     this.clientId = clientId;
     this.source = source;
@@ -90,11 +85,6 @@ export class MockWebSocketServer extends EventEmitter {
           return;
         }
 
-        // Add source to message if not present
-        if (!message.source) {
-          message.source = client.source;
-        }
-
         // Notify message handlers
         for (const handler of this.messageHandlers) {
           handler(message);
@@ -132,10 +122,15 @@ export class MockWebSocketServer extends EventEmitter {
       if (typeof data === 'object' && !Buffer.isBuffer(data)) {
         return data as PluginMessage;
       }
-      const message = JSON.parse(
+      const parsed = JSON.parse(
         typeof data === 'string' ? data : data.toString(),
       );
-      return message as PluginMessage;
+      // If it's already in the expected format, return as is
+      if (parsed.pluginMessage) {
+        return parsed.pluginMessage;
+      }
+      // Otherwise wrap it
+      return parsed;
     } catch {
       return null;
     }
@@ -145,9 +140,17 @@ export class MockWebSocketServer extends EventEmitter {
    * Broadcast message to other clients
    */
   private broadcast(message: PluginMessage, sender: MockWebSocketClient) {
+    // If the message is already in the plugin message format, send it as is
+    const pluginMessage = message.pluginMessage
+      ? message
+      : {
+          pluginMessage: message,
+          pluginId: '*',
+        };
+
     for (const client of this.clients) {
       if (client !== sender && client.readyState === client.OPEN) {
-        client.send(JSON.stringify(message));
+        client.send(JSON.stringify(pluginMessage));
       }
     }
   }
@@ -156,17 +159,27 @@ export class MockWebSocketServer extends EventEmitter {
    * Broadcast client disconnect
    */
   private broadcastClientDisconnect(client: MockWebSocketClient) {
-    const message: PluginMessage = {
-      type: 'client_disconnected',
-      source: client.source,
-      client: { id: client.clientId, source: client.source },
+    const message = {
+      pluginMessage: {
+        event: 'client_disconnected',
+        source: client.source,
+        client: { id: client.clientId, source: client.source },
+      },
+      pluginId: '*',
     };
 
-    this.broadcast(message, client);
+    for (const otherClient of this.clients) {
+      if (
+        otherClient !== client &&
+        otherClient.readyState === otherClient.OPEN
+      ) {
+        otherClient.send(JSON.stringify(message));
+      }
+    }
 
     // Notify message handlers
     for (const handler of this.messageHandlers) {
-      handler(message);
+      handler(message.pluginMessage);
     }
   }
 
@@ -296,21 +309,7 @@ export class MockWebSocketServer extends EventEmitter {
    * Handle invalid message
    */
   private handleInvalidMessage() {
-    const message: PluginMessage = {
-      type: 'error',
-      source: 'plugin',
-      error: 'Invalid message format',
-    };
-
-    // Notify message handlers
-    for (const handler of this.messageHandlers) {
-      handler(message);
-    }
-
-    // Broadcast to all clients
-    for (const client of this.clients) {
-      client.send(JSON.stringify(message));
-    }
+    // Do nothing - invalid messages should be silently ignored
   }
 
   /**

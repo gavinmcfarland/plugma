@@ -19,8 +19,16 @@ export function createMockViteServer(
     printUrls: vi.fn(),
     resolvedUrls: null,
     restart: vi.fn(),
-    watcher: {} as any,
-    ws: {} as any,
+    watcher: {
+      on: vi.fn(),
+      add: vi.fn(),
+      unwatch: vi.fn(),
+      close: vi.fn(),
+    } as any,
+    ws: {
+      on: vi.fn(),
+      send: vi.fn(),
+    } as any,
     pluginContainer: {} as any,
     moduleGraph: {} as any,
     ssrLoadModule: async () => ({}),
@@ -34,7 +42,10 @@ export function createMockViteServer(
     openBrowser: vi.fn(),
     waitForRequestsIdle: vi.fn(),
     ssrFetchModule: vi.fn().mockResolvedValue({}),
-    hot: {} as any,
+    hot: {
+      on: vi.fn(),
+      send: vi.fn(),
+    } as any,
   };
 
   return {

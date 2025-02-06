@@ -1,7 +1,7 @@
 import type {
-	GetTaskTypeFor,
-	PluginOptions,
-	ResultsOfTask,
+  GetTaskTypeFor,
+  PluginOptions,
+  ResultsOfTask,
 } from '#core/types.js';
 import { registerCleanup } from '#utils/cleanup.js';
 import { Logger } from '#utils/log/logger.js';
@@ -109,7 +109,7 @@ export const startWebSocketsServer = async (
     }
 
     // Calculate WebSocket port (Vite port + 1)
-    const wsPort = parseInt(String(options.port)) + 1;
+    const wsPort = Number.parseInt(String(options.port)) + 1;
     log.debug(`Starting WebSocket server on port ${wsPort}...`);
 
     // Create WebSocket server
@@ -127,11 +127,11 @@ export const startWebSocketsServer = async (
         return;
       }
 
-      clients.forEach(({ ws }, clientId) => {
+      for (const [clientId, { ws }] of clients.entries()) {
         if (clientId !== senderId && ws.readyState === WebSocket.OPEN) {
           ws.send(message);
         }
-      });
+      }
     }
 
     // Handle server errors
@@ -211,37 +211,48 @@ export const startWebSocketsServer = async (
       };
       broadcastMessage(JSON.stringify(connectionMessage), clientId);
 
-      // Handle messages
-      ws.on('message', (data) => {
-        try {
-          const message = JSON.parse(data.toString()) as WebSocketMessage;
-          log.debug('Received message:', message);
-          broadcastMessage(JSON.stringify(message), clientId);
-        } catch (error) {
-          log.error('Failed to parse message:', error);
-        }
-      });
-
       // Handle client disconnection
       ws.on('close', () => {
+        log.debug(`Client disconnected: ${clientId} (${clientSource})`);
         clients.delete(clientId);
-        log.debug(`Client disconnected: ${clientId}`);
 
+        // Notify other clients about disconnection
         const disconnectMessage: WebSocketMessage = {
           pluginMessage: {
             event: 'client_disconnected',
-            message: `Client ${clientId} disconnected`,
+            message: 'Client disconnected',
             client: { id: clientId, source: clientSource },
-            source: clientSource,
+            source: 'server',
           },
           pluginId: '*',
         };
-        broadcastMessage(JSON.stringify(disconnectMessage), clientId);
+        for (const [otherClientId, { ws: otherWs }] of clients.entries()) {
+          if (
+            otherClientId !== clientId &&
+            otherWs.readyState === WebSocket.OPEN
+          ) {
+            otherWs.send(JSON.stringify(disconnectMessage));
+          }
+        }
       });
 
-      // Handle client errors
-      ws.on('error', (error) => {
-        log.error(`Client ${clientId} error:`, error);
+      // Handle messages from clients
+      ws.on('message', (data: Buffer) => {
+        try {
+          const message = JSON.parse(data.toString()) as WebSocketMessage;
+          // Only broadcast valid messages to other clients
+          for (const [otherClientId, { ws: otherWs }] of clients.entries()) {
+            if (
+              otherClientId !== clientId && // Don't send back to sender
+              otherWs.readyState === WebSocket.OPEN
+            ) {
+              otherWs.send(JSON.stringify(message));
+            }
+          }
+        } catch (error) {
+          log.error('Failed to parse message:', error);
+          // Do not send error back to client
+        }
       });
     });
 
