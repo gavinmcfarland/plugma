@@ -2,6 +2,7 @@
  * Common types for command implementations
  */
 
+import type { PluginOptions } from '#core/types.js';
 import type { ViteDevServer } from 'vite';
 
 export type CommandName = 'dev' | 'preview' | 'build' | 'release';
@@ -53,6 +54,25 @@ export interface ReleaseCommandOptions extends BaseCommandOptions {
   title?: string;
   notes?: string;
 }
+
+/**
+ * Options for the test command
+ */
+export type TestCommandOptions = BaseCommandOptions &
+  PluginOptions & {
+    /** Test files pattern */
+    testMatch?: string[];
+    /** Whether to watch for changes */
+    watch?: boolean;
+    /** Test timeout in milliseconds */
+    timeout?: number;
+    /** WebSocket server port */
+    port?: number;
+    /** WebSocket server host */
+    host?: string;
+    /** Whether to run in debug mode */
+    debug?: boolean;
+  };
 
 /**
  * Shared state for Vite server instances

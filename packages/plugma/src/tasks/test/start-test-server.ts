@@ -4,8 +4,8 @@
  */
 
 import type { GetTaskTypeFor, PluginOptions } from '#core/types.js';
+import { testClient } from '#testing/test-client.js';
 import { Logger } from '#utils/log/logger.js';
-import { testClient } from '../../commands/test/test-runner/ws-client.js';
 import { task } from '../runner.js';
 
 /**

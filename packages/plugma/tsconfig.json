@@ -26,6 +26,8 @@
       "#vite-plugins/*": ["src/vite-plugins/*"],
       "#test": ["test/index.ts"],
       "#test/*": ["test/*"],
+      "#testing": ["src/testing/index.ts"],
+      "#testing/*": ["src/testing/*"],
       "#packageJson": ["package.json"]
     }
   },
@@ -35,6 +37,8 @@
     "src/**/*.tsx",
     "src/**/*.test.ts",
     "test/**/*.ts",
-    "./package.json"],
+    "./package.json",
+    "src/testing/figma/test.figma.ts"
+  ],
   "exclude": ["archive", "dist", "node_modules"]
 }

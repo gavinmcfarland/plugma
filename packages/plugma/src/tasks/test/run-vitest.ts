@@ -7,8 +7,8 @@ import type { GetTaskTypeFor, PluginOptions } from '#core/types.js';
 import { createViteConfigs } from '#utils/config/create-vite-configs.js';
 import { getUserFiles } from '#utils/config/get-user-files.js';
 import { Logger } from '#utils/log/logger.js';
+import { replacePlugmaTesting } from '#vite-plugins/test/replace-plugma-testing.js';
 import { startVitest } from 'vitest/node';
-import { plugmaTest } from '../../vite-plugins/test/index.js';
 import { task } from '../runner.js';
 
 /**
@@ -35,7 +35,7 @@ export const runVitest = async (
     // Add our test plugin to the Vite config
     const testConfig = {
       ...configs.main,
-      plugins: [...(configs.main.dev.plugins || []), plugmaTest()],
+      plugins: [...(configs.main.dev.plugins || []), replacePlugmaTesting()],
       test: {
         globals: true,
         environment: 'node',

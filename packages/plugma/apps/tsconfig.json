@@ -21,8 +21,15 @@
       "#utils": ["../src/utils/index.ts"],
       "#utils/*": ["../src/utils/*"],
       "#vite-plugins": ["../src/vite-plugins/index.ts"],
-      "#vite-plugins/*": ["../src/vite-plugins/*"]
+      "#vite-plugins/*": ["../src/vite-plugins/*"],
+      "#testing": ["../src/testing/index.ts"],
+      "#testing/*": ["../src/testing/*"]
     }
   },
-  "include": ["./**/*.js", "./**/*.ts", "./**/*.svelte"]
+  "include": [
+    "./**/*.js",
+    "./**/*.ts",
+    "./**/*.svelte",
+    "../src/testing/execute-assertions.ts"
+  ]
 }

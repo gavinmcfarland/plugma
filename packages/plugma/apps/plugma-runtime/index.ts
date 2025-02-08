@@ -12,12 +12,12 @@
  */
 
 import {
-	handleDeleteClientStorage,
-	handleDeleteRootPluginData,
-	handleHideToolbar,
-	handleMaximizeWindow,
-	handleMinimizeWindow,
-	handleSaveWindowSettings
+  handleDeleteClientStorage,
+  handleDeleteRootPluginData,
+  handleHideToolbar,
+  handleMaximizeWindow,
+  handleMinimizeWindow,
+  handleSaveWindowSettings,
 } from './handlers/index.js';
 
 import type { PlugmaRuntimeData } from './types.js';

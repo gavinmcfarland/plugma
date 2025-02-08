@@ -15,7 +15,11 @@
 		"checkJs": true,
 		"isolatedModules": true,
 		"moduleDetection": "force",
-		"typeRoots": ["node_modules/@figma", "node_modules/@types"]
+		"typeRoots": ["node_modules/@figma", "node_modules/@types"],
+		"paths": {
+			"#testing": ["./src/testing/index.ts"],
+			"#testing/*": ["./src/testing/*"]
+		}
 	},
 	"include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte"]
 }

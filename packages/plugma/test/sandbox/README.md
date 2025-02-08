@@ -1,4 +1,4 @@
-# plugma-svelte-sandbox
+# plugma-sandbox
 
 ## Quickstart
 

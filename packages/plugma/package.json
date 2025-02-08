@@ -1,12 +1,19 @@
 {
-  "name": "plugma",
-  "version": "2.0.0-beta.1",
+  "name": "@cva.design/plugma",
+  "version": "2.0.0-beta.2",
   "description": "",
   "main": "index.js",
   "type": "module",
   "bin": {
     "plugma": "./bin/plugma"
   },
+  "files": [
+    "bin",
+    "dist",
+    "migration",
+    "templates",
+    "test"
+  ],
   "scripts": {
     "build:all-apps": "./build/build-all-apps.sh",
     "build:dev-server": "cd apps/dev-server && vite build",
@@ -26,7 +33,7 @@
     "lint:unsafe-fix": "biome check --unsafe-fix .",
     "lint": "biome check .",
     "postinstall": "node ./migration/v1/check-migration.js",
-    "prepublishOnly": "npm run build-and-copy-apps",
+    "prepublishOnly": "nr clean && nr build",
     "test:coverage": "vitest --run --coverage",
     "test:watch": "vitest",
     "test": "vitest --run"
@@ -42,33 +49,42 @@
     "#tasks/*": "./dist/tasks/*",
     "#vite-plugins": "./dist/vite-plugins/index.js",
     "#vite-plugins/*": "./dist/vite-plugins/*",
+    "#testing/*": "./dist/testing/*",
     "#test/*": "./test/*",
     "#packageJson": "./package.json"
   },
   "exports": {
-    "core": {
+    "./core": {
       "import": "./dist/core/index.js",
       "types": "./dist/core/index.d.ts"
     },
-    "commands": {
+    "./commands": {
       "import": "./dist/commands/index.js",
       "types": "./dist/commands/index.d.ts"
     },
-    "utils": {
+    "./commands/*": {
+      "import": "./dist/commands/*.js",
+      "types": "./dist/commands/*.d.ts"
+    },
+    "./utils": {
       "import": "./dist/utils/index.js",
       "types": "./dist/utils/index.d.ts"
     },
-    "tasks": {
+    "./tasks": {
       "import": "./dist/tasks/index.js",
       "types": "./dist/tasks/index.d.ts"
     },
-    "vite-plugins": {
+    "./vite-plugins": {
       "import": "./dist/vite-plugins/index.js",
       "types": "./dist/vite-plugins/index.d.ts"
     },
-    "testing": {
+    "./testing": {
       "import": "./dist/testing/index.js",
       "types": "./dist/testing/index.d.ts"
+    },
+    "./testing/figma": {
+      "import": "./dist/testing/figma/index.js",
+      "types": "./dist/testing/figma/index.d.ts"
     }
   },
   "jest": {

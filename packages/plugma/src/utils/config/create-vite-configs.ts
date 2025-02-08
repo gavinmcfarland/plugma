@@ -8,22 +8,20 @@ import type { PluginOptions, UserFiles } from '#core/types.js';
 import { defaultLogger, writeTempFile } from '#utils';
 import { getDirName } from '#utils/get-dir-name.js';
 import {
-	dotEnvLoader,
-	htmlTransform,
-	injectRuntime,
-	replacePlaceholders,
-	rewritePostMessageTargetOrigin,
-	serveUi,
+  dotEnvLoader,
+  htmlTransform,
+  injectRuntime,
+  replacePlaceholders,
+  replacePlugmaTesting,
+  rewritePostMessageTargetOrigin,
+  serveUi,
 } from '#vite-plugins';
 
 const projectRoot = path.join(getDirName(), '../../..');
 const uiHtml = path.join(projectRoot, 'templates/ui.html');
 
 // Before using the runtime code, bundle it
-const runtimeBundlePath = path.join(
-  projectRoot,
-  'dist/apps/plugma-runtime.js',
-);
+const runtimeBundlePath = path.join(projectRoot, 'dist/apps/plugma-runtime.js');
 
 const plugmaRuntimeCode = fs.readFileSync(runtimeBundlePath, 'utf8');
 
@@ -85,8 +83,10 @@ export function createViteConfigs(
         middlewareMode: false,
         headers: {
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-          'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization',
+          'Access-Control-Allow-Methods':
+            'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+          'Access-Control-Allow-Headers':
+            'X-Requested-With, content-type, Authorization',
         },
       },
       logLevel: options.debug ? 'info' : 'error',
@@ -116,8 +116,8 @@ export function createViteConfigs(
     } satisfies UserConfig,
   };
 
-	const configKey = options.command === 'build' ?  'build' : 'dev';
-	defaultLogger.debug(`Vite config UI (configKey):`, viteConfigUI[configKey]);
+  const configKey = options.command === 'build' ? 'build' : 'dev';
+  defaultLogger.debug('Vite config UI (configKey):', viteConfigUI[configKey]);
 
   const tempFilePath = writeTempFile(
     `temp_${Date.now()}.js`,
@@ -138,11 +138,12 @@ export function createViteConfigs(
         runtimeCode: plugmaRuntimeCode,
         pluginOptions: options,
       }),
+      replacePlugmaTesting(),
     ],
     build: {
       lib: {
         entry: tempFilePath,
-        formats: ['cjs'],
+        formats: ['es'],
         fileName: () => 'main.js',
       },
       rollupOptions: {
@@ -150,7 +151,7 @@ export function createViteConfigs(
           dir: options.output,
           entryFileNames: 'main.js',
           inlineDynamicImports: true,
-          format: 'cjs',
+          format: 'es',
           exports: 'auto',
           generatedCode: {
             constBindings: true,
@@ -189,11 +190,14 @@ export function createViteConfigs(
         runtimeCode: plugmaRuntimeCode,
         pluginOptions: options,
       }),
+      replacePlugmaTesting(),
     ],
     build: {
+      minify: false,
       lib: {
+        name: 'plugmaMain',
         entry: tempFilePath,
-        formats: ['cjs'],
+        formats: ['iife'],
         fileName: () => 'main.js',
       },
       rollupOptions: {
@@ -220,8 +224,10 @@ export function createViteConfigs(
     },
   } satisfies UserConfig;
 
-
-	defaultLogger.debug(`Vite config Main (configKey):`, configKey === 'dev' ? viteConfigMainDev : viteConfigMainBuild);
+  defaultLogger.debug(
+    `Vite config Main (configKey):`,
+    configKey === 'dev' ? viteConfigMainDev : viteConfigMainBuild,
+  );
   return {
     ui: viteConfigUI,
     main: {

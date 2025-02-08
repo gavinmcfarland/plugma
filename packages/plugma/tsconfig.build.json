@@ -15,6 +15,8 @@
       "#utils/*": ["utils/*"],
       "#vite-plugins": ["vite-plugins/index.ts"],
       "#vite-plugins/*": ["vite-plugins/*"],
+      "#testing": ["testing/index.ts"],
+      "#testing/*": ["testing/*"],
       "#packageJson": ["../package.json"]
     },
     "sourceMap": true,
