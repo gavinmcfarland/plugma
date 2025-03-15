@@ -49,3 +49,12 @@ Now you can publish the plugin from the Figma desktop app.
 ### Advanced
 
 See the [Plugma docs](https://plugma.dev/docs) for further information.
+
+### To get the "test" feature working (temporary)
+
+1. Open the Figma desktop app and run the plugin.
+2. Then run the following commands:
+    ```bash
+    plugma dev -ws --port 9000
+    vitest
+    ```
