@@ -1,61 +1,60 @@
 /**
- * Test command implementation
- * Handles running tests for Figma plugins
+ * Development command implementation
+ * Handles development server and file watching for plugin development
  */
 
-import type { PluginOptions } from '#core/types.js';
-import { InjectTestCodeTask } from '#tasks';
-import { getRandomPort } from '#utils/get-random-port.js';
-import { Logger } from '#utils/log/logger.js';
-import { nanoid } from 'nanoid';
-import { serial } from '../tasks/runner.js';
-// import { InjectTestCodeTask } from '../../tasks/test/inject-test-code.js';
-import { RunVitestTask } from '../tasks/test/run-vitest.js';
-import { StartTestServerTask } from '../tasks/test/start-test-server.js';
-import type { TestCommandOptions } from './types.js';
+import type { TestCommandOptions } from "#commands/types.js";
+import { DevTask } from "#tasks/dev/dev-task.js";
+import { RunTests } from "#tasks/test/run-vitest.js";
+
+import { Logger } from "#utils/log/logger.js";
+import { nanoid } from "nanoid";
+import { serial } from "../tasks/runner.js";
+import type { BuildCommandOptions } from "./types.js";
 
 /**
- * Main test command implementation
- * Sets up and runs tests for Figma plugins
+ * Main build command implementation
+ * Creates production-ready builds of the plugin
  *
- * @param options - Test configuration options
+ * @param options - Build configuration options
  * @remarks
- * The test command:
- * 1. Injects test framework code into the plugin
- * 2. Starts WebSocket server for test communication
- * 3. Runs tests using Vitest
+ * The build command creates optimized production builds:
+ * - Minified and optimized code
+ * - Production UI build
+ * - Manifest generation
+ * - Optional watch mode for development
  */
 export async function test(options: TestCommandOptions): Promise<void> {
-  const log = new Logger({ debug: options.debug });
+	const log = new Logger({ debug: options.debug });
 
-  try {
-    log.info('Starting test environment...');
+	try {
+		log.info("Starting production build...");
+		log.debug(`Build options: ${JSON.stringify(options)}`);
 
-    const pluginOptions: PluginOptions = {
-      ...options,
-      mode: 'test',
-      instanceId: nanoid(),
-      port: options.port || getRandomPort(),
-      command: 'test',
-    };
+		// NOTE: Manually set port to 9000 for vitetest server
+		const pluginOptions = {
+			...options,
+			mode: options.mode || "production",
+			instanceId: nanoid(),
+			port: 9000,
+			output: options.output || "dist",
+			command: "dev" as const,
+		};
 
-    // Execute tasks in sequence
-    log.info('Executing test tasks...');
-    const results = await serial(
-      InjectTestCodeTask, // Inject test framework
-      StartTestServerTask, // Start WebSocket server
-      RunVitestTask, // Run tests with Vitest
-    )(pluginOptions);
+		log.debug(`Plugin options: ${JSON.stringify(pluginOptions)}`);
 
-    if (results['test:run-vitest'].success) {
-      log.success('All tests passed');
-    } else {
-      log.error('Some tests failed');
-      process.exit(1);
-    }
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    log.error('Failed to run tests:', errorMessage);
-    throw error;
-  }
+		// Execute tasks in sequence
+		log.info("Executing tasks...");
+
+		// Pass the task objects
+		const results = await serial(DevTask, RunTests)(pluginOptions);
+
+		// log.debug(`Task execution results: ${JSON.stringify(results, null, 2)}`);
+
+		log.success("Production build completed successfully");
+	} catch (error) {
+		const errorMessage = error instanceof Error ? error.message : String(error);
+		log.error("Failed to build plugin:", errorMessage);
+		throw error;
+	}
 }

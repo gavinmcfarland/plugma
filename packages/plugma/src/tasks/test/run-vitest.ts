@@ -1,68 +1,75 @@
 /**
- * Task to configure and run Vitest for plugin testing
- * Handles test discovery, execution, and reporting
+ * Utility to run Vitest programmatically
  */
 
-import type { GetTaskTypeFor, PluginOptions } from '#core/types.js';
-import { createViteConfigs } from '#utils/config/create-vite-configs.js';
-import { getUserFiles } from '#utils/config/get-user-files.js';
-import { Logger } from '#utils/log/logger.js';
-import { replacePlugmaTesting } from '#vite-plugins/test/replace-plugma-testing.js';
-import { startVitest } from 'vitest/node';
-import { task } from '../runner.js';
+import { startVitest } from "vitest/node";
+import { task } from "../runner.js";
 
-/**
- * Result type for the runVitest task
- */
-export interface RunVitestResult {
-  /** Whether all tests passed */
-  success: boolean;
+interface TestOptions {
+	/** Test timeout in milliseconds */
+	timeout?: number;
+	/** Whether to run in watch mode */
+	watch?: boolean;
+	/** Path to test files */
+	testFiles?: string[];
+	/** Enable debug logging */
+	debug?: boolean;
 }
 
-/**
- * Task that configures and runs Vitest in the user's plugin project
- */
-export const runVitest = async (
-  options: PluginOptions,
-): Promise<RunVitestResult> => {
-  const log = new Logger({ debug: options.debug });
+interface TestResult {
+	/** Whether all tests passed */
+	success: boolean;
+	/** Number of failed tests */
+	failedTests: number;
+}
 
-  try {
-    log.info('Loading plugin configuration...');
-    const files = await getUserFiles(options);
-    const configs = createViteConfigs(options, files);
+const runTestsRunner = async (
+	options: TestOptions = {},
+): Promise<TestResult> => {
+	try {
+		// Basic Vitest configuration
+		const config = {
+			test: {
+				globals: true,
+				environment: "node",
+				testTimeout: options.timeout ?? 10000,
+				watch: options.watch ?? false,
+				include: options.testFiles ?? [
+					"**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
+				],
+			},
+		};
 
-    // Add our test plugin to the Vite config
-    const testConfig = {
-      ...configs.main,
-      plugins: [...(configs.main.dev.plugins || []), replacePlugmaTesting()],
-      test: {
-        globals: true,
-        environment: 'node',
-        testTimeout: options.timeout ?? 10000,
-        watch: options.watch ?? false,
-      },
-    };
+		// Start Vitest instance
+		const vitest = await startVitest("test", [], {
+			...config,
+			api: true,
+		});
 
-    log.info('Starting Vitest...');
-    const vitest = await startVitest('test', [], {
-      ...testConfig,
-      api: true,
-    });
+		await vitest.start();
 
-    // Wait for tests to complete and check results
-    await vitest.start();
-    const success = vitest.state.getCountOfFailedTests() === 0;
+		// Get results
+		const failedTests = vitest.state.getCountOfFailedTests();
+		const success = failedTests === 0;
 
-    return { success };
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    log.error('Failed to run Vitest:', errorMessage);
-    throw error;
-  }
+		if (options.debug) {
+			console.log("Test run completed:", {
+				success,
+				failedTests,
+			});
+		}
+
+		return {
+			success,
+			failedTests,
+		};
+	} catch (error) {
+		console.error(
+			"Failed to run tests:",
+			error instanceof Error ? error.message : String(error),
+		);
+		throw error;
+	}
 };
 
-export const RunVitestTask = task('test:run-vitest', runVitest);
-export type RunVitestTask = GetTaskTypeFor<typeof RunVitestTask>;
-
-export default RunVitestTask;
+export const RunTests = task("test", runTestsRunner);
