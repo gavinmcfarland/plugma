@@ -1,11 +1,17 @@
 {
   "folders": [
     {
-      "path": "website",
+      "name": "website",
+      "path": "website"
     },
     {
-      "path": ".",
+      "name": "sandbox",
+      "path": "packages/plugma/test/sandbox"
     },
+    {
+      "name": "plugma",
+      "path": "."
+    }
   ],
   "settings": {},
 }
