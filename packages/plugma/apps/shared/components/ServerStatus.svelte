@@ -59,7 +59,6 @@
 		display: flex;
 		gap: 4px;
 		align-items: center;
-		color: var(--figma-color-text-danger);
 	}
 
 	.server-status.active {
