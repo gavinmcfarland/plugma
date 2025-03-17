@@ -49,3 +49,16 @@ Now you can publish the plugin from the Figma desktop app.
 ### Advanced
 
 See the [Plugma docs](https://plugma.dev/docs) for further information.
+
+### To get the "test" feature working (temporary)
+
+1. Open the Figma desktop app and run the plugin.
+2. Then run the following commands:
+    ```bash
+    plugma dev -ws --port 9000
+    vitest
+    ```
+
+#### How does it work?
+
+When `vitest` runs on Node, it sends the tests to the plugin via WebSockets. The plugin evaluates these tests, executes the assertions, and then sends the results back to `vitest`. In order for this to work, the plugin needs to be open and the WebSocket server needs to be running.
