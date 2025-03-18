@@ -2,7 +2,7 @@
   "folders": [
     {
       "name": "website",
-      "path": "website"
+      "path": "packages/website"
     },
     {
       "name": "sandbox",
