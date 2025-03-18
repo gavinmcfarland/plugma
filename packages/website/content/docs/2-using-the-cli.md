@@ -144,6 +144,44 @@ plugma release beta -t "New feature" -n "This release includes new features X an
 
 </details>
 
+<details>
+
+<summary>
+
+### `test`
+
+</summary>
+
+Run unit tests against your plugin.
+
+##### Usage
+
+The developer server must be running first by using the `dev` command before running tests.
+
+Create unit tests by creating a file with `.test.` in their name.
+
+```bash
+plugma test [options]
+```
+
+##### Options
+
+-   `-w`, `--watch`: Watch for changes and rerun tests automatically.
+
+##### Example
+
+```bash
+# Start development server and run tests
+plugma dev # In one terminal
+plugma test # In another terminal
+```
+
+<blockquote class="info">
+When using the commands with `npm run` you need to pass the arguments with a double dash `--`, for example `npm run dev -- -p 3000`.
+</blockquote>
+
+</details>
+
 ## Installing globally
 
 If you'd prefer to use the CLI globally you can install it using the following.

@@ -6,6 +6,7 @@
 	import Notification from '@/components/Notification.svelte';
 	import Icon from '@/components/Icon.svelte';
 	import Meta from '@/components/Meta.svelte';
+	import Banner from '@/components/Banner.svelte';
 
 	inject();
 	injectSpeedInsights();
@@ -25,23 +26,27 @@
 <div class="app">
 	<!-- <Header /> -->
 
-	<div class="navbar p-4 pr-5 flex justify-between border-b sticky top-0 z-50">
-		<nav class="max-w-7xl mx-auto flex grow justify-between">
-			<div class="flex">
-				<a href="/" class="items-center flex gap-3">
-					<Icon svg="plug-filled" size={20} strokeWidth={1.5} />
-					<span>Plugma</span>
-				</a>
-			</div>
-			<div class="flex gap-6">
-				<a href="/docs" class="hover:underline">Docs</a>
-				<a
-					href="https://github.com/gavinmcfarland/plugma"
-					class="hover:underline"
-					target="_blank">GitHub</a
-				>
-			</div>
-		</nav>
+	<div class="sticky top-0 z-50">
+		<Banner>
+			<p>Previewing the next release of Plugma</p>
+		</Banner>
+
+		<div class="navbar p-4 pr-5 flex justify-between border-b">
+			<nav class="max-w-7xl mx-auto flex grow justify-between">
+				<div class="flex">
+					<a href="/" class="items-center flex gap-3">
+						<Icon svg="plug-filled" size={20} strokeWidth={1.5} />
+						<span>Plugma</span>
+					</a>
+				</div>
+				<div class="flex gap-6">
+					<a href="/docs" class="hover:underline">Docs</a>
+					<a href="https://github.com/gavinmcfarland/plugma" class="hover:underline" target="_blank"
+						>GitHub</a
+					>
+				</div>
+			</nav>
+		</div>
 	</div>
 
 	<main class="grow">

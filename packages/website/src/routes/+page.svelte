@@ -7,6 +7,7 @@
 	import Icon from '@/components/Icon.svelte';
 	import Meta from '@/components/Meta.svelte';
 	import Section from '@/components/Section.svelte';
+	import Banner from '@/components/Banner.svelte';
 </script>
 
 <svelte:head>
@@ -32,9 +33,9 @@
 		</div>
 		<div class="max-w-6xl mx-auto">
 			<div class="text-center">
-				<Badge href="/whats-new">V1 What's New<Icon svg="arrow-right" /></Badge>
+				<!-- <Badge href="/whats-new">V1 What's New<Icon svg="arrow-right" /></Badge> -->
 				<h1 class="text-5xl/tight md:text-7xl/tight text-center font-medium mb-4">
-					Create Figma plugins <br />without the hassle
+					Develop Figma plugins <br />without the hassle
 				</h1>
 				<p class="mb-10">Supports React, Svelte, Vue, and vanilla JS/TS</p>
 				<Code
@@ -56,8 +57,8 @@
 				<Icon svg="bolt" size={48} strokeWidth={1.1} isAnimated opacity={1} />
 				<h2 class="text-lg font-medium">Faster development</h2>
 				<p>
-					Accelerates development and improves debugging by eliminating the need to
-					rebuild for every change.
+					Accelerates development and improves debugging by eliminating the need to rebuild for
+					every change.
 				</p>
 			</Card>
 
@@ -65,8 +66,8 @@
 				<Icon svg="window" size={48} strokeWidth={1.1} isAnimated opacity={1} />
 				<h2 class="text-lg font-medium">Browser preview</h2>
 				<p>
-					Preview in any browser during development using websockets to pass messages from
-					Figma to the browser.
+					Preview in any browser during development using websockets to pass messages from Figma to
+					the browser.
 				</p>
 			</Card>
 
@@ -74,8 +75,8 @@
 				<Icon svg="vite-logo" size={48} strokeWidth={1.1} isAnimated opacity={1} />
 				<h2 class="text-lg font-medium">Built with Vite</h2>
 				<p>
-					Built using Vite, it works seamlessly with most frameworks and offers support
-					for numerous Vite and Rollup plugins.
+					Built using Vite, it works seamlessly with most frameworks and offers support for numerous
+					Vite and Rollup plugins.
 				</p>
 			</Card>
 		</div>
@@ -92,17 +93,12 @@
 			<div>
 				<h3 class="font-bold mb-2">Preview in any browser</h3>
 				<Code class="mb-1" lang="js" text="plugma preview" />
-				<p>
-					Debug and test across different browsers without having to publish your plugin.
-				</p>
+				<p>Debug and test across different browsers without having to publish your plugin.</p>
 			</div>
 			<div>
 				<h3 class="font-bold mb-2">Create a build</h3>
 				<Code class="mb-1" lang="js" text="plugma build" />
-				<p>
-					When you're ready to publish, create a minified version with with everything
-					inlined.
-				</p>
+				<p>When you're ready to publish, create a minified version with with everything inlined.</p>
 			</div>
 			<div>
 				<h3 class="font-bold mb-2">Release to github</h3>
@@ -129,10 +125,9 @@
 							<a href="https://x.com/gleb_sexy">Gleb Sabirzyanov</a>
 						</h3>
 						<p>
-							Plugma takes away the pain of setting up a plugin development
-							environment. It's so effortless and requires zero config. Used it for
-							multiple plugins already, I never had such a hassle-free environment
-							before.
+							Plugma takes away the pain of setting up a plugin development environment. It's so
+							effortless and requires zero config. Used it for multiple plugins already, I never had
+							such a hassle-free environment before.
 						</p>
 					</div>
 				</div>
@@ -150,9 +145,8 @@
 							<a href="https://x.com/chen_ed5557">Chen Chen</a>
 						</h3>
 						<p>
-							Plugma elevates the developer experience for Figma plugins like never
-							before. With features like HMR and browser preview, it saved me much
-							time on debugging plugin UI.
+							Plugma elevates the developer experience for Figma plugins like never before. With
+							features like HMR and browser preview, it saved me much time on debugging plugin UI.
 						</p>
 					</div>
 				</div>

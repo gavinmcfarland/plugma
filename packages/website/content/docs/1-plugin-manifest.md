@@ -29,7 +29,7 @@ It's important that the path in the `main` and `ui` field point to the source fi
 
 ## Plugin files
 
-When defining the relative file paths for the `main` code and the `ui`, they must point to the source files, not the build files. This allows you to organize and name your source files as you prefer.
+When defining the relative file paths for the `main` code and the `ui`, they must point to the entry point for the code and ui source files, not the build files. This allows you to organize and name your source files as you prefer.
 
 ```jsonc
 {
@@ -56,7 +56,7 @@ While developing locally, Plugma uses a local dev server. This server must be sp
 	// ...
 	"networkAccess": {
 		"allowedDomains": ["http://example"],
-		"devAllowedDomains": ["http://localhost:4000"]
+		"devAllowedDomains": ["http://localhost:*"]
 	}
 }
 ```
@@ -67,14 +67,14 @@ Using a wildcard `*` for the port number, such as `http://localhost:*`, will ens
 
 ### Websockets
 
-If you're using WebSockets, it's important the URL for the WebSocket server (e.g., `ws://localhost:9001`) is listed under `devAllowedDomains`. This allows Plugma to connect over WebSockets when developing locally.
+If you're using WebSockets for previewing in the browser or unit testing, it's important the URL for the WebSocket server (e.g., `ws://localhost:*`) is listed under `devAllowedDomains`. This allows Plugma to connect over WebSockets when developing locally.
 
 ```jsonc
 {
 	// ...
 	"networkAccess": {
 		// ...
-		"devAllowedDomains": ["http://localhost:*", "ws://localhost:9001"]
+		"devAllowedDomains": ["http://localhost:*", "ws://localhost:*"]
 	}
 }
 ```
