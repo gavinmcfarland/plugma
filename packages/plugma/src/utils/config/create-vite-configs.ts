@@ -18,7 +18,7 @@ import {
 } from "#vite-plugins";
 
 const projectRoot = path.join(getDirName(), "../../..");
-const uiHtmlPath = path.join(projectRoot, "templates/ui.html");
+const templateUiHtmlPath = path.join(projectRoot, "templates/ui.html");
 
 // Before using the runtime code, bundle it
 const runtimeBundlePath = path.join(projectRoot, "dist/apps/plugma-runtime.js");
@@ -49,13 +49,15 @@ export function createViteConfigs(
 ): ViteConfigs {
 	// Copy template to the current working directory
 	const localUiHtmlPath = path.join(process.cwd(), "ui.html");
-	if (!fs.existsSync(localUiHtmlPath)) {
-		fs.copyFileSync(uiHtmlPath, localUiHtmlPath);
+	let uiHtmlPath = templateUiHtmlPath;
+	if (fs.existsSync(localUiHtmlPath)) {
+		uiHtmlPath = localUiHtmlPath;
+		// fs.copyFileSync(uiHtmlPath, localUiHtmlPath);
 	}
 
 	// TODO: Change so that input is dynamically referenced. Checking if exists in project root and if not, use one from templates. Also should it be called ui.html?
 	defaultLogger.debug("Creating Vite configs with:", {
-		browserIndexPath: localUiHtmlPath,
+		browserIndexPath: uiHtmlPath,
 		outputDir: options.output,
 		cwd: process.cwd(),
 	});
@@ -102,7 +104,7 @@ export function createViteConfigs(
 				emptyOutDir: false,
 				write: true,
 				rollupOptions: {
-					input: localUiHtmlPath,
+					input: uiHtmlPath,
 					output: {
 						entryFileNames: "[name].js",
 						chunkFileNames: "[name].js",
