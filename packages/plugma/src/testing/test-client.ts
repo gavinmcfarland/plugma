@@ -43,6 +43,11 @@ export class TestClient {
 		testRunId: string;
 		timeoutId: ReturnType<typeof setTimeout>;
 	}> = [];
+	private pendingMessages: Array<{
+		message: TestMessage;
+		resolve: (value: void) => void;
+		reject: (error: Error) => void;
+	}> = [];
 	private testRunCallbacks = new Map<
 		string,
 		{
@@ -51,6 +56,7 @@ export class TestClient {
 		}
 	>();
 	private closed = false;
+	private connecting = false;
 
 	private constructor(url = "ws://localhost", port: number) {
 		this.url = `${url}:${port}`;
@@ -90,6 +96,23 @@ export class TestClient {
 			return this.ws;
 		}
 
+		// If already attempting to connect, wait for that attempt
+		if (this.connecting) {
+			return new Promise((resolve, reject) => {
+				const checkConnection = setInterval(() => {
+					if (this.ws?.readyState === WebSocket.OPEN) {
+						clearInterval(checkConnection);
+						resolve(this.ws);
+					} else if (!this.connecting) {
+						clearInterval(checkConnection);
+						reject(new Error("Connection failed"));
+					}
+				}, 100);
+			});
+		}
+
+		this.connecting = true;
+
 		// Close existing connection if any
 		if (this.ws) {
 			this.ws.close();
@@ -105,6 +128,7 @@ export class TestClient {
 			const errorHandler = (error: Event) => {
 				this.logger.error("Connection error:", error);
 				this.ws = null;
+				this.connecting = false;
 				reject(new Error("Connection failed"));
 			};
 
@@ -113,6 +137,8 @@ export class TestClient {
 				if (this.ws) {
 					this.ws.onerror = errorHandler;
 					this.setupMessageHandler();
+					this.connecting = false;
+					this.processPendingMessages(); // Process any queued messages
 					resolve(this.ws);
 				}
 			};
@@ -122,10 +148,30 @@ export class TestClient {
 			this.ws.onclose = () => {
 				this.logger.debug("Connection closed");
 				this.ws = null;
-				// Reject any pending promises when connection is closed
-				this.rejectPendingPromises(new Error("WebSocket closed"));
+				this.connecting = false;
+				// Don't reject pending promises, keep them queued
+				if (this.closed) {
+					this.rejectPendingPromises(new Error("WebSocket closed"));
+				}
 			};
 		});
+	}
+
+	/**
+	 * Processes any pending messages in the queue
+	 */
+	private async processPendingMessages(): Promise<void> {
+		while (this.pendingMessages.length > 0) {
+			const pending = this.pendingMessages.shift();
+			if (pending) {
+				try {
+					await this.send(pending.message);
+					pending.resolve();
+				} catch (error) {
+					pending.reject(error as Error);
+				}
+			}
+		}
 	}
 
 	/**
@@ -139,7 +185,7 @@ export class TestClient {
 				const data = JSON.parse(event.data);
 				const message = data.pluginMessage as TestMessage;
 
-				this.logger.debug("[ws-client] 📩", JSON.stringify(message, null, 2));
+				// this.logger.debug("[ws-client] 📩", JSON.stringify(message, null, 2));
 
 				if (
 					message.type === "TEST_ASSERTIONS" ||
@@ -147,17 +193,17 @@ export class TestClient {
 				) {
 					const callbacks = this.testRunCallbacks.get(message.testRunId);
 					if (callbacks) {
-						this.logger.debug(
-							"[ws-client] Found callbacks for testRunId:",
-							message.testRunId,
-						);
+						// this.logger.debug(
+						// 	"[ws-client] Found callbacks for testRunId:",
+						// 	message.testRunId,
+						// );
 						this.testRunCallbacks.delete(message.testRunId);
 						callbacks.resolve(message);
 					} else {
-						this.logger.warn(
-							"[ws-client] No callbacks found for testRunId:",
-							message.testRunId,
-						);
+						// this.logger.warn(
+						// 	"[ws-client] No callbacks found for testRunId:",
+						// 	message.testRunId,
+						// );
 					}
 				}
 
@@ -192,10 +238,28 @@ export class TestClient {
 	}
 
 	/**
-	 * Sends a message to the WebSocket server
+	 * Sends a message to the WebSocket server or queues it if not connected
 	 * @throws {Error} If connection fails or times out
 	 */
 	public async send(message: TestMessage): Promise<void> {
+		// If not connected and not closed, queue the message
+		if ((!this.ws || this.ws.readyState !== WebSocket.OPEN) && !this.closed) {
+			return new Promise((resolve, reject) => {
+				this.pendingMessages.push({ message, resolve, reject });
+				this.ensureConnection().catch((error) => {
+					// If connection fails, reject the queued message
+					const index = this.pendingMessages.findIndex(
+						(p) => p.message === message,
+					);
+					if (index !== -1) {
+						const [pending] = this.pendingMessages.splice(index, 1);
+						pending.reject(error);
+					}
+				});
+			});
+		}
+
+		// Normal send logic for when we're connected
 		const ws = await this.ensureConnection();
 		const testRunId = "testRunId" in message ? message.testRunId : message.type;
 
