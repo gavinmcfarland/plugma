@@ -13,6 +13,7 @@ import type { TestCommandOptions } from "./types.js";
 import { LoadOptionsTask } from "#tasks/common/temp-options.js";
 import { TestClient } from "../testing/test-client.js";
 import { InitTestClientTask } from "../tasks/test/init-test-client.js";
+import StartWebSocketsServerTask from "#tasks/server/websocket.js";
 
 /**
  * Main test command implementation
@@ -39,18 +40,22 @@ export async function test(options: TestCommandOptions): Promise<void> {
 		};
 
 		let savedOptions = await LoadOptionsTask.run(pluginOptions, undefined);
-		const port = savedOptions ? savedOptions.port : pluginOptions.port;
+		pluginOptions.port = savedOptions ? savedOptions.port : pluginOptions.port;
 
 		// Set the WebSocket port in environment for the test process
-		const wsPort = Number(port) + 1;
+		const wsPort = Number(pluginOptions.port) + 1;
 		process.env.TEST_WS_PORT = String(wsPort);
+
+		// Enable websockets if not already enabled
+		pluginOptions.websockets = true;
 
 		// Execute tasks in sequence
 		log.info("Executing test tasks...");
 
 		const results = await serial(
-			InitTestClientTask, // Initialize test client
-			RunVitestTask, // Run tests with Vitest
+			StartWebSocketsServerTask,
+			InitTestClientTask,
+			RunVitestTask,
 		)(pluginOptions);
 
 		if (results["test:run-vitest"].success) {
