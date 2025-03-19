@@ -4,7 +4,7 @@
     "scripts": {
         "build-plugma": "cd ../../ && nr build",
         "list-dist": "command ls -la dist",
-        "dev": "nr build-plugma && plugma dev -ws -p 9000",
+        "dev": "nr build-plugma && plugma dev -ws",
         "build": "nr build-plugma && plugma build",
         "preview": "nr build-plugma && plugma preview",
         "release": "nr build-plugma && plugma release",

@@ -52,17 +52,27 @@ export class TestClient {
 	>();
 	private closed = false;
 
-	private constructor(url = "ws://localhost:9001") {
-		this.url = url;
+	private constructor(url = "ws://localhost", port: number) {
+		this.url = `${url}:${port}`;
 		this.logger = new Logger({ debug: true });
 	}
 
 	/**
 	 * Gets the singleton instance of TestClient
+	 * @throws {Error} If attempting to get instance before initialization
 	 */
-	public static getInstance(url?: string): TestClient {
+	public static getInstance(port?: number, url?: string): TestClient {
 		if (!TestClient.instance || TestClient.instance.closed) {
-			TestClient.instance = new TestClient(url);
+			// Try to get port from environment variable if not provided
+			const envPort = process.env.TEST_WS_PORT;
+			const finalPort = port || (envPort ? Number(envPort) : undefined);
+
+			if (!finalPort) {
+				throw new Error(
+					"Port is required when creating new TestClient instance. Make sure to initialize TestClient with a port first.",
+				);
+			}
+			TestClient.instance = new TestClient(url, finalPort);
 		}
 		return TestClient.instance;
 	}
@@ -251,6 +261,3 @@ export class TestClient {
 		this.rejectPendingPromises(new Error("WebSocket closed"));
 	}
 }
-
-// Export singleton instance
-export const testClient = TestClient.getInstance();

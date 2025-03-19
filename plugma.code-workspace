@@ -9,11 +9,12 @@
       "path": "packages/plugma/test/sandbox"
     },
     {
-      "name": "plugma",
-      "path": "."
+      "name": "src",
+      "path": "packages/plugma/src"
     },
     {
-      "path": "packages/plugma/src"
+      "name": "plugma",
+      "path": "."
     }
   ],
   "settings": {},

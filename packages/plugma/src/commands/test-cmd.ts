@@ -10,6 +10,9 @@ import { nanoid } from "nanoid";
 import { serial } from "../tasks/runner.js";
 import { RunVitestTask } from "../tasks/test/run-vitest.js";
 import type { TestCommandOptions } from "./types.js";
+import { LoadOptionsTask } from "#tasks/common/temp-options.js";
+import { TestClient } from "../testing/test-client.js";
+import { InitTestClientTask } from "../tasks/test/init-test-client.js";
 
 /**
  * Main test command implementation
@@ -18,7 +21,8 @@ import type { TestCommandOptions } from "./types.js";
  * @param options - Test configuration options
  * @remarks
  * The test command:
- * 1. Runs tests using Vitest
+ * 1. Initializes the test client
+ * 2. Runs tests using Vitest
  */
 export async function test(options: TestCommandOptions): Promise<void> {
 	const log = new Logger({ debug: options.debug });
@@ -34,9 +38,18 @@ export async function test(options: TestCommandOptions): Promise<void> {
 			command: "test",
 		};
 
+		let savedOptions = await LoadOptionsTask.run(pluginOptions, undefined);
+		const port = savedOptions ? savedOptions.port : pluginOptions.port;
+
+		// Set the WebSocket port in environment for the test process
+		const wsPort = Number(port) + 1;
+		process.env.TEST_WS_PORT = String(wsPort);
+
 		// Execute tasks in sequence
 		log.info("Executing test tasks...");
+
 		const results = await serial(
+			InitTestClientTask, // Initialize test client
 			RunVitestTask, // Run tests with Vitest
 		)(pluginOptions);
 
@@ -44,8 +57,11 @@ export async function test(options: TestCommandOptions): Promise<void> {
 			log.success("All tests passed");
 		} else {
 			log.error("Some tests failed");
-			// process.exit(1);
 		}
+
+		// Clean up when done
+		const testClient = results["test:init-client"].client;
+		testClient.close();
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : String(error);
 		log.error("Failed to run tests:", errorMessage);
