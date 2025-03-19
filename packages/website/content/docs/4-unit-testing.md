@@ -8,7 +8,7 @@ Create a unit test by creating a file with `.test.` in their name.
 
 ```js
 // rectangle-color.test.js
-import { describe, test, expect } from 'plugma/testing';
+import { test, expect } from 'plugma/testing';
 
 test('creates a rectangle with specific color', async () => {
     const rect = figma.createRectangle();
@@ -24,8 +24,11 @@ test('creates a rectangle with specific color', async () => {
         r: 0.5, g: 0.5, b: 0.5
     });
 });
-
 ```
+
+<blockquote class="info">
+Currently plugma only supports unit tests for the main process, but we are working on adding support for UI tests.
+</blockquote>
 
 ## Running tests
 
