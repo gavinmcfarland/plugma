@@ -71,13 +71,13 @@ export class TestClient {
 		if (!TestClient.instance || TestClient.instance.closed) {
 			// Try to get port from environment variable if not provided
 			const envPort = process.env.TEST_WS_PORT;
-			const finalPort = port || (envPort ? Number(envPort) : undefined);
+			const finalPort = port || (envPort ? Number(envPort) : 9001);
 
-			if (!finalPort) {
-				throw new Error(
-					"Port is required when creating new TestClient instance. Make sure to initialize TestClient with a port first.",
-				);
-			}
+			// if (!finalPort) {
+			// 	throw new Error(
+			// 		"Port is required when creating new TestClient instance. Make sure to initialize TestClient with a port first.",
+			// 	);
+			// }
 			TestClient.instance = new TestClient(url, finalPort);
 		}
 		return TestClient.instance;
@@ -186,6 +186,8 @@ export class TestClient {
 				const message = data.pluginMessage as TestMessage;
 
 				// this.logger.debug("[ws-client] 📩", JSON.stringify(message, null, 2));
+
+				console.log("message", message);
 
 				if (
 					message.type === "TEST_ASSERTIONS" ||

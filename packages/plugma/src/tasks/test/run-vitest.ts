@@ -25,8 +25,25 @@ export const runVitest = async (
 	const log = new Logger({ debug: options.debug });
 
 	try {
+		console.log("Starting Vitest...");
+		// Add our test plugin to the Vite config
+		const testConfig = {
+			test: {
+				globals: true,
+				environment: "node",
+				testTimeout: options.timeout ?? 10000,
+				watch: options.watch ?? false,
+				run: true,
+				watchMode: false,
+			},
+		};
+
+		console.log("testConfig", testConfig);
 		log.info("Starting Vitest...");
-		const vitest = await startVitest("test");
+		const vitest = await startVitest("test", [], {
+			...testConfig,
+			api: true,
+		});
 
 		// Wait for tests to complete and check results
 		await vitest.start();

@@ -58,11 +58,11 @@ export async function test(options: TestCommandOptions): Promise<void> {
 			RunVitestTask,
 		)(pluginOptions);
 
-		if (results["test:run-vitest"].success) {
-			log.success("All tests passed");
-		} else {
-			log.error("Some tests failed");
-		}
+		// if (results["test:run-vitest"].success) {
+		// 	log.success("All tests passed");
+		// } else {
+		// 	log.error("Some tests failed");
+		// }
 
 		// Clean up when done
 		const testClient = results["test:init-client"].client;
