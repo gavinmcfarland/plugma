@@ -15,7 +15,7 @@ export * from "./release/workflow-templates.js";
 export * from "./server/restart-vite.js";
 export * from "./server/vite.js";
 export * from "./server/websocket.js";
-export * from "./test/inject-test-code.js";
+// export * from "./test/inject-test-code.js";
 export * from "./test/run-vitest.js";
 // export * from './test/start-test-server.js';
 //@endindex

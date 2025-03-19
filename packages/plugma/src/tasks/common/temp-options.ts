@@ -1,7 +1,7 @@
 import type { GetTaskTypeFor, PluginOptions } from "#core/types.js";
 import { Logger } from "#utils/log/logger.js";
 import { task } from "../runner.js";
-import { writeFile, readFile } from "fs/promises";
+import { writeFile, readFile, unlink } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
 
