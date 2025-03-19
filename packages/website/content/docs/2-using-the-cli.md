@@ -158,8 +158,6 @@ Run unit tests against your plugin.
 
 The developer server must be running first by using the `dev` command before running tests.
 
-Create unit tests by creating a file with `.test.` in their name.
-
 ```bash
 plugma test [options]
 ```

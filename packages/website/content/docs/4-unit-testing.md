@@ -29,27 +29,20 @@ test('creates a rectangle with specific color', async () => {
 
 ## Running tests
 
-First ensure the developer server is running.
+Start the development server and run all test suites.
 
 ```bash
-plugma dev
+plugma dev # In one terminal
+plugma test # In another terminal
 ```
 
-Use the `test` command to run and rerun tests automatically.
+### `test`
 
-```bash
-plugma test
-```
+Run all test suites but watch for changes and rerun tests when they change.
+
+### `test run`
 
 Perform a single run without watch mode.
-
-```bash
-plugma test run
-```
-
-<blockquote class="warning">
-The developer server must be running first by using the `dev` command before running tests.
-</blockquote>
 
 ## Further documentation
 
