@@ -11,6 +11,9 @@
     {
       "name": "plugma",
       "path": "."
+    },
+    {
+      "path": "packages/plugma/src"
     }
   ],
   "settings": {},

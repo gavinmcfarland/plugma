@@ -8,6 +8,7 @@
         "build": "nr build-plugma && plugma build",
         "preview": "nr build-plugma && plugma preview",
         "release": "nr build-plugma && plugma release",
+        "test": "plugma test",
         "test:dev": "nr build-plugma && (timeout 3s plugma dev --debug); nr list-dist",
         "test:build": "nr build-plugma && plugma build --debug && nr list-dist",
         "test:preview": "nr build-plugma && (timeout 5s plugma preview --debug); nr list-dist",

@@ -187,7 +187,6 @@ program
 	.description("Run tests for your plugin")
 	.option("-w, --watch", "Watch for changes and rerun tests")
 	.option("-t, --timeout <number>", "Test timeout in milliseconds", "10000")
-	.option("-p, --port <number>", "WebSocket server port")
 	.option("-d, --debug", "Enable debug mode", false)
 	.action(function (this: Command, options: TestCommandOptions) {
 		handleDebug(this.name(), options);
@@ -198,7 +197,6 @@ program
 		`
     Examples:
       plugma test
-      plugma test --watch
       plugma test --timeout 5000
   `,
 	);

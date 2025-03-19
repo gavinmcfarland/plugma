@@ -4,7 +4,10 @@
  */
 
 import type { GetTaskTypeFor, PluginOptions } from "#core/types.js";
+import { createViteConfigs } from "#utils/config/create-vite-configs.js";
+import { getUserFiles } from "#utils/config/get-user-files.js";
 import { Logger } from "#utils/log/logger.js";
+import { replacePlugmaTesting } from "#vite-plugins/test/replace-plugma-testing.js";
 import { startVitest } from "vitest/node";
 import { task } from "../runner.js";
 
@@ -25,8 +28,27 @@ export const runVitest = async (
 	const log = new Logger({ debug: options.debug });
 
 	try {
+		log.info("Loading plugin configuration...");
+		const files = await getUserFiles(options);
+		const configs = createViteConfigs(options, files);
+
+		// Add our test plugin to the Vite config
+		const testConfig = {
+			...configs.main,
+			plugins: [...(configs.main.dev.plugins || []), replacePlugmaTesting()],
+			test: {
+				globals: true,
+				environment: "node",
+				testTimeout: options.timeout ?? 10000,
+				watch: options.watch ?? false,
+			},
+		};
+
 		log.info("Starting Vitest...");
-		const vitest = await startVitest("test");
+		const vitest = await startVitest("test", [], {
+			...testConfig,
+			api: true,
+		});
 
 		// Wait for tests to complete and check results
 		await vitest.start();
