@@ -74,7 +74,10 @@ If you're using WebSockets for previewing in the browser or unit testing, it's i
 	// ...
 	"networkAccess": {
 		// ...
-		"devAllowedDomains": ["http://localhost:*", "ws://localhost:*"]
+		"devAllowedDomains": [
+            "http://localhost:*",
+            "ws://localhost:*"
+            ]
 	}
 }
 ```
