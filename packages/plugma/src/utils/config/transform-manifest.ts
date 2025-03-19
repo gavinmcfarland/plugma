@@ -43,7 +43,7 @@ export function transformObject(
 					domain === "ws://localhost:*"
 				) {
 					const port = domain.startsWith("ws")
-						? (options.port + 1).toString()
+						? (Number(options.port) + 1).toString()
 						: options.port.toString();
 					return domain.replace("*", port);
 				}
