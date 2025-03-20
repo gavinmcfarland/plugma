@@ -39,14 +39,14 @@ Make sure the `main` and `ui` fields point to the source files and not the dist 
 
 ### Step 4: Allow development network access
 
-To allow local development with live reloading and WebSocket support, add the following domains to the `networkAccess.devAllowedDomains` field in your manifest.
+To allow local development with live reloading, previewing in the browser and testing, add the following domains to the `networkAccess.devAllowedDomains` field in your manifest.
 
 ```jsonc
 "networkAccess": {
     // ...
     "devAllowedDomains": [
         "http://localhost:*",
-        "ws://localhost:9001"
+        "ws://localhost:*"
     ]
 }
 ```
