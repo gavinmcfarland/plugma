@@ -6,7 +6,7 @@ You can see the full list of available fields in Figma's [plugin manifest docume
 
 ## Manifest location
 
-You can configure the manifest by adding a `plugma.manifest` field to the `package.json` file or placing a `manifest.json` file in the project root.
+Configure the plugin manifest by adding a `plugma.manifest` field to the `package.json` file or placing a `manifest.json` file in the project root.
 
 ##### Example using package.json
 
