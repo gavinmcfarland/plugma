@@ -29,7 +29,8 @@ export function serveUi(options: PluginOptions): Plugin {
 			server.middlewares.use("/", async (req, res, next) => {
 				if (req.url === "/" || req.url === "/index.html") {
 					try {
-						const localTemplatePath = path.join(process.cwd(), "ui.html");
+						// Was ui.html, but now using index.html
+						const localTemplatePath = path.join(process.cwd(), "index.html");
 						const defaultTemplatePath = path.join(
 							__dirname,
 							"../../../",

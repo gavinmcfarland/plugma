@@ -48,7 +48,8 @@ export function createViteConfigs(
 	userFiles: UserFiles,
 ): ViteConfigs {
 	// Copy template to the current working directory
-	const localUiHtmlPath = path.join(process.cwd(), "ui.html");
+	// Was ui.html, but now using index.html
+	const localUiHtmlPath = path.join(process.cwd(), "index.html");
 	let uiHtmlPath = templateUiHtmlPath;
 	if (fs.existsSync(localUiHtmlPath)) {
 		uiHtmlPath = localUiHtmlPath;
