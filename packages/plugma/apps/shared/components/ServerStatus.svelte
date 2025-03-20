@@ -60,8 +60,4 @@
 		gap: 4px;
 		align-items: center;
 	}
-
-	.server-status.active {
-		color: var(--figma-color-text-success);
-	}
 </style>
