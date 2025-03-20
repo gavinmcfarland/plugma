@@ -37,7 +37,7 @@ The `main` and `ui` fields must point to the source files and not the dist files
 }
 ```
 
-This UI source file is compiled into a bundled file, which can be referenced in the `main` code using `figma.showUI` with the `__html__` constant.
+The UI source file is bundled into a html file, which can be referenced in the `main` code using `figma.showUI` with the `__html__` constant.
 
 <blockquote class="warning">
 Plugma currently does not allow using a map for the `ui` field, which means `__uiFiles__` is not yet supported.
@@ -47,7 +47,7 @@ Plugma currently does not allow using a map for the `ui` field, which means `__u
 
 ### Localhost
 
-While developing locally, Plugma uses a local dev server. This server must be specified in `networkAccess.devAllowedDomains` to ensure that Figma only accepts this domain, blocking others unless they are specified in `allowedDomains`.
+While developing locally, Plugma uses a local dev server. This server must be specified in the `devAllowedDomains` field to ensure that Figma only accepts this domain, blocking others unless they are specified in `allowedDomains`.
 
 ```jsonc
 {
