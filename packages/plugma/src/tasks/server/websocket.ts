@@ -71,6 +71,14 @@ export interface StartWebSocketsServerResult {
 }
 
 /**
+ * Add these interfaces near the other interfaces
+ */
+interface QueuedMessage {
+	message: string;
+	senderId: string;
+}
+
+/**
  * Task that starts and manages the WebSocket server for plugin communication.
  *
  * This task is responsible for:
@@ -152,21 +160,64 @@ export const startWebSocketsServer = async (
 
 		// Map to store clients with their unique IDs
 		const clients = new Map<string, Client>();
+		// Queue for storing messages when no plugin-window is connected
+		const messageQueue: QueuedMessage[] = [];
 
-		// Function to broadcast messages to clients except sender
-		function broadcastMessage(message: string, senderId: string): void {
+		// Function to check if plugin window is connected
+		function hasPluginWindowConnection(): boolean {
+			return Array.from(clients.values()).some(
+				(client) => client.source === "plugin-window",
+			);
+		}
+
+		// Function to process queued messages
+		function processMessageQueue(): void {
+			if (!hasPluginWindowConnection()) {
+				log.debug("No plugin window connected, skipping queue processing");
+				return;
+			}
+
+			log.debug(
+				`Starting to process ${messageQueue.length} queued messages...`,
+			);
+			while (messageQueue.length > 0) {
+				const { message, senderId } = messageQueue.shift()!;
+				log.debug(`Processing queued message: ${message.substring(0, 100)}...`);
+				broadcastMessage(message, senderId, false);
+			}
+			log.debug("Queue processing complete");
+		}
+
+		// Updated broadcast function with queue handling
+		function broadcastMessage(
+			message: string,
+			senderId: string,
+			shouldQueue = true,
+		): void {
 			if (viteState.isBuilding) {
-				// Queue message if build is in progress
 				viteState.messageQueue.push({ message, senderId });
 				log.debug("Build in progress, queueing message from:", senderId);
 				return;
 			}
 
+			if (shouldQueue && !hasPluginWindowConnection()) {
+				messageQueue.push({ message, senderId });
+				log.debug(
+					"No plugin window connected, queueing message from:",
+					senderId,
+				);
+				return;
+			}
+
+			let sentCount = 0;
 			for (const [clientId, { ws }] of clients.entries()) {
 				if (clientId !== senderId && ws.readyState === WebSocket.OPEN) {
 					ws.send(message);
+					sentCount++;
+					log.debug(`Message sent to client ${clientId}`, JSON.parse(message));
 				}
 			}
+			log.debug(`Broadcast complete: message sent to ${sentCount} clients`);
 		}
 
 		// Handle server errors
@@ -208,12 +259,29 @@ export const startWebSocketsServer = async (
 			clients.set(clientId, { ws, source: clientSource });
 			log.debug(`Client connected: ${clientId} (${clientSource})`);
 
+			// Process queued messages when plugin-window connects OR reconnects
+			if (clientSource === "plugin-window") {
+				log.debug(`Processing ${messageQueue.length} queued messages...`);
+				processMessageQueue();
+				// Also process any messages queued during Vite builds
+				if (viteState.messageQueue.length > 0) {
+					log.debug(
+						`Processing ${viteState.messageQueue.length} Vite-queued messages...`,
+					);
+					viteState.messageQueue.forEach(({ message, senderId }) => {
+						log.debug(`Sending queued message from ${senderId}`);
+						broadcastMessage(message, senderId, false);
+					});
+					viteState.messageQueue.length = 0; // Clear the queue
+				}
+			}
+
 			// Send server status message
 			const statusMessage: WebSocketMessage = {
 				pluginMessage: {
 					event: "server_status",
 					message: "Dev server active",
-					source: "server",
+					source: `server`,
 				},
 				pluginId: "*",
 			};
@@ -275,15 +343,8 @@ export const startWebSocketsServer = async (
 			ws.on("message", (data: Buffer) => {
 				try {
 					const message = JSON.parse(data.toString()) as WebSocketMessage;
-					// Only broadcast valid messages to other clients
-					for (const [otherClientId, { ws: otherWs }] of clients.entries()) {
-						if (
-							otherClientId !== clientId && // Don't send back to sender
-							otherWs.readyState === WebSocket.OPEN
-						) {
-							otherWs.send(JSON.stringify(message));
-						}
-					}
+					// Use the broadcastMessage function instead of direct broadcasting
+					broadcastMessage(JSON.stringify(message), clientId);
 				} catch (error) {
 					log.error("Failed to parse message:", error);
 					// Do not send error back to client

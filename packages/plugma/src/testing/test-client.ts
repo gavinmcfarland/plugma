@@ -58,7 +58,11 @@ export class TestClient {
 	private closed = false;
 	private connecting = false;
 
-	private constructor(url = "ws://localhost", port: number) {
+	private constructor(
+		url = "ws://localhost",
+		port: number,
+		options: { debug?: boolean } = {},
+	) {
 		this.url = `${url}:${port}`;
 		this.logger = new Logger({ debug: true });
 	}
@@ -67,18 +71,21 @@ export class TestClient {
 	 * Gets the singleton instance of TestClient
 	 * @throws {Error} If attempting to get instance before initialization
 	 */
-	public static getInstance(port?: number, url?: string): TestClient {
+	public static getInstance(
+		options = { port: undefined, debug: undefined } as {
+			port?: number;
+			debug?: boolean;
+		},
+		url?: string,
+	): TestClient {
 		if (!TestClient.instance || TestClient.instance.closed) {
 			// Try to get port from environment variable if not provided
 			const envPort = process.env.TEST_WS_PORT;
-			const finalPort = port || (envPort ? Number(envPort) : 9001);
+			const finalPort = options.port || (envPort ? Number(envPort) : 9001);
 
-			// if (!finalPort) {
-			// 	throw new Error(
-			// 		"Port is required when creating new TestClient instance. Make sure to initialize TestClient with a port first.",
-			// 	);
-			// }
-			TestClient.instance = new TestClient(url, finalPort);
+			TestClient.instance = new TestClient(url, finalPort, {
+				debug: options.debug,
+			});
 		}
 		return TestClient.instance;
 	}
@@ -187,8 +194,6 @@ export class TestClient {
 
 				// this.logger.debug("[ws-client] 📩", JSON.stringify(message, null, 2));
 
-				console.log("message", message);
-
 				if (
 					message.type === "TEST_ASSERTIONS" ||
 					message.type === "TEST_ERROR"
@@ -247,6 +252,7 @@ export class TestClient {
 		// If not connected and not closed, queue the message
 		if ((!this.ws || this.ws.readyState !== WebSocket.OPEN) && !this.closed) {
 			return new Promise((resolve, reject) => {
+				console.log("--------", message);
 				this.pendingMessages.push({ message, resolve, reject });
 				this.ensureConnection().catch((error) => {
 					// If connection fails, reject the queued message

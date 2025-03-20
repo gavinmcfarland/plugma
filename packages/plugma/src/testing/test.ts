@@ -101,6 +101,7 @@ export const test: TestFn = async (name, fn) => {
 				type: "RUN_TEST" as const,
 				testName: name,
 				testRunId,
+				source: "test",
 			};
 
 			logger.debug("[test-runner] 📮 RUN_TEST:", runTestMessage);
@@ -127,6 +128,7 @@ export const test: TestFn = async (name, fn) => {
 					testName: name,
 					testRunId: testRunId,
 					reason: "timeout",
+					source: "test",
 				});
 				throw error;
 			}

@@ -27,7 +27,8 @@ export const initTestClient = async (
 	try {
 		log.info("Initializing test client...");
 		const wsPort = Number(process.env.TEST_WS_PORT);
-		const testClient = TestClient.getInstance(wsPort);
+		options.port = wsPort;
+		const testClient = TestClient.getInstance(options);
 		await testClient.connect();
 
 		return { client: testClient };
