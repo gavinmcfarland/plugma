@@ -39,11 +39,13 @@ plugma dev # In one terminal
 plugma test # In another terminal
 ```
 
-### `test`
+### Commands
+
+#### `test`
 
 Run all test suites but watch for changes and rerun tests when they change.
 
-### `test run`
+#### `test run`
 
 Perform a single run without watch mode.
 

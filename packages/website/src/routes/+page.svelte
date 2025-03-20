@@ -35,15 +35,10 @@
 			<div class="text-center">
 				<!-- <Badge href="/whats-new">V1 What's New<Icon svg="arrow-right" /></Badge> -->
 				<h1 class="text-5xl/tight md:text-7xl/tight text-center font-medium mb-4">
-					Develop Figma plugins <br />without the hassle
+					Experience the future<br /> of Figma plugin development
 				</h1>
 				<p class="mb-10">Supports React, Svelte, Vue, and vanilla JS/TS</p>
-				<Code
-					class="max-w-fit mx-auto"
-					persistCopyButton
-					lang="js"
-					text="npm create plugma@latest"
-				/>
+				<Code class="max-w-fit mx-auto" persistCopyButton lang="js" text="npm create plugma@next" />
 				<Button class="mt-4 mx-auto" href="docs/getting-started">Get started</Button>
 			</div>
 		</div>
