@@ -8,8 +8,12 @@ Under the hood, Plugma uses [Vitest](https://vitest.dev/guide/) for running test
 
 You can write unit tests by creating files with `.test.` in their name.
 
+#### Example
+
+Below is an example of a test that creates a rectangle and confirms it has been created with a specific colour.
+
 ```js
-// rectangle-color.test.js
+// create-rectangle.test.js
 import { test, expect } from 'plugma/testing';
 
 test('creates a rectangle with specific color', async () => {
