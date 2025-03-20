@@ -6,6 +6,10 @@ Vite is used to bundle both the main process code and the UI code.
 
 Using a single `vite.config.js` file you can use the `runtime` option to specify different configurations for UI and main during build time.
 
+<blockquote class="warning">
+Runtime option coming soon.
+</blockquote>
+
 ##### Example vite.config.js
 
 ```js
@@ -35,6 +39,10 @@ export default defineConfig(({ mode, runtime }) => {
 ### Separate Configuration Files
 
 Alternatively you can use distinct configuration files for UI and main processes during build time, specifically `vite.config.ui.js` for UI and `vite.config.main.js` for main.
+
+<blockquote class="warning">
+Separate configuration files coming soon.
+</blockquote>
 
 ## Custom index template
 
