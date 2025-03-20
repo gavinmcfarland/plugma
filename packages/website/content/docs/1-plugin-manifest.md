@@ -1,6 +1,6 @@
 # Plugin manifest
 
-The manifest sets up your Figma plugin’s core settings, from plugin details to network configurations. Plugma makes it easy to configure the manifest with the options outlined below. Below is how to configure the manifest with work with Plugma.
+The manifest defines your Figma plugin’s core settings, including plugin details and network configurations. Here's how to set up the manifest to work with Plugma.
 
 You can see the full list of available fields in Figma's [plugin manifest documentation](https://www.figma.com/plugin-docs/manifest/).
 
