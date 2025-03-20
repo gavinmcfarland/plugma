@@ -110,7 +110,8 @@
 
 	onMount(async () => {
 		// NOTE: Messaging must be setup first so that it's ready to receive messages from iframe
-		let ws = setupWebSocket(iframe, window.runtimeData.websockets, true);
+		// NOTE: Because source is not passed through it will appear as "unknown" in the client list
+		let ws = setupWebSocket(iframe, window.runtimeData.websockets);
 
 		// Move redirecting iframe higher up because some messages were not being recieved due to iframe not being redirected in time (do i need to consider queing messages?)
 		iframe.src = new URL(url).href;

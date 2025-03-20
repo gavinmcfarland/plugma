@@ -57,6 +57,8 @@ export class TestClient {
 	>();
 	private closed = false;
 	private connecting = false;
+	private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+	private isReconnecting = false;
 
 	private constructor(
 		url = "ws://localhost",
@@ -126,41 +128,68 @@ export class TestClient {
 			this.ws = null;
 		}
 
-		this.logger.debug("Connecting to:", this.url);
-		this.ws = new WebSocket(`${this.url}?source=test`);
-
 		return new Promise((resolve, reject) => {
-			if (!this.ws) return reject(new Error("WebSocket not initialized"));
+			const attemptConnection = () => {
+				this.logger.debug("Connecting to:", this.url);
+				this.ws = new WebSocket(`${this.url}?source=test`);
 
-			const errorHandler = (error: Event) => {
-				this.logger.error("Connection error:", error);
-				this.ws = null;
-				this.connecting = false;
-				reject(new Error("Connection failed"));
-			};
+				if (!this.ws) return reject(new Error("WebSocket not initialized"));
 
-			this.ws.onopen = () => {
-				this.logger.debug("Connection established");
-				if (this.ws) {
-					this.ws.onerror = errorHandler;
-					this.setupMessageHandler();
+				const errorHandler = (error: Event) => {
+					this.logger.error("Connection error:", error);
+					this.ws = null;
 					this.connecting = false;
-					this.processPendingMessages(); // Process any queued messages
-					resolve(this.ws);
-				}
+
+					// Start reconnection attempt if not already reconnecting
+					if (!this.isReconnecting && !this.closed) {
+						this.isReconnecting = true;
+						this.reconnectTimer = setTimeout(() => {
+							this.isReconnecting = false;
+							attemptConnection();
+						}, WS_CONFIG.retryDelay);
+					}
+				};
+
+				this.ws.onopen = () => {
+					this.logger.debug("Connection established");
+					if (this.ws) {
+						this.ws.onerror = errorHandler;
+						this.setupMessageHandler();
+						this.connecting = false;
+						this.isReconnecting = false;
+						if (this.reconnectTimer) {
+							clearTimeout(this.reconnectTimer);
+							this.reconnectTimer = null;
+						}
+						this.processPendingMessages(); // Process any queued messages
+						resolve(this.ws);
+					}
+				};
+
+				this.ws.onerror = errorHandler;
+
+				this.ws.onclose = () => {
+					this.logger.debug("Connection closed");
+					this.ws = null;
+					this.connecting = false;
+
+					// Start reconnection attempt if not already reconnecting
+					if (!this.isReconnecting && !this.closed) {
+						this.isReconnecting = true;
+						this.reconnectTimer = setTimeout(() => {
+							this.isReconnecting = false;
+							attemptConnection();
+						}, WS_CONFIG.retryDelay);
+					}
+
+					// Don't reject pending promises, keep them queued
+					if (this.closed) {
+						this.rejectPendingPromises(new Error("WebSocket closed"));
+					}
+				};
 			};
 
-			this.ws.onerror = errorHandler;
-
-			this.ws.onclose = () => {
-				this.logger.debug("Connection closed");
-				this.ws = null;
-				this.connecting = false;
-				// Don't reject pending promises, keep them queued
-				if (this.closed) {
-					this.rejectPendingPromises(new Error("WebSocket closed"));
-				}
-			};
+			attemptConnection();
 		});
 	}
 
@@ -249,59 +278,57 @@ export class TestClient {
 	 * @throws {Error} If connection fails or times out
 	 */
 	public async send(message: TestMessage): Promise<void> {
-		// If not connected and not closed, queue the message
-		if ((!this.ws || this.ws.readyState !== WebSocket.OPEN) && !this.closed) {
-			return new Promise((resolve, reject) => {
-				console.log("--------", message);
-				this.pendingMessages.push({ message, resolve, reject });
-				this.ensureConnection().catch((error) => {
-					// If connection fails, reject the queued message
-					const index = this.pendingMessages.findIndex(
-						(p) => p.message === message,
-					);
-					if (index !== -1) {
-						const [pending] = this.pendingMessages.splice(index, 1);
-						pending.reject(error);
-					}
-				});
-			});
+		// Queue all messages when not connected or closed
+		if (this.closed) {
+			throw new Error("WebSocket closed");
 		}
 
-		// Normal send logic for when we're connected
-		const ws = await this.ensureConnection();
-		const testRunId = "testRunId" in message ? message.testRunId : message.type;
+		try {
+			const ws = await this.ensureConnection();
 
-		return new Promise((resolve, reject) => {
-			const timeoutId = setTimeout(() => {
-				const index = this.messageQueue.findIndex(
-					(item) => item.testRunId === testRunId,
-				);
-				if (index !== -1) {
-					this.messageQueue.splice(index, 1);
-				}
-				reject(new WebSocketTimeoutError());
-			}, WS_CONFIG.timeout);
-
-			this.messageQueue.push({
-				resolve,
-				reject,
-				testRunId,
-				timeoutId,
-			});
-
-			try {
-				ws.send(
-					JSON.stringify({
-						pluginMessage: message,
-						pluginId: "*",
-					}),
-				);
-			} catch (error) {
-				clearTimeout(timeoutId);
-				this.messageQueue.pop();
-				throw error;
+			if (ws.readyState !== WebSocket.OPEN) {
+				throw new Error("WebSocket not connected");
 			}
-		});
+
+			return new Promise((resolve, reject) => {
+				const testRunId =
+					"testRunId" in message ? message.testRunId : message.type;
+				const timeoutId = setTimeout(() => {
+					const index = this.messageQueue.findIndex(
+						(item) => item.testRunId === testRunId,
+					);
+					if (index !== -1) {
+						this.messageQueue.splice(index, 1);
+					}
+					reject(new WebSocketTimeoutError());
+				}, WS_CONFIG.timeout);
+
+				this.messageQueue.push({
+					resolve,
+					reject,
+					testRunId,
+					timeoutId,
+				});
+
+				try {
+					ws.send(
+						JSON.stringify({
+							pluginMessage: message,
+							pluginId: "*",
+						}),
+					);
+				} catch (error) {
+					clearTimeout(timeoutId);
+					this.messageQueue.pop();
+					throw error;
+				}
+			});
+		} catch (error) {
+			// Queue the message for retry when connection is restored
+			return new Promise((resolve, reject) => {
+				this.pendingMessages.push({ message, resolve, reject });
+			});
+		}
 	}
 
 	/**
@@ -319,6 +346,7 @@ export class TestClient {
 	public async connect(): Promise<void> {
 		this.closed = false;
 		await this.ensureConnection();
+		await this.processPendingMessages();
 	}
 
 	/**
@@ -326,6 +354,10 @@ export class TestClient {
 	 */
 	public close(): void {
 		this.closed = true;
+		if (this.reconnectTimer) {
+			clearTimeout(this.reconnectTimer);
+			this.reconnectTimer = null;
+		}
 		if (this.ws) {
 			this.ws.close();
 			this.ws = null;
