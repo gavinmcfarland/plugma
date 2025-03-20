@@ -8,7 +8,7 @@ Under the hood, Plugma uses [Vitest](https://vitest.dev/guide/) for running test
 
 You can write unit tests by creating files with `.test.` in their name.
 
-#### Example
+##### Example test
 
 Below is an example of a test that creates a rectangle and confirms it has been created with a specific colour.
 
