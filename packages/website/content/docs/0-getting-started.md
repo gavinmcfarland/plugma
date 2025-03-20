@@ -14,6 +14,8 @@ To create a plugin from a template, run the following command in your terminal a
 npm create plugma@latest
 ```
 
+Or to migrate an existing plugin follow the [migration guide](./migrating-an-existing-plugin).
+
 ## Install and import
 
 Change to the plugin directory and install the dependencies.

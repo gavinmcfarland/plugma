@@ -27,7 +27,7 @@ Add Plugma commands in the scripts section to handle development, building, prev
 
 ### Step 3: Update file paths in `manifest.json`
 
-Update the `main` and `ui` fields in your Figma plugin manifest to point to your source files.
+Make sure the `main` and `ui` fields point to the source files and not the dist files. The `ui` field should point to where the UI is mounted. You can organize these files however you prefer. To avoid confusion with the `main` field, consider renaming your UI entry file (typically `main.ts` or `main.js`) to something like `ui.ts`.
 
 ```jsonc
 {
@@ -61,7 +61,23 @@ export default function () {
 }
 ```
 
-### Step 6: Add TypeScript definitions for Figma
+### Step 6: Update or remove the `index.html` template file
+
+If you have an `index.html` file either remove it or update it to include the `<!--[ PLUGIN_UI ]-->` placeholder where the Plugma generated UI code will be injected.
+
+```html
+<html>
+	<head>
+		<title><!--[ PLUGIN_NAME ]--></title>
+	</head>
+	<body>
+		<div id="app"></div>
+		<!--[ PLUGIN_UI ]-->
+	</body>
+</html>
+```
+
+### Step 7: Add TypeScript definitions for Figma
 
 If your project uses TypeScript, install the necessary type definitions for Figma
 
@@ -80,7 +96,7 @@ And add the following to your `tsconfig.json` file.
 }
 ```
 
-### Step 7: Build and import the plugin in Figma
+### Step 8: Build and import the plugin in Figma
 
 Run the `build` command to create a `dist` folder with it's own `manifest.json` file, and import it into Figma.
 

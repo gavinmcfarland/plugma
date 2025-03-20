@@ -78,7 +78,7 @@ a {
 }
 
 h1 {
-	@apply text-3xl font-medium mb-10;
+	@apply text-3xl font-medium mb-9;
 }
 
 h2 {
@@ -90,11 +90,11 @@ strong {
 }
 
 .main-content h2 {
-	@apply mt-6 mb-4;
+	@apply mt-8 mb-4;
 }
 
 .main-content h3 {
-	@apply text-xl font-normal mt-6 mb-4;
+	@apply text-lg font-normal mt-8 mb-4;
 }
 
 h3,

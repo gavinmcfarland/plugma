@@ -2,9 +2,11 @@
 
 Unit tests are an important part of your development workflow. They help you catch bugs and ensure your plugin works as expected.
 
-## Creating a unit test
+## Writing unit tests
 
-Create a unit test by creating a file with `.test.` in their name.
+Under the hood, Plugma uses [Vitest](https://vitest.dev/guide/) for running tests.
+
+You can write unit tests by creating files with `.test.` in their name.
 
 ```js
 // rectangle-color.test.js
@@ -26,18 +28,18 @@ test('creates a rectangle with specific color', async () => {
 });
 ```
 
-<blockquote class="info">
-Currently plugma only supports unit tests for the main process, but we are working on adding support for UI tests.
-</blockquote>
-
 ## Running tests
 
-Start the development server and run all test suites.
+To run the tests, start the development server and run the `test` command.
 
 ```bash
-plugma dev # In one terminal
-plugma test # In another terminal
+npm run dev # In one terminal
+npm run test # In another terminal
 ```
+
+<blockquote class="info">
+The plugin must be running in the Figma desktop app for tests to run.
+</blockquote>
 
 ### Commands
 
@@ -51,4 +53,4 @@ Perform a single run without watch mode.
 
 ## Further documentation
 
-For more options and documentationsee the [Vitest](https://vitest.dev/guide/) site.
+For more options and documentation see the [Vitest](https://vitest.dev/guide/) site.

@@ -1,14 +1,12 @@
 # Plugin manifest
 
-The manifest sets up your Figma plugin’s core settings, from plugin details to network configurations. Plugma makes it easy to configure the manifest with the options outlined below.
+The manifest sets up your Figma plugin’s core settings, from plugin details to network configurations. Plugma makes it easy to configure the manifest with the options outlined below. Below is how to configure the manifest with work with Plugma.
+
+You can see the full list of available fields in Figma's [plugin manifest documentation](https://www.figma.com/plugin-docs/manifest/).
 
 ## Manifest location
 
 You can configure the manifest by adding a `plugma.manifest` field to the `package.json` file or placing a `manifest.json` file in the project root.
-
-<!-- <blockquote class="info">
-It's important that the path in the `main` and `ui` field point to the source files, and not the build files.
-</blockquote> -->
 
 ##### Example using package.json
 
@@ -29,17 +27,17 @@ It's important that the path in the `main` and `ui` field point to the source fi
 
 ## Plugin files
 
-When defining the relative file paths for the `main` code and the `ui`, they must point to the entry point for the code and ui source files, not the build files. This allows you to organize and name your source files as you prefer.
+The `main` and `ui` fields must point to the source files and not the dist files. The `ui` field should point to where the UI is mounted.
 
 ```jsonc
 {
 	//...
-	"main": "src/code.js",
+	"main": "src/main.js",
 	"ui": "src/ui.js"
 }
 ```
 
-The `ui` field specifies the relative path to the source file for your plugin's user interface. This source file is compiled into a bundled file, which can be displayed in the iframe modal by referencing it with the `__html__` constant when using `figma.showUI`.
+This UI source file is compiled into a bundled file, which can be referenced in the `main` code using `figma.showUI` with the `__html__` constant.
 
 <blockquote class="warning">
 Plugma currently does not allow using a map for the `ui` field, which means `__uiFiles__` is not yet supported.
@@ -67,7 +65,7 @@ Using a wildcard `*` for the port number, such as `http://localhost:*`, will ens
 
 ### Websockets
 
-If you're using WebSockets for previewing in the browser or unit testing, it's important the URL for the WebSocket server (e.g., `ws://localhost:*`) is listed under `devAllowedDomains`. This allows Plugma to connect over WebSockets when developing locally.
+If you're using WebSockets for previewing in the browser or unit testing, it's important the URL for the WebSocket server (e.g., `ws://localhost:*`) is listed under `devAllowedDomains`. This allows Plugma to connect over WebSockets when developing and testing locally.
 
 ```jsonc
 {
@@ -77,7 +75,7 @@ If you're using WebSockets for previewing in the browser or unit testing, it's i
 		"devAllowedDomains": [
             "http://localhost:*",
             "ws://localhost:*"
-            ]
+        ]
 	}
 }
 ```
