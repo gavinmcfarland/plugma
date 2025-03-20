@@ -98,7 +98,7 @@ And add the following to your `tsconfig.json` file.
 
 ### Step 8: Build and import the plugin in Figma
 
-Run the `build` command to create a `dist` folder with it's own `manifest.json` file, and import it into Figma.
+Run the `build` command to create a `dist` folder with it's own `manifest.json` file, and import it using the Figma desktop app.
 
 ```bash
 npm run build
