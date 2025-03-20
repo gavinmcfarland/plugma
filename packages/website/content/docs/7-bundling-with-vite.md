@@ -1,6 +1,8 @@
 # Bundling with Vite
 
-Vite is used to bundle both the main process code and the UI code. You have several options for configuring how this works:
+Vite is used to bundle both the main process code and the UI code.
+
+## Configuration Options
 
 Using a single `vite.config.js` file you can use the `runtime` option to specify different configurations for UI and main during build time.
 
@@ -33,3 +35,21 @@ export default defineConfig(({ mode, runtime }) => {
 ### Separate Configuration Files
 
 Alternatively you can use distinct configuration files for UI and main processes during build time, specifically `vite.config.ui.js` for UI and `vite.config.main.js` for main.
+
+## Custom index template
+
+By default Plugma uses it's own index template for the UI process. However you can use your own template by adding a `index.html` file to the root of your project.
+
+```html
+<html>
+	<head>
+		<title><!--[ PLUGIN_NAME ]--></title>
+	</head>
+	<body>
+		<div id="app"></div>
+		<!--[ PLUGIN_UI ]-->
+	</body>
+</html>
+```
+
+Just make sure to include the `<!--[ PLUGIN_UI ]-->` placeholder where the Plugma generated UI code will be injected.
