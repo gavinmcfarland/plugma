@@ -36,8 +36,6 @@ export default function () {
 
 			figma.viewport.scrollAndZoomIntoView(rectangles);
 		}
-
-		handleTestMessage(message);
 	};
 
 	function postNodeCount() {

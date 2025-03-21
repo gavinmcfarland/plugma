@@ -12,15 +12,15 @@
  */
 
 import {
-  handleDeleteClientStorage,
-  handleDeleteRootPluginData,
-  handleHideToolbar,
-  handleMaximizeWindow,
-  handleMinimizeWindow,
-  handleSaveWindowSettings,
-} from './handlers/index.js';
+	handleDeleteClientStorage,
+	handleDeleteRootPluginData,
+	handleHideToolbar,
+	handleMaximizeWindow,
+	handleMinimizeWindow,
+	handleSaveWindowSettings,
+} from "./handlers/index.js";
 
-import type { PlugmaRuntimeData } from './types.js';
+import type { PlugmaRuntimeData } from "./types.js";
 
 // NOTE: the comment must come after the declare stmt
 // otherwise tsc will remove it
@@ -33,24 +33,32 @@ export declare const runtimeData: PlugmaRuntimeData;
  */
 /*--[ RUNTIME_DATA ]--*/
 
-export * from './figma-api-interceptors';
+export * from "./figma-api-interceptors";
 
 /**
  * Map of event handlers for window management
  */
 const windowHandlers = {
-  [handleMinimizeWindow.EVENT_NAME]: handleMinimizeWindow,
-  [handleMaximizeWindow.EVENT_NAME]: handleMaximizeWindow,
-  [handleHideToolbar.EVENT_NAME]: handleHideToolbar,
-  [handleSaveWindowSettings.EVENT_NAME]: handleSaveWindowSettings,
-  [handleDeleteRootPluginData.EVENT_NAME]: handleDeleteRootPluginData,
-  [handleDeleteClientStorage.EVENT_NAME]: handleDeleteClientStorage,
+	[handleMinimizeWindow.EVENT_NAME]: handleMinimizeWindow,
+	[handleMaximizeWindow.EVENT_NAME]: handleMaximizeWindow,
+	[handleHideToolbar.EVENT_NAME]: handleHideToolbar,
+	[handleSaveWindowSettings.EVENT_NAME]: handleSaveWindowSettings,
+	[handleDeleteRootPluginData.EVENT_NAME]: handleDeleteRootPluginData,
+	[handleDeleteClientStorage.EVENT_NAME]: handleDeleteClientStorage,
 } as const;
 
+import { handleTestMessage } from "../../src/testing/figma/handlers.js";
+
 // Set up message listener for window management
-figma.ui.on('message', async (msg) => {
-  const handler = windowHandlers[msg.event as keyof typeof windowHandlers];
-  if (handler) {
-    await Promise.resolve(handler(msg));
-  }
+figma.ui.on("message", async (msg) => {
+	const handler = windowHandlers[msg.event as keyof typeof windowHandlers];
+	if (handler) {
+		await Promise.resolve(handler(msg));
+	}
 });
+
+// Not working yet
+// figma.ui.on("message", async (message) => {
+// 	console.log("-------message", message);
+// 	handleTestMessage(message);
+// });

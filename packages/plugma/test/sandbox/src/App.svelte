@@ -1,31 +1,31 @@
 <script lang="ts">
-	import svelteLogo from './assets/svelte.svg'
-	import Icon from './components/Icon.svelte'
-	import Input from './components/Input.svelte'
-	import Button from './components/Button.svelte'
+	import svelteLogo from "./assets/svelte.svg";
+	import Icon from "./components/Icon.svelte";
+	import Input from "./components/Input.svelte";
+	import Button from "./components/Button.svelte";
 
 	function createRectangles(count: number) {
 		parent.postMessage(
 			{
 				pluginMessage: {
-					type: 'CREATE_RECTANGLES',
+					type: "CREATE_RECTANGLES",
 					count,
 				},
 			},
-			'*',
-		)
+			"*",
+		);
 	}
 
-	let rectCount = $state(5)
-	let nodeCount = $state(0)
+	let rectCount = $state(5);
+	let nodeCount = $state(0);
 
 	window.onmessage = (event) => {
-		const message = event.data.pluginMessage
+		const message = event.data.pluginMessage;
 
-		if (message.type === 'POST_NODE_COUNT') {
-			nodeCount = message.count
+		if (message.type === "POST_NODE_COUNT") {
+			nodeCount = message.count;
 		}
-	}
+	};
 </script>
 
 <div class="container">
@@ -39,7 +39,9 @@
 
 	<div class="field create-rectangles">
 		<Input type="number" bind:value={rectCount}></Input>
-		<Button onclick={() => createRectangles(rectCount)}>Create Rectangles</Button>
+		<Button onclick={() => createRectangles(rectCount)}
+			>Create Rectangles</Button
+		>
 	</div>
 	<!-- <div class="field">
 		<Button onclick={runTest}>Run Test</Button>

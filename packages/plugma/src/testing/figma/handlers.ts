@@ -8,7 +8,6 @@ import { registry } from "./registry";
  */
 
 export function handleTestMessage(message: TestMessage): void {
-	// logger.debug('Received message:', message);
 	try {
 		switch (message.type) {
 			case "REGISTER_TEST": {
@@ -121,3 +120,7 @@ export function handleTestMessage(message: TestMessage): void {
 		figma.ui.postMessage(response);
 	}
 }
+
+figma.ui.on("message", async (message) => {
+	handleTestMessage(message);
+});
