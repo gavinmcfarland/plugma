@@ -2,7 +2,7 @@
 // import { handleTestMessage } from "plugma/testing";
 
 console.log("[MAIN] Registering tests");
-import "../tests";
+import "../tests/index-test-registry";
 
 import { handleTestMessage } from "plugma/testing/figma";
 

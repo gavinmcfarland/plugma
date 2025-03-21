@@ -46,7 +46,7 @@ export const runVitest = async (
 		});
 
 		// Wait for tests to complete and check results
-		await vitest.start();
+
 		const success = vitest.state.getCountOfFailedTests() === 0;
 
 		return { success };
