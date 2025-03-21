@@ -1,8 +1,8 @@
-import { defaultLogger as logger } from "#utils/log/logger";
+import { defaultLogger as logger } from "#utils/log/logger.js";
 import { test as vitestTest } from "vitest";
-import { executeAssertions } from "./execute-assertions";
-import { TestClient } from "./test-client";
-import type { TestFn } from "./types";
+import { executeAssertions } from "./execute-assertions.js";
+import { TestClient } from "./test-client.js";
+import type { TestFn } from "./types.js";
 
 /**
  * Configuration for test execution

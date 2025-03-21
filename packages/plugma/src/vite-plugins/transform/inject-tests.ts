@@ -60,7 +60,7 @@ export function injectTests(options: InjectTestsOptions = {}): Plugin {
 					testPatterns.map((pattern) =>
 						glob(pattern, {
 							cwd: testDir,
-							absolute: false,
+							absolute: true,
 						}),
 					),
 				);
@@ -72,14 +72,14 @@ export function injectTests(options: InjectTestsOptions = {}): Plugin {
 					return null;
 				}
 
-				// Generate import statements for each test file
+				// Generate import statements for each test file using absolute paths
 				const imports = uniqueTestFiles
 					.map((file) => {
-						const relativePath = relative(
-							id.substring(0, id.lastIndexOf("/")),
-							`${testDir}/${file}`,
-						);
-						return `import '${relativePath}';`;
+						// Convert absolute paths to proper module imports
+						const importPath = file
+							.replace(process.cwd(), "") // Remove the current working directory
+							.replace(/^\/?/, "/"); // Ensure path starts with /
+						return `import '${importPath}';`;
 					})
 					.join("\n");
 
