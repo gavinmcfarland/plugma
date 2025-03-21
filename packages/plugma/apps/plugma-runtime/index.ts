@@ -48,6 +48,7 @@ const windowHandlers = {
 } as const;
 
 // // Import test message handlers
+// // Couldn't move this from src/testing/test. Not sure why.
 // import "../../src/testing/figma/handlers.js";
 
 // Set up message listener for window management
