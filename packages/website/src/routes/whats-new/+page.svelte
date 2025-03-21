@@ -36,70 +36,54 @@
 				<div class="gradient"></div>
 			</div>
 			<div class="text-center grow place-content-center">
-				<h2 class="text-8xl font-semibold">V1</h2>
+				<h2 class="text-8xl font-semibold">V2</h2>
 				<Badge class="mt-2">Try it now!</Badge>
 			</div>
-			<Code lang="bash" text="npm create plugma@latest" class="w-full" persistCopyButton
-			></Code>
+			<Code lang="bash" text="npm create plugma@next" class="w-full" persistCopyButton></Code>
 		</div>
 		<div
 			class="border rounded-lg sm:col-span-12 lg:col-span-8 p-10 grid grid-cols-1 md:grid-cols-2 gap-9"
 		>
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="message-square" size={24} opacity={1} />Enhanced WebSockets</span
+					><Icon svg="message-square" size={24} opacity={1} />Unit Testing</span
 				>
 				<p class="m-0">
-					WebSocket messages are now queued until the connection is ready, making browser
-					previews much more stable and responsive, even for complex plugins.
+					Catch bugs and ensure your plugin works as expected. Write unit tests with files that end
+					with <code>.test.ts</code> and run tests using the new <code>test</code> command.
 				</p>
 			</div>
+
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="copy" size={24} opacity={1} />Modes and Environments</span
+					><Icon svg="file" size={24} opacity={1} />Enhanced Build System</span
 				>
 
 				<p class="m-0">
-					Test various setups with the new <code>--mode</code> option and
-					<code>.env</code> variables, allowing you to build, run, and debug for different
-					environments with ease.
+					Better support for different contexts using a special <code>runtime</code> option. You can
+					now specifiy different configurations for both <code>main</code> and <code>ui</code> with
+					a single
+					<code>vite.config.js</code> file.
 				</p>
 			</div>
+
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="switch-alt" size={24} opacity={1} />Real-Time Theme Switching</span
+					><Icon svg="switch-alt" size={24} opacity={1} />Custom <code>index.html</code> template</span
 				>
 				<p class="m-0">
-					Figma’s dark/light modes now update in real time, using a new iframe setup that
-					directly syncs theme changes to your plugin UI without any delay.
+					You can now provide a custom <code>index.html</code> template. This is useful if you need to
+					include additional frameworks or libraries in your plugin.
 				</p>
 			</div>
+
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="file" size={24} opacity={1} />Simplified Vite Configuration</span
+					><Icon svg="file" size={24} opacity={1} />More reliable</span
 				>
 				<p class="m-0">
-					Simplify builds with a single <code>vite.config.js</code> to manage main and UI code
-					for dev and production modes. Customise freely to match your specific build needs.
-				</p>
-			</div>
-			<div class="flex flex-col gap-3">
-				<span class="flex gap-3 font-semibold"
-					><Icon svg="briefcase" size={24} opacity={1} />Developer Tools</span
-				>
-				<p class="m-0">
-					Previously, enabling developer tools required setting a flag before starting
-					Plugma. Now, they’re just a keyboard shortcut away! Activate or hide developer
-					tools instantly with <code class="whitespace-nowrap">Cmd + Opt + J</code>.
-				</p>
-			</div>
-			<div class="flex flex-col gap-3">
-				<span class="flex gap-3 font-semibold"
-					><Icon svg="window" size={24} opacity={1} />Dedicated Preview Command</span
-				>
-				<p class="m-0">
-					For those who frequently use browser previews, the new preview command minimises
-					the plugin window in Figma, allowing you to free up space.
+					Bug fixes and improvements make your development experience more reliable. Changes to
+					<code>manifest.json</code> now trigger rebuilds automatically.
 				</p>
 			</div>
 		</div>
