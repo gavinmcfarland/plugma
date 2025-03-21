@@ -14,7 +14,9 @@ To create a plugin from a template, run the following command in your terminal a
 npm create plugma@latest
 ```
 
-Or to migrate an existing plugin follow the [migration guide](./migrating-an-existing-plugin).
+## Migrate an existing plugin
+
+If you already have a Figma plugin, you can follow our [migration guide](./migrating-an-existing-plugin) to convert it to use Plugma.
 
 ## Install and import
 
