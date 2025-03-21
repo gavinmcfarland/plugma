@@ -66,7 +66,7 @@ export class TestClient {
 		options: { debug?: boolean } = {},
 	) {
 		this.url = `${url}:${port}`;
-		this.logger = new Logger({ debug: true });
+		this.logger = new Logger({ debug: options.debug });
 	}
 
 	/**

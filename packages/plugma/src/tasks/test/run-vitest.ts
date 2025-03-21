@@ -25,7 +25,7 @@ export const runVitest = async (
 	const log = new Logger({ debug: options.debug });
 
 	try {
-		console.log("Starting Vitest...");
+		// console.log("Starting Vitest...");
 		// Add our test plugin to the Vite config
 		const testConfig = {
 			test: {
@@ -34,11 +34,10 @@ export const runVitest = async (
 				testTimeout: options.timeout ?? 10000,
 				watch: options.watch ?? false,
 				run: true,
-				watchMode: false,
 			},
 		};
 
-		console.log("testConfig", testConfig);
+		// console.log("testConfig", testConfig);
 		log.info("Starting Vitest...");
 		const vitest = await startVitest("test", [], {
 			...testConfig,
