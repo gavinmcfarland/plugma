@@ -1,11 +1,3 @@
-// import type { TestMessage } from "plugma/testing";
-// import { handleTestMessage } from "plugma/testing";
-
-console.log("[MAIN] Registering tests");
-import "../tests/index-test-registry";
-
-import { handleTestMessage } from "plugma/testing/figma";
-
 export default function () {
 	figma.showUI(__html__, { width: 300, height: 260, themeColors: true });
 

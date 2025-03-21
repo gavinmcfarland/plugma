@@ -15,6 +15,7 @@ import {
 	replacePlugmaTesting,
 	rewritePostMessageTargetOrigin,
 	serveUi,
+	injectTests,
 } from "#vite-plugins";
 
 const projectRoot = path.join(getDirName(), "../../..");
@@ -197,6 +198,9 @@ export function createViteConfigs(
 				pluginOptions: options,
 			}),
 			replacePlugmaTesting(),
+			injectTests({
+				testDir: "",
+			}),
 		],
 		build: {
 			minify: false,

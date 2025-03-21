@@ -47,7 +47,8 @@ const windowHandlers = {
 	[handleDeleteClientStorage.EVENT_NAME]: handleDeleteClientStorage,
 } as const;
 
-import { handleTestMessage } from "../../src/testing/figma/handlers.js";
+// Import test message handlers
+import "../../src/testing/figma/handlers.js";
 
 // Set up message listener for window management
 figma.ui.on("message", async (msg) => {
@@ -56,9 +57,3 @@ figma.ui.on("message", async (msg) => {
 		await Promise.resolve(handler(msg));
 	}
 });
-
-// Not working yet
-// figma.ui.on("message", async (message) => {
-// 	console.log("-------message", message);
-// 	handleTestMessage(message);
-// });
