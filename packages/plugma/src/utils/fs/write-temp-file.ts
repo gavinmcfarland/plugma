@@ -1,9 +1,9 @@
-import { writeFileSync } from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
-import { cwd } from 'node:process';
+import { writeFileSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { cwd } from "node:process";
 
-import type { PluginOptions, UserFiles } from '#core/types.js';
+import type { PluginOptions, UserFiles } from "#core/types.js";
 
 const CURR_DIR = cwd();
 
@@ -28,17 +28,19 @@ const CURR_DIR = cwd();
  * ```
  */
 export function writeTempFile(
-  fileName: string,
-  userFiles: UserFiles,
-  options: PluginOptions,
+	fileName: string,
+	userFiles: UserFiles,
+	options: PluginOptions,
 ): string {
-  const tempFilePath = path.join(os.tmpdir(), fileName);
-  const stringPath = path.join(CURR_DIR, userFiles.manifest.main);
-	const modifiedContentPath = path.sep === "\\"
-		? path.resolve(stringPath).split(path.sep).join('/')
-		: stringPath
-  const modifiedContent = `import plugmaMain from '${modifiedContentPath}';
+	const tempFilePath = path.join(os.tmpdir(), fileName);
+	const stringPath = path.join(CURR_DIR, userFiles.manifest.main);
+	// Replace backslashes with forward slashes for cross-platform compatibility as this doesn't change in node whatever the OS
+	const modifiedContentPath =
+		path.sep === "\\"
+			? path.resolve(stringPath).split(path.sep).join("/")
+			: stringPath;
+	const modifiedContent = `import plugmaMain from '${modifiedContentPath}';
     plugmaMain();`;
-  writeFileSync(tempFilePath, modifiedContent);
-  return tempFilePath;
+	writeFileSync(tempFilePath, modifiedContent);
+	return tempFilePath;
 }
