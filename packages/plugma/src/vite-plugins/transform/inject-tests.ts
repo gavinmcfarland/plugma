@@ -61,6 +61,7 @@ export function injectTests(options: InjectTestsOptions = {}): Plugin {
 						glob(pattern, {
 							cwd: testDir,
 							absolute: true,
+							ignore: ["**/node_modules/**"],
 						}),
 					),
 				);
@@ -79,6 +80,8 @@ export function injectTests(options: InjectTestsOptions = {}): Plugin {
 						const importPath = file
 							.replace(process.cwd(), "") // Remove the current working directory
 							.replace(/^\/?/, "/"); // Ensure path starts with /
+
+						console.log("--------", importPath);
 						return `import '${importPath}';`;
 					})
 					.join("\n");
