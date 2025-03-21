@@ -1,13 +1,9 @@
-// import type { TestMessage } from "plugma/testing";
-// import { handleTestMessage } from "plugma/testing";
-// import "../tests/index-test-registry";
+// // How to move this into Plugma?
+// import { handleTestMessage } from "plugma/testing/figma";
 
-// How to move this into Plugma?
-import { handleTestMessage } from "plugma/testing/figma";
-
-figma.ui.on("message", async (message) => {
-	handleTestMessage(message);
-});
+// figma.ui.on("message", async (message) => {
+// 	handleTestMessage(message);
+// });
 
 export default function () {
 	figma.showUI(__html__, { width: 300, height: 260, themeColors: true });
