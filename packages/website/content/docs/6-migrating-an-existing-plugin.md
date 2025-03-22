@@ -14,14 +14,15 @@ npm install plugma@latest
 
 ### Step 2: Update `package.json` scripts
 
-Add Plugma commands in the scripts section to handle development, building, previewing, and releasing.
+Add Plugma commands in the scripts section to handle development, building, previewing, releasing and testing.
 
 ```jsonc
 "scripts": {
     "dev": "plugma dev",
     "build": "plugma build",
     "preview": "plugma preview",
-    "release": "plugma release"
+    "release": "plugma release",
+    "test": "plugma test"
 }
 ```
 
