@@ -1,5 +1,5 @@
 // Add the event listener
-let runtimeData = {"mode":"development","output":"dist","websockets":false,"debug":false,"command":"dev","instanceId":"zi6GqxUOPhAQlAtkWlHTe","port":3864,"manifest":{"id":"plugma-svelte-sandbox-replace","name":"plugma-svelte-sandbox","main":"src/main.ts","ui":"src/ui.ts","editorType":["figma","figjam"],"networkAccess":{"allowedDomains":["none"],"devAllowedDomains":["http://localhost:3864","ws://localhost:9001"]}}};
+let runtimeData = { "mode": "development", "output": "dist", "websockets": false, "debug": false, "command": "dev", "instanceId": "zi6GqxUOPhAQlAtkWlHTe", "port": 3864, "manifest": { "id": "plugma-svelte-sandbox-replace", "name": "plugma-svelte-sandbox", "main": "src/main.ts", "ui": "src/ui.ts", "editorType": ["figma", "figjam"], "networkAccess": { "allowedDomains": ["none"], "devAllowedDomains": ["http://localhost:3864", "ws://localhost:9001"] } } };
 
 
 async function getCommandHistory() {
@@ -257,7 +257,7 @@ function customShowUI(htmlString, options) {
 }
 
 figma.ui.on('message', async (message) => {
-	// Check if the message type is "PLUGMA_MINIMISE_WINDOW"
+
 
 
 	if (message.event === 'PLUGMA_HIDE_TOOLBAR') {
@@ -268,14 +268,14 @@ figma.ui.on('message', async (message) => {
 		})
 	}
 
-	if (message.event === 'PLUGMA_MINIMISE_WINDOW') {
+	if (message.event === 'PLUGMA_MINIMIZE_WINDOW') {
 		getWindowSettings().then((pluginWindowSettings) => {
 			pluginWindowSettings.minimized = true;
 			figma.ui['re' + 'size'](200, 40)
 			setWindowSettings(pluginWindowSettings)
 		})
 	}
-	if (message.event === 'PLUGMA_MAXIMISE_WINDOW') {
+	if (message.event === 'PLUGMA_MAXIMIZE_WINDOW') {
 		getWindowSettings().then((pluginWindowSettings) => {
 			pluginWindowSettings.minimized = false;
 
@@ -327,30 +327,30 @@ figma.ui.on('message', async (message) => {
 });
 "use strict";
 function plugmaMain() {
-  customShowUI(__html__, { width: 300, height: 260, themeColors: true });
-  figma.ui.onmessage = (message) => {
-    if (message.type === "CREATE_RECTANGLES") {
-      let i = 0;
-      let rectangles = [];
-      while (i < message.count) {
-        const rect = figma.createRectangle();
-        rect.x = i * 150;
-        rect.y = 0;
-        rect.resize(100, 100);
-        rect.fills = [{ type: "SOLID", color: { r: Math.random(), g: Math.random(), b: Math.random() } }];
-        rectangles.push(rect);
-        i++;
-      }
-      figma.viewport.scrollAndZoomIntoView(rectangles);
-    }
-  };
-  function postNodeCount() {
-    const nodeCount = figma.currentPage.selection.length;
-    figma.ui.postMessage({
-      type: "POST_NODE_COUNT",
-      count: nodeCount
-    });
-  }
-  figma.on("selectionchange", postNodeCount);
+	customShowUI(__html__, { width: 300, height: 260, themeColors: true });
+	figma.ui.onmessage = (message) => {
+		if (message.type === "CREATE_RECTANGLES") {
+			let i = 0;
+			let rectangles = [];
+			while (i < message.count) {
+				const rect = figma.createRectangle();
+				rect.x = i * 150;
+				rect.y = 0;
+				rect.resize(100, 100);
+				rect.fills = [{ type: "SOLID", color: { r: Math.random(), g: Math.random(), b: Math.random() } }];
+				rectangles.push(rect);
+				i++;
+			}
+			figma.viewport.scrollAndZoomIntoView(rectangles);
+		}
+	};
+	function postNodeCount() {
+		const nodeCount = figma.currentPage.selection.length;
+		figma.ui.postMessage({
+			type: "POST_NODE_COUNT",
+			count: nodeCount
+		});
+	}
+	figma.on("selectionchange", postNodeCount);
 }
 plugmaMain();

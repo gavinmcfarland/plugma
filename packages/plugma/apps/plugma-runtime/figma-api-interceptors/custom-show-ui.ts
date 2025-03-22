@@ -1,10 +1,10 @@
-import type { PlugmaRuntimeData, ShowUIOptions } from '../types';
-import { getCommandHistory } from '../utils/get-command-history';
+import type { PlugmaRuntimeData, ShowUIOptions } from "../types";
+import { getCommandHistory } from "../utils/get-command-history";
 import {
 	DEFAULT_WINDOW_SETTINGS,
 	getWindowSettings,
-} from '../utils/get-window-settings';
-import { figmaApi } from './figma-api';
+} from "../utils/get-window-settings";
+import { figmaApi } from "./figma-api";
 
 declare const runtimeData: PlugmaRuntimeData;
 
@@ -14,94 +14,103 @@ declare const runtimeData: PlugmaRuntimeData;
  * @param initialOptions - Configuration options for the plugin window
  */
 export function customShowUI(
-  htmlString: string,
-  initialOptions?: ShowUIOptions,
+	htmlString: string,
+	initialOptions?: ShowUIOptions,
 ): void {
-  const options = { ...initialOptions };
+	const options = { ...initialOptions };
 
-  // Show UI to receive messages
-  const mergedOptions = { visible: false, ...options };
-  figmaApi.showUI(htmlString, mergedOptions);
+	// Show UI to receive messages
+	const mergedOptions = { visible: false, ...options };
+	figmaApi.showUI(htmlString, mergedOptions);
 
-  getCommandHistory().then((commandHistory) => {
-    getWindowSettings(DEFAULT_WINDOW_SETTINGS['dev']).then(
-      (pluginWindowSettings) => {
-        const hasCommandChanged =
-          commandHistory.previousCommand !== runtimeData.command;
-        const hasInstanceChanged =
-          commandHistory.previousInstanceId !== runtimeData.instanceId;
+	getCommandHistory().then((commandHistory) => {
+		getWindowSettings(DEFAULT_WINDOW_SETTINGS["dev"]).then(
+			(pluginWindowSettings) => {
+				const hasCommandChanged =
+					commandHistory.previousCommand !== runtimeData.command;
+				const hasInstanceChanged =
+					commandHistory.previousInstanceId !==
+					runtimeData.instanceId;
 
-        if (runtimeData.command === 'preview') {
-          pluginWindowSettings.minimized = true;
-          pluginWindowSettings.toolbarEnabled = true;
+				if (runtimeData.command === "preview") {
+					pluginWindowSettings.minimized = true;
+					pluginWindowSettings.toolbarEnabled = true;
 
-          const zoom = figma.viewport.zoom;
-          options.position = {
-            x: figma.viewport.bounds.x + (12 / zoom),
-            y: figma.viewport.bounds.y + (figma.viewport.bounds.height - ((80 + 12) / zoom))
-          };
-        }
+					const zoom = figma.viewport.zoom;
+					options.position = {
+						x: figma.viewport.bounds.x + 12 / zoom,
+						y:
+							figma.viewport.bounds.y +
+							(figma.viewport.bounds.height - (80 + 12) / zoom),
+					};
+				}
 
-        if (hasCommandChanged && runtimeData.command === 'dev') {
-          const zoom = figma.viewport.zoom;
+				if (hasCommandChanged && runtimeData.command === "dev") {
+					const zoom = figma.viewport.zoom;
 
-          if (!options.position) {
-            options.position = {
-              x: figma.viewport.center.x - (options.width || 300) / 2 / zoom,
-              y:
-                figma.viewport.center.y -
-                ((options.height || 200) + 41) / 2 / zoom,
-            };
-          }
-        }
+					if (!options.position) {
+						options.position = {
+							x:
+								figma.viewport.center.x -
+								(options.width || 300) / 2 / zoom,
+							y:
+								figma.viewport.center.y -
+								((options.height || 200) + 41) / 2 / zoom,
+						};
+					}
+				}
 
-        if (hasInstanceChanged && runtimeData.command === 'preview') {
-          pluginWindowSettings.toolbarEnabled = true;
-          pluginWindowSettings.minimized = true;
-        }
+				if (hasInstanceChanged && runtimeData.command === "preview") {
+					pluginWindowSettings.toolbarEnabled = true;
+					pluginWindowSettings.minimized = true;
+				}
 
-        if (options.height) {
-          pluginWindowSettings.height = options.height;
-        }
+				if (options.height) {
+					pluginWindowSettings.height = options.height;
+				}
 
-        if (options.width) {
-          pluginWindowSettings.width = options.width;
-        }
+				if (options.width) {
+					pluginWindowSettings.width = options.width;
+				}
 
-        if (pluginWindowSettings.toolbarEnabled && options.height) {
-          options.height += 41; // Add toolbar height
-        }
+				if (pluginWindowSettings.toolbarEnabled && options.height) {
+					options.height += 41; // Add toolbar height
+				}
 
-        if (pluginWindowSettings.minimized) {
-          options.height = 40;
-          options.width = 200;
-        }
+				if (pluginWindowSettings.minimized) {
+					options.height = 40;
+					options.width = 200;
+				}
 
-        // Apply window dimensions
-        if (options.width && options.height) {
-          figmaApi.resize(options.width, options.height);
-        } else if (pluginWindowSettings.toolbarEnabled) {
-          figmaApi.resize(300, 241); // 200 + 41 for toolbar
-        } else {
-          figmaApi.resize(300, 200);
-        }
+				// Apply window dimensions
 
-        // Apply window position
-        if (options.position?.x != null && options.position?.y != null) {
-          figmaApi.reposition(options.position.x, options.position.y);
-        }
+				if (options.width && options.height) {
+					figmaApi.resize(options.width, options.height);
+				} else if (pluginWindowSettings.toolbarEnabled) {
+					figmaApi.resize(300, 241); // 200 + 41 for toolbar
+				} else {
+					figmaApi.resize(300, 200);
+				}
 
-        // Notify UI of window settings
-        figma.ui.postMessage({
-          event: 'PLUGMA_PLUGIN_WINDOW_SETTINGS',
-          data: pluginWindowSettings,
-        });
+				// Apply window position
+				if (
+					options.position?.x != null &&
+					options.position?.y != null
+				) {
+					figmaApi.reposition(options.position.x, options.position.y);
+				}
 
-        // Show UI unless explicitly set to false
-        if (options.visible !== false) {
-          figma.ui.show();
-        }
-      },
-    );
-  });
+				// Notify UI of window settings
+				figma.ui.postMessage({
+					event: "PLUGMA_PLUGIN_WINDOW_SETTINGS",
+					data: pluginWindowSettings,
+				});
+
+				// Show UI unless explicitly set to false
+				if (options.visible !== false) {
+					figma.ui.show();
+				}
+			},
+		);
+	});
 }

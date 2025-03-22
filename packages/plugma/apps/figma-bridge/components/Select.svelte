@@ -14,9 +14,13 @@
 		selected = event.target.value;
 
 		if (selected === "MINIMIZE_WINDOW") {
+			console.log("MINIMIZE_WINDOW");
 			parent.postMessage(
 				{
-					pluginMessage: { event: "PLUGMA_MINIMISE_WINDOW", toolbarHeight: 40 },
+					pluginMessage: {
+						event: "PLUGMA_MINIMIZE_WINDOW",
+						toolbarHeight: 40,
+					},
 					pluginId: "*",
 				},
 				"*",
@@ -28,9 +32,13 @@
 		}
 
 		if (selected === "MAXIMIZE_WINDOW") {
+			console.log("MAXIMIZE_WINDOW");
 			parent.postMessage(
 				{
-					pluginMessage: { event: "PLUGMA_MAXIMISE_WINDOW", toolbarHeight: 40 },
+					pluginMessage: {
+						event: "PLUGMA_MAXIMIZE_WINDOW",
+						toolbarHeight: 40,
+					},
 					pluginId: "*",
 				},
 				"*",
@@ -99,7 +107,9 @@
 		on:change={handleChange}
 		on:change
 	>
-		<option value="select-an-option" disabled selected>Select an option</option>
+		<option value="select-an-option" disabled selected
+			>Select an option</option
+		>
 		{#each options as option (option.value)}
 			{#if option.isDivider}
 				<option disabled>────────</option> <!-- Divider style -->

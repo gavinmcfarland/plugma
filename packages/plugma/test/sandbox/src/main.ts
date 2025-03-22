@@ -8,6 +8,8 @@
 export default function () {
 	figma.showUI(__html__, { width: 300, height: 260, themeColors: true });
 
+	figma.ui.resize(500, 500);
+
 	figma.ui.onmessage = async (message) => {
 		if (message?.event !== "ping" && message?.event !== "pong") {
 			console.log("[FIGMA MAIN] Received message:", message);
@@ -25,7 +27,11 @@ export default function () {
 				rect.fills = [
 					{
 						type: "SOLID",
-						color: { r: Math.random(), g: Math.random(), b: Math.random() },
+						color: {
+							r: Math.random(),
+							g: Math.random(),
+							b: Math.random(),
+						},
 					},
 				]; // Random color
 				rectangles.push(rect);

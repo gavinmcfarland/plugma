@@ -1,5 +1,5 @@
-import { getWindowSettings } from '../utils/get-window-settings';
-import { figmaApi } from './figma-api';
+import { getWindowSettings } from "../utils/get-window-settings";
+import { figmaApi } from "./figma-api";
 
 /**
  * Custom resize function that takes into account minimized state.
@@ -7,17 +7,18 @@ import { figmaApi } from './figma-api';
  * @param height - The desired window height
  */
 export function customResize(width: number, height: number): void {
-  getWindowSettings().then((pluginWindowSettings) => {
-    const dimensions = {
-      width,
-      height,
-    };
+	console.log("customResize", width, height);
+	getWindowSettings().then((pluginWindowSettings) => {
+		const dimensions = {
+			width,
+			height,
+		};
 
-    if (pluginWindowSettings.minimized) {
-      dimensions.height = 40;
-      dimensions.width = 200;
-    }
+		if (pluginWindowSettings.minimized) {
+			dimensions.height = 40;
+			dimensions.width = 200;
+		}
 
-    figmaApi.resize(dimensions.width, dimensions.height);
-  });
+		figmaApi.resize(dimensions.width, dimensions.height);
+	});
 }
