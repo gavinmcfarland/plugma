@@ -35,7 +35,7 @@ This is either your `manifest.json` file or the `manifest` field in your `packag
 -   Create a test file ending in `.test.`.
 
     ```ts
-    import { test, expect } from "plugma";
+    import { test, expect } from "plugma/testing";
 
     test("My test", async ({ page }) => {});
     ```
