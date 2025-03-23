@@ -39,13 +39,3 @@ This is either your `manifest.json` file or the `manifest` field in your `packag
 
     test("My test", async ({ page }) => {});
     ```
-
--   Create an optional `vitest.config.ts` file.
-
-    ```ts
-    import { defineConfig } from "vitest/config";
-
-    export default defineConfig({
-        plugins: [plugma()],
-    });
-    ```
