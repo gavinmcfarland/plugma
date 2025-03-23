@@ -5,10 +5,10 @@
 	import Icon from "./Icon.svelte";
 	import Select from "./Select.svelte";
 
-	let isWindowMinimised;
+	let isWindowMinimized;
 
 	if (window.runtimeData.command === "preview") {
-		isWindowMinimised = true;
+		isWindowMinimized = true;
 	}
 
 	// const dropdownWindow = window.open('', '', 'width=200,height=300')
@@ -31,17 +31,24 @@
 
 	// This function updates the window action (maximize/minimize) in the menu items
 	function updateWindowAction() {
-		const maximizeItem = { value: "MAXIMIZE_WINDOW", label: "Maximize window" };
-		const minimizeItem = { value: "MINIMIZE_WINDOW", label: "Minimize window" };
+		const maximizeItem = {
+			value: "MAXIMIZE_WINDOW",
+			label: "Maximize window",
+		};
+		const minimizeItem = {
+			value: "MINIMIZE_WINDOW",
+			label: "Minimize window",
+		};
 
 		// Remove any existing window actions first
 		menuItems = menuItems.filter(
 			(item) =>
-				item.value !== "MAXIMIZE_WINDOW" && item.value !== "MINIMIZE_WINDOW",
+				item.value !== "MAXIMIZE_WINDOW" &&
+				item.value !== "MINIMIZE_WINDOW",
 		);
 
 		// Add the correct window action at a fixed position (e.g., index 2)
-		const windowAction = isWindowMinimised ? maximizeItem : minimizeItem;
+		const windowAction = isWindowMinimized ? maximizeItem : minimizeItem;
 		menuItems.splice(0, 0, windowAction); // Insert at index 2
 	}
 
@@ -50,9 +57,9 @@
 
 		// Handle window maximize/minimize logic based on the selected option
 		if (selectedValue === "MAXIMIZE_WINDOW") {
-			isWindowMinimised = false;
+			isWindowMinimized = false;
 		} else if (selectedValue === "MINIMIZE_WINDOW") {
-			isWindowMinimised = true;
+			isWindowMinimized = true;
 		}
 
 		// Update the menu items after the change
@@ -86,7 +93,7 @@
 			handleWindowSize(event)
 		}}
 	>
-		{#if isWindowMinimised}
+		{#if isWindowMinimized}
 			<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 				<rect
 					x="5.5"
@@ -136,7 +143,7 @@
 				</Button>
 			</svelte:fragment>
 			<div slot="content">
-				{#if isWindowMinimised}
+				{#if isWindowMinimized}
 					<DropdownItem
 						on:click={(event) => {
 							handleWindowSize(event)
