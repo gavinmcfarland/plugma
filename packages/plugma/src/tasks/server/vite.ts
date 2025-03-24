@@ -146,7 +146,7 @@ const startViteServer = async (
 		// Load user's config file if it exists
 		const userConfig = await loadConfigFromFile({
 			command: "serve",
-			mode: process.env.NODE_ENV || "development",
+			mode: options.mode || process.env.NODE_ENV || "development",
 		});
 
 		// Base config for the Vite server
