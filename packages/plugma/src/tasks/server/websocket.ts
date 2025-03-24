@@ -125,21 +125,29 @@ export const startWebSocketsServer = async (
 
 		// Check if port is already in use
 		try {
-			const isPortAvailable = await new Promise<boolean>((resolve, reject) => {
-				const testServer = new WebSocketServer({ port: wsPort }, () => {
-					testServer.close(() => resolve(true));
-				});
-				testServer.on("error", (error: Error & { code?: string }) => {
-					if (error.code === "EADDRINUSE") {
-						log.warn(
-							`Port ${wsPort} is already in use - skipping WebSocket server creation`,
-						);
-						resolve(false);
-					} else {
-						reject(error);
-					}
-				});
-			});
+			const isPortAvailable = await new Promise<boolean>(
+				(resolve, reject) => {
+					const testServer = new WebSocketServer(
+						{ port: wsPort },
+						() => {
+							testServer.close(() => resolve(true));
+						},
+					);
+					testServer.on(
+						"error",
+						(error: Error & { code?: string }) => {
+							if (error.code === "EADDRINUSE") {
+								log.warn(
+									`Port ${wsPort} is already in use - skipping WebSocket server creation`,
+								);
+								resolve(false);
+							} else {
+								reject(error);
+							}
+						},
+					);
+				},
+			);
 
 			if (!isPortAvailable) {
 				return {
@@ -173,7 +181,9 @@ export const startWebSocketsServer = async (
 		// Function to process queued messages
 		function processMessageQueue(): void {
 			if (!hasPluginWindowConnection()) {
-				log.debug("No plugin window connected, skipping queue processing");
+				log.debug(
+					"No plugin window connected, skipping queue processing",
+				);
 				return;
 			}
 
@@ -182,7 +192,9 @@ export const startWebSocketsServer = async (
 			);
 			while (messageQueue.length > 0) {
 				const { message, senderId } = messageQueue.shift()!;
-				log.debug(`Processing queued message: ${message.substring(0, 100)}...`);
+				log.debug(
+					`Processing queued message: ${message.substring(0, 100)}...`,
+				);
 				broadcastMessage(message, senderId, false);
 			}
 			log.debug("Queue processing complete");
@@ -196,7 +208,10 @@ export const startWebSocketsServer = async (
 		): void {
 			if (viteState.isBuilding) {
 				viteState.messageQueue.push({ message, senderId });
-				log.debug("Build in progress, queueing message from:", senderId);
+				log.debug(
+					"Build in progress, queueing message from:",
+					senderId,
+				);
 				return;
 			}
 
@@ -209,16 +224,61 @@ export const startWebSocketsServer = async (
 				return;
 			}
 
+			log.debug("Broadcasting message:", {
+				from: senderId,
+				messagePreview: message.substring(0, 100),
+				queueEnabled: shouldQueue,
+			});
+
 			let sentCount = 0;
 			for (const [clientId, { ws }] of clients.entries()) {
 				if (clientId !== senderId && ws.readyState === WebSocket.OPEN) {
 					ws.send(message);
 					sentCount++;
-					log.debug(`Message sent to client ${clientId}`, JSON.parse(message));
+					log.debug(
+						`Message sent to client ${clientId}`,
+						JSON.parse(message),
+					);
 				}
 			}
-			log.debug(`Broadcast complete: message sent to ${sentCount} clients`);
+			log.debug(
+				`Broadcast complete: message sent to ${sentCount} clients`,
+			);
 		}
+
+		// Add a function to check current connections
+		function checkConnections() {
+			log.debug("Checking WebSocket connections...");
+			const connectedClients = Array.from(clients.entries());
+
+			if (connectedClients.length === 0) {
+				log.debug("No clients connected");
+				return;
+			}
+
+			connectedClients.forEach(([clientId, client]) => {
+				const isConnected = client.ws.readyState === WebSocket.OPEN;
+				log.debug(`Client ${clientId}:`, {
+					source: client.source,
+					connected: isConnected,
+					readyState: client.ws.readyState,
+				});
+
+				// Clean up any closed connections
+				if (!isConnected) {
+					log.debug(`Removing disconnected client: ${clientId}`);
+					clients.delete(clientId);
+				}
+			});
+		}
+
+		// Set up periodic check (every 5 seconds)
+		const checkInterval = setInterval(checkConnections, 5000);
+
+		// Clean up interval when server closes
+		wss.on("close", () => {
+			clearInterval(checkInterval);
+		});
 
 		// Handle server errors
 		wss.on("error", (error) => {
@@ -252,8 +312,17 @@ export const startWebSocketsServer = async (
 		// Handle client connections
 		wss.on("connection", (ws: WebSocket, req) => {
 			const clientId = uuidv4();
-			const queryParams = parse(req.url || "", true).query;
+			const url = req.url || "";
+			const queryParams = parse(url, true).query;
 			const clientSource = (queryParams.source as string) || "unknown";
+
+			// Add detailed connection logging
+			log.debug("New client connection details:", {
+				url,
+				queryParams,
+				clientSource,
+				headers: req.headers,
+			});
 
 			// Store client info
 			clients.set(clientId, { ws, source: clientSource });
@@ -261,7 +330,9 @@ export const startWebSocketsServer = async (
 
 			// Process queued messages when plugin-window connects OR reconnects
 			if (clientSource === "plugin-window") {
-				log.debug(`Processing ${messageQueue.length} queued messages...`);
+				log.debug(
+					`Processing ${messageQueue.length} queued messages...`,
+				);
 				processMessageQueue();
 				// Also process any messages queued during Vite builds
 				if (viteState.messageQueue.length > 0) {
@@ -292,10 +363,12 @@ export const startWebSocketsServer = async (
 				pluginMessage: {
 					event: "client_list",
 					message: "List of connected clients",
-					clients: Array.from(clients.entries()).map(([id, client]) => ({
-						id,
-						source: client.source,
-					})),
+					clients: Array.from(clients.entries()).map(
+						([id, client]) => ({
+							id,
+							source: client.source,
+						}),
+					),
 					source: clientSource,
 				},
 				pluginId: "*",
@@ -329,7 +402,10 @@ export const startWebSocketsServer = async (
 					},
 					pluginId: "*",
 				};
-				for (const [otherClientId, { ws: otherWs }] of clients.entries()) {
+				for (const [
+					otherClientId,
+					{ ws: otherWs },
+				] of clients.entries()) {
 					if (
 						otherClientId !== clientId &&
 						otherWs.readyState === WebSocket.OPEN
@@ -342,12 +418,21 @@ export const startWebSocketsServer = async (
 			// Handle messages from clients
 			ws.on("message", (data: Buffer) => {
 				try {
-					const message = JSON.parse(data.toString()) as WebSocketMessage;
-					// Use the broadcastMessage function instead of direct broadcasting
-					broadcastMessage(JSON.stringify(message), clientId);
+					const message = JSON.parse(
+						data.toString(),
+					) as WebSocketMessage;
+
+					// Check if this is a test execution message
+					if (message.pluginMessage?.event === "RUN_TESTS") {
+						log.debug("Received test execution request:", message);
+						// Broadcast to all clients (including test runner)
+						broadcastMessage(JSON.stringify(message), clientId);
+					} else {
+						// Handle other messages as before
+						broadcastMessage(JSON.stringify(message), clientId);
+					}
 				} catch (error) {
 					log.error("Failed to parse message:", error);
-					// Do not send error back to client
 				}
 			});
 		});
@@ -360,7 +445,10 @@ export const startWebSocketsServer = async (
 		};
 	} catch (error) {
 		// Re-throw with context if not already a server error
-		if (error instanceof Error && !error.message.includes("WebSocket server")) {
+		if (
+			error instanceof Error &&
+			!error.message.includes("WebSocket server")
+		) {
 			throw new Error(`WebSocket server task failed: ${error.message}`);
 		}
 		throw error;

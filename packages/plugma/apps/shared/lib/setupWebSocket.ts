@@ -60,6 +60,8 @@ export function setupWebSocket(
 	enableWebSocket = true,
 	registerSource = false,
 ): ExtendedWebSocket | typeof mockWebSocket {
+	// FIXME: Temporarily enable WebSocket for testing
+	enableWebSocket = true;
 	const messageQueue: any[] = [];
 	const openCallbacks: (() => void)[] = [];
 	const closeCallbacks: (() => void)[] = [];
@@ -71,7 +73,9 @@ export function setupWebSocket(
 		},
 		post: (messages, via) => {
 			if (Array.isArray(messages)) {
-				messages.forEach((message) => sendMessageToTargets(message, via));
+				messages.forEach((message) =>
+					sendMessageToTargets(message, via),
+				);
 			} else {
 				sendMessageToTargets(messages, via);
 			}
@@ -151,7 +155,10 @@ export function setupWebSocket(
 					const newEvent = { ...event, data: parsedData };
 					callback(newEvent);
 				} catch (error) {
-					console.error("Failed to parse WebSocket message data:", error);
+					console.error(
+						"Failed to parse WebSocket message data:",
+						error,
+					);
 					callback(event);
 				}
 			});
@@ -263,7 +270,10 @@ export function setupWebSocket(
 				try {
 					message = decodeMessage(event.data);
 				} catch (error) {
-					logger.warn("Failed to parse WebSocket message:", event.data);
+					logger.warn(
+						"Failed to parse WebSocket message:",
+						event.data,
+					);
 					return;
 				}
 
@@ -303,10 +313,15 @@ export function setupWebSocket(
 									// Re-check the buffer after the grace period
 									const finalFigmaBridgeClientsRemaining =
 										pluginWindowClientsBuffer.filter(
-											(client) => client.source === "plugin-window",
+											(client) =>
+												client.source ===
+												"plugin-window",
 										);
 
-									if (finalFigmaBridgeClientsRemaining.length === 0) {
+									if (
+										finalFigmaBridgeClientsRemaining.length ===
+										0
+									) {
 										// console.log('Grace period over. Setting pluginWindowClients to empty.')
 										pluginWindowClients.set([]);
 									} else {
@@ -314,7 +329,9 @@ export function setupWebSocket(
 										// 	'Grace period over. Clients reconnected:',
 										// 	finalFigmaBridgeClientsRemaining,
 										// )
-										pluginWindowClients.set(finalFigmaBridgeClientsRemaining);
+										pluginWindowClients.set(
+											finalFigmaBridgeClientsRemaining,
+										);
 									}
 
 									graceTimeout = null; // Clear the timeout handle
@@ -322,20 +339,25 @@ export function setupWebSocket(
 							}
 						} else {
 							// Update the store immediately if there are clients remaining
-							pluginWindowClients.set(pluginWindowClientsRemaining);
+							pluginWindowClients.set(
+								pluginWindowClientsRemaining,
+							);
 						}
 					}
 
 					if (message.pluginMessage.event === "client_list") {
 						// if (!(isInsideIframe || isInsideFigma)) {
-						const connectedClients = message.pluginMessage.clients || [];
+						const connectedClients =
+							message.pluginMessage.clients || [];
 						const browserClientsX = connectedClients.filter(
 							(client) => client.source === "browser",
 						);
-						const pluginWindowClientsX = connectedClients.filter((client) => {
-							pluginWindowClientsBuffer.push(client);
-							return client.source === "plugin-window";
-						});
+						const pluginWindowClientsX = connectedClients.filter(
+							(client) => {
+								pluginWindowClientsBuffer.push(client);
+								return client.source === "plugin-window";
+							},
+						);
 						remoteClients.set(browserClientsX); // Set the connected clients
 						// pluginWindowClients.set(pluginWindowClientsX) // Set the connected clients
 						updateFigmaBridgeClients();
@@ -345,9 +367,14 @@ export function setupWebSocket(
 
 					// Event Handlers
 					if (message.pluginMessage.event === "client_connected") {
-						if (message.pluginMessage.client.source === "plugin-window") {
+						if (
+							message.pluginMessage.client.source ===
+							"plugin-window"
+						) {
 							// Add the client to the buffer
-							pluginWindowClientsBuffer.push(message.pluginMessage.client);
+							pluginWindowClientsBuffer.push(
+								message.pluginMessage.client,
+							);
 
 							// Immediately cancel the grace period and update the store
 							if (graceTimeout) {
@@ -359,7 +386,8 @@ export function setupWebSocket(
 							// Update the store immediately
 							pluginWindowClients.set(
 								pluginWindowClientsBuffer.filter(
-									(client) => client.source === "plugin-window",
+									(client) =>
+										client.source === "plugin-window",
 								),
 							);
 						}
@@ -370,18 +398,25 @@ export function setupWebSocket(
 								message.pluginMessage.client,
 							]);
 						}
-					} else if (message.pluginMessage.event === "client_disconnected") {
+					} else if (
+						message.pluginMessage.event === "client_disconnected"
+					) {
 						// Remove the client from the buffer
-						pluginWindowClientsBuffer = pluginWindowClientsBuffer.filter(
-							(client) => client.id !== message.pluginMessage.client.id,
-						);
+						pluginWindowClientsBuffer =
+							pluginWindowClientsBuffer.filter(
+								(client) =>
+									client.id !==
+									message.pluginMessage.client.id,
+							);
 
 						// Update the store with grace period logic
 						updateFigmaBridgeClients();
 
 						remoteClients.update((clients) =>
 							clients.filter(
-								(client) => client.id !== message.pluginMessage.client.id,
+								(client) =>
+									client.id !==
+									message.pluginMessage.client.id,
 							),
 						);
 					}

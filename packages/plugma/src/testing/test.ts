@@ -111,7 +111,9 @@ export const test: TestFn = async (name, fn) => {
 			const result = await resultWithTimeout;
 
 			if (result.type === "TEST_ASSERTIONS") {
-				executeAssertions(result.assertionCode.split(";\n").filter(Boolean));
+				executeAssertions(
+					result.assertionCode.split(";\n").filter(Boolean),
+				);
 			} else {
 				throw new TestExecutionError(
 					result.error,

@@ -79,6 +79,7 @@ export type TestMessage =
 			fnString: string;
 	  }
 	| { type: "RUN_TEST"; testName: string; testRunId: string; source: string }
+	| { type: "RUN_TESTS"; source: string }
 	| {
 			type: "CANCEL_TEST";
 			testName: string;

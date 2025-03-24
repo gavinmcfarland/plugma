@@ -40,7 +40,9 @@ export async function test(options: TestCommandOptions): Promise<void> {
 		};
 
 		let savedOptions = await LoadOptionsTask.run(pluginOptions, undefined);
-		pluginOptions.port = savedOptions ? savedOptions.port : pluginOptions.port;
+		pluginOptions.port = savedOptions
+			? savedOptions.port
+			: pluginOptions.port;
 
 		// Set the WebSocket port in environment for the test process
 		const wsPort = Number(pluginOptions.port) + 1;
@@ -58,17 +60,23 @@ export async function test(options: TestCommandOptions): Promise<void> {
 			RunVitestTask,
 		)(pluginOptions);
 
-		// if (results["test:run-vitest"].success) {
-		// 	log.success("All tests passed");
-		// } else {
-		// 	log.error("Some tests failed");
-		// }
+		// // Get the test client instance
+		// const testClient = results["test:init-client"].client as TestClient;
 
-		// Clean up when done
-		const testClient = results["test:init-client"].client;
-		testClient.close();
+		// // Send the RUN_TESTS message through WebSocket
+		// const runTestsMessage = {
+		// 	type: "RUN_TESTS" as const,
+		// 	source: "test",
+		// };
+
+		// log.debug("Sending RUN_TESTS message:", runTestsMessage);
+		// await testClient.send(runTestsMessage);
+
+		// // Clean up when done
+		// testClient.close();
 	} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : String(error);
+		const errorMessage =
+			error instanceof Error ? error.message : String(error);
 		log.error("Failed to run tests:", errorMessage);
 		throw error;
 	}
