@@ -1,10 +1,24 @@
 # Bundling with Vite
 
-Vite is used to bundle both the main process code and the UI code.
+Vite is used to bundle both the main code and the UI code.
 
-## Config files
+## Configuration
 
-You can use configure the bundling options for UI and main processes by using `vite.config.ui.js` for the UI process and `vite.config.main.js` for the main process.
+To configure the bundling options for UI and main processes you can use a `vite.config.ui.js` file for the UI code and/or a `vite.config.main.js` file for the main code in the root of your project
+
+### Mode specific configuration
+
+Configure different options for different modes by passing in the `mode` parameter to the callback function in the `defineConfig` function.
+
+```js
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig(({mode}) => {
+	plugins: [react()],
+    minify: mode === 'testing' ? true : false
+});
+```
 
 <!-- Using a single `vite.config.js` file you can use the `runtime` option to specify different configurations for UI and main during build time.
 
