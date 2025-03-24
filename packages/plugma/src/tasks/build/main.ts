@@ -1,6 +1,6 @@
 import { join, resolve } from "node:path";
 import type { RollupWatcher } from "rollup";
-import { build } from "vite";
+import { build, mergeConfig } from "vite";
 /**
  * Main script build task implementation
  */
@@ -92,11 +92,15 @@ const buildMain = async (
 		const userMainConfig = await loadConfig("vite.config.main", options);
 
 		// Build main script with Vite using the correct config
-		const buildResult = await build({
-			configFile: false,
-			...userMainConfig?.config,
-			...config,
-		});
+		const buildResult = await build(
+			mergeConfig(
+				{
+					configFile: false,
+					...config,
+				},
+				userMainConfig?.config ?? {},
+			),
+		);
 
 		// Only store the watcher in watch mode
 		if (

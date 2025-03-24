@@ -11,7 +11,7 @@ import { registerCleanup } from "#utils/cleanup.js";
 import { Logger } from "#utils/log/logger.js";
 import type { RollupWatcher } from "rollup";
 import type { ViteDevServer } from "vite";
-import { createServer } from "vite";
+import { createServer, mergeConfig } from "vite";
 import { GetFilesTask } from "../common/get-files.js";
 import { task } from "../runner.js";
 import type { LogLevel } from "vite";
@@ -147,8 +147,6 @@ const startViteServer = async (
 
 		log.debug("Starting Vite server...");
 
-		const userUIConfig = await loadConfig("vite.config.ui", options);
-
 		// Base config for the Vite server
 		const baseConfig = {
 			...configs.ui.dev,
@@ -193,12 +191,20 @@ const startViteServer = async (
 			logLevel: (options.debug ? "info" : "error") as LogLevel,
 		};
 
+		const userUIConfig = await loadConfig("vite.config.ui", options);
+
+		console.log("userUIConfig", userUIConfig);
+
 		// Configure Vite server with caching workarounds
-		const server = await createServer({
-			configFile: false,
-			...baseConfig,
-			...userUIConfig?.config,
-		}).catch((error) => {
+		const server = await createServer(
+			mergeConfig(
+				{
+					configFile: false,
+					...baseConfig,
+				},
+				userUIConfig?.config ?? {},
+			),
+		).catch((error) => {
 			const message =
 				error instanceof Error ? error.message : String(error);
 			throw new Error(`Failed to create Vite server: ${message}`);
