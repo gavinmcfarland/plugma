@@ -93,6 +93,7 @@ const buildMain = async (
 
 		// Build main script with Vite using the correct config
 		const buildResult = await build({
+			configFile: false,
 			...userMainConfig?.config,
 			...config,
 		});
