@@ -1,26 +1,27 @@
-import { join, resolve } from 'node:path';
-import type { RollupWatcher } from 'rollup';
-import { build } from 'vite';
+import { join, resolve } from "node:path";
+import type { RollupWatcher } from "rollup";
+import { build } from "vite";
 /**
  * Main script build task implementation
  */
 import type {
-  GetTaskTypeFor,
-  PluginOptions,
-  ResultsOfTask,
-} from '#core/types.js';
-import { createViteConfigs } from '#utils/config/create-vite-configs.js';
-import { Logger } from '#utils/log/logger.js';
-import { GetFilesTask } from '../common/get-files.js';
-import { task } from '../runner.js';
-import { viteState } from '../server/vite.js';
+	GetTaskTypeFor,
+	PluginOptions,
+	ResultsOfTask,
+} from "#core/types.js";
+import { createViteConfigs } from "#utils/config/create-vite-configs.js";
+import { Logger } from "#utils/log/logger.js";
+import { GetFilesTask } from "../common/get-files.js";
+import { task } from "../runner.js";
+import { viteState } from "../server/vite.js";
+import { loadConfig } from "#utils/config/load-config.js";
 
 /**
  * Result type for the build-main task
  */
 interface Result {
-  /** Path to the built main script file */
-  outputPath: string;
+	/** Path to the built main script file */
+	outputPath: string;
 }
 
 /**
@@ -52,60 +53,69 @@ interface Result {
  * @returns Object containing the output file path
  */
 const buildMain = async (
-  options: PluginOptions,
-  context: ResultsOfTask<GetFilesTask>,
+	options: PluginOptions,
+	context: ResultsOfTask<GetFilesTask>,
 ): Promise<Result> => {
-  try {
-    const log = new Logger({
-      debug: options.debug,
-      prefix: 'build:main',
-    });
+	try {
+		const log = new Logger({
+			debug: options.debug,
+			prefix: "build:main",
+		});
 
-    const fileResult = context[GetFilesTask.name];
-    if (!fileResult) {
-      throw new Error('get-files task must run first');
-    }
+		const fileResult = context[GetFilesTask.name];
+		if (!fileResult) {
+			throw new Error("get-files task must run first");
+		}
 
-    const { files } = fileResult;
-    const outputPath = join(options.output || 'dist', 'main.js');
+		const { files } = fileResult;
+		const outputPath = join(options.output || "dist", "main.js");
 
-    // Close existing build server if any
-    if (viteState.viteMainWatcher) {
-      await viteState.viteMainWatcher.close();
-    }
+		// Close existing build server if any
+		if (viteState.viteMainWatcher) {
+			await viteState.viteMainWatcher.close();
+		}
 
-    // Only build if main script is specified
-    if (!files.manifest.main) {
-      log.debug('No main script specified in manifest, skipping build');
-      return { outputPath };
-    }
+		// Only build if main script is specified
+		if (!files.manifest.main) {
+			log.debug("No main script specified in manifest, skipping build");
+			return { outputPath };
+		}
 
-    const mainPath = resolve(files.manifest.main);
-    log.debug(`Building main script from: ${mainPath}`);
+		const mainPath = resolve(files.manifest.main);
+		log.debug(`Building main script from: ${mainPath}`);
 
-    // Get the appropriate Vite config from createViteConfigs
-    const configs = createViteConfigs(options, files);
-    const config =
-      options.command === 'build' ? configs.main.build : configs.main.dev;
+		// Get the appropriate Vite config from createViteConfigs
+		const configs = createViteConfigs(options, files);
+		const config =
+			options.command === "build" ? configs.main.build : configs.main.dev;
 
-    // Build main script with Vite using the correct config
-    const buildResult = await build(config);
+		const userMainConfig = await loadConfig("vite.config.main", options);
 
-    // Only store the watcher in watch mode
-    if (options.watch || ['dev', 'preview'].includes(options.command ?? '')) {
-      viteState.viteMainWatcher = buildResult as RollupWatcher;
-    }
+		// Build main script with Vite using the correct config
+		const buildResult = await build({
+			...userMainConfig?.config,
+			...config,
+		});
 
-    log.success('Main script built successfully at dist/main.js');
+		// Only store the watcher in watch mode
+		if (
+			options.watch ||
+			["dev", "preview"].includes(options.command ?? "")
+		) {
+			viteState.viteMainWatcher = buildResult as RollupWatcher;
+		}
 
-    return { outputPath };
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to build main script: ${errorMessage}`);
-  }
+		log.success("Main script built successfully at dist/main.js");
+
+		return { outputPath };
+	} catch (error) {
+		const errorMessage =
+			error instanceof Error ? error.message : String(error);
+		throw new Error(`Failed to build main script: ${errorMessage}`);
+	}
 };
 
-export const BuildMainTask = task('build:main', buildMain);
+export const BuildMainTask = task("build:main", buildMain);
 export type BuildMainTask = GetTaskTypeFor<typeof BuildMainTask>;
 
 export default BuildMainTask;

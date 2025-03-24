@@ -11,11 +11,13 @@ import { registerCleanup } from "#utils/cleanup.js";
 import { Logger } from "#utils/log/logger.js";
 import type { RollupWatcher } from "rollup";
 import type { ViteDevServer } from "vite";
-import { loadConfigFromFile } from "vite";
 import { createServer } from "vite";
 import { GetFilesTask } from "../common/get-files.js";
 import { task } from "../runner.js";
 import type { LogLevel } from "vite";
+
+import { createViteConfigs } from "#utils/config/create-vite-configs.js";
+import { loadConfig } from "#utils/config/load-config.js";
 
 /**
  * Result type for the start-vite-server task
@@ -82,7 +84,9 @@ const startViteServer = async (
 			throw new Error("get-files task must run first");
 		}
 
-		const { files, config } = fileResult;
+		const { files } = fileResult;
+
+		const configs = createViteConfigs(options, files);
 
 		// Skip if no UI is specified
 		if (!files.manifest.ui) {
@@ -143,15 +147,11 @@ const startViteServer = async (
 
 		log.debug("Starting Vite server...");
 
-		// Load user's config file if it exists
-		const userConfig = await loadConfigFromFile({
-			command: "serve",
-			mode: options.mode || process.env.NODE_ENV || "development",
-		});
+		const userUIConfig = await loadConfig("vite.config.ui", options);
 
 		// Base config for the Vite server
 		const baseConfig = {
-			...config.ui.dev,
+			...configs.ui.dev,
 			root: process.cwd(),
 			base: "/",
 			server: {
@@ -197,7 +197,7 @@ const startViteServer = async (
 		const server = await createServer({
 			configFile: false,
 			...baseConfig,
-			...userConfig?.config,
+			...userUIConfig?.config,
 		}).catch((error) => {
 			const message =
 				error instanceof Error ? error.message : String(error);
