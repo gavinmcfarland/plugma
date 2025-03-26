@@ -10,16 +10,12 @@ launchPlugin("Plugma Test Sandbox", true);
 
 test("creates a rectangle with specific color", async () => {
 	const rect = figma.createRectangle();
-	const rect2 = figma.createRectangle();
 
 	rect.x = 0;
 	rect.y = 0;
 	rect.resize(100, 100);
-	rect2.x = 100;
-	rect2.y = 100;
-	rect2.resize(100, 100);
+
 	rect.fills = [{ type: "SOLID", color: TEST_COLOR }];
-	rect2.fills = [{ type: "SOLID", color: TEST_COLOR }];
 
 	expect(rect.type).to.equal("RECTANGLE");
 	expect(rect.width).to.equal(100);
