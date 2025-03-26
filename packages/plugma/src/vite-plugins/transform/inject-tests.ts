@@ -30,14 +30,15 @@ const DEFAULT_VITEST_PATTERNS = [
  * @param options - Configuration options for test file injection
  * @returns A Vite plugin configuration object
  */
-export function injectTests(options: InjectTestsOptions = {}): Plugin {
+export function injectTests(options: any = {}): Plugin {
 	const { testDir = "src" } = options;
 
 	return {
 		name: "plugma:inject-tests",
 		enforce: "post",
 		async transform(code: string, id: string) {
-			if (!id.endsWith(options.pluginOptions?.manifest?.main ?? "")) {
+			const mainFile = options.pluginOptions?.manifest?.main ?? "";
+			if (!id.endsWith(mainFile)) {
 				return null;
 			}
 
@@ -55,33 +56,38 @@ export function injectTests(options: InjectTestsOptions = {}): Plugin {
 					// Config file doesn't exist, use defaults
 				}
 
-				// Find all test files matching the patterns
-				const testFiles = await Promise.all(
-					testPatterns.map((pattern) =>
-						glob(pattern, {
-							cwd: testDir,
-							absolute: true,
-							ignore: ["**/node_modules/**"],
-						}),
+				const testFiles = [
+					...new Set(
+						(
+							await Promise.all(
+								testPatterns.map((pattern) =>
+									glob(pattern, {
+										cwd: testDir,
+										absolute: true,
+										ignore: ["**/node_modules/**"],
+									}),
+								),
+							)
+						).flat(),
 					),
+				];
+
+				console.log(
+					`Found ${testFiles.length} test files to inject:`,
+					testFiles,
 				);
 
-				// Flatten and deduplicate results
-				const uniqueTestFiles = [...new Set(testFiles.flat())];
-
-				if (uniqueTestFiles.length === 0) {
+				if (testFiles.length === 0) {
 					return null;
 				}
 
 				// Generate import statements for each test file using absolute paths
-				const imports = uniqueTestFiles
+				const imports = testFiles
 					.map((file) => {
 						// Convert absolute paths to proper module imports
 						const importPath = file
 							.replace(process.cwd(), "") // Remove the current working directory
 							.replace(/^\/?/, "/"); // Ensure path starts with /
-
-						console.log("--------", importPath);
 						return `import '${importPath}';`;
 					})
 					.join("\n");
