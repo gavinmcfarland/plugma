@@ -111,7 +111,7 @@ export function setupWebSocket(
 	}
 
 	function postMessageVia(via, message) {
-		logger.info(`--- ws post, ${via}`, message);
+		// logger.info(`--- ws post, ${via}`, message);
 		if (
 			via === "iframe" &&
 			iframeTarget &&
@@ -220,7 +220,7 @@ export function setupWebSocket(
 			});
 			ws.close();
 		} else {
-			logger.info("WebSocket is not open, nothing to close.");
+			// logger.info("WebSocket is not open, nothing to close.");
 			if (callback) {
 				callback();
 			}
@@ -259,7 +259,7 @@ export function setupWebSocket(
 
 		ws.onmessage = (event) => {
 			try {
-				logger.info("Received raw WebSocket message:", event.data);
+				// logger.info("Received raw WebSocket message:", event.data);
 
 				if (!event.data) {
 					logger.warn("Received empty message");
