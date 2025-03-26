@@ -8,10 +8,11 @@ import { registry } from "./registry";
  */
 
 export function handleTestMessage(message: TestMessage): void {
+	// console.log("📨 Received message:", message);
 	try {
 		switch (message.type) {
 			case "REGISTER_TEST": {
-				// logger.debug('Registering test:', message.testName);
+				console.log("🔄 Registering test:", message.testName);
 				try {
 					// Create test function from string representation
 					const testFn = async (
@@ -35,7 +36,9 @@ export function handleTestMessage(message: TestMessage): void {
 
 							await fn(context, plugmaExpect);
 						} catch (error) {
-							throw error instanceof Error ? error : new Error(String(error));
+							throw error instanceof Error
+								? error
+								: new Error(String(error));
 						}
 					};
 
@@ -47,22 +50,22 @@ export function handleTestMessage(message: TestMessage): void {
 						assertionCode: "",
 						source: "plugin-window?",
 					} satisfies TestMessage;
-					// logger.debug('Sending registration success:', response);
+					console.log("✅ Registration success:", response);
 					figma.ui.postMessage(response);
 				} catch (error) {
-					console.error("Error registering test:", error);
+					console.error("❌ Error registering test:", error);
 					throw error;
 				}
 				break;
 			}
 
 			case "RUN_TEST": {
-				// logger.debug('Running test:', message.testName);
+				console.log("▶️ Running test:", message.testName);
 				try {
 					registry
 						.runTest(message.testName)
 						.then((result) => {
-							// logger.debug('[registry] Sending test results:', result);
+							console.log("📊 Test results:", result);
 							const response: TestMessage = result.error
 								? {
 										type: "TEST_ERROR",
@@ -79,31 +82,41 @@ export function handleTestMessage(message: TestMessage): void {
 								: {
 										type: "TEST_ASSERTIONS",
 										testRunId: message.testRunId,
-										assertionCode: result.assertions.join(";\n"),
+										assertionCode:
+											result.assertions.join(";\n"),
 										source: "plugin-window?",
 									};
 
-							// logger.debug(`[registry] 📮 ${response.type}:`, response);
+							// console.log(
+							// 	`📮 Sending ${response.type}:`,
+							// 	response,
+							// );
 							figma.ui.postMessage(response);
 						})
 						.catch((error) => {
 							const response = {
 								type: "TEST_ERROR",
 								testRunId: message.testRunId,
-								error: error instanceof Error ? error.message : String(error),
+								error:
+									error instanceof Error
+										? error.message
+										: String(error),
 								source: "plugin-window?",
 							} satisfies TestMessage;
-							// logger.error('Error executing test:', error);
+							// console.error("❌ Error executing test:", error);
 							figma.ui.postMessage(response);
 						});
 				} catch (error) {
 					const response = {
 						type: "TEST_ERROR",
 						testRunId: message.testRunId,
-						error: error instanceof Error ? error.message : String(error),
+						error:
+							error instanceof Error
+								? error.message
+								: String(error),
 						source: "plugin-window?",
 					} satisfies TestMessage;
-					// logger.error('Error executing test:', error);
+					// console.error("❌ Error executing test:", error);
 					figma.ui.postMessage(response);
 				}
 				break;
@@ -116,7 +129,7 @@ export function handleTestMessage(message: TestMessage): void {
 			error: error instanceof Error ? error.message : String(error),
 			source: "plugin-window?",
 		} satisfies TestMessage;
-		// logger.error('Error handling message:', error);
+		// console.error("❌ Error handling message:", error);
 		figma.ui.postMessage(response);
 	}
 }
