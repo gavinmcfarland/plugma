@@ -39,3 +39,23 @@ This is either your `manifest.json` file or the `manifest` field in your `packag
 
     test("My test", async ({ page }) => {});
     ```
+    
+## Changes to support custom `index.html` template
+
+By default Plugma uses it's own index template for the UI process. However you can use your own template by adding a `index.html` file to the root of your project.
+
+Just make sure to include the <!--[ PLUGIN_UI ]--> placeholder where the Plugma generated UI code will be injected.
+
+**Example**
+
+```html
+<html>
+	<head>
+		<title><!--[ PLUGIN_NAME ]--></title>
+	</head>
+	<body>
+		<div id="app"></div>
+		<!--[ PLUGIN_UI ]-->
+	</body>
+</html>
+```
