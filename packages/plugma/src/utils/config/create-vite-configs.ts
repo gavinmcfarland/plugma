@@ -111,10 +111,15 @@ export function createViteConfigs(
 						entryFileNames: "[name].js",
 						chunkFileNames: "[name].js",
 						assetFileNames: (assetInfo: { name?: string }) => {
-							defaultLogger.debug("assetFileNames called with:", assetInfo);
+							defaultLogger.debug(
+								"assetFileNames called with:",
+								assetInfo,
+							);
 							if (!assetInfo.name) return "[name].[ext]";
 							const basename = path.basename(assetInfo.name);
-							return basename === "ui.html" ? "ui.html" : basename;
+							return basename === "ui.html"
+								? "ui.html"
+								: basename;
 						},
 					},
 				},
@@ -200,6 +205,7 @@ export function createViteConfigs(
 			replacePlugmaTesting(),
 			injectTests({
 				testDir: "",
+				pluginOptions: options,
 			}),
 		],
 		build: {
@@ -222,7 +228,8 @@ export function createViteConfigs(
 			emptyOutDir: false,
 			write: true,
 			watch:
-				options.watch || ["dev", "preview"].includes(options.command ?? "")
+				options.watch ||
+				["dev", "preview"].includes(options.command ?? "")
 					? {
 							clearScreen: false,
 							exclude: ["node_modules/**"],
