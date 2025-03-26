@@ -8,7 +8,7 @@ Under the hood, Plugma uses [Vitest](https://vitest.dev/guide/) for running test
 
 You can write unit tests by creating files with `.test.` in their name.
 
-##### Example test
+##### Create rectangle example
 
 Below is an example of a test that creates a rectangle and confirms it has been created with a specific colour.
 
@@ -54,6 +54,21 @@ Run all test suites but watch for changes and rerun tests when they change.
 #### `test run`
 
 Perform a single run without watch mode.
+
+### Utilities
+
+#### `launchPlugin()`
+
+Simulates the user opening the plugin. Useful for automating tests which require the plugin to be open.
+
+##### Type signature
+
+```js
+function launchPlugin(
+    pluginName: string,
+    switchBack: boolean = false
+) : void;
+```
 
 ## Further documentation
 
