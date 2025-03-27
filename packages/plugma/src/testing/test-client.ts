@@ -59,6 +59,11 @@ export class TestClient {
 	private connecting = false;
 	private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 	private isReconnecting = false;
+	private lastBuildId: string | null = null;
+	private buildMessageQueue: Array<{
+		data: any;
+		event: MessageEvent;
+	}> = [];
 
 	private constructor(
 		url = "ws://localhost",
@@ -83,7 +88,8 @@ export class TestClient {
 		if (!TestClient.instance || TestClient.instance.closed) {
 			// Try to get port from environment variable if not provided
 			const envPort = process.env.TEST_WS_PORT;
-			const finalPort = options.port || (envPort ? Number(envPort) : 9001);
+			const finalPort =
+				options.port || (envPort ? Number(envPort) : 9001);
 
 			TestClient.instance = new TestClient(url, finalPort, {
 				debug: options.debug,
@@ -133,7 +139,8 @@ export class TestClient {
 				this.logger.debug("Connecting to:", this.url);
 				this.ws = new WebSocket(`${this.url}?source=test`);
 
-				if (!this.ws) return reject(new Error("WebSocket not initialized"));
+				if (!this.ws)
+					return reject(new Error("WebSocket not initialized"));
 
 				const errorHandler = (error: Event) => {
 					this.logger.error("Connection error:", error);
@@ -184,7 +191,9 @@ export class TestClient {
 
 					// Don't reject pending promises, keep them queued
 					if (this.closed) {
-						this.rejectPendingPromises(new Error("WebSocket closed"));
+						this.rejectPendingPromises(
+							new Error("WebSocket closed"),
+						);
 					}
 				};
 			};
@@ -221,45 +230,67 @@ export class TestClient {
 				const data = JSON.parse(event.data);
 				const message = data.pluginMessage as TestMessage;
 
-				// this.logger.debug("[ws-client] 📩", JSON.stringify(message, null, 2));
+				if (message.type === "BUILD_COMPLETE") {
+					if (message.buildId !== this.lastBuildId) {
+						this.lastBuildId = message.buildId;
+						console.log(
+							"[ws-client] 📩 New build:",
+							JSON.stringify(message, null, 2),
+						);
 
-				if (
-					message.type === "TEST_ASSERTIONS" ||
-					message.type === "TEST_ERROR"
-				) {
-					const callbacks = this.testRunCallbacks.get(message.testRunId);
-					if (callbacks) {
-						// this.logger.debug(
-						// 	"[ws-client] Found callbacks for testRunId:",
-						// 	message.testRunId,
-						// );
-						this.testRunCallbacks.delete(message.testRunId);
-						callbacks.resolve(message);
-					} else {
-						// this.logger.warn(
-						// 	"[ws-client] No callbacks found for testRunId:",
-						// 	message.testRunId,
-						// );
+						// Process queued messages after new build
+						this.processQueuedMessages();
 					}
+					return;
 				}
 
-				if ("testRunId" in message) {
-					// Also resolve the original send promise
-					const index = this.messageQueue.findIndex(
-						(item) => item.testRunId === message.testRunId,
-					);
-					if (index !== -1) {
-						const { resolve, timeoutId } = this.messageQueue[index];
-						clearTimeout(timeoutId);
-						this.messageQueue.splice(index, 1);
-						resolve();
-					}
+				// Queue message if no build has happened yet
+				if (this.lastBuildId === null) {
+					this.buildMessageQueue.push({ data, event });
+					return;
 				}
+
+				this.processMessage(data, message);
 			} catch (error) {
 				this.logger.error("[ws-client] Error handling message:", error);
 				this.logger.error("[ws-client] Raw message:", event.data);
 			}
 		};
+	}
+
+	private processMessage(data: any, message: TestMessage): void {
+		if (
+			message.type === "TEST_ASSERTIONS" ||
+			message.type === "TEST_ERROR"
+		) {
+			const callbacks = this.testRunCallbacks.get(message.testRunId);
+			if (callbacks) {
+				this.testRunCallbacks.delete(message.testRunId);
+				callbacks.resolve(message);
+			}
+		}
+
+		if ("testRunId" in message) {
+			const index = this.messageQueue.findIndex(
+				(item) => item.testRunId === message.testRunId,
+			);
+			if (index !== -1) {
+				const { resolve, timeoutId } = this.messageQueue[index];
+				clearTimeout(timeoutId);
+				this.messageQueue.splice(index, 1);
+				resolve();
+			}
+		}
+	}
+
+	private processQueuedMessages(): void {
+		while (this.buildMessageQueue.length > 0) {
+			const queuedMessage = this.buildMessageQueue.shift();
+			if (queuedMessage) {
+				const message = queuedMessage.data.pluginMessage as TestMessage;
+				this.processMessage(queuedMessage.data, message);
+			}
+		}
 	}
 
 	/**
@@ -362,6 +393,12 @@ export class TestClient {
 			this.ws.close();
 			this.ws = null;
 		}
+		this.buildMessageQueue = []; // Clear queued messages
 		this.rejectPendingPromises(new Error("WebSocket closed"));
+	}
+
+	public resetBuildTracking(): void {
+		this.lastBuildId = null;
+		this.buildMessageQueue = [];
 	}
 }

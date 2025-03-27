@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import WebSocket from "ws";
 
 import type { Plugin, UserConfig } from "vite";
 import { viteSingleFile } from "vite-plugin-singlefile";
@@ -17,6 +18,7 @@ import {
 	serveUi,
 	injectTests,
 } from "#vite-plugins";
+import { createBuildNotifierPlugin } from "../create-build-notifier-plugin.js";
 
 const projectRoot = path.join(getDirName(), "../../..");
 const templateUiHtmlPath = path.join(projectRoot, "templates/ui.html");
@@ -64,7 +66,10 @@ export function createViteConfigs(
 		cwd: process.cwd(),
 	});
 
-	const commonVitePlugins: Plugin[] = [viteSingleFile()];
+	const commonVitePlugins: Plugin[] = [
+		viteSingleFile(),
+		createBuildNotifierPlugin(options.port),
+	];
 
 	const placeholders = {
 		pluginName: userFiles.manifest.name,

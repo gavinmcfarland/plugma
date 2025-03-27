@@ -28,6 +28,7 @@ export const runVitest = async (
 		// console.log("Starting Vitest...");
 		// Add our test plugin to the Vite config
 		const testConfig = {
+			clearScreen: false,
 			test: {
 				globals: true,
 				environment: "node",
@@ -50,7 +51,8 @@ export const runVitest = async (
 
 		return { success };
 	} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : String(error);
+		const errorMessage =
+			error instanceof Error ? error.message : String(error);
 		log.error("Failed to run Vitest:", errorMessage);
 		throw error;
 	}

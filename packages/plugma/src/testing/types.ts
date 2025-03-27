@@ -68,11 +68,26 @@ export type TestResultMessage =
 			source: string;
 	  };
 
+export type BuildMessage = {
+	type: "BUILD_COMPLETE" | "BUILD_START";
+	buildId: string;
+	source: string;
+	file?: string;
+};
+
+export interface BuildNotificationMessage {
+	type: "BUILD_NOTIFICATION";
+	buildId: string;
+	timestamp: number;
+	// Include any other BUILD_COMPLETE message properties
+}
+
 /**
  * Messages passed between Node and Figma environments
  */
 export type TestMessage =
 	| TestResultMessage
+	| BuildMessage
 	| {
 			type: "REGISTER_TEST";
 			testName: string;
@@ -90,7 +105,8 @@ export type TestMessage =
 	| { type: "BEFORE_ALL" }
 	| { type: "AFTER_ALL" }
 	| { type: "BEFORE_EACH"; testName: string }
-	| { type: "AFTER_EACH"; testName: string };
+	| { type: "AFTER_EACH"; testName: string }
+	| BuildNotificationMessage;
 
 /**
  * Context for tracking the current test execution
