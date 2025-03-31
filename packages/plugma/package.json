@@ -100,6 +100,7 @@
         "debug": "^4.4.0",
         "express": "^4.18.2",
         "fs-extra": "^11.2.0",
+        "glob": "^11.0.1",
         "inquirer": "^12.0.0",
         "lodash": "^4.17.21",
         "plugma": "^1.2.8",
@@ -110,8 +111,8 @@
         "uuid": "^10.0.0",
         "vite": "5.4.12",
         "vite-plugin-singlefile": "^0.13.5",
-        "ws": "^8.16.0",
-        "vitest": "^3.0.3"
+        "vitest": "^3.0.3",
+        "ws": "^8.16.0"
     },
     "devDependencies": {
         "@antfu/ni": "^23.2.0",
