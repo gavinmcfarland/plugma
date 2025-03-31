@@ -136,7 +136,6 @@
         "svelte": "^4.2.19",
         "terser": "^5.37.0",
         "type-fest": "^4.33.0",
-        "typescript": "^5.7.3",
-        "vite-tsconfig-paths": "^5.1.4"
+        "typescript": "^5.7.3"
     }
 }
