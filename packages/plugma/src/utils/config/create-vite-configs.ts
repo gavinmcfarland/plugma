@@ -149,14 +149,7 @@ export function createViteConfigs(
 		define: {
 			"process.env.NODE_ENV": JSON.stringify(options.mode),
 		},
-		plugins: [
-			dotEnvLoader(options),
-			injectRuntime({
-				runtimeCode: plugmaRuntimeCode,
-				pluginOptions: options,
-			}),
-			replacePlugmaTesting(),
-		],
+		plugins: [dotEnvLoader(options), replacePlugmaTesting()],
 		build: {
 			lib: {
 				entry: tempFilePath,
@@ -195,19 +188,16 @@ export function createViteConfigs(
 			"process.env.NODE_ENV": JSON.stringify(options.mode),
 			"process.env.COMMAND": JSON.stringify(options.command),
 			"process.env.DEBUG": JSON.stringify(!!options.debug),
-			"figma.ui.resize": "customResize",
-			"figma.showUI": "customShowUI",
+			// "figma.ui.resize": "customResize",
+			// "figma.showUI": "customShowUI",
 		},
 		plugins: [
 			dotEnvLoader({
 				...options,
 				patterns: ["*.env.*"],
 			}),
-			injectRuntime({
-				runtimeCode: plugmaRuntimeCode,
-				pluginOptions: options,
-			}),
 			replacePlugmaTesting(),
+			injectRuntime(plugmaRuntimeCode, options),
 			injectTests({
 				testDir: "",
 				pluginOptions: options,
