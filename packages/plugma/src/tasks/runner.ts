@@ -1,10 +1,11 @@
-import { TaskRunner, createHelpers } from '../core/task-runner/task-runner.js';
-import type { RegisteredTask } from '../core/task-runner/types.js';
+import { TaskRunner, createHelpers } from "../core/task-runner/task-runner.js";
 
-export type Task = RegisteredTask<any, any, any, any>;
+// Define your available tasks
+export type AvailableTasks = "dev" | "build" | "test";
 
-// Create a singleton instance of the TaskRunner with our Task type
-const taskRunner = new TaskRunner<Task>();
+// Create a singleton instance of the TaskRunner with your specific task types
+const taskRunner = new TaskRunner<AvailableTasks>();
 
+// Create helpers with the same generic type
 export const { log, task, run, serial, parallel } =
-  createHelpers<Task>(taskRunner);
+	createHelpers<AvailableTasks>(taskRunner);

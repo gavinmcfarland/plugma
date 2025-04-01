@@ -51,19 +51,23 @@ export async function dev(options: DevCommandOptions): Promise<void> {
 		// Execute tasks in sequence
 		log.info("Executing tasks...");
 		await serial(
-			GetFilesTask,
-			ShowPlugmaPromptTask,
-			SaveOptionsTask,
-			BuildManifestTask,
-			WrapPluginUiTask,
-			BuildMainTask,
-			StartWebSocketsServerTask,
-			StartViteServerTask,
-		)(pluginOptions);
+			[
+				GetFilesTask,
+				ShowPlugmaPromptTask,
+				SaveOptionsTask,
+				BuildManifestTask,
+				WrapPluginUiTask,
+				BuildMainTask,
+				StartWebSocketsServerTask,
+				StartViteServerTask,
+			],
+			pluginOptions,
+		);
 
 		log.success("Development server started successfully");
 	} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : String(error);
+		const errorMessage =
+			error instanceof Error ? error.message : String(error);
 		log.error("Failed to start development server:", errorMessage);
 		throw error;
 	}

@@ -46,7 +46,9 @@ const handleDebug = async (
 		debugLogger.info("Debug mode enabled - preloading source maps...");
 
 		// Preload source maps before any logging occurs
-		const { preloadSourceMaps } = await import("#utils/fs/map-to-source.js");
+		const { preloadSourceMaps } = await import(
+			"#utils/fs/map-to-source.js"
+		);
 		await preloadSourceMaps();
 
 		debugLogger.info(`command: ${command}`);
@@ -62,7 +64,10 @@ program
 		"after",
 		"\nStart a server to develop your plugin. This command builds the ui.html and points it to the dev server making it easier to develop and debug your plugin.",
 	)
-	.option("-p, --port <number>", "Specify a port number for the plugin preview")
+	.option(
+		"-p, --port <number>",
+		"Specify a port number for the plugin preview",
+	)
 	.option("-m, --mode <mode>", "Specify the mode", "development")
 	.option("-o, --output <path>", "Specify the output directory", "dist")
 	.option("-ws, --websockets", "Enable websockets", false)
@@ -88,7 +93,10 @@ program
 		"after",
 		"\nPreview your plugin in any browser to see how it looks and works. Make sure the plugin is open in the Figma desktop app for this to work.",
 	)
-	.option("-p, --port <number>", "Specify a port number for the plugin preview")
+	.option(
+		"-p, --port <number>",
+		"Specify a port number for the plugin preview",
+	)
 	.option("-m, --mode <mode>", "Specify the mode", "development")
 	.option("-o, --output <path>", "Specify the output directory", "dist")
 	.option("-d, --debug", "Enable debug mode", false)
@@ -158,7 +166,9 @@ program
 		};
 
 		if (
-			validReleaseTypes.includes(type as (typeof validReleaseTypes)[number])
+			validReleaseTypes.includes(
+				type as (typeof validReleaseTypes)[number],
+			)
 		) {
 			releaseOptions.type = type as (typeof validReleaseTypes)[number];
 		} else if (/^\d+$/.test(type)) {

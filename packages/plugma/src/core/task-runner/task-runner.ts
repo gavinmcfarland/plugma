@@ -1,218 +1,233 @@
-import { Logger } from '#utils/log/logger.js';
-import type { RegisteredTask, ResultsOfTask } from './types.js';
+import { Logger } from "#utils/log/logger.js";
 
-/**
- * TaskRunner class for managing and executing tasks in a type-safe manner.
- * This class provides functionality to register, run, and manage tasks with proper dependency validation.
- */
-export class TaskRunner<
-  AvailableTasks extends RegisteredTask<string, object, any, object> = never,
-> {
-  private tasks: Map<
-    AvailableTasks['name'],
-    RegisteredTask<string, any, any, any>
-  >;
-  private logger: Logger;
+// Define a type for registered tasks
+export type RegisteredTask = {
+	name: string;
+	run: (options: any, context: any) => Promise<any>;
+};
 
-  constructor(options?: { debug: boolean }) {
-    this.tasks = new Map();
-    this.logger = new Logger({ debug: options?.debug ?? false });
-    this.logger.debug('TaskRunner initialized');
-  }
+// Define a type for task results
+export type TaskResults = Record<string, any>;
 
-  /**
-   * Log a message to the console
-   */
-  log(message: string): void {
-    this.logger.debug(message);
-  }
+// Create a type to track registered task names
+export type RegisteredTaskNames<T> = T extends { name: infer N } ? N : never;
 
-  /**
-   * Register a task with a name and handler function
-   */
-  task<TName extends string, TOptions, TResults, TContext>(
-    name: TName,
-    handler: (options: TOptions, context: TContext) => Promise<TResults>,
-  ): RegisteredTask<TName, TOptions, TResults, TContext> {
-    this.logger.debug(`Registering task: ${name}`);
-    if (this.tasks.has(name)) {
-      throw new Error(`Task "${name}" is already registered`);
-    }
+export class TaskRunner<T extends string = string> {
+	private tasks: Map<T, RegisteredTask>;
+	private logger: Logger;
 
-    const task = {
-      name,
-      run: handler,
-    };
+	constructor(options?: { debug: boolean }) {
+		this.tasks = new Map();
+		this.logger = new Logger({ debug: options?.debug ?? false });
+		this.logger.debug("TaskRunner initialized");
+	}
 
-    this.tasks.set(name, task);
-    return task;
-  }
+	/**
+	 * Log a message to the console
+	 */
+	log(message: string): void {
+		this.logger.debug(message);
+	}
 
-  /**
-   * Run a single task by its name
-   */
-  async run<
-    T extends RegisteredTask<any, any, any, any> & {
-      name: AvailableTasks['name'];
-    },
-  >(
-    task: T,
-    options: Parameters<T['run']>[0],
-    context: Parameters<T['run']>[1],
-  ): Promise<ReturnType<T['run']>> {
-    const registeredTask = this.tasks.get(task.name);
-    if (!registeredTask) {
-      throw new Error(`Task "${task.name}" not found`);
-    }
+	/**
+	 * Register a task with a name and handler function
+	 */
+	task<TName extends T>(
+		name: TName,
+		handler: (options: any, context: any) => Promise<any>,
+	): RegisteredTask {
+		this.logger.debug(`Registering task: ${name}`);
+		if (this.tasks.has(name)) {
+			throw new Error(`Task "${name}" is already registered`);
+		}
 
-    this.logger.format({ indent: 1 }).debug(`Starting task "${task.name}"`);
-    this.logger
-      .format({ indent: 2 })
-      .debug(`Options: ${JSON.stringify(options)}`);
-    this.logger
-      .format({ indent: 2 })
-      .debug(`Context: ${JSON.stringify(context)}`);
-    console.time(`Task "${task.name}"`);
+		const task = { name, run: handler };
+		this.tasks.set(name, task);
+		return task;
+	}
 
-    try {
-      const result = (await registeredTask.run(options, context)) as ReturnType<
-        T['run']
-      >;
-      console.timeEnd(`Task "${task.name}"`);
-      this.logger
-        .format({ indent: 1 })
-        .success(`Task "${task.name}" completed successfully`);
-      this.logger
-        .format({ indent: 2 })
-        .debug(`Result: ${JSON.stringify(result)}`);
-      return result;
-    } catch (error) {
-      console.timeEnd(`Task "${task.name}"`);
-      this.logger
-        .format({ indent: 1 })
-        .error(
-          `Task "${task.name}" failed: ${error instanceof Error ? error.message : String(error)}`,
-        );
-      throw error;
-    }
-  }
+	/**
+	 * Run a single task by its name or task object, or execute an anonymous function
+	 */
+	async run(
+		taskIdentifierOrFn:
+			| T
+			| RegisteredTask
+			| ((options: any) => Promise<TaskResults>),
+		options?: any,
+		context?: any,
+	): Promise<TaskResults> {
+		// Handle anonymous function case
+		if (typeof taskIdentifierOrFn === "function") {
+			this.logger
+				.format({ indent: 1 })
+				.debug("Starting anonymous function execution");
+			console.time("Anonymous function");
+			try {
+				const result = await (
+					taskIdentifierOrFn as (options: any) => Promise<TaskResults>
+				)(options);
+				console.timeEnd("Anonymous function");
+				this.logger
+					.format({ indent: 1 })
+					.success("Anonymous function completed successfully");
+				return result;
+			} catch (error) {
+				console.timeEnd("Anonymous function");
+				this.logger
+					.format({ indent: 1 })
+					.error(
+						`Anonymous function failed: ${error instanceof Error ? error.message : String(error)}`,
+					);
+				throw error;
+			}
+		}
 
-  /**
-   * Run multiple tasks in series with proper dependency validation and guaranteed serial execution
-   */
-  async serial<First extends AvailableTasks, Rest extends AvailableTasks[]>(
-    firstTask: First,
-    options: Parameters<First['run']>[0],
-    ...otherTasks: Rest
-  ): Promise<ResultsOfTask<First | Rest[number]>> {
-    this.logger.format({ indent: 1 });
-    this.logger.debug(
-      `Starting execution of task series ${firstTask.name}, ${otherTasks
-        .map((task) => task.name)
-        .join(', ')}`,
-    );
+		// Handle task execution case
+		const taskName =
+			typeof taskIdentifierOrFn === "string"
+				? taskIdentifierOrFn
+				: taskIdentifierOrFn.name;
 
-    const context = {} as ResultsOfTask<First | Rest[number]>;
-    const tasks = [firstTask, ...otherTasks] as ((First | Rest[number]) & {
-      name: keyof typeof context;
-    })[];
+		const registeredTask = this.tasks.get(taskName);
+		if (!registeredTask) {
+			throw new Error(`Task "${taskName}" not found`);
+		}
 
-    // Use for...of to ensure sequential execution
-    for (const task of tasks) {
-      const registeredTask = this.tasks.get(task.name);
-      if (!registeredTask) {
-        throw new Error(`Task "${task.name}" not found`);
-      }
+		this.logger.format({ indent: 1 }).debug(`Starting task "${taskName}"`);
+		console.time(`Task "${taskName}"`);
 
-      this.logger.format({ indent: 2 }).debug(`Starting task: ${task.name}`);
+		try {
+			const result = await registeredTask.run(options, context);
+			console.timeEnd(`Task "${taskName}"`);
+			this.logger
+				.format({ indent: 1 })
+				.success(`Task "${taskName}" completed successfully`);
+			return { [taskName]: result };
+		} catch (error) {
+			console.timeEnd(`Task "${taskName}"`);
+			this.logger
+				.format({ indent: 1 })
+				.error(
+					`Task "${taskName}" failed: ${error instanceof Error ? error.message : String(error)}`,
+				);
+			throw error;
+		}
+	}
 
-      try {
-        // Await each task explicitly to ensure serial execution
-        const result = await registeredTask.run(options, context);
+	/**
+	 * Run multiple tasks in series with proper dependency validation
+	 */
+	async serial(
+		tasks: (T | RegisteredTask)[],
+		options: any = {},
+	): Promise<TaskResults> {
+		const taskNames = tasks.map((task) =>
+			typeof task === "string" ? task : task.name,
+		) as T[];
 
-        // Store result in context before proceeding to next task
-        context[task.name] = result;
+		if (taskNames.length === 0) {
+			throw new Error("No tasks provided to serial execution");
+		}
 
-        this.logger
-          .format({ indent: 2 })
-          .debug(`Completed task ${task.name} with result:`, result);
-      } catch (error) {
-        this.logger
-          .format({ indent: 2 })
-          .error(`Task ${task.name} failed:`, error);
+		// Validate all tasks exist before starting
+		const missingTasks = taskNames.filter((name) => !this.tasks.has(name));
+		if (missingTasks.length > 0) {
+			throw new Error(
+				`The following tasks are not registered: ${missingTasks.join(", ")}. ` +
+					`Available tasks are: ${Array.from(this.tasks.keys()).join(", ")}`,
+			);
+		}
 
-        // Rethrow with enhanced context
-        throw new Error(
-          `Serial execution failed at task "${task.name}": ${
-            error instanceof Error ? error.message : String(error)
-          }`,
-        );
-      }
-    }
+		this.logger.format({ indent: 1 });
+		this.logger.debug(
+			`Starting execution of task series ${taskNames.join(", ")}`,
+		);
 
-    return context;
-  }
+		const context: TaskResults = {};
 
-  /**
-   * Run multiple tasks in parallel
-   */
-  async parallel<T extends AvailableTasks>(
-    tasks: T['name'][],
-    options: Parameters<T['run']>[0],
-  ): Promise<Record<T['name'], unknown>> {
-    const promises = tasks.map(async (taskName) => {
-      const task = this.tasks.get(taskName);
-      if (!task) {
-        throw new Error(`Task "${taskName}" not found`);
-      }
-      const context = {} as Record<T['name'], unknown>;
-      const result = await task.run(options, context);
-      return { name: taskName, result };
-    });
+		for (const taskName of taskNames) {
+			const registeredTask = this.tasks.get(taskName);
+			if (!registeredTask) {
+				throw new Error(`Task "${taskName}" not found`);
+			}
 
-    const results = await Promise.all(promises);
-    const context = {} as Record<T['name'], unknown>;
+			this.logger
+				.format({ indent: 2 })
+				.debug(`Starting task: ${taskName}`);
 
-    for (const { name, result } of results) {
-      context[name] = result;
-    }
+			try {
+				const result = await registeredTask.run(options, context);
+				context[taskName] = result;
+				this.logger
+					.format({ indent: 2 })
+					.debug(`Completed task ${taskName}`);
+			} catch (error) {
+				this.logger
+					.format({ indent: 2 })
+					.error(`Task ${taskName} failed:`, error);
+				throw new Error(
+					`Serial execution failed at task "${taskName}": ${
+						error instanceof Error ? error.message : String(error)
+					}`,
+				);
+			}
+		}
 
-    return context;
-  }
+		return context;
+	}
+
+	/**
+	 * Run multiple tasks in parallel
+	 */
+	async parallel(
+		tasks: (T | RegisteredTask)[],
+		options: any = {},
+	): Promise<TaskResults> {
+		const taskNames = tasks.map((task) =>
+			typeof task === "string" ? task : task.name,
+		) as T[];
+
+		if (taskNames.length === 0) {
+			throw new Error("No tasks provided to parallel execution");
+		}
+
+		// Validate all tasks exist before starting
+		const missingTasks = taskNames.filter((name) => !this.tasks.has(name));
+		if (missingTasks.length > 0) {
+			throw new Error(
+				`The following tasks are not registered: ${missingTasks.join(", ")}. ` +
+					`Available tasks are: ${Array.from(this.tasks.keys()).join(", ")}`,
+			);
+		}
+
+		const promises = taskNames.map(async (taskName) => {
+			const task = this.tasks.get(taskName);
+			if (!task) {
+				throw new Error(`Task "${taskName}" not found`);
+			}
+			const result = await task.run(options, {});
+			return { name: taskName, result };
+		});
+
+		const results = await Promise.all(promises);
+		return results.reduce((acc, { name, result }) => {
+			acc[name] = result;
+			return acc;
+		}, {} as TaskResults);
+	}
 }
 
 /**
  * Creates a set of helper functions for working with a TaskRunner instance.
  * These helpers are pre-typed with the available tasks, making them more convenient to use.
  */
-export function createHelpers<
-  AvailableTasks extends RegisteredTask<any, any, any, any>,
->(runner: TaskRunner<AvailableTasks>) {
-  return {
-    log: (message: string) => runner.log(message),
-
-    task: <TName extends string, TOptions, TResults, TContext>(
-      name: TName,
-      handler: (options: TOptions, context: TContext) => Promise<TResults>,
-    ) => runner.task<TName, TOptions, TResults, TContext>(name, handler),
-
-    run: <Task extends AvailableTasks>(
-      task: Task,
-      options: Parameters<Task['run']>[0],
-      context: Parameters<Task['run']>[1],
-    ) => runner.run<Task>(task, options, context),
-
-    serial:
-      <First extends AvailableTasks, Rest extends AvailableTasks[]>(
-        firstTask: First,
-        ...otherTasks: Rest
-      ) =>
-      (options: Parameters<First['run']>[0]) =>
-        runner.serial(firstTask, options, ...otherTasks),
-
-    parallel: (
-      tasks: AvailableTasks['name'][],
-      options: Parameters<AvailableTasks['run']>[0],
-    ) => runner.parallel<AvailableTasks>(tasks, options),
-  };
+export function createHelpers<T extends string>(runner: TaskRunner<T>) {
+	return {
+		log: runner.log.bind(runner),
+		task: runner.task.bind(runner),
+		run: runner.run.bind(runner),
+		serial: runner.serial.bind(runner),
+		parallel: runner.parallel.bind(runner),
+	};
 }
