@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { writable } from "svelte/store";
 
 // Store to track whether the local client is connected
 export const localClientConnected = writable(false);

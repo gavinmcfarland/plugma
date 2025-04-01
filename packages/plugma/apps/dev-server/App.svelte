@@ -1,13 +1,14 @@
-<script>
+<script lang="ts">
 	import { onMount } from "svelte";
 
-	import ServerStatus from "../shared/components/ServerStatus.svelte";
-	import { monitorUrl } from "../shared/lib/monitorUrl";
+	// @ts-ignore
+	import { createClient } from "plugma/client";
+
 	import { pluginWindowClients } from "../shared/stores";
 
-	import { setupWebSocket } from "../shared/lib/setupWebSocket";
+	import { monitorUrl } from "../shared/lib/monitorUrl";
 	import { triggerDeveloperTools } from "../shared/lib/triggerDeveloperTools";
-	import { createClient } from "plugma/client";
+	import { getRoom } from "../shared/lib/getRoom";
 
 	import { listenForFigmaStyles } from "./lib/listenForFigmaStyles";
 	import { getFigmaStyles } from "./lib/getFigmaStyles";
@@ -16,14 +17,12 @@
 	import { overrideMessageEvent } from "./lib/overrideMessageEvent";
 	import { reimplementFigmaListeners } from "./lib/reimplementFigmaListeners";
 
-	import { getRoom } from "../shared/lib/getRoom";
+	import ServerStatus from "../shared/components/ServerStatus.svelte";
 
 	const html = document.querySelector("html");
 
 	const isInsideIframe = window.self !== window.top;
-	const isInsideFigma = typeof figma !== "undefined";
 
-	let message = null;
 	let isWebsocketServerActive = false;
 	let isWebsocketsEnabled = window.runtimeData.websockets || false;
 	let isServerActive = false;
@@ -36,9 +35,6 @@
 
 	let url = `http://localhost:${window.runtimeData.port}`;
 
-	const processedMessages = new Set();
-
-	// listenForWebSocketMessage()
 	reimplementFigmaListeners();
 	interceptPostMessage();
 	overrideMessageEvent();
@@ -63,7 +59,7 @@
 	});
 </script>
 
-{#if !(isInsideIframe || isInsideFigma)}
+{#if !isInsideIframe}
 	{#if isServerActive}
 		{#if !isWebsocketsEnabled}
 			<ServerStatus

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import ServerStatus from "../shared/components/ServerStatus.svelte";
 	import { monitorUrl } from "../shared/lib/monitorUrl";
 
@@ -13,13 +13,15 @@
 	import Toolbar from "./components/Toolbar.svelte";
 	import { monitorDeveloperToolsStatus } from "./lib/monitorDeveloperToolsStatus";
 	import { getRoom } from "../shared/lib/getRoom";
+
+	// @ts-ignore
 	import { createClient } from "plugma/client";
 
 	import { relayFigmaMessages } from "./lib/relayFigmaMessages";
 	import { getClassesAndStyles } from "./lib/getClassesAndStyles";
 	import { observeChanges } from "./lib/observeChanges";
 
-	let iframe;
+	let iframe: HTMLIFrameElement;
 	const html = document.querySelector("html");
 
 	// @ts-ignore
