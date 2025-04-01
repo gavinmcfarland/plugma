@@ -1,7 +1,7 @@
 <script>
 	import ServerStatus from "../shared/components/ServerStatus.svelte";
 	import { monitorUrl } from "../shared/lib/monitorUrl";
-	import { setupWebSocket } from "../shared/lib/setupWebSocket";
+
 	import { setBodyStyles } from "./lib/setBodyStyles";
 
 	import { onMount } from "svelte";
@@ -12,6 +12,12 @@
 	} from "../shared/stores";
 	import Toolbar from "./components/Toolbar.svelte";
 	import { monitorDeveloperToolsStatus } from "./lib/monitorDeveloperToolsStatus";
+	import { getRoom } from "../shared/lib/getRoom";
+	import { createClient } from "plugma/client";
+
+	import { relayFigmaMessages } from "./lib/relayFigmaMessages";
+	import { getClassesAndStyles } from "./lib/getClassesAndStyles";
+	import { observeChanges } from "./lib/observeChanges";
 
 	let iframe;
 	const html = document.querySelector("html");
@@ -21,101 +27,19 @@
 
 	let isServerActive = true;
 
-	// Pass messages between parent and plugin window wrapper iframe
-	function relayFigmaMessages(ws) {
-		ws.on((event) => {
-			if (event.origin === "https://www.figma.com") {
-				// forward to iframe and browser
-				ws.post(event.data, ["iframe", "ws"]);
-			} else {
-				// forward to main
-				ws.post(event.data, ["parent"]);
-			}
-		}, "window");
-
-		ws.on((event) => {
-			// TODO: Filter out messages sent by framework
-			ws.post(event.data, "parent");
-		}, "ws");
-	}
-
-	function getClassesAndStyles(ws) {
-		const styleSheetElement = document.getElementById("figma-style");
-
-		if (styleSheetElement) {
-			ws.on((event) => {
-				const message = event.data.pluginMessage;
-
-				if (message.type === "GET_FIGMA_CLASSES_AND_STYLES") {
-					const messages = [
-						{
-							pluginMessage: {
-								type: "FIGMA_HTML_CLASSES",
-								data: html.className,
-							},
-						},
-						{
-							pluginMessage: {
-								type: "FIGMA_STYLES",
-								data: styleSheetElement.innerHTML,
-							},
-						},
-					];
-					ws.post(messages, ["iframe", "ws"]);
-				}
-			}, "ws");
-		}
-	}
-
-	function observeChanges(ws) {
-		const styleSheetElement = document.getElementById("figma-style");
-
-		if (styleSheetElement) {
-			function postMessage(type, data) {
-				ws.post(
-					{
-						pluginMessage: {
-							type,
-							data,
-						},
-						pluginId: "*",
-					},
-					["iframe", "ws"],
-				);
-			}
-
-			function createObserver(target, messageType, getData) {
-				// Post initial data
-				postMessage(messageType, getData());
-
-				const observer = new MutationObserver(() => {
-					postMessage(messageType, getData());
-				});
-
-				observer.observe(target, {
-					attributes: true,
-					childList: true,
-					subtree: true,
-				});
-			}
-
-			createObserver(html, "FIGMA_HTML_CLASSES", () => html.className);
-			createObserver(
-				styleSheetElement,
-				"FIGMA_STYLES",
-				() => styleSheetElement.innerHTML,
-			);
-		}
-	}
-
 	onMount(async () => {
 		// NOTE: Messaging must be setup first so that it's ready to receive messages from iframe
 		// NOTE: Because source is not passed through it will appear as "unknown" in the client list
-		let ws = setupWebSocket(iframe, window.runtimeData.websockets);
+		// let ws = setupWebSocket(iframe, window.runtimeData.websockets);
+
+		const wsClient = createClient({
+			room: getRoom(),
+			port: window.runtimeData.port,
+		});
 
 		// Move redirecting iframe higher up because some messages were not being recieved due to iframe not being redirected in time (do i need to consider queing messages?)
 		iframe.src = new URL(url).href;
-		relayFigmaMessages(ws);
+		relayFigmaMessages(wsClient);
 
 		monitorUrl(url, iframe, (isActive) => {
 			isServerActive = isActive;
@@ -127,11 +51,11 @@
 		// await redirectIframe(iframe, url)
 
 		// Needs to occur without waiting for websocket to open
-		observeChanges(ws);
+		observeChanges(wsClient);
 
-		ws.open(() => {
+		wsClient.on("connect", () => {
 			// observeChanges(ws)
-			getClassesAndStyles(ws);
+			getClassesAndStyles(wsClient);
 		});
 	});
 </script>
