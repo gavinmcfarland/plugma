@@ -43,7 +43,7 @@ npm start [client-name]
 
 The `plugma` package includes a set of helpers for creating and managing websockets.
 
-### createClient
+### `createClient`
 
 #### Create a client
 
@@ -70,7 +70,7 @@ client.emit("EVENT_NAME", {
 });
 ```
 
-### createSocketServer
+### `createSocketServer`
 
 #### Create a websocketserver
 
