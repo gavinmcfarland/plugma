@@ -12,20 +12,7 @@ npm install
 
 ## Usage
 
-### Run the demo
-
-Run the demo in development mode with auto-reload:
-```bash
-npm run dev
-```
-
-Monitor in the console:
-
-```bash
-npm run monitor
-```
-
-### Start the websocketserver
+### Start the WebSocket server
 
 ```bash
 npm start server
@@ -37,6 +24,12 @@ To spin up a client, run the following command and replace `[client-name]` with 
 
 ```bash
 npm start [client-name]
+```
+
+### Monitor in the console
+
+```bash
+npm run monitor
 ```
 
 ## Plugma websockets helpers
