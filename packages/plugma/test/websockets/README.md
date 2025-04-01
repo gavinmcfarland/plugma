@@ -28,7 +28,7 @@ npm run monitor
 ### Start the websocketserver
 
 ```bash
-npm start
+npm start server
 ```
 
 ### Spin up a client
