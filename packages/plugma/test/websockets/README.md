@@ -1,4 +1,4 @@
-# WebSocket Gateway Sandbox
+# WebSocket Sandbox
 
 This is a sandbox environment for testing and demonstrating the websocket features. It provides a simple setup with both a WebSocket server and client implementation.
 
