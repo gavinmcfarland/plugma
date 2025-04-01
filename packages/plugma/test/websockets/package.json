@@ -1,0 +1,30 @@
+{
+    "name": "sandbox",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "concurrently \"tsx src/node/websocket-server.ts\" \"vite\"",
+        "build": "vite build",
+        "preview": "vite preview",
+        "check": "svelte-check --tsconfig ./tsconfig.json",
+        "monitor": "tsx watch src/cli/monitor.ts",
+        "dev-server-client": "tsx src/client/vite-client.ts",
+        "test-client": "tsx src/client/test-client.ts"
+    },
+    "devDependencies": {
+        "@sveltejs/vite-plugin-svelte": "^3.0.0",
+        "@tsconfig/svelte": "^5.0.0",
+        "concurrently": "^8.2.0",
+        "svelte": "^4.0.0",
+        "svelte-check": "^3.4.3",
+        "svelte-preprocess": "^5.0.0",
+        "tslib": "^2.4.1",
+        "typescript": "^5.0.0",
+        "vite": "^5.0.0"
+    },
+    "dependencies": {
+        "tsx": "^4.19.3",
+        "plugma": "file:../../"
+    }
+}

@@ -85,7 +85,14 @@
         "./testing/figma": {
             "import": "./dist/testing/figma/index.js",
             "types": "./dist/testing/figma/index.d.ts"
-        }
+        },
+        ".": {
+            "browser": "./dist/client.js",
+            "node": "./dist/server.js",
+            "default": "./dist/client.js"
+        },
+        "./server": "./dist/core/websockets/server.js",
+        "./client": "./dist/core/websockets/client.js"
     },
     "jest": {
         "transform": {}
@@ -107,6 +114,8 @@
         "prettier": "^3.3.3",
         "semver": "^7.6.3",
         "slugify": "^1.6.6",
+        "socket.io": "^4.8.1",
+        "socket.io-client": "^4.8.1",
         "supports-color": "^10.0.0",
         "uuid": "^10.0.0",
         "vite": "5.4.12",

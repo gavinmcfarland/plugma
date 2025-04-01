@@ -1,21 +1,25 @@
 {
-  "folders": [
-    {
-      "name": "website",
-      "path": "packages/website"
-    },
-    {
-      "name": "sandbox",
-      "path": "packages/plugma/test/sandbox"
-    },
-    {
-      "name": "src",
-      "path": "packages/plugma/src"
-    },
-    {
-      "name": "plugma",
-      "path": "."
-    }
-  ],
-  "settings": {},
+	"folders": [
+		{
+			"name": "repo",
+			"path": ".",
+		},
+		{
+			"name": "website",
+			"path": "packages/website",
+		},
+		{
+			"name": "sandbox",
+			"path": "packages/plugma/test/sandbox",
+		},
+		{
+			"name": "src",
+			"path": "packages/plugma/src",
+		},
+		{
+			"name": "plugma",
+			"path": "packages/plugma",
+		},
+	],
+	"settings": {},
 }
