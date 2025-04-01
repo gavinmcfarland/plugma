@@ -1,29 +1,91 @@
 # WebSocket Gateway Sandbox
 
-This is a sandbox environment for testing and demonstrating the `websocket-gateway` package. It provides a simple setup with both a WebSocket server and client implementation.
+This is a sandbox environment for testing and demonstrating the websocket features. It provides a simple setup with both a WebSocket server and client implementation.
 
-## Setup
+## Installation
 
-1. Make sure you have Node.js installed on your system
-2. Install dependencies:
-    ```bash
-    npm install
-    ```
+Install dependencies:
 
-## Running the Demo
+```bash
+npm install
+```
 
-You can run the demo in two ways:
+## Usage
 
-### Development Mode (with auto-reload)
+### Run the demo
 
+Run the demo in development mode with auto-reload:
 ```bash
 npm run dev
 ```
 
-### Production Mode
+Monitor in the console:
+
+```bash
+npm run monitor
+```
+
+### Start the websocketserver
 
 ```bash
 npm start
+```
+
+### Spin up a client
+
+To spin up a client, run the following command and replace `[client-name]` with the name of the client you want to spin up. Can be `vite`, `test`, `figma`, or `browser`.
+
+```bash
+npm start [client-name]
+```
+
+## Plugma websockets helpers
+
+The `plugma` package includes a set of helpers for creating and managing websockets.
+
+### createClient
+
+#### Create a client
+
+Create a client with a room name to join.
+
+```ts
+import { createClient } from "plugma/client";
+
+const client = createClient({
+    room: "room1",
+    port: 8080,
+    host: "localhost",
+});
+```
+
+#### Send a message
+
+Send message with any event name and an optional list of rooms it should send to.
+
+```ts
+client.emit("EVENT_NAME", {
+    message,
+    room: ["room1", "room2"],
+});
+```
+
+### createSocketServer
+
+#### Create a websocketserver
+
+Create a server with cors and server options.
+
+```ts
+import { createSocketServer } from "plugma/server";
+
+const server = createSocketServer({
+    httpServer,
+    cors: cors ?? {
+        origin: "*",
+    },
+    ...serverOptions,
+});
 ```
 
 ### Managing Port Conflicts
@@ -43,33 +105,3 @@ On Windows:
 npm run kill-port:win    # Kills process on default port 8080
 set PORT=3000 && npm run kill-port:win  # Kills process on specified port
 ```
-
-## What's Included
-
--   A basic WebSocket server running on port 8080
--   A WebSocket client that connects to the server
--   Basic message handling and connection events
--   Graceful shutdown handling
--   Port management utilities
-
-## Project Structure
-
-```
-sandbox/
-├── src/
-│   └── index.ts    # Main demo implementation
-├── package.json    # Project dependencies and scripts
-└── tsconfig.json   # TypeScript configuration
-```
-
-## Example Usage
-
-The demo shows basic usage of the `websocket-gateway` package:
-
-1. Creating a WebSocket server
-2. Establishing a client connection
-3. Sending and receiving messages
-4. Handling connection events
-5. Proper cleanup on shutdown
-
-You can modify `src/index.ts` to experiment with different WebSocket functionality and test various scenarios.

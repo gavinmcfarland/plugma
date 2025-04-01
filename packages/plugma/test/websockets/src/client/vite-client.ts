@@ -1,8 +1,8 @@
-import { createClient } from "websocket-gateway/client";
+import { createClient } from "plugma/client";
 
 import { watch } from "node:fs";
 import { join } from "node:path";
-import chalk from "chalk/index.js";
+import chalk from "chalk";
 
 /**
  * Watches for file changes in the specified directory and notifies connected Figma clients

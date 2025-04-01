@@ -1,5 +1,5 @@
-import { createClient } from "websocket-gateway/client";
-import chalk from "chalk/index.js";
+import { createClient } from "plugma/client";
+import chalk from "chalk";
 
 /**
  * Client class for testing connections to the development server
