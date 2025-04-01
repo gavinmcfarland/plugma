@@ -25,7 +25,7 @@ Monitor in the console:
 npm run monitor
 ```
 
-### Start the websocketserver
+### Start the websocketserver
 
 ```bash
 npm start
