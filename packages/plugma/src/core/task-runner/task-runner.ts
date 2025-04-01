@@ -1,16 +1,21 @@
 import { Logger } from "#utils/log/logger.js";
 
 // Define a type for registered tasks
-export type RegisteredTask = {
-	name: string;
+export type RegisteredTask<TName extends string = string> = {
+	name: TName;
 	run: (options: any, context: any) => Promise<any>;
 };
 
 // Define a type for task results
 export type TaskResults = Record<string, any>;
 
-// Create a type to track registered task names
-export type RegisteredTaskNames<T> = T extends { name: infer N } ? N : never;
+// Modify how we track task names
+export type TaskName = string;
+export type RegisteredTasks<T extends string = string> = {
+	[K in T]: true;
+};
+
+export type TaskInput<T extends string = string> = RegisteredTask<T> | T;
 
 export class TaskRunner<T extends string = string> {
 	private tasks: Map<T, RegisteredTask>;
@@ -32,10 +37,10 @@ export class TaskRunner<T extends string = string> {
 	/**
 	 * Register a task with a name and handler function
 	 */
-	task<TName extends T>(
+	task<TName extends string>(
 		name: TName,
 		handler: (options: any, context: any) => Promise<any>,
-	): RegisteredTask {
+	): RegisteredTask<TName> {
 		this.logger.debug(`Registering task: ${name}`);
 		if (this.tasks.has(name)) {
 			throw new Error(`Task "${name}" is already registered`);
@@ -51,9 +56,9 @@ export class TaskRunner<T extends string = string> {
 	 */
 	async run(
 		taskIdentifierOrFn:
-			| T
 			| RegisteredTask
-			| ((options: any) => Promise<TaskResults>),
+			| ((options: any) => Promise<TaskResults>)
+			| RegisteredTasks<T>,
 		options?: any,
 		context?: any,
 	): Promise<TaskResults> {
@@ -118,13 +123,13 @@ export class TaskRunner<T extends string = string> {
 	/**
 	 * Run multiple tasks in series with proper dependency validation
 	 */
-	async serial(
-		tasks: (T | RegisteredTask)[],
+	async serial<T extends string>(
+		tasks: TaskInput<T>[],
 		options: any = {},
 	): Promise<TaskResults> {
 		const taskNames = tasks.map((task) =>
 			typeof task === "string" ? task : task.name,
-		) as T[];
+		);
 
 		if (taskNames.length === 0) {
 			throw new Error("No tasks provided to serial execution");
@@ -181,12 +186,12 @@ export class TaskRunner<T extends string = string> {
 	 * Run multiple tasks in parallel
 	 */
 	async parallel(
-		tasks: (T | RegisteredTask)[],
+		tasks: (string | RegisteredTask)[],
 		options: any = {},
 	): Promise<TaskResults> {
 		const taskNames = tasks.map((task) =>
 			typeof task === "string" ? task : task.name,
-		) as T[];
+		);
 
 		if (taskNames.length === 0) {
 			throw new Error("No tasks provided to parallel execution");
@@ -225,9 +230,13 @@ export class TaskRunner<T extends string = string> {
 export function createHelpers<T extends string>(runner: TaskRunner<T>) {
 	return {
 		log: runner.log.bind(runner),
-		task: runner.task.bind(runner),
-		run: runner.run.bind(runner),
-		serial: runner.serial.bind(runner),
+		task: <TName extends string>(
+			name: TName,
+			handler: (options: any, context: any) => Promise<any>,
+		): RegisteredTask<TName> => runner.task(name, handler),
+		run: (fn: (options: any) => Promise<TaskResults>) => runner.run(fn, {}),
+		serial: (tasks: RegisteredTask<T>[], options?: any) =>
+			runner.serial(tasks, options),
 		parallel: runner.parallel.bind(runner),
 	};
 }
