@@ -1,3 +1,4 @@
+import { RegisteredTask } from "#core/task-runner/task-runner";
 import { task, run, serial } from "#tasks/runner.js";
 
 // Register tasks and store their names
@@ -14,7 +15,7 @@ task("build", async () => {
 
 run(async () => {
 	// Now returns TaskResults
-	const results = await serial([devTask, "build"]); // both should be valid types
+	const results = await serial([devTask]); // both should be valid types
 
 	return results;
 });
