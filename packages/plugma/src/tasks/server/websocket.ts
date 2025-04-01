@@ -5,19 +5,11 @@ import type {
 } from "#core/types.js";
 import { Logger } from "#utils/log/logger.js";
 import { createSocketServer } from "#core/websockets/server.js";
-import { httpServer } from "./http.js";
+import { exportHttpServer } from "./http.js";
 import { GetFilesTask } from "../common/get-files.js";
 import { task } from "../runner.js";
 
 const logger = new Logger();
-
-/**
- * Configuration for the WebSocket server
- */
-interface WebSocketServerConfig {
-	port: number;
-	httpServer: typeof httpServer;
-}
 
 /**
  * Gets the WebSocket server port from options or environment
@@ -47,17 +39,11 @@ export const startWebSocketsServer = async (
 	try {
 		const port = getWebSocketPort(options);
 
-		// Start HTTP server
-		await new Promise<void>((resolve) => {
-			httpServer.listen(port, () => {
-				logger.info(`WebSocket server listening on port ${port}`);
-				resolve();
-			});
-		});
+		const { httpServer, wss } = exportHttpServer(port);
 
 		// Create and configure WebSocket server
 		const server = createSocketServer({
-			httpServer,
+			server: wss,
 		});
 
 		return server;

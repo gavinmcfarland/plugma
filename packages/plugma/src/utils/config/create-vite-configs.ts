@@ -68,7 +68,7 @@ export function createViteConfigs(
 
 	const commonVitePlugins: Plugin[] = [
 		viteSingleFile(),
-		createBuildNotifierPlugin(options.port),
+		// createBuildNotifierPlugin(options.port),
 	];
 
 	const placeholders = {

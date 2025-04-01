@@ -1,6 +1,7 @@
 import { Server, ServerOptions } from "socket.io";
 import chalk from "chalk";
 import type { Server as HttpServer } from "node:http";
+import { WebSocketServer } from "ws";
 
 /**
  * Interface defining the methods available on the server
@@ -11,7 +12,7 @@ export interface SocketServer extends Omit<Server, "emit"> {
 	emit: (
 		event: string,
 		data: any,
-		callback?: (response: any) => void
+		callback?: (response: any) => void,
 	) => SocketServer;
 }
 
@@ -19,7 +20,7 @@ export interface SocketServer extends Omit<Server, "emit"> {
  * Configuration options for creating a server
  */
 export interface ServerConfig {
-	httpServer: HttpServer;
+	server: HttpServer | WebSocketServer;
 	cors?: {
 		origin: string | string[];
 		credentials?: boolean;
@@ -33,14 +34,15 @@ export interface ServerConfig {
  * @returns A proxied Socket.IO server instance with custom functionality
  */
 export function createSocketServer(config: ServerConfig): SocketServer {
-	const { httpServer, cors, serverOptions = {} } = config;
+	const { server, cors, serverOptions = {} } = config;
 
 	console.log(chalk.cyan(`\n⚡ Initializing Socket.IO Server...\n`));
 
-	const io = new Server(httpServer, {
+	const io = new Server(server, {
 		cors: cors ?? {
 			origin: "*",
 		},
+		path: "/ws",
 		...serverOptions,
 	});
 
@@ -83,9 +85,9 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 					}
 					console.log(
 						`Event "${event}" sent to rooms [${room.join(
-							", "
+							", ",
 						)}] with data:`,
-						payload
+						payload,
 					);
 				} else {
 					// Emit to a single room
@@ -96,7 +98,7 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 					});
 					console.log(
 						`Event "${event}" sent to room "${room}" with data:`,
-						payload
+						payload,
 					);
 				}
 			} else {

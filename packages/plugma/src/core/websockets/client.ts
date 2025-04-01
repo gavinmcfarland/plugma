@@ -11,7 +11,7 @@ export interface SocketClient extends Omit<Socket, "emit"> {
 		event: string,
 		data: any,
 		room?: ClientType[],
-		callback?: (response: any) => void
+		callback?: (response: any) => void,
 	) => SocketClient;
 }
 
@@ -35,7 +35,10 @@ export function createClient(config: ClientConfig): SocketClient {
 
 	console.log(chalk.cyan(`\n⚡ Starting ${room} Client...\n`));
 
-	const socket = io(`http://${host}:${port}`, {
+	// Configured to use `ws` protocol. Can be changed to `http`.
+	const socket = io(`ws://${host}:${port}`, {
+		path: "/",
+		transports: ["websocket"],
 		auth: { room },
 	});
 
@@ -43,7 +46,7 @@ export function createClient(config: ClientConfig): SocketClient {
 		event: string,
 		data: any,
 		room?: ClientType[],
-		callback?: (response: any) => void
+		callback?: (response: any) => void,
 	): SocketClient {
 		if (room) {
 			room.forEach((type) => {

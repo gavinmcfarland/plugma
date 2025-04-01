@@ -1,6 +1,8 @@
 <script lang="ts">
 	import ServerStatus from "../shared/components/ServerStatus.svelte";
 	import { monitorUrl } from "../shared/lib/monitorUrl";
+	// import { initializeWsClient } from "../shared/stores";
+	import io from "socket.io-client";
 
 	import { setBodyStyles } from "./lib/setBodyStyles";
 
@@ -15,12 +17,13 @@
 	import { getRoom } from "../shared/lib/getRoom";
 
 	// @ts-ignore
-	import { createClient } from "plugma/client";
+	// import { createClient } from "plugma/client";
 
 	import { relayFigmaMessages } from "./lib/relayFigmaMessages";
 	import { getClassesAndStyles } from "./lib/getClassesAndStyles";
 	import { observeChanges } from "./lib/observeChanges";
-
+	import { redirectIframe } from "./lib/redirectIframe";
+	import { devServerIframe } from "../shared/stores";
 	let iframe: HTMLIFrameElement;
 	const html = document.querySelector("html");
 
@@ -30,35 +33,51 @@
 	let isServerActive = true;
 
 	onMount(async () => {
+		// Store the iframe on mount
+		devServerIframe.set(iframe);
 		// NOTE: Messaging must be setup first so that it's ready to receive messages from iframe
 		// NOTE: Because source is not passed through it will appear as "unknown" in the client list
-		// let ws = setupWebSocket(iframe, window.runtimeData.websockets);
+		// const wsClient = initializeWsClient(getRoom(), window.runtimeData.port);
 
-		const wsClient = createClient({
-			room: getRoom(),
-			port: window.runtimeData.port,
+		// console.log("wsClient", wsClient.connected);
+
+		// wsClient.on("connect", () => {
+		// 	console.log("Socket connected!", wsClient.id);
+		// });
+
+		const socket = io(
+			`ws://localhost:${Number(window.runtimeData.port + 1)}`,
+			{
+				path: "/",
+				transports: ["websocket"],
+				auth: { room: getRoom() },
+			},
+		);
+
+		socket.on("connect", () => {
+			console.log("Socket connected!", socket.id);
 		});
 
 		// Move redirecting iframe higher up because some messages were not being recieved due to iframe not being redirected in time (do i need to consider queing messages?)
-		iframe.src = new URL(url).href;
-		relayFigmaMessages(wsClient);
+		// redirectIframe(url);
+		// relayFigmaMessages(wsClient);
 
-		monitorUrl(url, iframe, (isActive) => {
-			isServerActive = isActive;
-		});
-		setBodyStyles();
-		await monitorDeveloperToolsStatus();
-		await triggerDeveloperTools();
-		// redirecting iframe used to be here
-		// await redirectIframe(iframe, url)
+		// monitorUrl(url, iframe, (isActive) => {
+		// 	isServerActive = isActive;
+		// });
+		// setBodyStyles();
+		// await monitorDeveloperToolsStatus();
+		// await triggerDeveloperTools();
+		// // redirecting iframe used to be here
+		// // await redirectIframe(iframe, url)
 
-		// Needs to occur without waiting for websocket to open
-		observeChanges(wsClient);
+		// // Needs to occur without waiting for websocket to open
+		// observeChanges(wsClient);
 
-		wsClient.on("connect", () => {
-			// observeChanges(ws)
-			getClassesAndStyles(wsClient);
-		});
+		// wsClient.on("connect", () => {
+		// 	// observeChanges(ws)
+		// 	getClassesAndStyles(wsClient);
+		// });
 	});
 </script>
 

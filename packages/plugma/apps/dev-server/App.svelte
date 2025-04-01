@@ -4,7 +4,7 @@
 	// @ts-ignore
 	import { createClient } from "plugma/client";
 
-	import { pluginWindowClients } from "../shared/stores";
+	import { pluginWindowClients, initializeWsClient } from "../shared/stores";
 
 	import { monitorUrl } from "../shared/lib/monitorUrl";
 	import { triggerDeveloperTools } from "../shared/lib/triggerDeveloperTools";
@@ -28,10 +28,7 @@
 	let isServerActive = false;
 
 	// let ws = setupWebSocket(null, window.runtimeData.websockets, true);
-	let wsClient = createClient({
-		room: getRoom(),
-		port: window.runtimeData.port,
-	});
+	let wsClient = initializeWsClient(getRoom(), window.runtimeData.port);
 
 	let url = `http://localhost:${window.runtimeData.port}`;
 

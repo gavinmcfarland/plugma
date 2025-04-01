@@ -1,12 +1,12 @@
 import { addMessageListener } from "../../shared/lib/addMessageListener";
 import { postMessageVia } from "../../shared/lib/postMessageVia";
 
-// Pass messages between parent and plugin window wrapper iframe
-export function relayFigmaMessages(client) {
+// Pass messages between main and figma-bridge iframe
+export function relayFigmaMessages(client: any) {
 	// If message received from window
 	addMessageListener(
 		{ client, enableWebSocket: window.runtimeData.websockets },
-		["window"],
+		"window",
 		(event) => {
 			// If message received from figma for to iframe and browser
 			if (event.origin === "https://www.figma.com") {
