@@ -7,8 +7,10 @@ import { addMessageListener } from '../../shared/lib/addMessageListener'
  */
 
 export function listenForFigmaStyles() {
+	const isInIframe = window.self !== window.top
 	const html = document.querySelector('html')
 	const handleMessage = (event: any) => {
+		console.log('--- listenForFigmaStyles', event)
 		const message = event.data.pluginMessage
 
 		if (message.type === 'FIGMA_HTML_CLASSES' && html) {
@@ -33,5 +35,9 @@ export function listenForFigmaStyles() {
 		}
 	}
 
-	addMessageListener('window', handleMessage)
+	if (isInIframe) {
+		addMessageListener('window', handleMessage)
+	} else {
+		addMessageListener('ws', handleMessage)
+	}
 }

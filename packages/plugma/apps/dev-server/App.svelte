@@ -34,13 +34,17 @@
 		const socket = initializeWsClient(getRoom(), window.runtimeData.port)
 
 		socket.on('connect', () => {
-			console.log('Socket connected!', socket.id)
+			console.log('Socket connected!!!', socket.id)
 			isWebsocketServerActive = true
 			// getFigmaStyles();
 		})
 
+		socket.on('connection', (event: any, data: any) => {
+			console.log('--- socket.onAny', event, data)
+		})
+
 		socket.on('disconnect', () => {
-			console.log('Socket disconnected!', socket.id)
+			console.log('Socket disconnected!!!', socket.id)
 			isWebsocketServerActive = false
 		})
 	}

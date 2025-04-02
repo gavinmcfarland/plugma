@@ -26,17 +26,17 @@ export function postMessageVia(via: string | string[], message: any) {
 		} else if (method === 'parent' && window.parent) {
 			// Only send message to figma if message not from figma
 			// FIXME: Should websocket server even be sending this message to figma?
-			if (message.from !== 'figma') {
-				console.log(
-					'%c[main      ] %c←←← %c[ui:iframe ]',
-					'color: initial;',
-					'color: red;',
-					'color: initial;',
-					message,
-				)
+			// if (message.from !== 'figma') {
+			console.log(
+				'%c[main      ] %c←←← %c[ui:iframe ]',
+				'color: initial;',
+				'color: red;',
+				'color: initial;',
+				message,
+			)
 
-				window.parent.postMessage(message, '*')
-			}
+			window.parent.postMessage(message, '*')
+			// }
 		} else if (method === 'ws') {
 			// if (enableWebSocket === true || enableWebSocket === null) {
 			if (client) {
@@ -51,7 +51,7 @@ export function postMessageVia(via: string | string[], message: any) {
 						)
 					} else {
 						console.log(
-							'%c[main      ] %c←←← %c[ui:browser]',
+							'%c[ui:figma  ] %c←←← %c[ui:browser]',
 							'color: initial;',
 							'color: red;',
 							'color: initial;',

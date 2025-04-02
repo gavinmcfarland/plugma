@@ -17,7 +17,6 @@
 	// import { createClient } from "plugma/client";
 
 	import { relayFigmaMessages } from './lib/relayFigmaMessages'
-	import { getClassesAndStyles } from './lib/getClassesAndStyles'
 	import { observeAndPostFigmaStyles } from './lib/observeAndPostFigmaStyles'
 	import { redirectIframe } from './lib/redirectIframe'
 	import { devServerIframe } from '../shared/stores'

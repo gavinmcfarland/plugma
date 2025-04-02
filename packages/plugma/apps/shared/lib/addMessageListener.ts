@@ -6,6 +6,9 @@ export function addMessageListener(via: string, callback: (event: MessageEvent) 
 	const enableWebSocket = get(wsEnabled)
 	const socket = get(wsClientStore)
 	const isInsideIframe = window.self !== window.top
+
+	console.log('--- addMessageListener', via)
+
 	if (via === 'window') {
 		window.addEventListener('message', callback)
 	} else if (via === 'parent' && window.parent) {
@@ -20,10 +23,10 @@ export function addMessageListener(via: string, callback: (event: MessageEvent) 
 			try {
 				const newEvent = { ...event, data: data.message }
 
-				// Only show if not in iframe (ie in browser)
+				// // Only show if not in iframe (ie in browser)
 				if (!isInsideIframe) {
 					console.log(
-						'%c[main      ] %c→→→ %c[ui:browser]',
+						'%c[ui:browser] %c→→→ %c[ui:figma  ]',
 						'color: initial;',
 						'color: green;',
 						'color: initial;',
