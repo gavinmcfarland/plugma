@@ -1,15 +1,11 @@
-import type {
-	GetTaskTypeFor,
-	PluginOptions,
-	ResultsOfTask,
-} from "#core/types.js";
-import { Logger } from "#utils/log/logger.js";
-import { createSocketServer } from "#core/websockets/server.js";
-import { GetFilesTask } from "../common/get-files.js";
-import { task } from "../runner.js";
-import http from "http";
+import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '#core/types.js'
+import { Logger } from '#utils/log/logger.js'
+import { createSocketServer } from '#core/websockets/server.js'
+import { GetFilesTask } from '../common/get-files.js'
+import { task } from '../runner.js'
+import http from 'http'
 
-const logger = new Logger();
+const logger = new Logger()
 
 /**
  * Gets the WebSocket server port from options or environment
@@ -17,10 +13,10 @@ const logger = new Logger();
  * @returns Configured port number
  */
 const getWebSocketPort = (options: PluginOptions): number => {
-	const defaultPort = 8080;
-	const port = options.port || process.env.PORT || defaultPort;
-	return Number(port) + 1; // WebSocket server runs on port + 1
-};
+	const defaultPort = 8080
+	const port = options.port || process.env.PORT || defaultPort
+	return Number(port) + 1 // WebSocket server runs on port + 1
+}
 
 /**
  * Task that starts the WebSocket server and routes messages to the correct client.
@@ -32,58 +28,47 @@ const getWebSocketPort = (options: PluginOptions): number => {
  * @returns WebSocket server instance
  * @throws Error if server fails to start
  */
-export const startWebSocketsServer = async (
-	options: PluginOptions,
-	context: ResultsOfTask<GetFilesTask>,
-) => {
+export const startWebSocketsServer = async (options: PluginOptions, context: ResultsOfTask<GetFilesTask>) => {
 	try {
-		const port = getWebSocketPort(options);
+		const port = getWebSocketPort(options)
 
-		const wss = http.createServer();
+		const wss = http.createServer()
 
 		// Create and configure WebSocket server
 		const io = createSocketServer({
 			server: wss,
 			serverOptions: {
-				path: "/",
+				path: '/',
 			},
-		});
+		})
 
 		wss.listen(port, () => {
-			console.log(
-				"✔︎ SUCCESS: WebSocket server listening on port",
-				port,
-			);
-		});
+			console.log('✔︎ SUCCESS: WebSocket server listening on port', port)
+		})
 
-		io.on("connection", (socket) => {
-			const room = socket.handshake.auth.room;
-			console.log("A user connected:", socket.id, room);
+		io.on('connection', (socket) => {
+			const room = socket.handshake.auth.room
+			console.log('A user connected:', socket.id, room)
 
-			socket.on("message", (data) => {
-				console.log("Received message:", data);
-				io.emit("message", data);
-			});
+			socket.on('message', (data) => {
+				console.log('Received message:', data)
+				io.emit('message', data)
+			})
 
-			socket.on("disconnect", () => {
-				console.log("User disconnected:", socket.id);
-			});
-		});
+			socket.on('disconnect', () => {
+				console.log('User disconnected:', socket.id)
+			})
+		})
 
-		return io;
+		return io
 	} catch (error) {
-		logger.error("Failed to start WebSocket server:", error);
-		throw error;
+		logger.error('Failed to start WebSocket server:', error)
+		throw error
 	}
-};
+}
 
-export const StartWebSocketsServerTask = task(
-	"server:websocket",
-	startWebSocketsServer,
-);
+export const StartWebSocketsServerTask = task('server:websocket', startWebSocketsServer)
 
-export type StartWebSocketsServerTask = GetTaskTypeFor<
-	typeof StartWebSocketsServerTask
->;
+export type StartWebSocketsServerTask = GetTaskTypeFor<typeof StartWebSocketsServerTask>
 
-export default StartWebSocketsServerTask;
+export default StartWebSocketsServerTask

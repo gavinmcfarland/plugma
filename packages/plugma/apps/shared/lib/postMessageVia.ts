@@ -44,9 +44,8 @@ export function postMessageVia(via: string | string[], message: any) {
 							message,
 						)
 
-						const encodedMessage = encodeMessage(message)
-
-						client.onAny(encodedMessage)
+						// Replace emitAny with emit and specify an event name
+						client.emit('message', message)
 					} catch (error) {
 						console.log('1', error)
 					}
