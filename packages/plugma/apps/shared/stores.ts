@@ -22,8 +22,13 @@ export function initializeWsClient(room: string, port: number) {
 	port = Number(port + 1);
 	console.log("initializing ws client", room, port);
 	const wsClient = createClient({
+		url: "ws://localhost",
 		room,
 		port,
+		serverOptions: {
+			path: "/",
+			transports: ["websocket"],
+		},
 	});
 	wsClientStore.set(wsClient);
 	return wsClient;

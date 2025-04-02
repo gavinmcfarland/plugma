@@ -5,9 +5,9 @@ import type {
 } from "#core/types.js";
 import { Logger } from "#utils/log/logger.js";
 import { createSocketServer } from "#core/websockets/server.js";
-import { exportHttpServer } from "./http.js";
 import { GetFilesTask } from "../common/get-files.js";
 import { task } from "../runner.js";
+import http from "http";
 
 const logger = new Logger();
 
@@ -39,14 +39,38 @@ export const startWebSocketsServer = async (
 	try {
 		const port = getWebSocketPort(options);
 
-		const { httpServer, wss } = exportHttpServer(port);
+		const wss = http.createServer();
 
 		// Create and configure WebSocket server
-		const server = createSocketServer({
+		const io = createSocketServer({
 			server: wss,
+			serverOptions: {
+				path: "/",
+			},
 		});
 
-		return server;
+		wss.listen(port, () => {
+			console.log(
+				"✔︎ SUCCESS: WebSocket server listening on port",
+				port,
+			);
+		});
+
+		io.on("connection", (socket) => {
+			const room = socket.handshake.auth.room;
+			console.log("A user connected:", socket.id, room);
+
+			socket.on("message", (data) => {
+				console.log("Received message:", data);
+				io.emit("message", data);
+			});
+
+			socket.on("disconnect", () => {
+				console.log("User disconnected:", socket.id);
+			});
+		});
+
+		return io;
 	} catch (error) {
 		logger.error("Failed to start WebSocket server:", error);
 		throw error;

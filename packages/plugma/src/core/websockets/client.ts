@@ -1,4 +1,4 @@
-import { io, Socket } from "socket.io-client";
+import { io, ManagerOptions, Socket, SocketOptions } from "socket.io-client";
 import chalk from "chalk";
 
 type ClientType = "figma" | "dev-server" | "test";
@@ -19,9 +19,10 @@ export interface SocketClient extends Omit<Socket, "emit"> {
  * Configuration options for creating a client
  */
 export interface ClientConfig {
+	url: string;
 	room: string;
 	port?: number;
-	host?: string;
+	serverOptions?: Partial<ManagerOptions & SocketOptions>;
 }
 
 /**
@@ -31,15 +32,14 @@ export interface ClientConfig {
  * @returns A proxied client instance with all Socket methods plus custom functionality
  */
 export function createClient(config: ClientConfig): SocketClient {
-	const { room, port = 8080, host = "localhost" } = config;
+	const { url, room, port = 8080, serverOptions } = config;
 
 	console.log(chalk.cyan(`\n⚡ Starting ${room} Client...\n`));
 
 	// Configured to use `ws` protocol. Can be changed to `http`.
-	const socket = io(`ws://${host}:${port}`, {
-		path: "/",
-		transports: ["websocket"],
+	const socket = io(`${url}:${port}`, {
 		auth: { room },
+		...serverOptions,
 	});
 
 	function emit(

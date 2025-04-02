@@ -45,14 +45,15 @@
 		// 	console.log("Socket connected!", wsClient.id);
 		// });
 
-		const socket = io(
-			`ws://localhost:${Number(window.runtimeData.port + 1)}`,
-			{
-				path: "/",
-				transports: ["websocket"],
-				auth: { room: getRoom() },
-			},
-		);
+		const wsUrl = `ws://localhost:${Number(window.runtimeData.port + 1)}`;
+
+		console.log("wsUrl", wsUrl);
+
+		const socket = io(wsUrl, {
+			path: "/",
+			transports: ["websocket"],
+			auth: { room: getRoom() },
+		});
 
 		socket.on("connect", () => {
 			console.log("Socket connected!", socket.id);

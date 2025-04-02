@@ -9,7 +9,8 @@
         "preview": "vite preview",
         "check": "svelte-check --tsconfig ./tsconfig.json",
         "monitor": "tsx watch src/cli/monitor.ts",
-        "start": "node scripts/start.js"
+        "start": "node scripts/start.js",
+        "start:websocket-server": "tsx ../../src/tasks/server/websocket.ts"
     },
     "devDependencies": {
         "@sveltejs/vite-plugin-svelte": "^3.0.0",

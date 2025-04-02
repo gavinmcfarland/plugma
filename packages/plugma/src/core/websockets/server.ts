@@ -42,7 +42,6 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 		cors: cors ?? {
 			origin: "*",
 		},
-		path: "/ws",
 		...serverOptions,
 	});
 
