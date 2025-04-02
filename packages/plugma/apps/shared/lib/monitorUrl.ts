@@ -1,112 +1,95 @@
-import { tick } from 'svelte';
-import { isLocalhostWithoutPort } from '../stores';
+import { tick } from 'svelte'
+import { isLocalhostWithoutPort } from '../stores'
+import { get } from 'svelte/store'
 
-export function monitorUrl(url, iframe, onStatusChange) {
-  const interval = 1000;
-  let isServerActive = true; // Start as true
+/**
+ * Monitors a URL for availability and updates UI accordingly
+ */
+export function monitorUrl(url: string, onStatusChange: (isDevServerActive: boolean) => void) {
+	const POLLING_INTERVAL = 1000
+	let isDevServerActive = true
 
-  async function checkUrl() {
-    const appElement = document.getElementById('app'); // Select the element with id 'app'
+	/**
+	 * Updates the UI based on server status
+	 */
+	async function updateUIState(newActiveState: boolean) {
+		const appElement = document.getElementById('app')
 
-    try {
-      const response = await fetch(url);
+		if (isDevServerActive === newActiveState) return
 
-      // Server is reachable
-      if (response.ok && !isServerActive) {
-        isServerActive = true;
-        if (appElement) {
-          appElement.style.display = 'block'; // Show the element when the server is active
-        }
+		isDevServerActive = newActiveState
+		if (appElement) {
+			appElement.style.display = newActiveState ? 'block' : 'none'
+		}
 
-        await tick(); // Ensures the DOM updates when `isServerActive` changes
-        onStatusChange(isServerActive); // Call the external function with the new status
-      }
-      // Server is unreachable but no error was thrown (e.g., non-2xx status)
-      else if (!response.ok && isServerActive) {
-        isServerActive = false;
-        appElement.style.display = 'none'; // Hide the element when the server is not active
-        await tick();
-        onStatusChange(isServerActive);
-      }
-    } catch (error) {
-      console.error(error);
-      // If fetch fails, set isServerActive to false if it isn't already
-      if (isServerActive) {
-        isServerActive = false;
-        if (appElement) {
-          appElement.style.display = 'none'; // Hide the element if the server is down
-        }
-        await tick();
-        onStatusChange(isServerActive); // Call the external function with the new status
-      }
-    }
-  }
+		await tick()
+		onStatusChange(isDevServerActive)
+	}
 
-  // Trigger initial state update, so the DOM reflects that the server is active
-  onStatusChange(isServerActive);
+	/**
+	 * Checks if the URL is reachable and updates state accordingly
+	 */
+	async function checkUrl() {
+		try {
+			const response = await fetch(url)
+			await updateUIState(response.ok)
+		} catch (error) {
+			console.error('Server check failed:', error)
+			await updateUIState(false)
+		}
+	}
 
-  function hasMatchingLocalhostOrWildcard() {
-    if (
-      !window.runtimeData ||
-      !window.runtimeData.manifest ||
-      !window.runtimeData.manifest.networkAccess ||
-      !window.runtimeData.manifest.networkAccess.devAllowedDomains
-    ) {
-      console.warn(
-        'networkAccess.devAllowedDomains is not defined or is not an array',
-      );
-      return false;
-    }
+	/**
+	 * Validates if manifest.networkAccess.devAllowedDomains configuration is valid
+	 */
+	function hasValidLocalhostConfig(): boolean {
+		const { runtimeData } = window
 
-    const { devAllowedDomains } = window.runtimeData.manifest.networkAccess;
+		if (!runtimeData?.manifest?.networkAccess?.devAllowedDomains) {
+			console.warn('networkAccess.devAllowedDomains is not defined or is not an array')
+			return false
+		}
 
-    // Return false if any domain matches the exclusion criteria
-    const isExcluded = devAllowedDomains.some((domain) => {
-      // Check for a global wildcard "*", which should pass (do not exclude)
-      if (domain === '*') {
-        return false;
-      }
+		const { devAllowedDomains } = runtimeData.manifest.networkAccess
 
-      // Check for HTTP/HTTPS localhost entries with wildcard ports (e.g., http://localhost:*)
-      const wildcardPortPattern =
-        /^(http:\/\/localhost|https:\/\/localhost):\*$/;
-      if (wildcardPortPattern.test(domain)) {
-        return false;
-      }
+		// Return false if any domain matches the exclusion criteria
+		const isExcluded = devAllowedDomains.some((domain) => {
+			// Allow global wildcard
+			if (domain === '*') return false
 
-      // Check for localhost entries with a specific port (e.g., http://localhost:4000)
-      const httpLocalhostWithPort = `http://localhost:${window.runtimeData.port}`;
-      const httpsLocalhostWithPort = `https://localhost:${window.runtimeData.port}`;
-      if (
-        domain === httpLocalhostWithPort ||
-        domain === httpsLocalhostWithPort
-      ) {
-        return false;
-      }
+			// Allow localhost with wildcard ports
+			const wildcardPortPattern = /^https?:\/\/localhost:\*$/
+			if (wildcardPortPattern.test(domain)) return false
 
-      // Ignore any non-HTTP/HTTPS localhost domains, such as ws://
-      if (
-        !domain.startsWith('http://localhost') &&
-        !domain.startsWith('https://localhost')
-      ) {
-        return false;
-      }
+			// Allow localhost with specific port
+			const currentPort = window.runtimeData.port
+			const localhostWithPort = [`http://localhost:${currentPort}`, `https://localhost:${currentPort}`]
+			if (localhostWithPort.includes(domain)) return false
 
-      // If it's an HTTP/HTTPS localhost without a port, mark it as excluded (true)
-      return true;
-    });
+			// Ignore non-HTTP/HTTPS localhost domains
+			if (!domain.startsWith('http://localhost') && !domain.startsWith('https://localhost')) {
+				return false
+			}
 
-    // If no exclusions matched, return true; otherwise, return false
-    return !isExcluded;
-  }
+			// Exclude HTTP/HTTPS localhost without port
+			return true
+		})
 
-  // Check the URL immediately
-  if (hasMatchingLocalhostOrWildcard()) {
-    isLocalhostWithoutPort.set(false);
-    checkUrl();
-    // Continue checking at the specified interval
-    setInterval(checkUrl, interval);
-  } else {
-    isLocalhostWithoutPort.set(true);
-  }
+		return !isExcluded
+	}
+
+	// Initialize monitoring
+	function initializeMonitoring() {
+		if (hasValidLocalhostConfig()) {
+			isLocalhostWithoutPort.set(false)
+			checkUrl()
+			setInterval(checkUrl, POLLING_INTERVAL)
+		} else {
+			isLocalhostWithoutPort.set(true)
+		}
+	}
+
+	// Start monitoring
+	onStatusChange(isDevServerActive)
+	initializeMonitoring()
 }

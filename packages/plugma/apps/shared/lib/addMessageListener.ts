@@ -1,16 +1,13 @@
 import { decodeMessage } from "./decodeMessage";
+import { wsEnabled, wsClientStore } from "../stores";
+import { get } from "svelte/store";
 
 export function addMessageListener(
-	{
-		client,
-		enableWebSocket,
-	}: {
-		client: any;
-		enableWebSocket: boolean;
-	},
 	via: string,
 	callback: (event: MessageEvent) => void,
 ) {
+	const enableWebSocket = get(wsEnabled);
+	const socket = get(wsClientStore);
 	if (via === "window") {
 		window.addEventListener("message", callback);
 	} else if (via === "parent" && window.parent) {
@@ -20,7 +17,7 @@ export function addMessageListener(
 			}
 		});
 	} else if (via === "ws" && enableWebSocket) {
-		client.onAny((event) => {
+		socket.onAny((event: any) => {
 			try {
 				const parsedData = decodeMessage(event.data);
 				const newEvent = { ...event, data: parsedData };

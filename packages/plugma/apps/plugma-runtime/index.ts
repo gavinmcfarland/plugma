@@ -18,13 +18,13 @@ import {
 	handleMaximizeWindow,
 	handleMinimizeWindow,
 	handleSaveWindowSettings,
-} from "./handlers/index.js";
+} from './handlers/index.js'
 
-import type { PlugmaRuntimeData } from "./types.js";
+import type { PlugmaRuntimeData } from '../shared/types.js'
 
 // NOTE: the comment must come after the declare stmt
 // otherwise tsc will remove it
-export declare const runtimeData: PlugmaRuntimeData;
+export declare const runtimeData: PlugmaRuntimeData
 
 /**
  * Global runtime data
@@ -33,7 +33,7 @@ export declare const runtimeData: PlugmaRuntimeData;
  */
 /*--[ RUNTIME_DATA ]--*/
 
-export * from "./figma-api-interceptors";
+export * from './figma-api-interceptors'
 
 /**
  * Map of event handlers for window management
@@ -45,16 +45,16 @@ const windowHandlers = {
 	[handleSaveWindowSettings.EVENT_NAME]: handleSaveWindowSettings,
 	[handleDeleteRootPluginData.EVENT_NAME]: handleDeleteRootPluginData,
 	[handleDeleteClientStorage.EVENT_NAME]: handleDeleteClientStorage,
-} as const;
+} as const
 
 // // Import test message handlers
 // // Couldn't move this from src/testing/test. Not sure why.
 // import "../../src/testing/figma/handlers.js";
 
 // Set up message listener for window management
-figma.ui.on("message", async (msg) => {
-	const handler = windowHandlers[msg.event as keyof typeof windowHandlers];
+figma.ui.on('message', async (msg) => {
+	const handler = windowHandlers[msg.event as keyof typeof windowHandlers]
 	if (handler) {
-		await Promise.resolve(handler(msg));
+		await Promise.resolve(handler(msg))
 	}
-});
+})

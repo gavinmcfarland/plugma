@@ -1,36 +1,29 @@
-import { postMessageVia } from "../../shared/lib/postMessageVia";
+import { postMessageVia } from '../../shared/lib/postMessageVia'
+
+/**
+ * When the UI is being previewed in the browser, postMessage calls need to be forwarded to the websocket server
+ * because the window in this context isn't inside the Figma plugin iframe. Posting a message to window would send
+ * it to itself in this case, so we need to relay it to Figma instead.
+ */
 
 export function interceptPostMessage() {
-	const isInsideIframe = window.self !== window.top;
-	const isInsideFigma = typeof figma !== "undefined";
+	const isInsideIframe = window.self !== window.top
 
-	// Override postMessage if not inside iframe or Figma
-	if (!(isInsideIframe || isInsideFigma)) {
+	// Override postMessage if not inside iframe
+	if (!isInsideIframe) {
 		// Store the original postMessage function
-		const originalPostMessage = window.postMessage;
+		const originalPostMessage = window.postMessage
 
-		window.postMessage = function (message, targetOrigin, transfer) {
-			// console.log('intercept message', message)
-			// Intercept and log the message
-			// let messageId = nanoid()
-			// Check if this message has already been processed
-			// if (!processedMessages.has(messageId)) {
-			// processedMessages.add(messageId)
+		window.postMessage = function (
+			message: any,
+			targetOriginOrOptions?: string | WindowPostMessageOptions,
+			transfer?: Transferable[],
+		) {
+			postMessageVia(['ws'], message)
 
-			postMessageVia(
-				{
-					iframeTarget: iframe,
-					client,
-					enableWebSocket: window.runtimeData.websockets,
-				},
-				["ws"],
-				message,
-			);
-			// }
-
-			return null;
+			return null
 			// // Call the original postMessage to maintain functionality
 			// originalPostMessage.call(window, message, targetOrigin, transfer)
-		};
+		}
 	}
 }
