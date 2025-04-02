@@ -50,11 +50,6 @@ export const startWebSocketsServer = async (options: PluginOptions, context: Res
 			const room = socket.handshake.auth.room
 			console.log('A user connected:', socket.id, room)
 
-			socket.on('message', (data) => {
-				console.log('Received message:', data)
-				io.emit('message', data)
-			})
-
 			socket.on('disconnect', () => {
 				console.log('User disconnected:', socket.id)
 			})

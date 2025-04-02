@@ -11,8 +11,6 @@ export function listenForFigmaStyles() {
 	const handleMessage = (event: any) => {
 		const message = event.data.pluginMessage
 
-		console.log('listen for styles', message)
-
 		if (message.type === 'FIGMA_HTML_CLASSES' && html) {
 			html.className = message.data
 

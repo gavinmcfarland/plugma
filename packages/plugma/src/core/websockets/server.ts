@@ -1,31 +1,27 @@
-import { Server, ServerOptions } from "socket.io";
-import chalk from "chalk";
-import type { Server as HttpServer } from "node:http";
-import { WebSocketServer } from "ws";
+import { Server, ServerOptions } from 'socket.io'
+import chalk from 'chalk'
+import type { Server as HttpServer } from 'node:http'
+import { WebSocketServer } from 'ws'
 
 /**
  * Interface defining the methods available on the server
  * Extends Socket.IO Server to include any custom methods
  */
-export interface SocketServer extends Omit<Server, "emit"> {
+export interface SocketServer extends Omit<Server, 'emit'> {
 	// Add custom emit method signature if needed
-	emit: (
-		event: string,
-		data: any,
-		callback?: (response: any) => void,
-	) => SocketServer;
+	emit: (event: string, data: any, callback?: (response: any) => void) => SocketServer
 }
 
 /**
  * Configuration options for creating a server
  */
 export interface ServerConfig {
-	server: HttpServer | WebSocketServer;
+	server: HttpServer | WebSocketServer
 	cors?: {
-		origin: string | string[];
-		credentials?: boolean;
-	};
-	serverOptions?: Partial<ServerOptions>;
+		origin: string | string[]
+		credentials?: boolean
+	}
+	serverOptions?: Partial<ServerOptions>
 }
 
 /**
@@ -34,16 +30,16 @@ export interface ServerConfig {
  * @returns A proxied Socket.IO server instance with custom functionality
  */
 export function createSocketServer(config: ServerConfig): SocketServer {
-	const { server, cors, serverOptions = {} } = config;
+	const { server, cors, serverOptions = {} } = config
 
-	console.log(chalk.cyan(`\n⚡ Initializing Socket.IO Server...\n`));
+	console.log(chalk.cyan(`\n⚡ Initializing Socket.IO Server...\n`))
 
 	const io = new Server(server, {
 		cors: cors ?? {
-			origin: "*",
+			origin: '*',
 		},
 		...serverOptions,
-	});
+	})
 
 	/**
 	 * Middleware to handle room assignment for incoming socket connections
@@ -51,65 +47,55 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 	 * @param next - Middleware callback function
 	 */
 	function handleRoomAssignment(socket: any, next: (err?: Error) => void) {
-		const room = socket.handshake.auth.room;
+		const room = socket.handshake.auth.room
 		if (!room) {
-			return next(new Error("Room not provided"));
+			return next(new Error('Room not provided'))
 		}
-		socket.join(room);
-		next();
+		socket.join(room)
+		next()
 	}
 
 	// Assign a room to the client based on the source
-	io.use(handleRoomAssignment);
+	io.use(handleRoomAssignment)
 
 	// Connection handler for message routing
-	io.on("connection", (socket) => {
-		const from = socket.handshake.auth.room;
+	io.on('connection', (socket) => {
+		const from = socket.handshake.auth.room
 
 		/**
 		 * Handles routing of messages to appropriate rooms
 		 */
 		function handleMessageRouting(event: string, data: any) {
-			const { room, ...payload } = data;
+			const { room, ...payload } = data
+
+			let message = {
+				sender: socket.id,
+				from,
+				...payload,
+			}
 
 			if (room) {
 				if (Array.isArray(room)) {
 					// Emit to multiple rooms
 					for (const r of room) {
-						io.to(r).emit(event, {
-							sender: socket.id,
-							from,
-							...payload,
-						});
+						io.to(r).emit(event, message)
 					}
-					console.log(
-						`Event "${event}" sent to rooms [${room.join(
-							", ",
-						)}] with data:`,
-						payload,
-					);
+					console.log(`Event "${event}" sent to rooms [${room.join(', ')}] with message:`, message)
 				} else {
 					// Emit to a single room
-					io.to(room).emit(event, {
-						sender: socket.id,
-						from,
-						...payload,
-					});
-					console.log(
-						`Event "${event}" sent to room "${room}" with data:`,
-						payload,
-					);
+					io.to(room).emit(event, message)
+					console.log(`Event "${event}" sent to room "${room}" with message:`, message)
 				}
 			} else {
 				// Emit to all clients if no room is specified
-				io.emit(event, { sender: socket.id, ...payload });
-				console.log(`Event "${event}" broadcasted with data:`, payload);
+				io.emit(event, { message })
+				console.log(`Event "${event}" broadcasted with message:`, message)
 			}
 		}
 
 		// Set up event routing
-		socket.onAny(handleMessageRouting);
-	});
+		socket.onAny(handleMessageRouting)
+	})
 
 	// // Custom emit function
 	// function emit(
@@ -141,9 +127,9 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 			// if (prop === "emit") {
 			// 	return emit;
 			// }
-			return Reflect.get(room, prop, receiver);
+			return Reflect.get(room, prop, receiver)
 		},
-	});
+	})
 
-	return proxy;
+	return proxy
 }
