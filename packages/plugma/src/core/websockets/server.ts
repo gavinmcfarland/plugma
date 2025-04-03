@@ -78,7 +78,7 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 	 */
 	function emitRoomStats() {
 		const stats = getRoomStats()
-		console.log('Emitting ROOM_STATS to all clients:', stats)
+		// console.log('Emitting ROOM_STATS to all clients:', stats)
 		io.emit('ROOM_STATS', stats)
 	}
 
@@ -204,26 +204,26 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 					for (const r of room) {
 						if (hasOneSocketOrMore(r)) {
 							io.to(r).emit(event, data)
-							// console.log(`Event "${event}" sent to room "${r}" with message:`, data)
+							console.log(`Event "${event}" sent to room "${r}" with message:`, data)
 						} else {
 							queueMessage(r, event, data)
-							// console.log(`Event "${event}" queued for room "${r}" with message:`, data)
+							console.log(`Event "${event}" queued for room "${r}" with message:`, data)
 						}
 					}
 				} else {
 					// Handle single room
 					if (hasOneSocketOrMore(room)) {
 						io.to(room).emit(event, data)
-						// console.log(`Event "${event}" sent to room "${room}" with message:`, data)
+						console.log(`Event "${event}" sent to room "${room}" with message:`, data)
 					} else {
 						queueMessage(room, event, data)
-						// console.log(`Event "${event}" queued for room "${room}" with message:`, data)
+						console.log(`Event "${event}" queued for room "${room}" with message:`, data)
 					}
 				}
 			} else {
 				// Emit to all clients if no room is specified
 				io.emit(event, data)
-				// console.log(`Event "${event}" broadcasted with message:`, data)
+				console.log(`Event "${event}" broadcasted with message:`, data)
 			}
 		}
 

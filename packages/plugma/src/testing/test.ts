@@ -73,6 +73,7 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, testName: 
  * @param fn The test function to register
  */
 export const test: TestFn = async (name, fn) => {
+	console.log('test', name)
 	// In Node: Create a Vitest test that sends a message to Figma
 	return vitestTest(name, TEST_CONFIG, async () => {
 		logger.debug('Running test:', name)
@@ -84,19 +85,17 @@ export const test: TestFn = async (name, fn) => {
 		// TEST_RUN and TEST_ASSERTIONS (or TEST_ERROR) messages
 		const testRunId = `${name}-${Date.now()}`
 
-		socket.on('connect', () => {
-			console.log('-------socket id', socket.id)
+		socket.onAny((event, data) => {
+			console.log('-------socket id', socket.id, event, data)
 		})
 
 		socket.on('FILE_CHANGED', (file) => {
-			console.log('FILE_CHANGED', file)
+			socket.emit('RUN_TEST', {
+				testName: name,
+				testRunId,
+				room: 'figma',
+			})
 		})
-
-		// socket.emit('RUN_TEST', {
-		// 	testName: name,
-		// 	testRunId,
-		// 	room: 'test',
-		// })
 
 		// try {
 		// Emit RUN_TEST message

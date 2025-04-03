@@ -52,11 +52,7 @@ export async function test(options: TestCommandOptions): Promise<void> {
 		// Execute tasks in sequence
 		log.info('Executing test tasks...')
 
-		const results = await serial(
-			StartWebSocketsServerTask,
-			InitTestClientTask,
-			// RunVitestTask,
-		)(pluginOptions)
+		const results = await serial(StartWebSocketsServerTask, InitTestClientTask, RunVitestTask)(pluginOptions)
 
 		// // Get the test client instance
 		// const testClient = results["test:init-client"].client as TestClient;
