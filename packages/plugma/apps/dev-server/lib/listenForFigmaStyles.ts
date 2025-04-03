@@ -10,7 +10,6 @@ export function listenForFigmaStyles() {
 	const isInIframe = window.self !== window.top
 	const html = document.querySelector('html')
 	const handleMessage = (event: any) => {
-		console.log('--- listenForFigmaStyles', event)
 		const message = event.data.pluginMessage
 
 		if (message.type === 'FIGMA_HTML_CLASSES' && html) {

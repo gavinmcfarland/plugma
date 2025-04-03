@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ServerStatus from '../shared/components/ServerStatus.svelte'
 	import { monitorUrl } from '../shared/lib/monitorUrl'
-	import { initializeWsClient } from '../shared/stores'
+	import { initializeWsClient, isBrowserConnected } from '../shared/stores'
 	import io from 'socket.io-client'
 
 	import { setBodyStyles } from './lib/setBodyStyles'
@@ -40,8 +40,18 @@
 		// NOTE: Because source is not passed through it will appear as "unknown" in the client list
 		const socket = initializeWsClient(getRoom(), window.runtimeData.port)
 
-		socket.on('connect', () => {
-			console.log('Socket connected!', socket.id)
+		// Add room connection detection
+		socket.on('ROOM_JOINED', (room: any) => {
+			console.log('ROOM_JOINED', room)
+			if (room === 'browser') {
+				isBrowserConnected.set(true)
+			}
+		})
+
+		socket.on('ROOM_LEFT', (room: any) => {
+			if (room === 'browser') {
+				isBrowserConnected.set(false)
+			}
 		})
 
 		redirectIframe(devServerUIUrl)

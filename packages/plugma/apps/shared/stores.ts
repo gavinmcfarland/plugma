@@ -27,6 +27,7 @@ export const wsClientStore = writable<any>(null)
 
 export const wsEnabled = writable<boolean>(false)
 export const htmlStore = writable<HTMLDocument | null>(null)
+export const isBrowserConnected = writable<boolean>(false)
 
 export function initializeWsClient(room: string, port: number) {
 	port = Number(port + 1)

@@ -56,8 +56,6 @@ export function postMessageVia(via: string | string[], message: any | any[]) {
 							)
 						}
 
-						console.log('socket.emit', message)
-
 						client.emit('message', message)
 					} catch (error) {
 						console.log('1', error)

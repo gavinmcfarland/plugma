@@ -61,6 +61,10 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 			return next(new Error('Room not provided'))
 		}
 		socket.join(room)
+
+		console.log('room joined socket', socket.id, room)
+		// Emit room joined event to the specific room instead of broadcasting to all
+		// io.emit('ROOM_JOINED', { pluginMessage: room, socketId: socket.id })
 		next()
 	}
 
@@ -132,6 +136,7 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 
 		// Track rooms this socket joins
 		socket.on('join', (room) => {
+			console.log('join', room)
 			joinedRooms.add(room)
 		})
 
@@ -163,26 +168,26 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 					for (const r of room) {
 						if (hasOneSocketOrMore(r)) {
 							io.to(r).emit(event, message)
-							console.log(`Event "${event}" sent to room "${r}" with message:`, message)
+							// console.log(`Event "${event}" sent to room "${r}" with message:`, message)
 						} else {
 							queueMessage(r, event, message)
-							console.log(`Event "${event}" queued for room "${r}" with message:`, message)
+							// console.log(`Event "${event}" queued for room "${r}" with message:`, message)
 						}
 					}
 				} else {
 					// Handle single room
 					if (hasOneSocketOrMore(room)) {
 						io.to(room).emit(event, message)
-						console.log(`Event "${event}" sent to room "${room}" with message:`, message)
+						// console.log(`Event "${event}" sent to room "${room}" with message:`, message)
 					} else {
 						queueMessage(room, event, message)
-						console.log(`Event "${event}" queued for room "${room}" with message:`, message)
+						// console.log(`Event "${event}" queued for room "${room}" with message:`, message)
 					}
 				}
 			} else {
 				// Emit to all clients if no room is specified
 				io.emit(event, { message })
-				console.log(`Event "${event}" broadcasted with message:`, message)
+				// console.log(`Event "${event}" broadcasted with message:`, message)
 			}
 		}
 
@@ -195,6 +200,8 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 				if (!hasOneSocketOrMore(room)) {
 					messageQueues.delete(room)
 				}
+				// Emit room left event
+				// io.emit('ROOM_LEFT', { pluginMessage: room, socketId: socket.id })
 			})
 		})
 	})
