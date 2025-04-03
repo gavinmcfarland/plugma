@@ -39,10 +39,6 @@
 			getFigmaStyles()
 		})
 
-		socket.emit('GET_FIGMA_STYLES', (response: any) => {
-			console.log('Received styles:', response)
-		})
-
 		socket.on('disconnect', () => {
 			console.log('Socket disconnected!!!', socket.id)
 			isWebsocketServerActive = false

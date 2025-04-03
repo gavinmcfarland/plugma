@@ -60,11 +60,6 @@
 
 		await monitorDeveloperToolsStatus()
 		await triggerDeveloperTools()
-
-		// FIXME: Is this needed?
-		// socket.on('connect', () => {
-		// 	getClassesAndStyles(socket)
-		// })
 	})
 </script>
 
