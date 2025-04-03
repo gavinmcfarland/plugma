@@ -18,6 +18,7 @@
 
 	import { relayFigmaMessages } from './lib/relayFigmaMessages'
 	import { observeAndPostFigmaStyles } from './lib/observeAndPostFigmaStyles'
+	import { postFigmaStyles } from './lib/postFigmaStyles'
 	import { redirectIframe } from './lib/redirectIframe'
 	import { devServerIframe } from '../shared/stores'
 	let iframe: HTMLIFrameElement
@@ -46,6 +47,7 @@
 		redirectIframe(devServerUIUrl)
 		setBodyStyles()
 		relayFigmaMessages()
+		postFigmaStyles()
 
 		// For some reason messages sent from figma bridge to iframe are missed by the iframe message handler if we don't wait for the iframe to load
 		iframe.addEventListener('load', () => {

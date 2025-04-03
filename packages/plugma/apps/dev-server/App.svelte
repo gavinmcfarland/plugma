@@ -36,11 +36,11 @@
 		socket.on('connect', () => {
 			console.log('Socket connected!!!', socket.id)
 			isWebsocketServerActive = true
-			// getFigmaStyles();
+			getFigmaStyles()
 		})
 
-		socket.on('connection', (event: any, data: any) => {
-			console.log('--- socket.onAny', event, data)
+		socket.emit('GET_FIGMA_STYLES', (response: any) => {
+			console.log('Received styles:', response)
 		})
 
 		socket.on('disconnect', () => {

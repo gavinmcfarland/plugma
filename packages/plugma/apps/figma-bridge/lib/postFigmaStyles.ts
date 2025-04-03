@@ -1,7 +1,7 @@
 import { addMessageListener } from '../../shared/lib/addMessageListener'
 import { postMessageVia } from '../../shared/lib/postMessageVia'
 
-export function getClassesAndStyles() {
+export function postFigmaStyles() {
 	const html = document.querySelector('html')
 	const styleSheetElement = document.getElementById('figma-style')
 
