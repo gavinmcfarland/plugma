@@ -23,7 +23,8 @@
 
 	const isInsideIframe = window.self !== window.top
 
-	let isWebsocketServerActive = false
+	// Default to true to avoid flickering when browser first opens
+	let isWebsocketServerActive = true
 	let isWebsocketsEnabled = window.runtimeData.websockets || false
 	let isServerActive = false
 
