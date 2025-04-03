@@ -25,8 +25,6 @@ export function addMessageListener(via: string, callback: (event: MessageEvent) 
 				// const newEvent = { ...event, data: data.message }
 				const newEvent = { data }
 
-				console.log('addMessageListener', newEvent)
-
 				// // Only show if not in iframe (ie in browser)
 				if (!isInsideIframe) {
 					console.log(

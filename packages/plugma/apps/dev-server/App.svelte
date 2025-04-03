@@ -9,7 +9,7 @@
 	import { monitorUrl } from '../shared/lib/monitorUrl'
 	import { triggerDeveloperTools } from '../shared/lib/triggerDeveloperTools'
 	import { getRoom } from '../shared/lib/getRoom'
-
+	import { isFigmaConnected } from '../shared/stores'
 	import { listenForFigmaStyles } from './lib/listenForFigmaStyles'
 	import { getFigmaStyles } from './lib/getFigmaStyles'
 	import { applyStoredStyles } from './lib/applyStoredStyles'
@@ -30,14 +30,56 @@
 	// @ts-ignore
 	let devServerUIUrl = `http://localhost:${window.runtimeData.port}`
 
-	if (!isInsideIframe) {
-		const socket = initializeWsClient(getRoom(), window.runtimeData.port)
+	interface RoomStats {
+		room: string
+		connections: number
+	}
 
+	let lastConnectionState = false
+	let debounceTimeout: ReturnType<typeof setTimeout>
+
+	function handleRoomStats(data: RoomStats[]) {
+		console.log('handleRoomStats', data)
+		const figmaRoom = data.find((room) => room.room === 'figma')
+
+		if (!figmaRoom) {
+			console.log('figma disconnected - no figma room found')
+			updateConnectionState(false)
+			return
+		}
+
+		const isConnected = figmaRoom.connections > 0
+		console.log(isConnected ? 'figma connected' : 'figma disconnected')
+		updateConnectionState(isConnected)
+	}
+
+	function updateConnectionState(isConnected: boolean) {
+		// Clear any existing timeout
+		if (debounceTimeout) {
+			clearTimeout(debounceTimeout)
+		}
+
+		// Only update if the state is different from the last state
+		// To prevent flickering when plugin reopens due to hot reloading
+		if (isConnected !== lastConnectionState) {
+			debounceTimeout = setTimeout(() => {
+				isFigmaConnected.set(isConnected)
+				lastConnectionState = isConnected
+			}, 200) // 2 second delay
+		}
+	}
+
+	const socket = initializeWsClient(getRoom(), window.runtimeData.port)
+
+	// In the browser context
+	if (!isInsideIframe) {
 		socket.on('connect', () => {
 			console.log('Socket connected!!!', socket.id)
 			isWebsocketServerActive = true
 			getFigmaStyles()
 		})
+
+		socket.on('ROOM_STATS', handleRoomStats)
 
 		socket.on('disconnect', () => {
 			console.log('Socket disconnected!!!', socket.id)
@@ -61,7 +103,7 @@
 	})
 </script>
 
-<!-- {#if !isInsideIframe}
+{#if !isInsideIframe}
 	{#if isServerActive}
 		{#if !isWebsocketsEnabled}
 			<ServerStatus message="Websockets disababled" isConnected={isServerActive && isWebsocketServerActive} />
@@ -70,10 +112,10 @@
 				message="Connecting to websocket server..."
 				isConnected={isServerActive && isWebsocketServerActive}
 			/>
-		{:else if $pluginWindowClients.length < 1}
+		{:else if !$isFigmaConnected}
 			<ServerStatus message="Open plugin inside Figma" isConnected={isServerActive && isWebsocketServerActive} />
 		{/if}
 	{:else}
 		<ServerStatus isConnected={isServerActive && isWebsocketServerActive} />
 	{/if}
-{/if} -->
+{/if}

@@ -11,6 +11,7 @@ export let localClientId = writable(false)
 export const remoteClients = writable([])
 export const pluginWindowClients = writable([])
 export const isDeveloperToolsActive = writable(false)
+export const isFigmaConnected = writable(true)
 
 export const isLocalhostWithoutPort = writable(false) // Doesn't use a wildcard for the allowedDevDomain dev server
 

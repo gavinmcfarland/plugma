@@ -78,8 +78,8 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 	 */
 	function emitRoomStats() {
 		const stats = getRoomStats()
+		console.log('Emitting ROOM_STATS to all clients:', stats)
 		io.emit('ROOM_STATS', stats)
-		console.log('Room stats updated:', stats)
 	}
 
 	/**
@@ -94,16 +94,7 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 		}
 		socket.join(room)
 
-		console.log('room joined socket', socket.id, room)
-		// Emit room joined event to the specific room instead of broadcasting to all
-		const data = {
-			message: 'joined room',
-			who: room,
-		}
-		console.log('Event "ROOM_JOINED" emitted to all clients', data)
-		io.emit('ROOM_JOINED', data)
-
-		// Emit updated room stats
+		console.log('Room joined socket', socket.id, room)
 		emitRoomStats()
 
 		next()
@@ -175,11 +166,14 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 		const from = socket.handshake.auth.room
 		const joinedRooms = new Set<string>([from])
 
+		// Emit room stats immediately on connection
+		emitRoomStats()
+
 		// Track rooms this socket joins
 		socket.on('join', (room) => {
 			console.log('join', room)
 			joinedRooms.add(room)
-			emitRoomStats() // Emit updated stats when a socket joins a room
+			emitRoomStats()
 		})
 
 		// Process any queued messages when a socket connects to a room
@@ -210,26 +204,26 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 					for (const r of room) {
 						if (hasOneSocketOrMore(r)) {
 							io.to(r).emit(event, data)
-							console.log(`Event "${event}" sent to room "${r}" with message:`, data)
+							// console.log(`Event "${event}" sent to room "${r}" with message:`, data)
 						} else {
 							queueMessage(r, event, data)
-							console.log(`Event "${event}" queued for room "${r}" with message:`, data)
+							// console.log(`Event "${event}" queued for room "${r}" with message:`, data)
 						}
 					}
 				} else {
 					// Handle single room
 					if (hasOneSocketOrMore(room)) {
 						io.to(room).emit(event, data)
-						console.log(`Event "${event}" sent to room "${room}" with message:`, data)
+						// console.log(`Event "${event}" sent to room "${room}" with message:`, data)
 					} else {
 						queueMessage(room, event, data)
-						console.log(`Event "${event}" queued for room "${room}" with message:`, data)
+						// console.log(`Event "${event}" queued for room "${room}" with message:`, data)
 					}
 				}
 			} else {
 				// Emit to all clients if no room is specified
 				io.emit(event, data)
-				console.log(`Event "${event}" broadcasted with message:`, data)
+				// console.log(`Event "${event}" broadcasted with message:`, data)
 			}
 		}
 
@@ -242,16 +236,7 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 				if (!hasOneSocketOrMore(room)) {
 					messageQueues.delete(room)
 				}
-				// Emit room left event
-				const data = {
-					message: 'left room',
-					who: room,
-				}
-				console.log('Event "ROOM_LEFT" emitted to all clients', data)
-				io.emit('ROOM_LEFT', data)
 			})
-
-			// Emit updated room stats after disconnect
 			emitRoomStats()
 		})
 	})
