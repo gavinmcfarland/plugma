@@ -21,7 +21,7 @@ export function relayFigmaMessages() {
 	})
 
 	addMessageListener('ws', (event) => {
-		console.log('relayFigmaMessages from ws to main', event)
+		// Forwards message from ws to main
 		// If client receives message, forward (post) it to the parent
 		// TODO: Filter out messages sent by framework
 		postMessageVia(['parent'], event.data)

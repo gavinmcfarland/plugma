@@ -1,10 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
 
-	// @ts-ignore
-	import { createClient } from 'plugma/client'
-
-	import { pluginWindowClients, initializeWsClient } from '../shared/stores'
+	import { initializeWsClient } from '../shared/stores'
 
 	import { monitorUrl } from '../shared/lib/monitorUrl'
 	import { triggerDeveloperTools } from '../shared/lib/triggerDeveloperTools'
@@ -18,8 +15,6 @@
 	import { reimplementFigmaListeners } from './lib/reimplementFigmaListeners'
 
 	import ServerStatus from '../shared/components/ServerStatus.svelte'
-
-	const html = document.querySelector('html')
 
 	const isInsideIframe = window.self !== window.top
 
@@ -93,7 +88,7 @@
 	reimplementFigmaListeners()
 
 	interceptPostMessage() // Only applies to browser preview context
-	overrideMessageEvent()
+	overrideMessageEvent() // Only applies to browser preview context
 
 	$: monitorUrl(devServerUIUrl, (isDevServerActive: boolean) => {
 		isServerActive = isDevServerActive

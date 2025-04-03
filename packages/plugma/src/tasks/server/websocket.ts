@@ -19,6 +19,27 @@ const getWebSocketPort = (options: PluginOptions): number => {
 }
 
 /**
+ * Checks if a port is already in use
+ * @param port Port number to check
+ * @returns Promise that resolves to true if port is in use
+ */
+const isPortInUse = async (port: number): Promise<boolean> => {
+	return new Promise((resolve) => {
+		const server = http.createServer()
+		server.once('error', (err: NodeJS.ErrnoException) => {
+			if (err.code === 'EADDRINUSE') {
+				resolve(true)
+			}
+		})
+		server.once('listening', () => {
+			server.close()
+			resolve(false)
+		})
+		server.listen(port)
+	})
+}
+
+/**
  * Task that starts the WebSocket server and routes messages to the correct client.
  * The WebSocket server is used by `dev`, `preview` and `test` commands.
  * WebSockets is enabled by default for `preview` or `test` commands.
@@ -31,6 +52,13 @@ const getWebSocketPort = (options: PluginOptions): number => {
 export const startWebSocketsServer = async (options: PluginOptions, context: ResultsOfTask<GetFilesTask>) => {
 	try {
 		const port = getWebSocketPort(options)
+
+		// Check if port is already in use
+		const portInUse = await isPortInUse(port)
+		if (portInUse) {
+			logger.info(`WebSocket server already running on port ${port}, skipping server start`)
+			return null
+		}
 
 		const wss = http.createServer()
 

@@ -50,6 +50,10 @@
 		isBrowserConnected.set(isConnected)
 	}
 
+	function handleFileChanged(data: any) {
+		console.log('%cFILE_CHANGED', 'color: red', data)
+	}
+
 	onMount(async () => {
 		// Store the iframe on mount
 		devServerIframe.set(iframe)
@@ -60,6 +64,7 @@
 		const socket = initializeWsClient(getRoom(), window.runtimeData.port)
 
 		socket.on('ROOM_STATS', handleRoomStats)
+		socket.on('FILE_CHANGED', handleFileChanged)
 
 		redirectIframe(devServerUIUrl)
 		setBodyStyles()
