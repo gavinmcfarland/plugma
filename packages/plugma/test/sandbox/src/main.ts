@@ -16,9 +16,9 @@ export default function () {
 	})
 
 	figma.ui.onmessage = async (message) => {
-		if (message?.event !== 'ping' && message?.event !== 'pong') {
-			console.log('[FIGMA MAIN] Received message:', message)
-		}
+		// if (message?.event !== 'ping' && message?.event !== 'pong') {
+		// 	console.log('[FIGMA MAIN] Received message:', message)
+		// }
 
 		if (message.type === 'CREATE_RECTANGLES') {
 			let i = 0

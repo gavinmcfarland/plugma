@@ -31,6 +31,25 @@
 
 	wsEnabled.set(window.runtimeData.websockets)
 
+	interface RoomStats {
+		room: string
+		connections: number
+	}
+
+	function handleRoomStats(data: RoomStats[]) {
+		const browserRoom = data.find((room) => room.room === 'browser')
+
+		if (!browserRoom) {
+			console.log('browser disconnected - no browser room found')
+			isBrowserConnected.set(false)
+			return
+		}
+
+		const isConnected = browserRoom.connections > 0
+		console.log(isConnected ? 'browser connected' : 'browser disconnected')
+		isBrowserConnected.set(isConnected)
+	}
+
 	onMount(async () => {
 		// Store the iframe on mount
 		devServerIframe.set(iframe)
@@ -40,19 +59,7 @@
 		// NOTE: Because source is not passed through it will appear as "unknown" in the client list
 		const socket = initializeWsClient(getRoom(), window.runtimeData.port)
 
-		// Add room connection detection
-		socket.on('ROOM_JOINED', (room: any) => {
-			console.log('ROOM_JOINED', room)
-			if (room === 'browser') {
-				isBrowserConnected.set(true)
-			}
-		})
-
-		socket.on('ROOM_LEFT', (room: any) => {
-			if (room === 'browser') {
-				isBrowserConnected.set(false)
-			}
-		})
+		socket.on('ROOM_STATS', handleRoomStats)
 
 		redirectIframe(devServerUIUrl)
 		setBodyStyles()

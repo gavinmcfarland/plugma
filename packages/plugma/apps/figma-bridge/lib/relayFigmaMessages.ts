@@ -15,12 +15,13 @@ export function relayFigmaMessages() {
 		if (event.origin === 'https://www.figma.com') {
 			postMessageVia(['iframe', 'ws'], event.data)
 		} else {
-			// Otherwise, post message to parent
+			// If message receieved from iframe, send to main
 			postMessageVia(['parent'], event.data)
 		}
 	})
 
 	addMessageListener('ws', (event) => {
+		console.log('relayFigmaMessages from ws to main', event)
 		// If client receives message, forward (post) it to the parent
 		// TODO: Filter out messages sent by framework
 		postMessageVia(['parent'], event.data)

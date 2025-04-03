@@ -19,10 +19,13 @@ export function addMessageListener(via: string, callback: (event: MessageEvent) 
 		})
 	} else if (via === 'ws') {
 		// if (enableWebSocket) {
-		socket.onAny((event: any, data: any) => {
+		// Should this be onAny? or on('message')?
+		socket.on('message', (data: any) => {
 			try {
 				// const newEvent = { ...event, data: data.message }
-				const newEvent = { data: data.message }
+				const newEvent = { data }
+
+				console.log('addMessageListener', newEvent)
 
 				// // Only show if not in iframe (ie in browser)
 				if (!isInsideIframe) {
@@ -31,14 +34,14 @@ export function addMessageListener(via: string, callback: (event: MessageEvent) 
 						'color: initial;',
 						'color: green;',
 						'color: initial;',
-						data.message,
+						data,
 					)
 				}
 
 				callback(newEvent)
 			} catch (error) {
 				console.error('Failed to parse WebSocket message data:', error)
-				callback(event)
+				callback(data)
 			}
 		})
 		// }

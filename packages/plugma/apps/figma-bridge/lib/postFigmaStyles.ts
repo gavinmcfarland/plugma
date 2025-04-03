@@ -24,7 +24,7 @@ export function postFigmaStyles() {
 						},
 					},
 				]
-				postMessageVia(['ifream', 'ws'], messages)
+				postMessageVia(['iframe', 'ws'], messages)
 			}
 		})
 	}

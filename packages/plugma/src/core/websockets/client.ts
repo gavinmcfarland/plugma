@@ -44,9 +44,11 @@ export function createClient(config: ClientConfig): SocketClient {
 	function emit(event: string, data: any, room?: string[], callback?: (response: any) => void): SocketClient {
 		if (room) {
 			room.forEach((type) => {
+				console.log('from client.ts emit', event, { ...data, room: type })
 				socket.emit(event, { ...data, room: type }, callback)
 			})
 		} else {
+			console.log('from client.ts emit', event, data)
 			socket.emit(event, data, callback)
 		}
 		return socket as SocketClient
