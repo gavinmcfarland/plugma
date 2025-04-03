@@ -5,6 +5,7 @@
 
 import { Logger } from "#utils/log/logger.js";
 import type { TestMessage, TestResultMessage } from "./types.js";
+import WebSocket from "ws";
 
 declare global {
 	var testWs: WebSocket | undefined;
@@ -62,7 +63,7 @@ export class TestClient {
 	private lastBuildId: string | null = null;
 	private buildMessageQueue: Array<{
 		data: any;
-		event: MessageEvent;
+		event: WebSocket.MessageEvent;
 	}> = [];
 
 	private constructor(
@@ -142,7 +143,7 @@ export class TestClient {
 				if (!this.ws)
 					return reject(new Error("WebSocket not initialized"));
 
-				const errorHandler = (error: Event) => {
+				const errorHandler = (error: WebSocket.ErrorEvent) => {
 					this.logger.error("Connection error:", error);
 					this.ws = null;
 					this.connecting = false;
@@ -227,7 +228,7 @@ export class TestClient {
 
 		this.ws.onmessage = (event) => {
 			try {
-				const data = JSON.parse(event.data);
+				const data = JSON.parse(event.data.toString());
 				const message = data.pluginMessage as TestMessage;
 
 				if (message.type === "BUILD_COMPLETE") {

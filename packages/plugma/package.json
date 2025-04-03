@@ -121,7 +121,8 @@
         "vite": "5.4.12",
         "vite-plugin-singlefile": "^0.13.5",
         "vitest": "^3.0.3",
-        "ws": "^8.16.0"
+        "ws": "^8.16.0",
+        "source-map": "^0.7.4"
     },
     "devDependencies": {
         "@antfu/ni": "^23.2.0",
@@ -142,7 +143,6 @@
         "concurrently": "^9.1.2",
         "dprint": "^0.48.0",
         "reconnecting-websocket": "^4.4.0",
-        "source-map": "^0.7.4",
         "svelte": "^4.2.19",
         "terser": "^5.37.0",
         "type-fest": "^4.33.0",
