@@ -1,11 +1,11 @@
 ```mermaid
 sequenceDiagram
     participant BuildProcess
+    participant FigmaMonitor
     participant FigmaMain
     participant FigmaBridge
     participant PluginUI
     participant TestRunner
-    participant FigmaMonitor
 
     PluginUI->>FigmaBridge: postMessage (User Action)
     PluginUI->>FigmaBridge: postMessage (User Action)
