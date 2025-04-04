@@ -52,6 +52,15 @@
 
 	function handleFileChanged(data: any) {
 		console.log('%cFILE_CHANGED', 'color: red', data)
+		window.postMessage(
+			{
+				pluginMessage: {
+					event: 'FILE_CHANGED',
+					data,
+				},
+			},
+			'*',
+		)
 	}
 
 	onMount(async () => {
