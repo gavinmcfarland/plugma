@@ -50,12 +50,12 @@
 		isBrowserConnected.set(isConnected)
 	}
 
-	function handleFileChanged(data: any) {
-		console.log('%cFILE_CHANGED', 'color: red', data)
+	function handleRunTest(data: any) {
+		console.log('%cRUN_TEST', 'color: red', data)
 		window.postMessage(
 			{
 				pluginMessage: {
-					event: 'FILE_CHANGED',
+					type: 'RUN_TEST',
 					data,
 				},
 			},
@@ -73,7 +73,7 @@
 		const socket = initializeWsClient(getRoom(), window.runtimeData.port)
 
 		socket.on('ROOM_STATS', handleRoomStats)
-		socket.on('FILE_CHANGED', handleFileChanged)
+		socket.on('RUN_TEST', handleRunTest)
 
 		redirectIframe(devServerUIUrl)
 		setBodyStyles()

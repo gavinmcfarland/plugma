@@ -81,21 +81,25 @@ export const test: TestFn = async (name, fn) => {
 		// Get the test client instance using environment variable
 		const socket = TestClient.getInstance()
 
-		// generate a unique testRunId so we can pair the
-		// TEST_RUN and TEST_ASSERTIONS (or TEST_ERROR) messages
-		const testRunId = `${name}-${Date.now()}`
-
-		socket.onAny((event, data) => {
-			console.log('-------socket id', socket.id, event, data)
+		await new Promise<void>((resolve) => {
+			if (socket.connected) {
+				resolve()
+			} else {
+				socket.once('connect', () => resolve())
+			}
 		})
 
 		socket.on('FILE_CHANGED', (file) => {
 			socket.emit('RUN_TEST', {
-				testName: name,
-				testRunId,
+				testName: 'test',
+				testRunId: `${name}-${Date.now()}`,
 				room: 'figma',
 			})
+			console.log('RUN_TEST sent', file)
 		})
+
+		// generate a unique testRunId so we can pair the
+		// TEST_RUN and TEST_ASSERTIONS (or TEST_ERROR) messages
 
 		// try {
 		// Emit RUN_TEST message

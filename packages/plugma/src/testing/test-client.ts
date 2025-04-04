@@ -26,10 +26,6 @@ export class TestClient {
 			})
 
 			TestClient.instance = socket
-
-			TestClient.instance.on('connect', () => {
-				console.log('socket id', socket.id)
-			})
 		}
 		return TestClient.instance
 	}

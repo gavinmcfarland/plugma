@@ -21,15 +21,9 @@ export function createBuildNotifierPlugin(port: number): Plugin {
 		},
 		async handleHotUpdate({ file }) {
 			console.log('handleHotUpdate', file)
-			const message = JSON.stringify({
+			const message = {
 				room: 'test',
-				pluginMessage: {
-					buildId: Date.now().toString(),
-					source: 'vite',
-					file,
-				},
-				pluginId: '*',
-			})
+			}
 
 			// Delay the message to present it being received before the plugin reloads
 			await new Promise((resolve) => setTimeout(resolve, 1000))

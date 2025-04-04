@@ -192,7 +192,7 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 
 			const { room, ...payload } = data
 
-			let message = {
+			let newData = {
 				sender: socket.id,
 				from,
 				...payload,
@@ -203,27 +203,27 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 					// Handle multiple rooms
 					for (const r of room) {
 						if (hasOneSocketOrMore(r)) {
-							io.to(r).emit(event, data)
-							console.log(`Event "${event}" sent to room "${r}" with message:`, data)
+							io.to(r).emit(event, newData)
+							// console.log(`Event "${event}" sent to room "${r}" with message:`, newData)
 						} else {
-							queueMessage(r, event, data)
-							console.log(`Event "${event}" queued for room "${r}" with message:`, data)
+							queueMessage(r, event, newData)
+							// console.log(`Event "${event}" queued for room "${r}" with message:`, newData)
 						}
 					}
 				} else {
 					// Handle single room
 					if (hasOneSocketOrMore(room)) {
-						io.to(room).emit(event, data)
-						console.log(`Event "${event}" sent to room "${room}" with message:`, data)
+						io.to(room).emit(event, newData)
+						// console.log(`Event "${event}" sent to room "${room}" with message:`, newData)
 					} else {
-						queueMessage(room, event, data)
-						console.log(`Event "${event}" queued for room "${room}" with message:`, data)
+						queueMessage(room, event, newData)
+						// console.log(`Event "${event}" queued for room "${room}" with message:`, newData)
 					}
 				}
 			} else {
 				// Emit to all clients if no room is specified
-				io.emit(event, data)
-				console.log(`Event "${event}" broadcasted with message:`, data)
+				io.emit(event, newData)
+				// console.log(`Event "${event}" broadcasted with message:`, newData)
 			}
 		}
 
