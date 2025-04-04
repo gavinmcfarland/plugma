@@ -12,7 +12,7 @@ export function createBuildNotifierPlugin(port: number): Plugin {
 
 	return {
 		name: 'build-notifier',
-		buildStart() {
+		async buildStart() {
 			socket = createClient({
 				room: 'vite',
 				url: 'ws://localhost',
@@ -20,14 +20,11 @@ export function createBuildNotifierPlugin(port: number): Plugin {
 			})
 		},
 		async handleHotUpdate({ file }) {
-			console.log('handleHotUpdate', file)
-			const message = {
-				room: 'test',
-			}
-
 			// Delay the message to present it being received before the plugin reloads
 			await new Promise((resolve) => setTimeout(resolve, 1000))
-			socket.emit('FILE_CHANGED', message)
+			socket.emit('FILE_CHANGED', {
+				room: 'test',
+			})
 		},
 	}
 }

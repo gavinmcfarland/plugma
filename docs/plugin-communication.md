@@ -17,29 +17,31 @@ sequenceDiagram
             BuildProcess->TestRunner: trigger test run
         end
 
-        note left of TestRunner: Runner waits
+
+        note right of FigmaMain: vite replaces reference \nto plugma/testing to \nplugma/testing/figma
+        FigmaMain->>+FigmaMain: test()
+        FigmaMain->>-FigmaMain: registry.register()
         BuildProcess->>BuildProcess: file change detected
         BuildProcess->>BuildProcess: delay(200)
         BuildProcess->>TestRunner: emit("FILE_CHANGED")
 
         TestRunner->>TestRunner: on("FILE_CHANGED")
         TestRunner->>FigmaBridge: emit("RUN_TEST")
-
         FigmaBridge->>FigmaBridge: on("FILE_CHANGED")
 
         alt relay message
-
             FigmaBridge-->>FigmaMain: postMessage("RUN_TEST")
             FigmaMain->>FigmaMain: listen("RUN_TEST")
+            FigmaMain->>FigmaMain: registry.runTest()
         else success
-            FigmaMain->>FigmaBridge: emit("TEST_RESULT")
-            FigmaBridge->>FigmaBridge: listen("TEST_RESULT")
-            FigmaBridge->>TestRunner: emit("TEST_RESULT")
+            FigmaMain->>FigmaBridge: postMessage("TEST_ASSERTIONS")
+            FigmaBridge->>FigmaBridge: listen("TEST_ASSERTIONS")
+            FigmaBridge->>TestRunner: emit("TEST_ASSERTIONS")
             TestRunner->>TestRunner: executeAssertions()
         else error
-            FigmaMain->>FigmaBridge: emit("TEST_ERROR")
+            FigmaMain->>FigmaBridge: postMessage("TEST_ERROR")
             FigmaBridge->>FigmaBridge: listen("TEST_ERROR")
-            FigmaBridge->>TestRunner: postMessage("TEST_ERROR")
+            FigmaBridge->>TestRunner: emit("TEST_ERROR")
             TestRunner->>TestRunner: reportError()
         end
     end

@@ -7,26 +7,36 @@ import { createClient, type SocketClient } from '../core/websockets/client.js'
 export class TestClient {
 	private static instance: SocketClient
 
+	private static initSocket(port?: number) {
+		// Try to get port from environment variable if not provided
+		const envPort = process.env.PORT
+		const finalPort = port || (envPort ? Number(envPort) : 9001)
+
+		console.log('Create client', finalPort + 1)
+
+		return createClient({
+			room: 'test',
+			url: 'ws://localhost',
+			port: finalPort + 1,
+		})
+	}
+
 	/**
 	 * Gets the singleton instance of TestClient
-	 * @throws {Error} If attempting to get instance before initialization
+	 * @param port Optional port number for initial connection
+	 * @throws {Error} If attempting to get instance with different port than initial creation
 	 */
-	public static getInstance(port?: number): SocketClient {
+	public static async getInstance(port?: number): Promise<SocketClient> {
 		if (!TestClient.instance) {
-			// Try to get port from environment variable if not provided
-			const envPort = process.env.PORT
-			const finalPort = port || (envPort ? Number(envPort) : 9001)
+			TestClient.instance = TestClient.initSocket(port)
 
-			console.log('Create client')
-
-			let socket = createClient({
-				room: 'test',
-				url: 'ws://localhost',
-				port: finalPort + 1,
-			})
-
-			TestClient.instance = socket
+			return TestClient.instance
 		}
+
+		if (port !== undefined) {
+			throw new Error('TestClient instance already exists. Cannot create new instance with different port.')
+		}
+
 		return TestClient.instance
 	}
 }

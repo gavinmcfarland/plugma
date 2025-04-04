@@ -25,7 +25,9 @@ export const initTestClient = async (options: PluginOptions): Promise<InitTestCl
 	try {
 		const port = options.port || Number(process.env.PORT)
 
-		const testClient = TestClient.getInstance(port)
+		console.log('initTestClient', 1)
+
+		const testClient = await TestClient.getInstance(port)
 
 		return { client: testClient }
 	} catch (error) {
