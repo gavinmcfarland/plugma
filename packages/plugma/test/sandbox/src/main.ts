@@ -28,7 +28,7 @@ export default function () {
 				const rect = figma.createRectangle()
 				rect.x = i * 150
 				rect.y = 0
-				rect.resize(100, 100)
+				rect.resize(100, 200)
 				rect.fills = [
 					{
 						type: 'SOLID',

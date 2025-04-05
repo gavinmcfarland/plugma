@@ -12,7 +12,7 @@ export function handleTestMessage(message: TestMessage): void {
 	try {
 		switch (message.type) {
 			case 'REGISTER_TEST': {
-				console.log('🔄 Registering test:', message.testName)
+				console.log('🔄 Registering test:', message.data.testName)
 				try {
 					// Create test function from string representation
 					const testFn = async (context: TestContext, expect: typeof plugmaExpect) => {
@@ -23,7 +23,7 @@ export function handleTestMessage(message: TestMessage): void {
 								`
                 return (async () => {
                   try {
-                    ${message.fnString}
+                    ${message.data.fnString}
                   } catch (error) {
                     throw error instanceof Error ? error : new Error(String(error));
                   }
@@ -37,13 +37,15 @@ export function handleTestMessage(message: TestMessage): void {
 						}
 					}
 
-					registry.register(message.testName, testFn)
+					registry.register(message.data.testName, testFn)
 
 					const response = {
 						type: 'TEST_ASSERTIONS',
-						testRunId: (message as any).testRunId,
-						assertionCode: '',
-						source: 'plugin-window?',
+						data: {
+							testRunId: (message as any).testRunId,
+							assertionCode: '',
+							from: 'figma',
+						},
 					} satisfies TestMessage
 					console.log('✅ Registration success:', response)
 					figma.ui.postMessage(response)
@@ -55,30 +57,34 @@ export function handleTestMessage(message: TestMessage): void {
 			}
 
 			case 'RUN_TEST': {
-				console.log('▶️ Running test:', message.testName)
+				console.log('▶️ Running test:', message.data.testName)
 				try {
 					registry
-						.runTest(message.testName)
+						.runTest(message.data.testName)
 						.then((result) => {
 							console.log('📊 Test results:', result)
 							const response: TestMessage = result.error
 								? {
 										type: 'TEST_ERROR',
-										testRunId: message.testRunId,
-										error: result.error.message,
-										pluginState: result.pluginState,
-										originalError: {
-											name: result.error.name,
-											message: result.error.message,
-											stack: result.error.stack,
+										data: {
+											testRunId: message.data.testRunId,
+											error: result.error.message,
+											pluginState: result.pluginState,
+											originalError: {
+												name: result.error.name,
+												message: result.error.message,
+												stack: result.error.stack,
+											},
+											from: 'figma',
 										},
-										source: 'plugin-window?',
 									}
 								: {
 										type: 'TEST_ASSERTIONS',
-										testRunId: message.testRunId,
-										assertionCode: result.assertions.join(';\n'),
-										source: 'plugin-window?',
+										data: {
+											testRunId: message.data.testRunId,
+											assertionCode: result.assertions.join(';\n'),
+											from: 'figma',
+										},
 									}
 
 							// console.log(
@@ -90,9 +96,11 @@ export function handleTestMessage(message: TestMessage): void {
 						.catch((error) => {
 							const response = {
 								type: 'TEST_ERROR',
-								testRunId: message.testRunId,
-								error: error instanceof Error ? error.message : String(error),
-								source: 'plugin-window?',
+								data: {
+									testRunId: message.data.testRunId,
+									error: error instanceof Error ? error.message : String(error),
+									from: 'figma',
+								},
 							} satisfies TestMessage
 							// console.error("❌ Error executing test:", error);
 							figma.ui.postMessage(response)
@@ -100,9 +108,11 @@ export function handleTestMessage(message: TestMessage): void {
 				} catch (error) {
 					const response = {
 						type: 'TEST_ERROR',
-						testRunId: message.testRunId,
-						error: error instanceof Error ? error.message : String(error),
-						source: 'plugin-window?',
+						data: {
+							testRunId: message.data.testRunId,
+							error: error instanceof Error ? error.message : String(error),
+							from: 'figma',
+						},
 					} satisfies TestMessage
 					// console.error("❌ Error executing test:", error);
 					figma.ui.postMessage(response)
@@ -113,9 +123,11 @@ export function handleTestMessage(message: TestMessage): void {
 	} catch (error) {
 		const response = {
 			type: 'TEST_ERROR',
-			testRunId: (message as any).testRunId,
-			error: error instanceof Error ? error.message : String(error),
-			source: 'plugin-window?',
+			data: {
+				testRunId: (message as any).testRunId,
+				error: error instanceof Error ? error.message : String(error),
+				from: 'figma',
+			},
 		} satisfies TestMessage
 		// console.error("❌ Error handling message:", error);
 		figma.ui.postMessage(response)

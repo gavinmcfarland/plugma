@@ -18,10 +18,18 @@ export function createBuildNotifierPlugin(port: number): Plugin {
 				url: 'ws://localhost',
 				port: port + 1,
 			})
+
+			// Delay the message to present it being received before the plugin reloads
+			// FIXME: Ideally needs to be changed to event coming from figma bridge so it's more reliable.
+			await new Promise((resolve) => setTimeout(resolve, 800))
+			socket.emit('BUILD_STARTED', {
+				room: 'test',
+			})
 		},
 		async handleHotUpdate({ file }) {
 			// Delay the message to present it being received before the plugin reloads
-			await new Promise((resolve) => setTimeout(resolve, 1000))
+			// FIXME: Ideally needs to be changed to event coming from figma bridge so it's more reliable.
+			await new Promise((resolve) => setTimeout(resolve, 600))
 			socket.emit('FILE_CHANGED', {
 				room: 'test',
 			})

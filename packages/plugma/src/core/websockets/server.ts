@@ -147,6 +147,8 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 		if (!queue) return
 
 		if (hasOneSocketOrMore(room)) {
+			// Add a small delay to ensure the socket is fully connected
+			// setTimeout(() => {
 			while (queue.length > 0) {
 				const msg = queue.shift()
 				if (msg && Date.now() - msg.timestamp < QUEUE_TIMEOUT) {
@@ -155,6 +157,7 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 				}
 			}
 			messageQueues.delete(room)
+			// }, 100) // Small delay to ensure socket is ready
 		}
 	}
 
@@ -176,7 +179,6 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 			emitRoomStats()
 		})
 
-		// Process any queued messages when a socket connects to a room
 		processQueue(from)
 
 		/**

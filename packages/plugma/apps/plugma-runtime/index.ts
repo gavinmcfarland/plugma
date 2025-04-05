@@ -49,7 +49,7 @@ const windowHandlers = {
 
 // // Import test message handlers
 // // Couldn't move this from src/testing/test. Not sure why.
-// import "../../src/testing/figma/handlers.js";
+import '../../src/testing/figma/handlers'
 
 // Set up message listener for window management
 figma.ui.on('message', async (msg) => {
