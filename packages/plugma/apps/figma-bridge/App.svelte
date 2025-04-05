@@ -12,6 +12,7 @@
 	import Toolbar from './components/Toolbar.svelte'
 	import { monitorDeveloperToolsStatus } from './lib/monitorDeveloperToolsStatus'
 	import { getRoom } from '../shared/lib/getRoom'
+	import { addMessageListener } from '../shared/lib/addMessageListener'
 
 	// @ts-ignore
 	// import { createClient } from "plugma/client";
@@ -74,6 +75,17 @@
 
 		socket.on('ROOM_STATS', handleRoomStats)
 		socket.on('RUN_TEST', handleRunTest)
+
+		addMessageListener('window', (message) => {
+			if (message.data.pluginMessage.type === 'TEST_ASSERTIONS') {
+				console.log('-----------------------------------message', message)
+				socket.emit('TEST_ASSERTIONS', message.data.pluginMessage.data)
+			}
+			if (message.data.pluginMessage.type === 'TEST_ERROR') {
+				console.log('-----------------------------------message', message)
+				socket.emit('TEST_ERROR', message.data.pluginMessage.data)
+			}
+		})
 
 		redirectIframe(devServerUIUrl)
 		setBodyStyles()

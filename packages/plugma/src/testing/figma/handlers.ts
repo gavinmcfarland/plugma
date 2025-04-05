@@ -67,6 +67,7 @@ export function handleTestMessage(message: TestMessage): void {
 								? {
 										type: 'TEST_ERROR',
 										data: {
+											room: 'test',
 											testRunId: message.data.testRunId,
 											error: result.error.message,
 											pluginState: result.pluginState,
@@ -75,15 +76,14 @@ export function handleTestMessage(message: TestMessage): void {
 												message: result.error.message,
 												stack: result.error.stack,
 											},
-											from: 'figma',
 										},
 									}
 								: {
 										type: 'TEST_ASSERTIONS',
 										data: {
+											room: 'test',
 											testRunId: message.data.testRunId,
 											assertionCode: result.assertions.join(';\n'),
-											from: 'figma',
 										},
 									}
 

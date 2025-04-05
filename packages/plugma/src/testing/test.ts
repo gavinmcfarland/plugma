@@ -33,6 +33,26 @@ function initializeSocket() {
 	return socket
 }
 
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, testName: string): Promise<T> {
+	let timeoutId: ReturnType<typeof setTimeout>
+
+	const timeoutPromise = new Promise<never>((_, reject) => {
+		timeoutId = setTimeout(() => {
+			reject(new Error(`Test ${testName} timed out after ${timeoutMs}ms`))
+		}, timeoutMs)
+	})
+
+	return Promise.race([promise, timeoutPromise])
+		.then((result) => {
+			clearTimeout(timeoutId)
+			return result
+		})
+		.catch((error) => {
+			clearTimeout(timeoutId)
+			throw error
+		})
+}
+
 // Initialize socket and store it globally
 let socket: SocketClient | null = null
 
@@ -64,14 +84,25 @@ export const test: TestFn = async (name, fn) => {
 			})
 		}
 
-		// Register event listeners before waiting for connection
-		socket.on('BUILD_STARTED', runTest)
+		// FIXME: Replace with even listener for when plugin is ready
+		await new Promise((resolve) => setTimeout(resolve, 500))
+		runTest()
 		socket.on('FILE_CHANGED', runTest)
+		socket.on('TEST_ASSERTIONS', (message) => {
+			console.log('TEST_ASSERTIONS', message)
+		})
+		socket.on('TEST_ERROR', (message) => {
+			console.log('TEST_ERROR', message)
+		})
 
 		// Test needs to be open long enough for socket to connect. This is why it never
 		// connected before. The delay won't be needed in production because this test
 		// should return the respsonse of the actual test
 		await new Promise((resolve) => setTimeout(resolve, 50000))
+
+		// const result = await withTimeout()
+
+		// WAIT FOR TEST RESULT which is a promise with message?
 
 		let code = `
 			expect(true).toBe(true)

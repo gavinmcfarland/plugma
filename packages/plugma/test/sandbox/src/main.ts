@@ -9,6 +9,8 @@ import { customTest } from './customTest'
 
 customTest()
 export default function () {
+	// console.clear()
+	console.log('-----------------------------------plugin opened')
 	figma.showUI(__html__, { width: 300, height: 260, themeColors: true })
 
 	figma.ui.postMessage({
@@ -28,7 +30,7 @@ export default function () {
 				const rect = figma.createRectangle()
 				rect.x = i * 150
 				rect.y = 0
-				rect.resize(100, 200)
+				rect.resize(100, 100)
 				rect.fills = [
 					{
 						type: 'SOLID',
