@@ -24,23 +24,6 @@ export const test: TestFn = async (name, fn) => {
 
 		// Get the test client instance using environment variable
 		console.log('initTestClient', 2)
-		const socket = await TestClient.getInstance()
-
-		const runTest = (triggerSource: string, data?: unknown) => {
-			console.log('emitting RUN_TEST')
-			socket.emit('RUN_TEST', {
-				testName: 'test',
-				testRunId: `${Date.now()}`,
-				room: 'figma',
-			})
-			console.log('RUN_TEST sent via', triggerSource, data)
-		}
-
-		// TODO: Consider whether there should be an event that triggers this
-		runTest('initial trigger')
-
-		socket.on('BUILD_STARTED', (data) => runTest('build started', data))
-		socket.on('FILE_CHANGED', (file) => runTest('file changed', file))
 
 		// generate a unique testRunId so we can pair the
 		// TEST_RUN and TEST_ASSERTIONS (or TEST_ERROR) messages

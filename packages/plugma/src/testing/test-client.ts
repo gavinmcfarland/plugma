@@ -30,6 +30,22 @@ export class TestClient {
 		if (!TestClient.instance) {
 			TestClient.instance = TestClient.initSocket(port)
 
+			const runTest = (triggerSource: string, data?: unknown) => {
+				console.log('emitting RUN_TEST')
+				TestClient.instance.emit('RUN_TEST', {
+					testName: 'test',
+					testRunId: `${Date.now()}`,
+					room: 'figma',
+				})
+				console.log('RUN_TEST sent via', triggerSource, data)
+			}
+
+			// TODO: Consider whether there should be an event that triggers this
+			runTest('initial trigger')
+
+			TestClient.instance.on('BUILD_STARTED', (data) => runTest('build started', data))
+			TestClient.instance.on('FILE_CHANGED', (file) => runTest('file changed', file))
+
 			return TestClient.instance
 		}
 
