@@ -3,7 +3,7 @@ import { test as vitestTest } from 'vitest'
 import { executeAssertions } from './execute-assertions.js'
 import { TestClient } from './test-client.js'
 import type { TestFn } from './types.js'
-import { createClient } from '#core/websockets/client.js'
+import { createClient, SocketClient } from '#core/websockets/client.js'
 import { expect as vitestExpect } from 'vitest'
 /**
  * Configuration for test execution
@@ -27,6 +27,8 @@ async function initializeSocket() {
 			resolve()
 		})
 	})
+
+	return socket
 }
 
 // Initialize socket before running tests
@@ -40,19 +42,29 @@ let socketInitialized = false
 export const test: TestFn = async (name, fn) => {
 	console.log('----------test', name)
 
+	let socket: SocketClient
+
 	return vitestTest(name, TEST_CONFIG, async () => {
 		console.log('Running test:', name)
 
 		// Ensure socket is initialized before running tests
 		if (!socketInitialized) {
-			await initializeSocket()
+			socket = await initializeSocket()
 			socketInitialized = true
 		}
+
+		socket.on('FILE_CHANGED', (data) => {
+			console.log('FILE_CHANGED', data)
+			socket.emit('RUN_TEST', {
+				room: 'figma',
+				testName: name,
+			})
+		})
 
 		// Test needs to be open long enough for socket to connect. This is why it never
 		// connected before. The delay won't be needed in production because this test
 		// should return the respsonse of the actual test
-		await new Promise((resolve) => setTimeout(resolve, 5000))
+		await new Promise((resolve) => setTimeout(resolve, 10000))
 
 		let code = `
 			expect(true).toBe(true)
