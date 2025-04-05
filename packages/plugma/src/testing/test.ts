@@ -98,7 +98,7 @@ export const test: TestFn = async (name, fn) => {
 		// Test needs to be open long enough for socket to connect. This is why it never
 		// connected before. The delay won't be needed in production because this test
 		// should return the respsonse of the actual test
-		await new Promise((resolve) => setTimeout(resolve, 50000))
+		await new Promise((resolve) => setTimeout(resolve, 100000))
 
 		// const result = await withTimeout()
 

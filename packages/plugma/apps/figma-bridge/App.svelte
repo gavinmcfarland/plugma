@@ -13,6 +13,7 @@
 	import { monitorDeveloperToolsStatus } from './lib/monitorDeveloperToolsStatus'
 	import { getRoom } from '../shared/lib/getRoom'
 	import { addMessageListener } from '../shared/lib/addMessageListener'
+	import { postMessageVia } from '../shared/lib/postMessageVia'
 
 	// @ts-ignore
 	// import { createClient } from "plugma/client";
@@ -53,15 +54,12 @@
 
 	function handleRunTest(data: any) {
 		console.log('%cRUN_TEST', 'color: red', data)
-		window.postMessage(
-			{
-				pluginMessage: {
-					type: 'RUN_TEST',
-					data,
-				},
+		postMessageVia(['parent'], {
+			pluginMessage: {
+				type: 'RUN_TEST',
+				data,
 			},
-			'*',
-		)
+		})
 	}
 
 	onMount(async () => {

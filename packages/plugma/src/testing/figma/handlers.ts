@@ -8,7 +8,7 @@ import { registry } from './registry'
  */
 
 export function handleTestMessage(message: TestMessage): void {
-	// console.log("📨 Received message:", message);
+	console.log('📨 Received message:', message)
 	try {
 		switch (message.type) {
 			case 'REGISTER_TEST': {
@@ -57,8 +57,10 @@ export function handleTestMessage(message: TestMessage): void {
 			}
 
 			case 'RUN_TEST': {
+				//FIXME: Why is this being called twice?
 				console.log('▶️ Running test:', message.data.testName)
 				try {
+					console.log('%crunning test', 'color: blue', message.data.testName)
 					registry
 						.runTest(message.data.testName)
 						.then((result) => {
@@ -134,6 +136,4 @@ export function handleTestMessage(message: TestMessage): void {
 	}
 }
 
-figma.ui.on('message', async (message) => {
-	handleTestMessage(message)
-})
+figma.ui.on('message', handleTestMessage)

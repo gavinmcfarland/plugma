@@ -48,8 +48,8 @@ const windowHandlers = {
 } as const
 
 // // Import test message handlers
-// // Couldn't move this from src/testing/test. Not sure why.
-import '../../src/testing/figma/handlers'
+// // Couldn't move this from src/testing/test. Not sure why. Importing them here seems to mean tests fail because test not found.
+// import '../../src/testing/figma/handlers'
 
 // Set up message listener for window management
 figma.ui.on('message', async (msg) => {

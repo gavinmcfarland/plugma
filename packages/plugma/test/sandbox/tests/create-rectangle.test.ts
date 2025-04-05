@@ -13,7 +13,7 @@ test('creates a rectangle with specific color', async () => {
 
 	rect.x = 0
 	rect.y = 0
-	rect.resize(400, 500)
+	rect.resize(100, 100)
 
 	rect.fills = [{ type: 'SOLID', color: TEST_COLOR }]
 
