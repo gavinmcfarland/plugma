@@ -33,7 +33,6 @@ export const runVitest = async (options: PluginOptions): Promise<RunVitestResult
 				globals: true,
 				environment: 'node',
 				watch: options.watch ?? false,
-				setupFiles: ['../../src/vitest-plugins/setup-socket.ts'],
 			},
 			// plugins: [initTestClient()],
 		}
