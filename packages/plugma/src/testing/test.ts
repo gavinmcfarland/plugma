@@ -105,7 +105,7 @@ export const test: TestFn = async (name, fn) => {
 		// WAIT FOR TEST RESULT which is a promise with message?
 
 		let code = `
-			expect(true).toBe(true)
+			expect(false).toBe(true)
 		`
 		const assertFn = new Function('expect', code)
 		console.log('assertFn', assertFn)

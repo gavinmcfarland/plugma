@@ -150,13 +150,7 @@ class TestRegistry {
 		context.startTime = startTime
 
 		// Set up test context
-		testContext.current = {
-			name,
-			assertions: [],
-			startTime,
-			endTime: null,
-			duration: null,
-		}
+		testContext.current = context
 
 		try {
 			// Execute beforeEach hooks
@@ -176,11 +170,13 @@ class TestRegistry {
 			context.endTime = endTime
 			context.duration = endTime - startTime
 
+			console.log('testContext.current', testContext.current)
+
 			return {
 				testName: name,
 				error: null,
 				pluginState: figma.root.getPluginData('state'),
-				assertions: [...testContext.current.assertions],
+				assertions: [...context.assertions],
 				startTime,
 				endTime,
 				duration: endTime - startTime,
@@ -199,7 +195,7 @@ class TestRegistry {
 				testName: name,
 				error: testError,
 				pluginState: figma.root.getPluginData('state'),
-				assertions: [...testContext.current.assertions],
+				assertions: [...context.assertions],
 				startTime,
 				endTime,
 				duration: endTime - startTime,

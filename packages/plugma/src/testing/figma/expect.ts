@@ -1,6 +1,7 @@
 import type { ExpectStatic } from 'vitest'
 
 import type { TestContext } from '#testing/types.js'
+import { testContext } from './test-context'
 
 /**
  * @file Virtual Expect implementation for Figma plugin testing
@@ -112,7 +113,7 @@ const createExpectProxy = (value: unknown): ExpectProxy => {
 
 		apply(target, thisArg, args) {
 			code += `(${args.map(serializeValue).join(', ')})`
-			currentTest.assertions.push(code)
+			testContext.current.assertions.push(code)
 
 			// Reset chain with current value
 			code = `expect(${serializeValue(currentValue)})`
