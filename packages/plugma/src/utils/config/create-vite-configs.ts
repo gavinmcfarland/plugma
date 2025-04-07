@@ -134,9 +134,8 @@ export function createViteConfigs(options: PluginOptions, userFiles: UserFiles):
 		plugins: [dotEnvLoader(options), replacePlugmaTesting()],
 		build: {
 			lib: {
-				entry: tempFilePath,
-				formats: ['es'],
-				fileName: () => 'main.js',
+				entry: tempFilePath, // Entry file for backend code
+				formats: ['cjs'], // Output format, CommonJS for Node.js
 			},
 			rollupOptions: {
 				output: {
