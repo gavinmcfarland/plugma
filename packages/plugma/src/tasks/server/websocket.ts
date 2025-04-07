@@ -92,10 +92,10 @@ export const startWebSocketsServer = async (options: PluginOptions, context: Res
 
 		io.on('connection', (socket) => {
 			const room = socket.handshake.auth.room
-			console.log('A user connected:', socket.id, room)
+			logger.debug('A user connected:', socket.id, room)
 
 			socket.on('disconnect', () => {
-				console.log('User disconnected:', socket.id, room)
+				logger.debug('User disconnected:', socket.id, room)
 			})
 		})
 

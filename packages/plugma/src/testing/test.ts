@@ -58,13 +58,10 @@ const { port } = getConfig()
  * @param fn The test function to register
  */
 export const test: TestFn = async (name, fn) => {
-	console.log('----------test', name)
-
 	return vitestTest(name, TEST_CONFIG, async () => {
 		console.log('Running test:', name)
 
 		// Get the socket - it will be initialized if needed
-		console.log('config', port)
 		socket = getTestSocket(port)
 
 		// Create a unique test run ID

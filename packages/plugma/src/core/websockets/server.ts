@@ -2,6 +2,9 @@ import { Server, ServerOptions } from 'socket.io'
 import chalk from 'chalk'
 import type { Server as HttpServer } from 'node:http'
 import { WebSocketServer } from 'ws'
+import { Logger } from '#utils/log/logger.js'
+
+const logger = new Logger()
 
 /**
  * Interface defining the methods available on the server
@@ -94,7 +97,7 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 		}
 		socket.join(room)
 
-		console.log('Room joined socket', socket.id, room)
+		logger.debug('Room joined socket', socket.id, room)
 		emitRoomStats()
 
 		next()
