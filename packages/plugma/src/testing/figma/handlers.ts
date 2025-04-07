@@ -8,11 +8,10 @@ import { registry } from './registry'
  */
 
 export function handleTestMessage(message: TestMessage): void {
-	console.log('📨 Received message:', message)
 	try {
 		switch (message.type) {
 			case 'REGISTER_TEST': {
-				console.log('🔄 Registering test:', message.data.testName)
+				// console.log('🔄 Registering test:', message.data.testName)
 				try {
 					// Create test function from string representation
 					const testFn = async (context: TestContext, expect: typeof plugmaExpect) => {
@@ -57,14 +56,13 @@ export function handleTestMessage(message: TestMessage): void {
 			}
 
 			case 'RUN_TEST': {
-				//FIXME: Why is this being called twice?
-				console.log('▶️ Running test:', message.data.testName)
+				// console.log('▶️ Running test:', message.data.testName)
 				try {
-					console.log('%crunning test', 'color: blue', message.data.testName)
+					// console.log('%crunning test', 'color: blue', message.data.testName)
 					registry
 						.runTest(message.data.testName)
 						.then((result) => {
-							console.log('📊 Test results:', result)
+							// console.log('📊 Test results:', result)
 							const response: TestMessage = result.error
 								? {
 										type: 'TEST_ERROR',

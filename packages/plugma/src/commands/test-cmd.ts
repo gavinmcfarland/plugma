@@ -11,7 +11,7 @@ import { serial } from '../tasks/runner.js'
 import { RunVitestTask } from '../tasks/test/run-vitest.js'
 import type { TestCommandOptions } from './types.js'
 import { LoadOptionsTask } from '#tasks/common/temp-options.js'
-import { TestClient } from '../testing/test-client.js'
+
 import { InitTestClientTask } from '../tasks/test/init-test-client.js'
 import StartWebSocketsServerTask from '#tasks/server/websocket.js'
 

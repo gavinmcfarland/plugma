@@ -1,7 +1,9 @@
 import { createClient, SocketClient } from '#core/websockets/client.js'
+import { Logger } from '#utils/log/logger.js'
 
 let socket: SocketClient | null = null
 let isSocketConnected = false
+const logger = new Logger({ debug: false })
 
 export function getTestSocket(port: number): SocketClient {
 	if (socket) {
@@ -16,17 +18,17 @@ export function getTestSocket(port: number): SocketClient {
 	})
 
 	socket.on('connect', () => {
-		console.log('[socket] connected:', socket!.id)
+		logger.debug('[socket] connected:', socket!.id)
 		isSocketConnected = true
 	})
 
 	socket.on('disconnect', () => {
-		console.log('[socket] disconnected')
+		logger.debug('[socket] disconnected')
 		isSocketConnected = false
 	})
 
 	socket.on('error', (error) => {
-		console.error('[socket] error:', error)
+		logger.error('[socket] error:', error)
 		isSocketConnected = false
 	})
 

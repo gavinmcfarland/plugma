@@ -138,8 +138,8 @@ class TestRegistry {
 	 */
 	async runTest(name: string): Promise<TestResult> {
 		const fn = this.tests.get(name)
-		console.log('test function string:', fn?.toString())
-		console.log('test function', !fn)
+		// console.log('test function string:', fn?.toString())
+
 		if (!fn) {
 			throw new Error(`Test "${name}" not found`)
 		}
@@ -169,8 +169,6 @@ class TestRegistry {
 			const endTime = Date.now()
 			context.endTime = endTime
 			context.duration = endTime - startTime
-
-			console.log('testContext.current', testContext.current)
 
 			return {
 				testName: name,

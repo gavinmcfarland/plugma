@@ -29,7 +29,7 @@ export interface ClientConfig {
 export function createClient(config: ClientConfig): SocketClient {
 	const { url, room, port = 8080, serverOptions } = config
 
-	console.log(chalk.cyan(`\n⚡ Starting ${room} Client...\n`))
+	// console.log(chalk.cyan(`\n⚡ Starting ${room} Client...\n`))
 
 	// Configured to use `ws` protocol. Can be changed to `http`.
 	const socket = io(`${url}:${port}`, {

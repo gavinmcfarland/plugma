@@ -8,6 +8,6 @@ export function test(name: string, fn: () => void) {
 		)
 	}
 
-	console.log('%cregistering test', 'color: blue', name, fn.toString())
+	// console.log('%cregistering test', 'color: blue', name, fn.toString())
 	registry.register(name, fn)
 }

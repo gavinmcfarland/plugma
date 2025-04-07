@@ -65,10 +65,10 @@
 		}
 	}
 
-	const socket = initializeWsClient(getRoom(), window.runtimeData.port)
-
 	// In the browser context
 	if (!isInsideIframe) {
+		const socket = initializeWsClient(getRoom(), window.runtimeData.port)
+
 		socket.on('connect', () => {
 			console.log('Socket connected!!!', socket.id)
 			isWebsocketServerActive = true
@@ -101,6 +101,7 @@
 
 {#if !isInsideIframe}
 	{#if isServerActive}
+		<!-- FIXME: When websockets enabled via test command, this should enable?-->
 		{#if !isWebsocketsEnabled}
 			<ServerStatus message="Websockets disababled" isConnected={isServerActive && isWebsocketServerActive} />
 		{:else if !isWebsocketServerActive}

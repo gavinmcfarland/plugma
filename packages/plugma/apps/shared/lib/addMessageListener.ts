@@ -2,12 +2,11 @@ import { decodeMessage } from './decodeMessage'
 import { wsEnabled, wsClientStore } from '../stores'
 import { get } from 'svelte/store'
 
+// FIXME: Use of addMessageListener needs refactoring so that duplicate listeners are not added.
 export function addMessageListener(via: string, callback: (event: MessageEvent) => void) {
 	const enableWebSocket = get(wsEnabled)
 	const socket = get(wsClientStore)
 	const isInsideIframe = window.self !== window.top
-
-	console.log('--- addMessageListener', via)
 
 	if (via === 'window') {
 		window.addEventListener('message', callback)
@@ -26,15 +25,15 @@ export function addMessageListener(via: string, callback: (event: MessageEvent) 
 				const newEvent = { data }
 
 				// // Only show if not in iframe (ie in browser)
-				if (!isInsideIframe) {
-					console.log(
-						'%c[ui:browser] %c→→→ %c[ui:figma  ]',
-						'color: initial;',
-						'color: green;',
-						'color: initial;',
-						data,
-					)
-				}
+				// if (!isInsideIframe) {
+				// 	console.log(
+				// 		'%c[ui:browser] %c→→→ %c[ui:figma  ]',
+				// 		'color: initial;',
+				// 		'color: green;',
+				// 		'color: initial;',
+				// 		data,
+				// 	)
+				// }
 
 				callback(newEvent)
 			} catch (error) {

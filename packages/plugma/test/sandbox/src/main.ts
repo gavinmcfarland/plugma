@@ -10,7 +10,7 @@ import { customTest } from './customTest'
 customTest()
 export default function () {
 	// console.clear()
-	console.log('-----------------------------------plugin opened')
+
 	figma.showUI(__html__, { width: 300, height: 260, themeColors: true })
 
 	figma.ui.postMessage({

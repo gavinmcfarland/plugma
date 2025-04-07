@@ -16,45 +16,45 @@ export function postMessageVia(via: string | string[], message: any | any[]) {
 	for (const message of messages) {
 		for (const method of viaMethods) {
 			if (method === 'iframe' && iframeTarget && iframeTarget.contentWindow?.postMessage) {
-				console.log(
-					'%c[main      ] %c→→→ %c[ui:iframe ]',
-					'color: initial;',
-					'color: blue;',
-					'color: initial;',
-					message,
-				)
+				// console.log(
+				// 	'%c[main      ] %c→→→ %c[ui:iframe ]',
+				// 	'color: initial;',
+				// 	'color: blue;',
+				// 	'color: initial;',
+				// 	message,
+				// )
 
 				iframeTarget.contentWindow!.postMessage(message, '*')
 			} else if (method === 'parent' && window.parent) {
-				console.log(
-					'%c[main      ] %c←←← %c[ui:iframe ]',
-					'color: initial;',
-					'color: red;',
-					'color: initial;',
-					message,
-				)
+				// console.log(
+				// 	'%c[main      ] %c←←← %c[ui:iframe ]',
+				// 	'color: initial;',
+				// 	'color: red;',
+				// 	'color: initial;',
+				// 	message,
+				// )
 
 				window.parent.postMessage(message, '*')
 			} else if (method === 'ws') {
 				if (client) {
 					try {
-						if (isInsideIframe) {
-							console.log(
-								'%c[main      ] %c→→→ %c[ui:browser]',
-								'color: initial;',
-								'color: green;',
-								'color: initial;',
-								message,
-							)
-						} else {
-							console.log(
-								'%c[ui:figma  ] %c←←← %c[ui:browser]',
-								'color: initial;',
-								'color: red;',
-								'color: initial;',
-								message,
-							)
-						}
+						// if (isInsideIframe) {
+						// 	console.log(
+						// 		'%c[main      ] %c→→→ %c[ui:browser]',
+						// 		'color: initial;',
+						// 		'color: green;',
+						// 		'color: initial;',
+						// 		message,
+						// 	)
+						// } else {
+						// 	console.log(
+						// 		'%c[ui:figma  ] %c←←← %c[ui:browser]',
+						// 		'color: initial;',
+						// 		'color: red;',
+						// 		'color: initial;',
+						// 		message,
+						// 	)
+						// }
 
 						client.emit('message', message)
 					} catch (error) {

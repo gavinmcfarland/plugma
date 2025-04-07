@@ -43,7 +43,7 @@
 	}
 
 	function handleRunTest(data: any) {
-		console.log('%cRUN_TEST', 'color: red', data)
+		// console.log('%cRUN_TEST', 'color: red', data)
 		postMessageVia(['parent'], {
 			pluginMessage: {
 				type: 'RUN_TEST',
@@ -59,18 +59,16 @@
 
 		// NOTE: Messaging must be setup first so that it's ready to receive messages from iframe
 		// NOTE: Because source is not passed through it will appear as "unknown" in the client list
-		const socket = initializeWsClient(getRoom(), window.runtimeData.port)
+		const socket = initializeWsClient('figma', window.runtimeData.port)
 
 		socket.on('ROOM_STATS', handleRoomStats)
 		socket.on('RUN_TEST', handleRunTest)
 
 		addMessageListener('window', (message) => {
 			if (message.data.pluginMessage.type === 'TEST_ASSERTIONS') {
-				console.log('-----------------------------------message', message)
 				socket.emit('TEST_ASSERTIONS', message.data.pluginMessage.data)
 			}
 			if (message.data.pluginMessage.type === 'TEST_ERROR') {
-				console.log('-----------------------------------message', message)
 				socket.emit('TEST_ERROR', message.data.pluginMessage.data)
 			}
 		})
