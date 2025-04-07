@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store'
 
 // @ts-ignore
-import { createClient } from 'plugma/client'
+import { createClient } from '../../dist/core/websockets/client'
 
 // Store to track whether the local client is connected
 export const localClientConnected = writable(false)

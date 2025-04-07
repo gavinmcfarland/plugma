@@ -14,9 +14,6 @@
 	import { addMessageListener } from '../shared/lib/addMessageListener'
 	import { postMessageVia } from '../shared/lib/postMessageVia'
 
-	// @ts-ignore
-	// import { createClient } from "plugma/client";
-
 	import { relayFigmaMessages } from './lib/relayFigmaMessages'
 	import { observeAndPostFigmaStyles } from './lib/observeAndPostFigmaStyles'
 	import { postFigmaStyles } from './lib/postFigmaStyles'

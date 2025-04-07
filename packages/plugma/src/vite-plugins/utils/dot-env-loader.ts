@@ -1,13 +1,13 @@
-import type { FSWatcher } from 'chokidar';
-import chokidar from 'chokidar';
-import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import type { ConfigEnv, Plugin, UserConfig, ViteDevServer } from 'vite';
+import type { FSWatcher } from 'chokidar'
+import chokidar from 'chokidar'
+import { existsSync, readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import type { ConfigEnv, Plugin, UserConfig, ViteDevServer } from 'vite'
 
-const rootDir = process.cwd();
+const rootDir = process.cwd()
 
 interface EnvRecord {
-  [key: string]: string;
+	[key: string]: string
 }
 
 /**
@@ -17,36 +17,36 @@ interface EnvRecord {
  * @returns An object containing the parsed environment variables
  */
 function parseEnvFile(content: string): EnvRecord {
-  const env: EnvRecord = {};
-  const lines = content.split('\n');
+	const env: EnvRecord = {}
+	const lines = content.split('\n')
 
-  for (const line of lines) {
-    // Ignore comments and empty lines
-    if (line.trim() === '' || line.trim().startsWith('#')) continue;
+	for (const line of lines) {
+		// Ignore comments and empty lines
+		if (line.trim() === '' || line.trim().startsWith('#')) continue
 
-    // Split key-value pairs
-    const [key, ...valueParts] = line.split('=');
-    const value = valueParts.join('=').trim();
+		// Split key-value pairs
+		const [key, ...valueParts] = line.split('=')
+		const value = valueParts.join('=').trim()
 
-    if (key) {
-      // Remove quotes from value if present
-      env[key.trim()] = value.replace(/^['"]|['"]$/g, '');
-    }
-  }
+		if (key) {
+			// Remove quotes from value if present
+			env[key.trim()] = value.replace(/^['"]|['"]$/g, '')
+		}
+	}
 
-  return env;
+	return env
 }
 
 /**
  * Gets the list of environment files to load based on current mode
  */
 function getEnvFiles(mode: string): string[] {
-  return [
-    resolve(rootDir, '.env'),
-    resolve(rootDir, '.env.local'),
-    resolve(rootDir, `.env.${mode}`),
-    resolve(rootDir, `.env.${mode}.local`),
-  ];
+	return [
+		resolve(rootDir, '.env'),
+		resolve(rootDir, '.env.local'),
+		resolve(rootDir, `.env.${mode}`),
+		resolve(rootDir, `.env.${mode}.local`),
+	]
 }
 
 /**
@@ -56,46 +56,41 @@ function getEnvFiles(mode: string): string[] {
  * @returns An object containing all environment variables
  */
 function loadEnvFiles(mode: string): EnvRecord {
-  const envFiles = getEnvFiles(mode);
+	const envFiles = getEnvFiles(mode)
 
-  // Create a new object with only string values from process.env
-  const env: EnvRecord = Object.fromEntries(
-    Object.entries(process.env).filter(([_, v]) => typeof v === 'string'),
-  ) as EnvRecord;
+	// Create a new object with only string values from process.env
+	const env: EnvRecord = Object.fromEntries(
+		Object.entries(process.env).filter(([_, v]) => typeof v === 'string'),
+	) as EnvRecord
 
-  // Remove problematic Windows environment variables
-  const envWithoutProblematicVars = { ...env };
-  delete envWithoutProblematicVars['CommonProgramFiles(x86)'];
-  delete envWithoutProblematicVars['ProgramFiles(x86)'];
+	// Remove problematic Windows environment variables
+	const envWithoutProblematicVars = { ...env }
+	delete envWithoutProblematicVars['CommonProgramFiles(x86)']
+	delete envWithoutProblematicVars['ProgramFiles(x86)']
 
-  for (const file of envFiles) {
-    if (existsSync(file)) {
-      const content = readFileSync(file, 'utf-8');
-      const parsedEnv = parseEnvFile(content);
-      Object.assign(envWithoutProblematicVars, parsedEnv);
-      console.log(
-        `[custom-env-loader] Loaded environment variables from: ${file}`,
-      );
-    }
-  }
+	for (const file of envFiles) {
+		if (existsSync(file)) {
+			const content = readFileSync(file, 'utf-8')
+			const parsedEnv = parseEnvFile(content)
+			Object.assign(envWithoutProblematicVars, parsedEnv)
+			console.log(`[custom-env-loader] Loaded environment variables from: ${file}`)
+		}
+	}
 
-  return envWithoutProblematicVars;
+	return envWithoutProblematicVars
 }
 
 /**
  * Creates Vite config with environment variables
  */
 function createEnvConfig(env: EnvRecord): UserConfig {
-  return {
-    define: {
-      ...Object.fromEntries(
-        Object.entries(env).map(([key, value]) => [
-          `process.env.${key}`,
-          JSON.stringify(value),
-        ]),
-      ),
-    },
-  };
+	return {
+		define: {
+			...Object.fromEntries(
+				Object.entries(env).map(([key, value]) => [`process.env.${key}`, JSON.stringify(value)]),
+			),
+		},
+	}
 }
 
 /**
@@ -106,83 +101,81 @@ function createEnvConfig(env: EnvRecord): UserConfig {
  * @returns A Vite plugin configuration object
  */
 export function dotEnvLoader(options = {}): Plugin {
-  let server: ViteDevServer | undefined;
-  let mode: string;
-  let watcher: FSWatcher | undefined;
+	let server: ViteDevServer | undefined
+	let mode: string
+	let watcher: FSWatcher | undefined
 
-  return {
-    name: 'custom-env-loader',
+	return {
+		name: 'custom-env-loader',
 
-    configResolved(config) {
-      mode = config.mode;
-    },
+		configResolved(config) {
+			mode = config.mode
+		},
 
-    config(config: UserConfig, { command }: ConfigEnv): UserConfig {
-      try {
-        // Load environment variables freshly for each build or serve command
-        const env = loadEnvFiles(mode);
-        return createEnvConfig(env);
-      } catch (error) {
-        console.error(`[custom-env-loader] Error loading env files: ${error}`);
-        return {};
-      }
-    },
+		config(config: UserConfig, { command }: ConfigEnv): UserConfig {
+			try {
+				// Load environment variables freshly for each build or serve command
+				const env = loadEnvFiles(mode)
+				return createEnvConfig(env)
+			} catch (error) {
+				console.error(`[custom-env-loader] Error loading env files: ${error}`)
+				return {}
+			}
+		},
 
-    configureServer(_server) {
-      server = _server;
+		configureServer(_server) {
+			server = _server
 
-      try {
-        // Watch env files for changes
-        const envFiles = getEnvFiles(mode);
-        watcher = chokidar.watch(envFiles, {
-          ignoreInitial: false,
-          ignorePermissionErrors: true,
-          persistent: true,
-        });
+			try {
+				// Watch env files for changes
+				const envFiles = getEnvFiles(mode)
+				watcher = chokidar.watch(envFiles, {
+					ignoreInitial: false,
+					ignorePermissionErrors: true,
+					persistent: true,
+				})
 
-        watcher.on('change', async (path: string) => {
-          console.log(`[custom-env-loader] Environment file changed: ${path}`);
+				watcher.on('change', async (path: string) => {
+					console.log(`[custom-env-loader] Environment file changed: ${path}`)
 
-          try {
-            // Reload environment variables
-            const env = loadEnvFiles(mode);
-            const newConfig = createEnvConfig(env);
+					try {
+						// Reload environment variables
+						const env = loadEnvFiles(mode)
+						const newConfig = createEnvConfig(env)
 
-            // Update server config
-            if (server) {
-              Object.assign(server.config.define || {}, newConfig.define);
+						// Update server config
+						if (server) {
+							Object.assign(server.config.define || {}, newConfig.define)
 
-              // Force Vite to restart and pick up new environment variables
-              await server.restart();
-              console.log('[custom-env-loader] Server restarted successfully');
-            }
-          } catch (error) {
-            console.error(
-              `[custom-env-loader] Error reloading env file ${path}: ${error}`,
-            );
-          }
-        });
+							// Force Vite to restart and pick up new environment variables
+							await server.restart()
+							console.log('[custom-env-loader] Server restarted successfully')
+						}
+					} catch (error) {
+						console.error(`[custom-env-loader] Error reloading env file ${path}: ${error}`)
+					}
+				})
 
-        watcher.on('error', (error: Error) => {
-          console.error(`[custom-env-loader] Watcher error: ${error}`);
-        });
-      } catch (error) {
-        console.error(`[custom-env-loader] Error setting up watcher: ${error}`);
-      }
-    },
+				watcher.on('error', (err: unknown) => {
+					console.error(`[custom-env-loader] Watcher error: ${err}`)
+				})
+			} catch (error) {
+				console.error(`[custom-env-loader] Error setting up watcher: ${error}`)
+			}
+		},
 
-    closeBundle() {
-      if (watcher) {
-        try {
-          watcher.close();
-          watcher = undefined;
-          console.log('[custom-env-loader] Watcher closed successfully');
-        } catch (error) {
-          console.error(`[custom-env-loader] Error closing watcher: ${error}`);
-        }
-      }
-    },
-  };
+		closeBundle() {
+			if (watcher) {
+				try {
+					watcher.close()
+					watcher = undefined
+					console.log('[custom-env-loader] Watcher closed successfully')
+				} catch (error) {
+					console.error(`[custom-env-loader] Error closing watcher: ${error}`)
+				}
+			}
+		},
+	}
 }
 
-export default dotEnvLoader;
+export default dotEnvLoader

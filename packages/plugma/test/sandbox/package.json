@@ -12,7 +12,8 @@
 		"test:dev": "nr build-plugma && (timeout 3s plugma dev --debug); nr list-dist",
 		"test:build": "nr build-plugma && plugma build --debug && nr list-dist",
 		"test:preview": "nr build-plugma && (timeout 5s plugma preview --debug); nr list-dist",
-		"test:release": "nr build-plugma && plugma release --debug && nr list-dist"
+		"test:release": "nr build-plugma && plugma release --debug && nr list-dist",
+		"clean": "rm -rf dist node_modules"
 	},
 	"devDependencies": {
 		"@figma/plugin-typings": "^1.100.2",

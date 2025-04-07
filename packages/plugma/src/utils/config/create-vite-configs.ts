@@ -1,6 +1,5 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import WebSocket from 'ws'
 
 import type { Plugin, UserConfig } from 'vite'
 import { viteSingleFile } from 'vite-plugin-singlefile'
