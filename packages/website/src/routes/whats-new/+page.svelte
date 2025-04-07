@@ -56,7 +56,7 @@
 			</div>
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="boolean-subtract" size={24} opacity={1} />Testing framework</span
+					><Icon svg="clipboard-check" size={24} opacity={1} />Testing Framework</span
 				>
 				<p class="m-0">
 					Catch bugs and ensure your plugin works as expected. Write tests with files that
@@ -66,7 +66,7 @@
 
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="folder" size={24} opacity={1} />Enhanced Build System</span
+					><Icon svg="apps" size={24} opacity={1} />Enhanced Build System</span
 				>
 
 				<p class="m-0">
@@ -78,7 +78,7 @@
 
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="layout" size={24} opacity={1} />Custom <code>index.html</code> template</span
+					><Icon svg="layout" size={24} opacity={1} />Custom Template</span
 				>
 				<p class="m-0">
 					You can now provide a custom <code>index.html</code> template. This is useful if
@@ -88,7 +88,7 @@
 
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="bolt" size={24} opacity={1} />More reliable</span
+					><Icon svg="bug" size={24} opacity={1} />Squashed Bugs</span
 				>
 				<p class="m-0">
 					Bug fixes and improvements make your development experience more reliable.

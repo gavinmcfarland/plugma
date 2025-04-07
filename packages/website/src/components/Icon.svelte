@@ -249,6 +249,72 @@
 			/>
 		</svg>
 	{/if}
+	{#if svg === 'apps'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M9.54605 4.63287H4.54605C3.99376 4.63287 3.54605 5.08059 3.54605 5.63287V10.6329C3.54605 11.1852 3.99376 11.6329 4.54605 11.6329H9.54605C10.0983 11.6329 10.546 11.1852 10.546 10.6329V5.63287C10.546 5.08059 10.0983 4.63287 9.54605 4.63287Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+			/>
+			<path
+				d="M9.54605 14.6329H4.54605C3.99376 14.6329 3.54605 15.0806 3.54605 15.6329V20.6329C3.54605 21.1852 3.99376 21.6329 4.54605 21.6329H9.54605C10.0983 21.6329 10.546 21.1852 10.546 20.6329V15.6329C10.546 15.0806 10.0983 14.6329 9.54605 14.6329Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+			/>
+			<path
+				d="M19.546 14.6329H14.546C13.9938 14.6329 13.546 15.0806 13.546 15.6329V20.6329C13.546 21.1852 13.9938 21.6329 14.546 21.6329H19.546C20.0983 21.6329 20.546 21.1852 20.546 20.6329V15.6329C20.546 15.0806 20.0983 14.6329 19.546 14.6329Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+			/>
+			<path
+				d="M17.3389 2.89023L13.8034 6.42577C13.4128 6.81629 13.4128 7.44946 13.8034 7.83998L17.3389 11.3755C17.7294 11.766 18.3626 11.766 18.7531 11.3755L22.2886 7.83998C22.6792 7.44946 22.6792 6.81629 22.2886 6.42577L18.7531 2.89023C18.3626 2.49971 17.7294 2.49971 17.3389 2.89023Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+			/>
+		</svg>
+	{/if}
+	{#if svg === 'clipboard-check'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M9 13.5L11 15.5L15 11.5"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M8 4H6C5.44772 4 5 4.44772 5 5V20C5 20.5523 5.44772 21 6 21H18C18.5523 21 19 20.5523 19 20V5C19 4.44772 18.5523 4 18 4H16"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+			/>
+			<path
+				d="M9 5V3C9 2.44772 9.44772 2 10 2H14C14.5523 2 15 2.44772 15 3V5C15 5.55228 14.5523 6 14 6H10C9.44772 6 9 5.55228 9 5Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+			/>
+		</svg>
+	{/if}
 	{#if svg === 'boolean-subtract'}
 		<svg
 			style:width={sizePx}
