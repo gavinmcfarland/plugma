@@ -36,14 +36,20 @@ export function injectRuntime(customFunctions: string, pluginOptions: PluginOpti
 				return null
 			}
 
-			const codeToReplace = `import * as customFunctions from 'virtual:plugma';\n${code
+			// Only transform the specific lines that need it
+			const codeToReplace = code
 				.replace(/figma\.showUI\((.*?)\)/g, 'customFunctions.customShowUI($1)')
-				.replace(/figma\.ui\.resize\((.*?)\)/g, 'customFunctions.customResize($1)')}`
+				.replace(/figma\.ui\.resize\((.*?)\)/g, 'customFunctions.customResize($1)')
 
-			return {
-				code: codeToReplace,
-				map: null, // Generate source map here if needed
+			// Add the import only if we actually made replacements
+			if (codeToReplace !== code) {
+				return {
+					code: `import * as customFunctions from 'virtual:plugma';\n${codeToReplace}`,
+					map: null,
+				}
 			}
+
+			return null
 		},
 	}
 }
