@@ -28,19 +28,18 @@ test('creates a rectangle with specific color', async () => {
 	expect(color.b).to.be.approximately(TEST_COLOR.b, 0.0001)
 })
 
-// test("verifies the last created rectangle's color", async () => {
-//   const lastNode =
-//     figma.currentPage.children[figma.currentPage.children.length - 1];
+test("verifies the last created rectangle's color", async () => {
+	const lastNode = figma.currentPage.children[figma.currentPage.children.length - 1]
 
-//   expect(lastNode.type).to.equal('RECTANGLE');
+	expect(lastNode.type).to.equal('RECTANGLE')
 
-//   const firstFill = ((lastNode as RectangleNode).fills as Paint[]).at(0);
+	const firstFill = ((lastNode as RectangleNode).fills as Paint[])[0]
 
-//   const color = (firstFill as SolidPaint).color;
+	const color = (firstFill as SolidPaint).color
 
-//   expect(firstFill?.type).to.equal('SOLID');
+	expect(firstFill?.type).to.equal('SOLID')
 
-//   expect(color.r).to.be.approximately(TEST_COLOR.r, 0.0001);
-//   expect(color.g).to.be.approximately(TEST_COLOR.g, 0.0001);
-//   expect(color.b).to.be.approximately(TEST_COLOR.b, 0.0001);
-// });
+	expect(color.r).to.be.approximately(TEST_COLOR.r, 0.0001)
+	expect(color.g).to.be.approximately(TEST_COLOR.g, 0.0001)
+	expect(color.b).to.be.approximately(TEST_COLOR.b, 0.0001)
+})

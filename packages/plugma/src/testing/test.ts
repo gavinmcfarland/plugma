@@ -14,6 +14,19 @@ const TEST_CONFIG = {
 	timeout: 30000, // 30 seconds
 } as const
 
+type TestResultMessage =
+	| {
+			type: 'TEST_ASSERTIONS'
+			testRunId: string
+			assertionCode: string // Adjust the type according to your assertion structure
+			source: string
+	  }
+	| {
+			type: 'TEST_ERROR'
+			testRunId: string
+			error: string
+	  }
+
 function initializeSocket() {
 	console.log('[socket] initializing socket')
 	const socket = createClient({
@@ -31,6 +44,32 @@ function initializeSocket() {
 	// })
 
 	return socket
+}
+
+const testRunCallbacks = new Map<
+	string,
+	{
+		resolve: (value: any) => void
+		reject: (error: Error) => void
+	}
+>()
+
+function waitForTestResult(testRunId: string) {
+	return new Promise((resolve, reject) => {
+		// Store the callbacks for this test run
+		testRunCallbacks.set(testRunId, { resolve, reject })
+
+		// Set up a cleanup function to remove the callbacks after a timeout
+		const cleanup = () => {
+			testRunCallbacks.delete(testRunId)
+		}
+
+		// Return the promise that will be resolved by the callbacks
+		return new Promise((res, rej) => {
+			resolve = res
+			reject = rej
+		}).finally(cleanup)
+	})
 }
 
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, testName: string): Promise<T> {
@@ -75,41 +114,44 @@ export const test: TestFn = async (name, fn) => {
 			console.log('Using existing socket connection')
 		}
 
-		function runTest() {
-			console.log('emitting RUN_TEST')
-			socket!.emit('RUN_TEST', {
-				room: 'figma',
-				testName: name,
-				testRunId: `${name}-${Date.now()}`,
+		// Create a unique test run ID
+		const testRunId = `${name}-${Date.now()}`
+
+		// Set up message handlers before running the test
+		const testResultPromise = new Promise<TestResultMessage>((resolve, reject) => {
+			socket!.on('TEST_ASSERTIONS', (message) => {
+				if (message.testRunId === testRunId) {
+					resolve(message)
+				}
 			})
+			socket!.on('TEST_ERROR', (message) => {
+				if (message.testRunId === testRunId) {
+					reject(new Error(message.error))
+				}
+			})
+		})
+
+		// Run the test
+		socket!.emit('RUN_TEST', {
+			room: 'figma',
+			testName: name,
+			testRunId: testRunId,
+		})
+
+		// Wait for test result with timeout
+		const result = await withTimeout(testResultPromise, TEST_CONFIG.timeout, name)
+
+		// Clean up message handlers
+		socket!.off('TEST_ASSERTIONS')
+		socket!.off('TEST_ERROR')
+
+		console.log('result', result)
+
+		// FIXME: How to handle errors?
+		// Execute any assertions from the test result
+		if ('assertionCode' in result) {
+			await executeAssertions(result.assertionCode.split(';\n').filter(Boolean))
 		}
-
-		// FIXME: Replace with even listener for when plugin is ready
-		await new Promise((resolve) => setTimeout(resolve, 500))
-		runTest()
-		socket.on('FILE_CHANGED', runTest)
-		socket.on('TEST_ASSERTIONS', (message) => {
-			console.log('TEST_ASSERTIONS', message)
-		})
-		socket.on('TEST_ERROR', (message) => {
-			console.log('TEST_ERROR', message)
-		})
-
-		// Test needs to be open long enough for socket to connect. This is why it never
-		// connected before. The delay won't be needed in production because this test
-		// should return the respsonse of the actual test
-		await new Promise((resolve) => setTimeout(resolve, 100000))
-
-		// const result = await withTimeout()
-
-		// WAIT FOR TEST RESULT which is a promise with message?
-
-		let code = `
-			expect(false).toBe(true)
-		`
-		const assertFn = new Function('expect', code)
-		console.log('assertFn', assertFn)
-		assertFn(vitestExpect, code)
 	})
 }
 

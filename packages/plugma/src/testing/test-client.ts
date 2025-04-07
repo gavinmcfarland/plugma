@@ -6,6 +6,13 @@ import { createClient, type SocketClient } from '../core/websockets/client.js'
  */
 export class TestClient {
 	private static instance: SocketClient
+	private static testRunCallbacks = new Map<
+		string,
+		{
+			resolve: (value: any) => void
+			reject: (error: any) => void
+		}
+	>()
 
 	private static initSocket(port?: number) {
 		// Try to get port from environment variable if not provided
