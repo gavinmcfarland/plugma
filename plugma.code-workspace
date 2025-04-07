@@ -20,6 +20,9 @@
 			"name": "plugma",
 			"path": "packages/plugma",
 		},
+		{
+			"path": "packages/plugma/apps",
+		},
 	],
 	"settings": {},
 }

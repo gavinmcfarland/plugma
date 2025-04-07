@@ -46,43 +46,53 @@
 		>
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="message-square" size={24} opacity={1} />Unit Testing</span
+					><Icon svg="globe" size={24} opacity={1} />Reliable Browser Preview</span
 				>
 				<p class="m-0">
-					Catch bugs and ensure your plugin works as expected. Write unit tests with files that end
-					with <code>.test.ts</code> and run tests using the new <code>test</code> command.
+					We've improved the browser preview's reliability and responsiveness. Previously,
+					missed messages and performance issues could occur if either party wasn't
+					available.
+				</p>
+			</div>
+			<div class="flex flex-col gap-3">
+				<span class="flex gap-3 font-semibold"
+					><Icon svg="boolean-subtract" size={24} opacity={1} />Testing framework</span
+				>
+				<p class="m-0">
+					Catch bugs and ensure your plugin works as expected. Write tests with files that
+					end with <code>.test.ts</code> and run tests using the new <code>test</code> command.
 				</p>
 			</div>
 
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="file" size={24} opacity={1} />Enhanced Build System</span
+					><Icon svg="folder" size={24} opacity={1} />Enhanced Build System</span
 				>
 
 				<p class="m-0">
-					Better support for different contexts using a special <code>runtime</code> option. You can
-					now specifiy different configurations for both <code>main</code> and <code>ui</code> with
-					a single
-					<code>vite.config.js</code> file.
+					Better support for different contexts using a special <code>context</code>
+					option. You can now specify different configurations for <code>main</code> and
+					<code>ui</code> with a single <code>vite.config.js</code> file.
 				</p>
 			</div>
 
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="switch-alt" size={24} opacity={1} />Custom <code>index.html</code> template</span
+					><Icon svg="layout" size={24} opacity={1} />Custom <code>index.html</code> template</span
 				>
 				<p class="m-0">
-					You can now provide a custom <code>index.html</code> template. This is useful if you need to
-					include additional frameworks or libraries in your plugin.
+					You can now provide a custom <code>index.html</code> template. This is useful if
+					you need to include additional frameworks or libraries in your plugin.
 				</p>
 			</div>
 
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="file" size={24} opacity={1} />More reliable</span
+					><Icon svg="bolt" size={24} opacity={1} />More reliable</span
 				>
 				<p class="m-0">
-					Bug fixes and improvements make your development experience more reliable. Changes to
+					Bug fixes and improvements make your development experience more reliable.
+					Changes to
 					<code>manifest.json</code> now trigger rebuilds automatically.
 				</p>
 			</div>

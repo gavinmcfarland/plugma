@@ -1,5 +1,5 @@
-import type { PluginOptions } from "#core/types.js";
-import type { Plugin } from "vite"; // vite.config.js
+import type { PluginOptions } from '#core/types.js'
+import type { Plugin } from 'vite' // vite.config.js
 
 /**
  * Creates a Vite plugin that injects runtime code after all transformations.
@@ -9,54 +9,41 @@ import type { Plugin } from "vite"; // vite.config.js
  * these functions aren't actually referenced in the code.
  */
 
-export function injectRuntime(
-	customFunctions: string,
-	pluginOptions: PluginOptions,
-): Plugin {
+export function injectRuntime(customFunctions: string, pluginOptions: PluginOptions): Plugin {
 	return {
-		name: "plugma-plugin",
+		name: 'plugma-plugin',
 		resolveId(id) {
-			if (id === "virtual:plugma") {
-				return id;
+			if (id === 'virtual:plugma') {
+				return id
 			}
 		},
 
 		load(id) {
-			if (id === "virtual:plugma") {
-				return `const runtimeData = ${JSON.stringify(
-					pluginOptions,
-					null,
-					2,
-				)};
+			if (id === 'virtual:plugma') {
+				return `const runtimeData = ${JSON.stringify(pluginOptions, null, 2)};
 
-				${customFunctions}`;
+				${customFunctions}`
 			}
 		},
 		transform(code, id) {
 			// Skip non-source files early
-			if (!id.endsWith(".ts") && !id.endsWith(".js")) {
-				return null;
+			if (!id.endsWith('.ts') && !id.endsWith('.js')) {
+				return null
 			}
 
 			// Skip if no replacement needed
-			if (
-				!code.includes("figma.showUI") &&
-				!code.includes("figma.ui.resize")
-			) {
-				return null;
+			if (!code.includes('figma.showUI') && !code.includes('figma.ui.resize')) {
+				return null
 			}
 
 			const codeToReplace = `import * as customFunctions from 'virtual:plugma';\n${code
-				.replace(
-					/figma\.showUI\((.*?)\)/g,
-					"customFunctions.customShowUI($1)",
-				)
-				.replace(
-					/figma\.ui\.resize\((.*?)\)/g,
-					"customFunctions.customResize($1)",
-				)}`;
+				.replace(/figma\.showUI\((.*?)\)/g, 'customFunctions.customShowUI($1)')
+				.replace(/figma\.ui\.resize\((.*?)\)/g, 'customFunctions.customResize($1)')}`
 
-			return codeToReplace;
+			return {
+				code: codeToReplace,
+				map: null, // Generate source map here if needed
+			}
 		},
-	};
+	}
 }

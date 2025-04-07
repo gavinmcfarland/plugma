@@ -184,6 +184,140 @@
 			/>
 		</svg>
 	{/if}
+	{#if svg === 'layout'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M20.546 4.63281H4.54605C3.99377 4.63281 3.54605 5.08053 3.54605 5.63281V19.6328C3.54605 20.1851 3.99377 20.6328 4.54605 20.6328H20.546C21.0983 20.6328 21.546 20.1851 21.546 19.6328V5.63281C21.546 5.08053 21.0983 4.63281 20.546 4.63281Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M20.546 4.63281H4.54605C3.99377 4.63281 3.54605 5.08053 3.54605 5.63281V10.6328H21.546V5.63281C21.546 5.08053 21.0983 4.63281 20.546 4.63281Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M9.54605 10.6328H3.54605V19.6328C3.54605 20.1851 3.99377 20.6328 4.54605 20.6328H9.54605V10.6328Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	{/if}
+	{#if svg === 'globe'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M12.9252 21.5336C17.8958 21.5336 21.9252 17.5042 21.9252 12.5336C21.9252 7.56304 17.8958 3.5336 12.9252 3.5336C7.95468 3.5336 3.92525 7.56304 3.92525 12.5336C3.92525 17.5042 7.95468 21.5336 12.9252 21.5336Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+			/>
+			<path
+				d="M12.9252 21.5336C15.1344 21.5336 16.9252 17.5042 16.9252 12.5336C16.9252 7.56304 15.1344 3.5336 12.9252 3.5336C10.7161 3.5336 8.92525 7.56304 8.92525 12.5336C8.92525 17.5042 10.7161 21.5336 12.9252 21.5336Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+			/>
+			<path
+				d="M3.92525 12.5336H21.9252"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+			/>
+		</svg>
+	{/if}
+	{#if svg === 'boolean-subtract'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M9 16.25C12.7279 16.25 15.75 13.2279 15.75 9.5C15.75 5.77208 12.7279 2.75 9 2.75C5.27208 2.75 2.25 5.77208 2.25 9.5C2.25 13.2279 5.27208 16.25 9 16.25Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M15.7125 8.78751C16.9796 8.92206 18.1828 9.41254 19.1829 10.2022C20.1829 10.9919 20.9391 12.0486 21.3638 13.25C21.7885 14.4514 21.8645 15.7485 21.5829 16.9912C21.3013 18.234 20.6738 19.3717 19.7727 20.2727C18.8717 21.1738 17.734 21.8014 16.4912 22.0829C15.2484 22.3645 13.9513 22.2885 12.7499 21.8638C11.5485 21.4391 10.4919 20.683 9.7022 19.6829C8.91251 18.6828 8.42203 17.4797 8.28748 16.2125"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M15.4603 11.4603L21.4603 17.4603"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M13.7728 14.2728L19.7728 20.2728"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M10.9603 15.9603L16.9603 21.9603"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	{/if}
+	{#if svg === 'folder'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M3.00002 6.5C3.00002 5.94772 3.44773 5.5 4.00002 5.5H9.00002L11 7.5H20C20.5523 7.5 21 7.94772 21 8.5V18.5C21 19.0523 20.5523 19.5 20 19.5H4.00002C3.44773 19.5 3.00002 19.0523 3.00002 18.5V6.5Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	{/if}
 	{#if svg === 'terminal-filled'}
 		<svg
 			style:width={sizePx}

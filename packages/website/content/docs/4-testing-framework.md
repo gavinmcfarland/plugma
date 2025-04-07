@@ -1,12 +1,12 @@
-# Unit testing
+# Testing framework
 
-Unit tests are an important part of your development workflow. They help you catch bugs and ensure your plugin works as expected.
+Testing is an important part of your development workflow. It helps you catch bugs and ensure your plugin works as expected.
 
-## Writing unit tests
+## Writing tests
 
 Under the hood, Plugma uses [Vitest](https://vitest.dev/guide/) for running tests.
 
-You can write unit tests by creating files with `.test.` in their name.
+You can write tests by creating files that end in `.test.ts` or `.test.js`.
 
 ##### Create rectangle example
 

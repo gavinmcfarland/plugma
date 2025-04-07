@@ -3,14 +3,21 @@
 import { execSync } from 'child_process';
 
 const clientTypes = {
-	'server': "concurrently \"tsx src/node/websocket-server.ts\" \"vite\"",
-    'vite': 'tsx src/client/vite-client.ts',
-    'test': 'tsx src/client/test-client.ts',
-    'figma': 'open http://localhost:5173/?type=figma',
-    'browser': 'open http://localhost:5173/?type=browser'
+	'server': (port) => `concurrently "tsx src/node/websocket-server.ts" "vite --port ${port}"`,
+    'vite': (port) => `tsx src/client/vite-client.ts --port ${port}`,
+    'test': (port) => `tsx src/client/test-client.ts --port ${port}`,
+    'figma': (port) => `open http://localhost:${port}/?type=figma`,
+    'browser': (port) => `open http://localhost:${port}/?type=browser`
 };
 
-const clientType = process.argv[2];
+// Parse command line arguments
+const args = process.argv.slice(2);
+const clientType = args[0];
+const portFlagIndex = args.findIndex(arg => arg === '--port' || arg === '-p');
+const port = portFlagIndex !== -1
+    ? args[portFlagIndex + 1]
+    : args[1] || '5173'; // Use second argument if no flag found
+console.log('Selected port:', port); // Debug log
 
 if (!clientType || !clientTypes[clientType]) {
     console.error('Please specify a valid client type:');
@@ -19,7 +26,7 @@ if (!clientType || !clientTypes[clientType]) {
 }
 
 try {
-    execSync(clientTypes[clientType], { stdio: 'inherit' });
+    execSync(clientTypes[clientType](port), { stdio: 'inherit' });
 } catch (error) {
     console.error(`Error running ${clientType}:`, error.message);
     process.exit(1);

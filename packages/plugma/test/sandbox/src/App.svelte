@@ -1,31 +1,31 @@
 <script lang="ts">
-	import svelteLogo from "./assets/svelte.svg";
-	import Icon from "./components/Icon.svelte";
-	import Input from "./components/Input.svelte";
-	import Button from "./components/Button.svelte";
+	import svelteLogo from './assets/svelte.svg'
+	import Icon from './components/Icon.svelte'
+	import Input from './components/Input.svelte'
+	import Button from './components/Button.svelte'
 
 	function createRectangles(count: number) {
 		parent.postMessage(
 			{
 				pluginMessage: {
-					type: "CREATE_RECTANGLES",
+					type: 'CREATE_RECTANGLES',
 					count,
 				},
 			},
-			"*",
-		);
+			'*',
+		)
 	}
 
-	let rectCount = $state(5);
-	let nodeCount = $state(0);
+	let rectCount = $state(5)
+	let nodeCount = $state(0)
 
 	window.onmessage = (event) => {
-		const message = event.data.pluginMessage;
+		const message = event.data.pluginMessage
 
-		if (message.type === "POST_NODE_COUNT") {
-			nodeCount = message.count;
+		if (message.type === 'POST_NODE_COUNT') {
+			nodeCount = message.count
 		}
-	};
+	}
 </script>
 
 <div class="container">
@@ -39,26 +39,8 @@
 
 	<div class="field create-rectangles">
 		<Input type="number" bind:value={rectCount}></Input>
-		<Button onclick={() => createRectangles(rectCount)}
-			>Create Rectangles</Button
-		>
+		<Button onclick={() => createRectangles(rectCount)}>Create Rectangles</Button>
 	</div>
-	<!-- <div class="field">
-		<Button onclick={runTest}>Run Test</Button>
-	</div>
-	{#if testResults.length > 0}
-		<div class="test-results">
-			{#each testResults as result}
-				<div class="test-assertion">
-					<span class="value">{result[0][1][0]}</span>
-					<span class="operator">{result[1][0]}</span>
-					<span class="operator">{result[2][0]}</span>
-					<span class="expected">{result[2][1][0]}</span>
-				</div>
-			{/each}
-		</div>
-	{/if}
-	 -->
 	<div class="field node-count">
 		<span>{nodeCount} nodes selected</span>
 	</div>
@@ -93,34 +75,5 @@
 
 	.create-rectangles :global(.Input) {
 		width: 40px;
-	}
-
-	.test-results {
-		margin-top: var(--spacer-3);
-		font-size: 11px;
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacer-1);
-		padding: var(--spacer-2);
-		background: var(--figma-color-bg-secondary);
-		border-radius: 6px;
-	}
-
-	.test-assertion {
-		color: var(--figma-color-text);
-		display: flex;
-		gap: var(--spacer-1);
-	}
-
-	.test-assertion .value {
-		color: var(--figma-color-text-secondary);
-	}
-
-	.test-assertion .operator {
-		color: var(--figma-color-text-tertiary);
-	}
-
-	.test-assertion .expected {
-		color: var(--figma-color-text-brand);
 	}
 </style>

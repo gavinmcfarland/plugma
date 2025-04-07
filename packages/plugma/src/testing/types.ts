@@ -3,15 +3,15 @@
  */
 export interface TestContext {
 	/** Name of the test */
-	name: string;
+	name: string
 	/** List of assertions made during the test */
-	assertions: string[];
+	assertions: string[]
 	/** When the test started */
-	startTime: number;
+	startTime: number
 	/** When the test ended */
-	endTime: number | null;
+	endTime: number | null
 	/** How long the test took */
-	duration: number | null;
+	duration: number | null
 }
 
 /**
@@ -19,11 +19,11 @@ export interface TestContext {
  */
 export interface TestConfig {
 	/** Timeout for test execution in milliseconds */
-	timeout: number;
+	timeout: number
 	/** Whether to enable debug logging */
-	debug?: boolean;
+	debug?: boolean
 	/** Default indent level for logs */
-	defaultIndentLevel?: number;
+	defaultIndentLevel?: number
 }
 
 /**
@@ -31,11 +31,11 @@ export interface TestConfig {
  */
 export interface WebSocketConfig {
 	/** WebSocket server URL */
-	url: string;
+	url: string
 	/** Timeout for message responses in milliseconds */
-	timeout: number;
+	timeout: number
 	/** Delay between reconnection attempts in milliseconds */
-	retryDelay: number;
+	retryDelay: number
 }
 
 /**
@@ -43,109 +43,88 @@ export interface WebSocketConfig {
  */
 export interface TestHooks {
 	/** Called before any tests are run */
-	beforeAll?: () => Promise<void> | void;
+	beforeAll?: () => Promise<void> | void
 	/** Called after all tests are complete */
-	afterAll?: () => Promise<void> | void;
+	afterAll?: () => Promise<void> | void
 	/** Called before each test */
-	beforeEach?: () => Promise<void> | void;
+	beforeEach?: () => Promise<void> | void
 	/** Called after each test */
-	afterEach?: () => Promise<void> | void;
+	afterEach?: () => Promise<void> | void
 }
 
 export type TestResultMessage =
 	| {
-			type: "TEST_ASSERTIONS";
-			testRunId: string;
-			assertionCode: string;
-			source: string;
+			type: 'TEST_ASSERTIONS'
+			testRunId: string
+			assertionCode: string
+			source: string
 	  }
 	| {
-			type: "TEST_ERROR";
-			testRunId: string;
-			error: string;
-			pluginState?: unknown;
-			originalError?: Error;
-			source: string;
-	  };
+			type: 'TEST_ERROR'
+			testRunId: string
+			error: string
+			pluginState?: unknown
+			originalError?: Error
+			source: string
+	  }
 
 export type BuildMessage = {
-	type: "BUILD_COMPLETE" | "BUILD_START";
-	buildId: string;
-	source: string;
-	file?: string;
-};
+	type: 'BUILD_COMPLETE' | 'BUILD_START'
+	buildId: string
+	source: string
+	file?: string
+}
 
 export interface BuildNotificationMessage {
-	type: "BUILD_NOTIFICATION";
-	buildId: string;
-	timestamp: number;
+	type: 'BUILD_NOTIFICATION'
+	buildId: string
+	timestamp: number
 	// Include any other BUILD_COMPLETE message properties
 }
 
 /**
  * Messages passed between Node and Figma environments
  */
-export type TestMessage =
-	| TestResultMessage
-	| BuildMessage
-	| {
-			type: "REGISTER_TEST";
-			testName: string;
-			fnString: string;
-	  }
-	| { type: "RUN_TEST"; testName: string; testRunId: string; source: string }
-	| { type: "RUN_TESTS"; source: string }
-	| {
-			type: "CANCEL_TEST";
-			testName: string;
-			testRunId: string;
-			reason: string;
-			source: string;
-	  }
-	| { type: "BEFORE_ALL" }
-	| { type: "AFTER_ALL" }
-	| { type: "BEFORE_EACH"; testName: string }
-	| { type: "AFTER_EACH"; testName: string }
-	| BuildNotificationMessage;
+export type TestMessage = {
+	type: string
+	data: any
+}
 
 /**
  * Context for tracking the current test execution
  */
 export interface TestContext {
 	/** The name of the test being executed */
-	name: string;
+	name: string
 	/** Array of assertion code strings */
-	assertions: string[];
+	assertions: string[]
 	/** Timestamp when the test started */
-	startTime: number;
+	startTime: number
 	/** Timestamp when the test ended */
-	endTime: number | null;
+	endTime: number | null
 	/** Duration of the test in milliseconds */
-	duration: number | null;
+	duration: number | null
 }
 
 /**
  * Test function signature
  */
-export type TestFn = (
-	name: string,
-	fn: () => void | Promise<void>,
-) => void | Promise<void>;
+export type TestFn = (name: string, fn: () => void | Promise<void>) => void | Promise<void>
 
 /**
  * Default configuration values
  */
 export const DEFAULT_CONFIG: TestConfig = {
 	timeout: 30000, // 30 seconds
-	debug: process.env.NODE_ENV === "development",
+	debug: process.env.NODE_ENV === 'development',
 	defaultIndentLevel: 1,
-} as const;
+} as const
 
 /**
  * Default WebSocket configuration
  */
 export const DEFAULT_WS_CONFIG: WebSocketConfig = {
-	url: "ws://localhost:9001",
+	url: 'ws://localhost:9001',
 	timeout: 30000, // 30 seconds
 	retryDelay: 1000, // 1 second
-} as const;
+} as const

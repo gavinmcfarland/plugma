@@ -1,30 +1,43 @@
-import { Server, ServerOptions } from "socket.io";
-import chalk from "chalk";
-import type { Server as HttpServer } from "node:http";
+import { Server, ServerOptions } from 'socket.io'
+import chalk from 'chalk'
+import type { Server as HttpServer } from 'node:http'
+import { WebSocketServer } from 'ws'
+import { Logger } from '#utils/log/logger.js'
+
+const logger = new Logger()
 
 /**
  * Interface defining the methods available on the server
  * Extends Socket.IO Server to include any custom methods
  */
-export interface SocketServer extends Omit<Server, "emit"> {
+export interface SocketServer extends Omit<Server, 'emit'> {
 	// Add custom emit method signature if needed
-	emit: (
-		event: string,
-		data: any,
-		callback?: (response: any) => void
-	) => SocketServer;
+	emit: (event: string, data: any, callback?: (response: any) => void) => SocketServer
+}
+
+// Add new interface for room stats
+interface RoomStats {
+	room: string
+	connections: number
 }
 
 /**
  * Configuration options for creating a server
  */
 export interface ServerConfig {
-	httpServer: HttpServer;
+	server: HttpServer | WebSocketServer
 	cors?: {
-		origin: string | string[];
-		credentials?: boolean;
-	};
-	serverOptions?: Partial<ServerOptions>;
+		origin: string | string[]
+		credentials?: boolean
+	}
+	serverOptions?: Partial<ServerOptions>
+}
+
+interface QueuedMessage {
+	event: string
+	data: any
+	timestamp: number
+	room: string
 }
 
 /**
@@ -33,16 +46,44 @@ export interface ServerConfig {
  * @returns A proxied Socket.IO server instance with custom functionality
  */
 export function createSocketServer(config: ServerConfig): SocketServer {
-	const { httpServer, cors, serverOptions = {} } = config;
+	const { server, cors, serverOptions = {} } = config
+	const messageQueues = new Map<string, QueuedMessage[]>()
+	const QUEUE_TIMEOUT = 10000 // 10 seconds in milliseconds
 
-	console.log(chalk.cyan(`\n⚡ Initializing Socket.IO Server...\n`));
+	console.log(chalk.cyan(`\n⚡ Initializing Socket.IO Server...\n`))
 
-	const io = new Server(httpServer, {
+	const io = new Server(server, {
 		cors: cors ?? {
-			origin: "*",
+			origin: '*',
 		},
 		...serverOptions,
-	});
+	})
+
+	/**
+	 * Gets current statistics for all rooms
+	 */
+	function getRoomStats(): RoomStats[] {
+		const stats: RoomStats[] = []
+		io.sockets.adapter.rooms.forEach((sockets, room) => {
+			// Filter out socket ID rooms (socket.io creates a room for each socket ID)
+			if (!io.sockets.adapter.sids.has(room)) {
+				stats.push({
+					room,
+					connections: sockets.size,
+				})
+			}
+		})
+		return stats
+	}
+
+	/**
+	 * Emits current room statistics to all connected clients
+	 */
+	function emitRoomStats() {
+		const stats = getRoomStats()
+		// console.log('Emitting ROOM_STATS to all clients:', stats)
+		io.emit('ROOM_STATS', stats)
+	}
 
 	/**
 	 * Middleware to handle room assignment for incoming socket connections
@@ -50,65 +91,160 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 	 * @param next - Middleware callback function
 	 */
 	function handleRoomAssignment(socket: any, next: (err?: Error) => void) {
-		const room = socket.handshake.auth.room;
+		const room = socket.handshake.auth.room
 		if (!room) {
-			return next(new Error("Room not provided"));
+			return next(new Error('Room not provided'))
 		}
-		socket.join(room);
-		next();
+		socket.join(room)
+
+		logger.debug('Room joined socket', socket.id, room)
+		emitRoomStats()
+
+		next()
+	}
+
+	/**
+	 * Checks if a room has exactly one socket
+	 */
+	function hasOneSocketOrMore(room: string): boolean {
+		const sockets = io.sockets.adapter.rooms.get(room)
+		return (sockets?.size ?? 0) >= 1
+	}
+
+	/**
+	 * Queues a message for a specific room
+	 */
+	function queueMessage(room: string, event: string, data: any) {
+		if (!messageQueues.has(room)) {
+			messageQueues.set(room, [])
+		}
+
+		messageQueues.get(room)?.push({
+			event,
+			data,
+			timestamp: Date.now(),
+			room,
+		})
+
+		// Set timeout to clear old messages
+		setTimeout(() => {
+			const queue = messageQueues.get(room)
+			if (queue) {
+				const newQueue = queue.filter((msg) => Date.now() - msg.timestamp < QUEUE_TIMEOUT)
+				if (newQueue.length === 0) {
+					messageQueues.delete(room)
+				} else {
+					messageQueues.set(room, newQueue)
+				}
+			}
+		}, QUEUE_TIMEOUT)
+	}
+
+	/**
+	 * Processes queued messages for a room
+	 */
+	function processQueue(room: string) {
+		if (!messageQueues.has(room)) return
+
+		const queue = messageQueues.get(room)
+		if (!queue) return
+
+		if (hasOneSocketOrMore(room)) {
+			console.log(`Processing ${queue.length} queued messages for room "${room}"`)
+			while (queue.length > 0) {
+				const msg = queue.shift()
+				if (msg && Date.now() - msg.timestamp < QUEUE_TIMEOUT) {
+					io.to(room).emit(msg.event, msg.data)
+					console.log(`Delivering queued event "${msg.event}" to room "${room}" with message:`, msg.data)
+				}
+			}
+			messageQueues.delete(room)
+		}
 	}
 
 	// Assign a room to the client based on the source
-	io.use(handleRoomAssignment);
+	io.use(handleRoomAssignment)
 
 	// Connection handler for message routing
-	io.on("connection", (socket) => {
-		const from = socket.handshake.auth.room;
+	io.on('connection', async (socket) => {
+		const from = socket.handshake.auth.room
+		const joinedRooms = new Set<string>([from])
+
+		// Emit room stats immediately on connection
+		emitRoomStats()
+
+		// Track rooms this socket joins
+		// FIXME: I don't think this is used anywhere
+		socket.on('join', (room) => {
+			console.log('join', room)
+			joinedRooms.add(room)
+
+			emitRoomStats()
+		})
+
+		processQueue(from)
 
 		/**
 		 * Handles routing of messages to appropriate rooms
 		 */
 		function handleMessageRouting(event: string, data: any) {
-			const { room, ...payload } = data;
+			// Add null check for data
+			// NOTE: Not sure in what scenario an event is being sent when there is no data
+			if (!data) {
+				console.log(`Received event "${event}" with no data`)
+				return
+			}
+
+			const { room, ...payload } = data
+
+			let newData = {
+				sender: socket.id,
+				from,
+				...payload,
+			}
 
 			if (room) {
 				if (Array.isArray(room)) {
-					// Emit to multiple rooms
+					// Handle multiple rooms
 					for (const r of room) {
-						io.to(r).emit(event, {
-							sender: socket.id,
-							from,
-							...payload,
-						});
+						if (hasOneSocketOrMore(r)) {
+							io.to(r).emit(event, newData)
+							// console.log(`Event "${event}" sent to room "${r}" with message:`, newData)
+						} else {
+							queueMessage(r, event, newData)
+							// console.log(`Event "${event}" queued for room "${r}" with message:`, newData)
+						}
 					}
-					console.log(
-						`Event "${event}" sent to rooms [${room.join(
-							", "
-						)}] with data:`,
-						payload
-					);
 				} else {
-					// Emit to a single room
-					io.to(room).emit(event, {
-						sender: socket.id,
-						from,
-						...payload,
-					});
-					console.log(
-						`Event "${event}" sent to room "${room}" with data:`,
-						payload
-					);
+					// Handle single room
+					if (hasOneSocketOrMore(room)) {
+						io.to(room).emit(event, newData)
+						// console.log(`Event "${event}" sent to room "${room}" with message:`, newData)
+					} else {
+						queueMessage(room, event, newData)
+						// console.log(`Event "${event}" queued for room "${room}" with message:`, newData)
+					}
 				}
 			} else {
 				// Emit to all clients if no room is specified
-				io.emit(event, { sender: socket.id, ...payload });
-				console.log(`Event "${event}" broadcasted with data:`, payload);
+				io.emit(event, newData)
+				// console.log(`Event "${event}" broadcasted with message:`, newData)
 			}
 		}
 
 		// Set up event routing
-		socket.onAny(handleMessageRouting);
-	});
+		socket.onAny(handleMessageRouting)
+
+		// Clean up queues when socket disconnects
+		socket.on('disconnect', () => {
+			joinedRooms.forEach((room) => {
+				if (!hasOneSocketOrMore(room)) {
+					messageQueues.delete(room)
+				}
+			})
+			emitRoomStats()
+		})
+	})
 
 	// // Custom emit function
 	// function emit(
@@ -140,9 +276,9 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 			// if (prop === "emit") {
 			// 	return emit;
 			// }
-			return Reflect.get(room, prop, receiver);
+			return Reflect.get(room, prop, receiver)
 		},
-	});
+	})
 
-	return proxy;
+	return proxy
 }

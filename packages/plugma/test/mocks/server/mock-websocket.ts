@@ -1,4 +1,3 @@
-import { PluginMessage } from '#test';
 import { EventEmitter } from 'node:events';
 import { vi } from 'vitest';
 import type { WebSocketServer } from 'ws';

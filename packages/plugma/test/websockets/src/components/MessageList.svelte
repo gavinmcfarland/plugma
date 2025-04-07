@@ -1,12 +1,12 @@
 <script lang="ts">
-	export let title: string;
+	export let title: string
 	export let messages: Array<{
-		timestamp: string;
-		content: string;
-		from?: string;
-		to?: string;
-	}>;
-	export let messageClass: string;
+		timestamp: string
+		content: string
+		from?: string
+		to?: string
+	}>
+	export let messageClass: string
 </script>
 
 <div class="message-section">
@@ -15,10 +15,6 @@
 		{#each messages as message}
 			<div class={messageClass}>
 				[{message.timestamp}]
-				{#if message.to}To {message.to}:
-				{/if}
-				{#if message.from}From {message.from}:
-				{/if}
 				{message.content}
 			</div>
 		{/each}

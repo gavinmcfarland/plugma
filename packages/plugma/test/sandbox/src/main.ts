@@ -5,55 +5,59 @@
 // 	handleTestMessage(message);
 // });
 
-import { customTest } from "./customTest";
+import { customTest } from './customTest'
 
-customTest();
+customTest()
 export default function () {
-	figma.showUI(__html__, { width: 300, height: 260, themeColors: true });
+	// console.clear()
 
-	figma.ui.resize(500, 500);
+	figma.showUI(__html__, { width: 300, height: 260, themeColors: true })
+
+	figma.ui.postMessage({
+		type: 'PLUGIN_OPENED',
+	})
 
 	figma.ui.onmessage = async (message) => {
-		if (message?.event !== "ping" && message?.event !== "pong") {
-			console.log("[FIGMA MAIN] Received message:", message);
-		}
+		// if (message?.event !== 'ping' && message?.event !== 'pong') {
+		// 	console.log('[FIGMA MAIN] Received message:', message)
+		// }
 
-		if (message.type === "CREATE_RECTANGLES") {
-			let i = 0;
+		if (message.type === 'CREATE_RECTANGLES') {
+			let i = 0
 
-			const rectangles = [];
+			const rectangles = []
 			while (i < message.count) {
-				const rect = figma.createRectangle();
-				rect.x = i * 150;
-				rect.y = 0;
-				rect.resize(100, 100);
+				const rect = figma.createRectangle()
+				rect.x = i * 150
+				rect.y = 0
+				rect.resize(100, 100)
 				rect.fills = [
 					{
-						type: "SOLID",
+						type: 'SOLID',
 						color: {
 							r: Math.random(),
 							g: Math.random(),
 							b: Math.random(),
 						},
 					},
-				]; // Random color
-				rectangles.push(rect);
+				] // Random color
+				rectangles.push(rect)
 
-				i++;
+				i++
 			}
 
-			figma.viewport.scrollAndZoomIntoView(rectangles);
+			figma.viewport.scrollAndZoomIntoView(rectangles)
 		}
-	};
-
-	function postNodeCount() {
-		const nodeCount = figma.currentPage.selection.length;
-
-		figma.ui.postMessage({
-			type: "POST_NODE_COUNT",
-			count: nodeCount,
-		});
 	}
 
-	figma.on("selectionchange", postNodeCount);
+	function postNodeCount() {
+		const nodeCount = figma.currentPage.selection.length
+
+		figma.ui.postMessage({
+			type: 'POST_NODE_COUNT',
+			count: nodeCount,
+		})
+	}
+
+	figma.on('selectionchange', postNodeCount)
 }

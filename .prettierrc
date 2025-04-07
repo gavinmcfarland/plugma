@@ -1,0 +1,16 @@
+{
+	"useTabs": true,
+	"semi": false,
+	"singleQuote": true,
+	"printWidth": 120,
+	"braceStyle": "collapse,preserve-inline",
+	"overrides": [
+		{
+			"files": "*.md",
+			"options": {
+				"useTabs": false,
+				"tabWidth": 4
+			}
+		}
+	]
+}

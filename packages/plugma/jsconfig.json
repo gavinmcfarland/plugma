@@ -32,6 +32,6 @@
         "apps/**/*.js",
         "apps/**/*.svelte",
         "src/**/*.js",
-        "src/**/*.svelte"
+        "src/**/*.svelte",
     ]
 }
