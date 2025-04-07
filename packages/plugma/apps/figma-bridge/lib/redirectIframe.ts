@@ -24,14 +24,19 @@ async function waitForServer(url: string, timeout = 10000, interval = 300): Prom
 }
 
 export async function redirectIframe(url: string) {
-	try {
-		await waitForServer(url)
+	const iframe = document.getElementById('dev-server-ui') as HTMLIFrameElement
+	if (iframe) {
+		// If iframe source is not set immediately, then messages will be lost which are post from figma main
+		iframe.src = new URL(url).href
 
-		const iframe = document.getElementById('dev-server-ui') as HTMLIFrameElement
-		if (iframe) {
-			iframe.src = new URL(url).href
-		}
-	} catch (err) {
-		console.error(`Failed to connect to ${url}:`, err)
+		// Verify server connection in the background and reload once available
+		waitForServer(url)
+			.then(() => {
+				// Server is available, reload the iframe
+				iframe.src = new URL(url).href
+			})
+			.catch((err) => {
+				console.error(`Failed to connect to ${url}:`, err)
+			})
 	}
 }
