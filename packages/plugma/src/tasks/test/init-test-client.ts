@@ -23,6 +23,8 @@ export interface InitTestClientResult {
 export const initTestClient = async (options: PluginOptions): Promise<InitTestClientResult> => {
 	const log = new Logger({ debug: options.debug })
 
+	console.log('Initializing test client')
+
 	try {
 		const testClient = await getTestSocket(options.port)
 

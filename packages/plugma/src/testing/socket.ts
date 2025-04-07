@@ -8,7 +8,7 @@ export function getTestSocket(port: number): SocketClient {
 		return socket
 	}
 
-	console.log('[socket] initializing socket')
+	console.log('[socket] initializing socket', port)
 	socket = createClient({
 		room: 'test',
 		url: 'ws://localhost',

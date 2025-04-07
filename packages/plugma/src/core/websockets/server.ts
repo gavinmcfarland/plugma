@@ -147,17 +147,15 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 		if (!queue) return
 
 		if (hasOneSocketOrMore(room)) {
-			// Add a small delay to ensure the socket is fully connected
-			// setTimeout(() => {
+			console.log(`Processing ${queue.length} queued messages for room "${room}"`)
 			while (queue.length > 0) {
 				const msg = queue.shift()
 				if (msg && Date.now() - msg.timestamp < QUEUE_TIMEOUT) {
 					io.to(room).emit(msg.event, msg.data)
-					console.log(`Queued event "${msg.event}" sent to room "${room}" with message:`, msg.data)
+					console.log(`Delivering queued event "${msg.event}" to room "${room}" with message:`, msg.data)
 				}
 			}
 			messageQueues.delete(room)
-			// }, 100) // Small delay to ensure socket is ready
 		}
 	}
 
@@ -165,7 +163,7 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 	io.use(handleRoomAssignment)
 
 	// Connection handler for message routing
-	io.on('connection', (socket) => {
+	io.on('connection', async (socket) => {
 		const from = socket.handshake.auth.room
 		const joinedRooms = new Set<string>([from])
 
@@ -173,9 +171,11 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 		emitRoomStats()
 
 		// Track rooms this socket joins
+		// FIXME: I don't think this is used anywhere
 		socket.on('join', (room) => {
 			console.log('join', room)
 			joinedRooms.add(room)
+
 			emitRoomStats()
 		})
 

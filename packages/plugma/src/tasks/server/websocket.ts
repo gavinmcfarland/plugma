@@ -62,8 +62,6 @@ export const startWebSocketsServer = async (options: PluginOptions, context: Res
 		// 	return null
 		// }
 
-		console.log('config', config)
-
 		// For test command, check config first
 		if (options.command === 'test') {
 			if (config.websockets) {

@@ -30,7 +30,6 @@ export function observeAndPostFigmaStyles() {
 			postMessage(messageType, getData())
 
 			const observer = new MutationObserver(() => {
-				console.log('change observed')
 				postMessage(messageType, getData())
 			})
 

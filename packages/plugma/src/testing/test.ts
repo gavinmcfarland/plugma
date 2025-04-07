@@ -1,11 +1,11 @@
 // FIXME: Why does running the test for the first time trigger the plugin to reload? Answer: Caused by launchPlugin function. Find out if there is a way to prevent from relauncgin if plugin already open.
 
 import { test as vitestTest } from 'vitest'
-import { executeAssertions } from './execute-assertions.js'
-import type { TestFn } from './types.js'
-import { SocketClient } from '#core/websockets/client.js'
-import { getTestSocket, isSocketReady } from './socket.js'
-import { getConfig } from '#utils/set-config.js'
+import { executeAssertions } from './execute-assertions'
+import type { TestFn } from './types'
+import { SocketClient } from '#core/websockets/client'
+import { getTestSocket } from './socket'
+import { getConfig } from '../utils/set-config'
 
 /**
  * Configuration for test execution
@@ -29,9 +29,6 @@ type TestResultMessage =
 
 // Initialize socket and store it globally
 let socket: SocketClient | null = null
-
-// Add socket state tracking
-let isSocketConnected = isSocketReady()
 
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, testName: string): Promise<T> {
 	let timeoutId: ReturnType<typeof setTimeout>
@@ -66,13 +63,9 @@ export const test: TestFn = async (name, fn) => {
 	return vitestTest(name, TEST_CONFIG, async () => {
 		console.log('Running test:', name)
 
-		// Initialize socket if not already done or if disconnected
-		if (!socket || !isSocketConnected) {
-			console.log('Initializing new socket connection...')
-			socket = getTestSocket(port)
-		} else {
-			console.log('Using existing socket connection')
-		}
+		// Get the socket - it will be initialized if needed
+		console.log('config', port)
+		socket = getTestSocket(port)
 
 		// Create a unique test run ID
 		const testRunId = `${name}-${Date.now()}`
@@ -80,7 +73,6 @@ export const test: TestFn = async (name, fn) => {
 		// Set up message handlers before running the test
 		const testResultPromise = new Promise<TestResultMessage>((resolve, reject) => {
 			socket!.on('TEST_ASSERTIONS', (message) => {
-				console.log('TEST_ASSERTIONS', message)
 				if (message.testRunId === testRunId) {
 					resolve(message)
 				}
@@ -93,8 +85,7 @@ export const test: TestFn = async (name, fn) => {
 		})
 
 		// Run the test
-		function runTest(testRunId: string) {
-			console.log('Running test:', name)
+		async function runTest(testRunId: string) {
 			socket!.emit('RUN_TEST', {
 				room: 'figma',
 				testName: name,
@@ -106,22 +97,21 @@ export const test: TestFn = async (name, fn) => {
 		// FIXME: We should listen for event from plugin UI
 		await new Promise((resolve) => setTimeout(resolve, 600))
 
-		runTest(testRunId)
+		await runTest(testRunId)
 
 		// Wait for test result with timeout
 		const result = await withTimeout(testResultPromise, TEST_CONFIG.timeout, name)
-		console.log('------- check', result)
 
 		// Clean up message handlers
 		socket!.off('TEST_ASSERTIONS')
 		socket!.off('TEST_ERROR')
 
-		console.log('result', result)
-
-		// FIXME: How to handle errors?
 		// Execute any assertions from the test result
 		if ('assertionCode' in result) {
 			await executeAssertions(result.assertionCode.split(';\n').filter(Boolean))
+		} else if ('error' in result) {
+			// Handle test errors by throwing them
+			throw new Error(result.error)
 		}
 	})
 }

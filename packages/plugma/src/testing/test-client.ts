@@ -19,8 +19,6 @@ export class TestClient {
 		const envPort = process.env.PORT
 		const finalPort = port || (envPort ? Number(envPort) : 9001)
 
-		console.log('Create client', finalPort + 1)
-
 		return createClient({
 			room: 'test',
 			url: 'ws://localhost',

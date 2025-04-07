@@ -51,6 +51,8 @@ export async function dev(options: DevCommandOptions): Promise<void> {
 			cwd: options.cwd || process.cwd(),
 		}
 
+		options.port = port
+
 		setConfig(options)
 
 		// Execute tasks in sequence

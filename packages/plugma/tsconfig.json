@@ -38,7 +38,6 @@
         "src/**/*.test.ts",
         "test/**/*.ts",
         "./package.json",
-        "src/testing/figma/test.figma.ts",
         "__tests__/**/*.test.ts"
     ],
     "exclude": ["archive", "dist", "node_modules"]
