@@ -79,7 +79,7 @@ export const startWebSocketsServer = async (options: PluginOptions, context: Res
 			console.log('A user connected:', socket.id, room)
 
 			socket.on('disconnect', () => {
-				console.log('User disconnected:', socket.id)
+				console.log('User disconnected:', socket.id, room)
 			})
 		})
 

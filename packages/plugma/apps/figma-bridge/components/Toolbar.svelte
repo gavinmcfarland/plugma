@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
-	import { pluginWindowSettings, isBrowserConnected } from '../../shared/stores'
+	import { pluginWindowSettings, isBrowserConnected, isTestRunnerConnected } from '../../shared/stores'
 	import Button from './Button.svelte'
 	import Icon from './Icon.svelte'
 	import Select from './Select.svelte'
@@ -79,6 +79,8 @@
 	<Button on:click={openWindow}>
 		{#if $isBrowserConnected}
 			<Icon svg="socket-connected" />
+		{:else if $isTestRunnerConnected}
+			<Icon svg="socket-connected" accentColor="#0D99FF" />
 		{:else}
 			<Icon svg="socket-disconnected" />
 		{/if}

@@ -7,6 +7,7 @@ import type { GetTaskTypeFor, PluginOptions } from '#core/types.js'
 import { Logger } from '#utils/log/logger.js'
 import { task } from '../runner.js'
 import { TestClient } from '../../testing/test-client.js'
+import { getTestSocket } from '#testing/socket.js'
 
 /**
  * Result type for the initTestClient task
@@ -23,11 +24,7 @@ export const initTestClient = async (options: PluginOptions): Promise<InitTestCl
 	const log = new Logger({ debug: options.debug })
 
 	try {
-		const port = options.port || Number(process.env.PORT)
-
-		console.log('initTestClient', 1)
-
-		const testClient = await TestClient.getInstance(port)
+		const testClient = await getTestSocket(options.port)
 
 		return { client: testClient }
 	} catch (error) {

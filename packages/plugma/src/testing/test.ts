@@ -1,12 +1,12 @@
-// FIXME: Why does running the test for the first time trigger the plugin to reload?
+// FIXME: Why does running the test for the first time trigger the plugin to reload? Answer: Caused by launchPlugin function. Find out if there is a way to prevent from relauncgin if plugin already open.
 
-import { defaultLogger as logger } from '#utils/log/logger.js'
 import { test as vitestTest } from 'vitest'
 import { executeAssertions } from './execute-assertions.js'
-import { TestClient } from './test-client.js'
 import type { TestFn } from './types.js'
-import { createClient, SocketClient } from '#core/websockets/client.js'
-import { expect as vitestExpect } from 'vitest'
+import { SocketClient } from '#core/websockets/client.js'
+import { getTestSocket, isSocketReady } from './socket.js'
+import { getTestConfig } from '#utils/set-config.js'
+
 /**
  * Configuration for test execution
  */
@@ -27,50 +27,11 @@ type TestResultMessage =
 			error: string
 	  }
 
-function initializeSocket() {
-	console.log('[socket] initializing socket')
-	const socket = createClient({
-		room: 'test',
-		url: 'ws://localhost',
-		port: process.env.PORT ? Number(process.env.PORT) + 1 : 3000,
-	})
+// Initialize socket and store it globally
+let socket: SocketClient | null = null
 
-	// Wait for connection before proceeding
-	// await new Promise<void>((resolve) => {
-	socket.on('connect', () => {
-		console.log('[socket] connected:', socket.id)
-		// resolve()
-	})
-	// })
-
-	return socket
-}
-
-const testRunCallbacks = new Map<
-	string,
-	{
-		resolve: (value: any) => void
-		reject: (error: Error) => void
-	}
->()
-
-function waitForTestResult(testRunId: string) {
-	return new Promise((resolve, reject) => {
-		// Store the callbacks for this test run
-		testRunCallbacks.set(testRunId, { resolve, reject })
-
-		// Set up a cleanup function to remove the callbacks after a timeout
-		const cleanup = () => {
-			testRunCallbacks.delete(testRunId)
-		}
-
-		// Return the promise that will be resolved by the callbacks
-		return new Promise((res, rej) => {
-			resolve = res
-			reject = rej
-		}).finally(cleanup)
-	})
-}
+// Add socket state tracking
+let isSocketConnected = isSocketReady()
 
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, testName: string): Promise<T> {
 	let timeoutId: ReturnType<typeof setTimeout>
@@ -92,8 +53,7 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, testName: 
 		})
 }
 
-// Initialize socket and store it globally
-let socket: SocketClient | null = null
+const { port } = getTestConfig()
 
 /**
  * Wraps Vitest's test function to execute tests in Figma
@@ -106,10 +66,10 @@ export const test: TestFn = async (name, fn) => {
 	return vitestTest(name, TEST_CONFIG, async () => {
 		console.log('Running test:', name)
 
-		// Initialize socket if not already done
-		if (!socket) {
+		// Initialize socket if not already done or if disconnected
+		if (!socket || !isSocketConnected) {
 			console.log('Initializing new socket connection...')
-			socket = initializeSocket()
+			socket = getTestSocket(port)
 		} else {
 			console.log('Using existing socket connection')
 		}
@@ -120,6 +80,7 @@ export const test: TestFn = async (name, fn) => {
 		// Set up message handlers before running the test
 		const testResultPromise = new Promise<TestResultMessage>((resolve, reject) => {
 			socket!.on('TEST_ASSERTIONS', (message) => {
+				console.log('TEST_ASSERTIONS', message)
 				if (message.testRunId === testRunId) {
 					resolve(message)
 				}
@@ -132,14 +93,24 @@ export const test: TestFn = async (name, fn) => {
 		})
 
 		// Run the test
-		socket!.emit('RUN_TEST', {
-			room: 'figma',
-			testName: name,
-			testRunId: testRunId,
-		})
+		function runTest(testRunId: string) {
+			console.log('Running test:', name)
+			socket!.emit('RUN_TEST', {
+				room: 'figma',
+				testName: name,
+				testRunId: testRunId,
+			})
+		}
+
+		// Wait for plugin to rebuild and reload
+		// FIXME: We should listen for event from plugin UI
+		await new Promise((resolve) => setTimeout(resolve, 600))
+
+		runTest(testRunId)
 
 		// Wait for test result with timeout
 		const result = await withTimeout(testResultPromise, TEST_CONFIG.timeout, name)
+		console.log('------- check', result)
 
 		// Clean up message handlers
 		socket!.off('TEST_ASSERTIONS')

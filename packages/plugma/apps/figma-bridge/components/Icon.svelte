@@ -1,14 +1,15 @@
 <script lang="ts">
-	export let svg;
-	export let color = "currentColor";
-	export let opacity: number = 1;
+	export let svg
+	export let color = 'currentColor'
+	export let opacity: number = 1
+	export let accentColor: null | string = null
 
-	export let size: number = 24;
-	$: sizePx = `${size}px`;
+	export let size: number = 24
+	$: sizePx = `${size}px`
 </script>
 
 <div class="Icon">
-	{#if svg === "horizontal-ellipsis"}
+	{#if svg === 'horizontal-ellipsis'}
 		<svg
 			style:width={sizePx}
 			style:height={sizePx}
@@ -31,20 +32,14 @@
 		</svg>
 	{/if}
 
-	{#if svg === "socket-connected"}
-		<svg
-			width="24"
-			height="24"
-			viewBox="0 0 24 24"
-			fill="none"
-			xmlns="http://www.w3.org/2000/svg"
-		>
-			<rect x="7.5" y="9.5" width="9" height="5" rx="2.5" fill="#77C515" />
+	{#if svg === 'socket-connected'}
+		<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<rect x="7.5" y="9.5" width="9" height="5" rx="2.5" fill={accentColor || '#14AE5C'} />
 			<!-- <rect x="8" y="10" width="8" height="4" rx="2" stroke="black" stroke-opacity="0.2" /> -->
 		</svg>
 	{/if}
 
-	{#if svg === "socket-disconnected"}
+	{#if svg === 'socket-disconnected'}
 		<svg
 			style:width={sizePx}
 			style:height={sizePx}
@@ -52,16 +47,7 @@
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
 		>
-			<rect
-				x="8"
-				y="10"
-				width="8"
-				height="4"
-				rx="2"
-				stroke={color}
-				stroke-opacity="0.4"
-				fill-opacity={opacity}
-			/>
+			<rect x="8" y="10" width="8" height="4" rx="2" stroke={color} stroke-opacity="0.4" fill-opacity={opacity} />
 		</svg>
 	{/if}
 </div>

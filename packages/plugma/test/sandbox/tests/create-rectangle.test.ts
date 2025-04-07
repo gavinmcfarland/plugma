@@ -6,7 +6,7 @@ const TEST_COLOR = {
 	b: Math.random(),
 }
 
-launchPlugin('Plugma Test Sandbox', true)
+// launchPlugin('Plugma Test Sandbox', true)
 
 test('creates a rectangle with specific color', async () => {
 	const rect = figma.createRectangle()

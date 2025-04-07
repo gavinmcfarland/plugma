@@ -1,8 +1,7 @@
 <script lang="ts">
 	import ServerStatus from '../shared/components/ServerStatus.svelte'
 	import { monitorUrl } from '../shared/lib/monitorUrl'
-	import { initializeWsClient, isBrowserConnected } from '../shared/stores'
-	import io from 'socket.io-client'
+	import { initializeWsClient, isBrowserConnected, isTestRunnerConnected } from '../shared/stores'
 
 	import { setBodyStyles } from './lib/setBodyStyles'
 
@@ -40,16 +39,10 @@
 
 	function handleRoomStats(data: RoomStats[]) {
 		const browserRoom = data.find((room) => room.room === 'browser')
+		const testRunnerRoom = data.find((room) => room.room === 'test')
 
-		if (!browserRoom) {
-			console.log('browser disconnected - no browser room found')
-			isBrowserConnected.set(false)
-			return
-		}
-
-		const isConnected = browserRoom.connections > 0
-		console.log(isConnected ? 'browser connected' : 'browser disconnected')
-		isBrowserConnected.set(isConnected)
+		isBrowserConnected.set(browserRoom?.connections ? browserRoom.connections > 0 : false)
+		isTestRunnerConnected.set(testRunnerRoom?.connections ? testRunnerRoom.connections > 0 : false)
 	}
 
 	function handleRunTest(data: any) {

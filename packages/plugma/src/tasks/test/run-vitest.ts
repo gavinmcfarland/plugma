@@ -25,14 +25,13 @@ export const runVitest = async (options: PluginOptions): Promise<RunVitestResult
 	const log = new Logger({ debug: options.debug })
 
 	try {
-		// console.log("Starting Vitest...");
 		// Add our test plugin to the Vite config
 		const testConfig: UserConfig = {
 			clearScreen: false,
 			test: {
 				globals: true,
 				environment: 'node',
-				watch: options.watch ?? false,
+				watch: options.watch ?? true,
 			},
 			// plugins: [initTestClient()],
 		}
