@@ -4,7 +4,7 @@ import { createSocketServer } from '#core/websockets/server.js'
 import { GetFilesTask } from '../common/get-files.js'
 import { task } from '../runner.js'
 import http from 'http'
-
+import { getConfig } from '#utils/set-config.js'
 const logger = new Logger()
 
 /**
@@ -39,6 +39,8 @@ const isPortInUse = async (port: number): Promise<boolean> => {
 	})
 }
 
+const config = getConfig()
+
 /**
  * Task that starts the WebSocket server and routes messages to the correct client.
  * The WebSocket server is used by `dev`, `preview` and `test` commands.
@@ -53,11 +55,27 @@ export const startWebSocketsServer = async (options: PluginOptions, context: Res
 	try {
 		const port = getWebSocketPort(options)
 
-		// Check if port is already in use
-		const portInUse = await isPortInUse(port)
-		if (portInUse) {
-			logger.info(`WebSocket server already running on port ${port}, skipping server start`)
-			return null
+		// // Check if port is already in use
+		// const portInUse = await isPortInUse(port)
+		// if (portInUse) {
+		// 	logger.info(`WebSocket server already running on port ${port}, skipping server start`)
+		// 	return null
+		// }
+
+		console.log('config', config)
+
+		// For test command, check config first
+		if (options.command === 'test') {
+			if (config.websockets) {
+				logger.info('WebSockets are already enabled in test mode, skipping server start')
+				return null
+			}
+		} else {
+			// For non-test commands, only start if websockets option is explicitly enabled
+			if (!options.websockets) {
+				logger.info('WebSockets not enabled in options, skipping server start')
+				return null
+			}
 		}
 
 		const wss = http.createServer()

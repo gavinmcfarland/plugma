@@ -5,7 +5,7 @@ import { executeAssertions } from './execute-assertions.js'
 import type { TestFn } from './types.js'
 import { SocketClient } from '#core/websockets/client.js'
 import { getTestSocket, isSocketReady } from './socket.js'
-import { getTestConfig } from '#utils/set-config.js'
+import { getConfig } from '#utils/set-config.js'
 
 /**
  * Configuration for test execution
@@ -53,7 +53,7 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, testName: 
 		})
 }
 
-const { port } = getTestConfig()
+const { port } = getConfig()
 
 /**
  * Wraps Vitest's test function to execute tests in Figma

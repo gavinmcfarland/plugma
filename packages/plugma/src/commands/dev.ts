@@ -18,7 +18,7 @@ import { Logger } from '#utils/log/logger.js'
 import { nanoid } from 'nanoid'
 import { getRandomPort } from '../utils/get-random-port.js'
 import { SaveOptionsTask } from '#tasks/common/temp-options.js'
-import { setTestConfig } from '#utils/set-config.js'
+import { setConfig } from '#utils/set-config.js'
 
 /**
  * Main development command implementation
@@ -51,7 +51,7 @@ export async function dev(options: DevCommandOptions): Promise<void> {
 			cwd: options.cwd || process.cwd(),
 		}
 
-		setTestConfig({ port })
+		setConfig(options)
 
 		// Execute tasks in sequence
 		log.info('Executing tasks...')

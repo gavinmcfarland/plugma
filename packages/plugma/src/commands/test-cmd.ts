@@ -47,12 +47,12 @@ export async function test(options: TestCommandOptions): Promise<void> {
 		process.env.PORT = String(wsPort)
 
 		// Enable websockets if not already enabled
-		pluginOptions.websockets = true
+		// pluginOptions.websockets = true
 
 		// Execute tasks in sequence
 		log.info('Executing test tasks...')
 
-		const results = await serial(StartWebSocketsServerTask, RunVitestTask)(pluginOptions)
+		const results = await serial(StartWebSocketsServerTask, InitTestClientTask, RunVitestTask)(pluginOptions)
 
 		// // Get the test client instance
 		// const testClient = results["test:init-client"].client as TestClient;

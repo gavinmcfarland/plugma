@@ -39,6 +39,13 @@
 		</svg>
 	{/if}
 
+	{#if svg === 'socket-connected-2'}
+		<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<circle cx="9" cy="12" r="2.5" fill="#14AE5C" />
+			<circle cx="15" cy="12" r="2.5" fill="#0D99FF" />
+		</svg>
+	{/if}
+
 	{#if svg === 'socket-disconnected'}
 		<svg
 			style:width={sizePx}

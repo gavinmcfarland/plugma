@@ -77,7 +77,9 @@
 <!-- <div class="Toolbar-spacer"></div> -->
 <div class="Toolbar">
 	<Button on:click={openWindow}>
-		{#if $isBrowserConnected}
+		{#if $isBrowserConnected && $isTestRunnerConnected}
+			<Icon svg="socket-connected-2" />
+		{:else if $isBrowserConnected}
 			<Icon svg="socket-connected" />
 		{:else if $isTestRunnerConnected}
 			<Icon svg="socket-connected" accentColor="#0D99FF" />
