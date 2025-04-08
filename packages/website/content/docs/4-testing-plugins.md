@@ -1,16 +1,14 @@
-# Testing framework
+# Testing plugins
 
-Testing is an important part of your development workflow. It helps you catch bugs and ensure your plugin works as expected.
+Testing is an important part of development plugins. Plugma comes with tools thag allow you to test your plugin works as expected.
 
-## Writing tests
+## Unit testing the main code
 
-Under the hood, Plugma uses [Vitest](https://vitest.dev/guide/) for running tests.
+You can write unit tests for your plugin’s main code by creating files that end with `.test.ts` or `.test.js`.
 
-You can write tests by creating files that end in `.test.ts` or `.test.js`.
+### Writing tests
 
-##### Create rectangle example
-
-Below is an example of a test that creates a rectangle and confirms it has been created with a specific colour.
+To write a test, import `test` and `expect` from `plugma/testing`:
 
 ```js
 // create-rectangle.test.js
@@ -34,28 +32,25 @@ test('creates a rectangle with specific color', async () => {
 
 ## Running tests
 
-To run the tests, start the development server and run the `test` command.
+First, start the dev server in one terminal.
 
 ```bash
-npm run dev # In one terminal
-npm run test # In another terminal
+npm run dev
 ```
+
+Then, in another terminal, run:
+
+```bash
+npm run test
+```
+
+Once the plugin is open the test runner will connect to the plugin and execute all `.test.ts` or `.test.js` files.
 
 <blockquote class="info">
 The plugin must be running in the Figma desktop app for tests to run.
 </blockquote>
 
-### Commands
-
-#### `test`
-
-Run all test suites but watch for changes and rerun tests when they change.
-
-#### `test run`
-
-Perform a single run without watch mode.
-
-### Utilities
+### Helpers
 
 #### `launchPlugin()`
 
