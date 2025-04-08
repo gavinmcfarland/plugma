@@ -18,7 +18,7 @@ function clearCanvas() {
 test('creates a rectangle', async () => {
 	clearCanvas()
 
-	const rect = createRectangle({ color: TEST_COLOR, width: 200, height: 200 })
+	const rect = createRectangle({ color: TEST_COLOR, width: 600, height: 200 })
 
 	expect(rect.type).to.equal('RECTANGLE')
 	expect(rect.width).to.equal(200)
