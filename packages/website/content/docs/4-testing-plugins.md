@@ -30,7 +30,7 @@ test('creates a rectangle with specific color', async () => {
 });
 ```
 
-## Running tests
+### Running tests
 
 First, start the dev server in one terminal.
 
@@ -65,6 +65,48 @@ function launchPlugin(
 ) : void;
 ```
 
-## Further documentation
+### Further documentation
 
 For more options and documentation see the [Vitest](https://vitest.dev/guide/) site.
+
+## End-to-End (E2E) UI Testing with Playwright
+
+Plugma supports end-to-endbtesting of your UI using Playwright.
+
+### Install Playwrite 
+
+First, set up Playwright.
+
+```bash
+npm init playwright@latest
+```
+
+Now create a test.
+
+```js
+// create-10-rectangles.test.js
+import { test, expect } from '@playwright/test'
+
+test('create 10 rectangles', async ({ page }) => {
+	await page.goto('http://localhost:4000/')
+	await page.getByRole('spinbutton', { name: 'X-position' }).click()
+	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
+	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
+	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
+	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
+	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
+	await page.getByRole('button', { name: 'Create Rectangles' }).click()
+})
+```
+
+Now start the Plugma dev server with websockets enabled and a fixed port.
+
+```bash
+npm run dev -- -ws -p 4000
+```
+
+With the plugin open in the Figma desktop app, now run the tests with Playright.
+
+```bash
+npx playwright test
+```
