@@ -1,6 +1,6 @@
 # Testing plugins
 
-Testing is an important part of development plugins. Plugma comes with tools thag allow you to test your plugin works as expected.
+Testing is an important part of development plugins. Plugma comes with tools that allow you to test your plugin works as expected.
 
 ## Unit testing the main code
 
@@ -71,9 +71,9 @@ For more options and documentation see the [Vitest](https://vitest.dev/guide/) s
 
 ## End-to-End (E2E) UI Testing with Playwright
 
-Plugma supports end-to-endbtesting of your UI using Playwright.
+Plugma supports end-to-end testing of your UI using Playwright.
 
-### Install Playwrite 
+### Install Playwright
 
 First, set up Playwright.
 
