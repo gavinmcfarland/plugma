@@ -7,13 +7,21 @@ const TEST_COLOR = {
 	b: Math.random(),
 }
 
-// launchPlugin('Plugma Test Sandbox', true)
+launchPlugin('Plugma Test Sandbox', true)
+
+function clearCanvas() {
+	figma.currentPage.children.forEach((child) => {
+		child.remove()
+	})
+}
 
 test('creates a rectangle', async () => {
-	const rect = createRectangle({ color: TEST_COLOR, width: 400, height: 200 })
+	clearCanvas()
+
+	const rect = createRectangle({ color: TEST_COLOR, width: 200, height: 200 })
 
 	expect(rect.type).to.equal('RECTANGLE')
-	expect(rect.width).to.equal(400)
+	expect(rect.width).to.equal(200)
 	expect(rect.height).to.equal(200)
 })
 
