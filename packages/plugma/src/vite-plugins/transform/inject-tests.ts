@@ -1,6 +1,7 @@
 import { glob } from 'glob'
 import { relative } from 'node:path'
 import type { Plugin } from 'vite'
+import fs from 'fs'
 
 interface InjectTestsOptions {
 	/**
@@ -39,15 +40,6 @@ export function injectTests(options: any = {}): Plugin {
 		async transform(code: string, id: string) {
 			const mainFile = options.pluginOptions?.manifest?.main ?? ''
 
-			if (!id.endsWith('.ts') && !id.endsWith('.js')) {
-				return null
-			}
-
-			// Skip if no replacement needed
-			if (!code.includes('plugma/testing')) {
-				return null
-			}
-
 			if (!id.endsWith(mainFile)) {
 				return null
 			}
@@ -64,7 +56,7 @@ export function injectTests(options: any = {}): Plugin {
 					// Config file doesn't exist, use defaults
 				}
 
-				const testFiles = [
+				const testFiles: string[] = [
 					...new Set(
 						(
 							await Promise.all(
@@ -78,16 +70,24 @@ export function injectTests(options: any = {}): Plugin {
 							)
 						).flat(),
 					),
-				]
+				].filter((file) => file.endsWith('.ts') || file.endsWith('.js'))
 
-				console.log(`Found ${testFiles.length} test files to inject:`, testFiles)
+				// Filter files that contain 'plugma/testing' in their contents
+				const filteredTestFiles = await Promise.all(
+					testFiles.map(async (file) => {
+						const content = await fs.promises.readFile(file, 'utf-8')
+						return content.includes('plugma/testing') ? file : null
+					}),
+				).then((files) => files.filter((file): file is string => file !== null))
 
-				if (testFiles.length === 0) {
+				console.log(`Found ${filteredTestFiles.length} test files to inject:`, filteredTestFiles)
+
+				if (filteredTestFiles.length === 0) {
 					return null
 				}
 
 				// Generate import statements for each test file using absolute paths
-				const imports = testFiles
+				const imports = filteredTestFiles
 					.map((file) => {
 						// Convert absolute paths to proper module imports
 						const importPath = file
