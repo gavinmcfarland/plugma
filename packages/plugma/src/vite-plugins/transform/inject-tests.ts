@@ -1,27 +1,27 @@
-import { glob } from "glob";
-import { relative } from "node:path";
-import type { Plugin } from "vite";
+import { glob } from 'glob'
+import { relative } from 'node:path'
+import type { Plugin } from 'vite'
 
 interface InjectTestsOptions {
 	/**
 	 * Base directory to search for test files.
 	 * Use "" to search from project root, defaults to "src"
 	 */
-	testDir?: string;
+	testDir?: string
 	pluginOptions?: {
 		manifest?: {
-			main?: string;
-		};
-	};
+			main?: string
+		}
+	}
 }
 
 const DEFAULT_VITEST_PATTERNS = [
-	"**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
-	"**/test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
-	"**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
-	"**/tests/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
-	"**/__tests__/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}",
-];
+	'**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+	'**/test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+	'**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+	'**/tests/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+	'**/__tests__/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+]
 
 /**
  * Creates a Vite plugin that injects imports for all test files at the top of the main entry file.
@@ -31,26 +31,34 @@ const DEFAULT_VITEST_PATTERNS = [
  * @returns A Vite plugin configuration object
  */
 export function injectTests(options: any = {}): Plugin {
-	const { testDir = "src" } = options;
+	const { testDir = 'src' } = options
 
 	return {
-		name: "plugma:inject-tests",
-		enforce: "post",
+		name: 'plugma:inject-tests',
+		enforce: 'post',
 		async transform(code: string, id: string) {
-			const mainFile = options.pluginOptions?.manifest?.main ?? "";
+			const mainFile = options.pluginOptions?.manifest?.main ?? ''
+
+			if (!id.endsWith('.ts') && !id.endsWith('.js')) {
+				return null
+			}
+
+			// Skip if no replacement needed
+			if (!code.includes('plugma/testing')) {
+				return null
+			}
+
 			if (!id.endsWith(mainFile)) {
-				return null;
+				return null
 			}
 
 			try {
 				// Try to find and load vitest.config
-				let testPatterns = DEFAULT_VITEST_PATTERNS;
+				let testPatterns = DEFAULT_VITEST_PATTERNS
 				try {
-					const vitestConfig = await import(
-						process.cwd() + "/vitest.config.ts"
-					);
+					const vitestConfig = await import(process.cwd() + '/vitest.config.ts')
 					if (vitestConfig.default?.test?.include) {
-						testPatterns = vitestConfig.default.test.include;
+						testPatterns = vitestConfig.default.test.include
 					}
 				} catch (e) {
 					// Config file doesn't exist, use defaults
@@ -64,21 +72,18 @@ export function injectTests(options: any = {}): Plugin {
 									glob(pattern, {
 										cwd: testDir,
 										absolute: true,
-										ignore: ["**/node_modules/**"],
+										ignore: ['**/node_modules/**'],
 									}),
 								),
 							)
 						).flat(),
 					),
-				];
+				]
 
-				console.log(
-					`Found ${testFiles.length} test files to inject:`,
-					testFiles,
-				);
+				console.log(`Found ${testFiles.length} test files to inject:`, testFiles)
 
 				if (testFiles.length === 0) {
-					return null;
+					return null
 				}
 
 				// Generate import statements for each test file using absolute paths
@@ -86,22 +91,22 @@ export function injectTests(options: any = {}): Plugin {
 					.map((file) => {
 						// Convert absolute paths to proper module imports
 						const importPath = file
-							.replace(process.cwd(), "") // Remove the current working directory
-							.replace(/^\/?/, "/"); // Ensure path starts with /
-						return `import '${importPath}';`;
+							.replace(process.cwd(), '') // Remove the current working directory
+							.replace(/^\/?/, '/') // Ensure path starts with /
+						return `import '${importPath}';`
 					})
-					.join("\n");
+					.join('\n')
 
 				return {
 					code: `${imports}\n${code}`,
 					map: null,
-				};
+				}
 			} catch (error) {
-				console.error("Error injecting test files:", error);
-				return null;
+				console.error('Error injecting test files:', error)
+				return null
 			}
 		},
-	};
+	}
 }
 
-export default injectTests;
+export default injectTests
