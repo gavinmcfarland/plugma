@@ -82,7 +82,7 @@
 		{:else if $isBrowserConnected}
 			<Icon svg="socket-connected" />
 		{:else if $isTestRunnerConnected}
-			<Icon svg="socket-connected" accentColor="#0D99FF" />
+			<Icon svg="socket-connected-3" accentColor="#0D99FF" />
 		{:else}
 			<Icon svg="socket-disconnected" />
 		{/if}

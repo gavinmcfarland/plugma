@@ -35,14 +35,32 @@
 	{#if svg === 'socket-connected'}
 		<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<rect x="7.5" y="9.5" width="9" height="5" rx="2.5" fill={accentColor || '#14AE5C'} />
-			<!-- <rect x="8" y="10" width="8" height="4" rx="2" stroke="black" stroke-opacity="0.2" /> -->
 		</svg>
 	{/if}
 
 	{#if svg === 'socket-connected-2'}
-		<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<circle cx="9" cy="12" r="2.5" fill="#14AE5C" />
-			<circle cx="15" cy="12" r="2.5" fill="#0D99FF" />
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<rect x="7.5" y="9.5" width="9" height="5" rx="2.5" fill={accentColor || '#14AE5C'} />
+			<rect x="18" y="9.5" width="5" height="5" rx="2.5" fill={accentColor || '#0D99FF'} />
+		</svg>
+	{/if}
+
+	{#if svg === 'socket-connected-3'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<rect x="8" y="10" width="8" height="4" rx="2" stroke={color} stroke-opacity="0.4" />
+			<rect x="18" y="9.5" width="5" height="5" rx="2.5" fill={accentColor || '#0D99FF'} />
 		</svg>
 	{/if}
 
@@ -54,7 +72,7 @@
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
 		>
-			<rect x="8" y="10" width="8" height="4" rx="2" stroke={color} stroke-opacity="0.4" fill-opacity={opacity} />
+			<rect x="8" y="10" width="8" height="4" rx="2" stroke={color} stroke-opacity="0.4" />
 		</svg>
 	{/if}
 </div>
