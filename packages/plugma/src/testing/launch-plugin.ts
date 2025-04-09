@@ -1,23 +1,16 @@
 // Create a no-op version for browser environments
 const noop = async () => {
-	console.warn("launchPlugin is only available in Node.js environments");
-};
-
+	console.warn('launchPlugin is only available in Node.js environments')
+}
 export const launchPlugin =
-	typeof process !== "undefined" && process.versions?.node
-		? async function launchPlugin(
-				name: string | undefined,
-				switchBack: boolean = false,
-			) {
+	typeof process !== 'undefined' && process.versions?.node
+		? async function launchPlugin(name: string, submenu: string | null = null, switchBack: boolean = false) {
 				// Dynamically import Node.js modules
-				const { exec } = await import("child_process");
-				const { promisify } = await import("util");
+				const { exec } = await import('child_process')
+				const { promisify } = await import('util')
 				// const { getUserFiles } = await import("#utils");
-
 				// const files = await getUserFiles(options);
-
-				name = name ?? "Plugma Test Sandbox";
-
+				name = name ?? 'Plugma Test Sandbox'
 				const scriptLaunchPlugin = `
 -- Get the currently active app
 tell application "System Events"
@@ -35,7 +28,15 @@ tell application "System Events"
 				tell menu "Plugins"
 					tell menu item "Development"
 						tell menu "Development"
-							click menu item "${name}"
+							${
+								submenu
+									? `tell menu item "${name}"
+									tell menu "${name}"
+										click menu item "${submenu}"
+									end tell
+								end tell`
+									: `click menu item "${name}"`
+							}
 						end tell
 					end tell
 				end tell
@@ -51,28 +52,27 @@ ${
 	delay 0.5 -- Small delay to ensure the plugin launches
 	tell application activeApp to activate
 	`
-		: ""
+		: ''
 }
-`;
+`
+				const execPromise = promisify(exec)
 
-				const execPromise = promisify(exec);
-
-				try {
-					const { stdout, stderr } = await execPromise(
-						"osascript -e '" + scriptLaunchPlugin + "'",
-					);
-
-					if (stderr) {
-						console.error(`Stderr: ${stderr}`);
-						return;
-					}
-
-					console.log("Plugin launched successfully.");
-					console.log(stdout);
-				} catch (error) {
-					console.error(
-						`Error: ${error instanceof Error ? error.message : String(error)}`,
-					);
-				}
+				return new Promise((resolve, reject) => {
+					execPromise("osascript -e '" + scriptLaunchPlugin + "'")
+						.then(({ stdout, stderr }) => {
+							if (stderr) {
+								console.error(`Stderr: ${stderr}`)
+								reject(new Error(stderr))
+								return
+							}
+							console.log('Plugin launched successfully.')
+							console.log(stdout)
+							resolve(stdout)
+						})
+						.catch((error) => {
+							console.error(`Error: ${error instanceof Error ? error.message : String(error)}`)
+							reject(error)
+						})
+				})
 			}
-		: noop;
+		: noop
