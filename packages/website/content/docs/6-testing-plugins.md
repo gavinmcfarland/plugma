@@ -2,6 +2,10 @@
 
 Testing is an important part of plugin development. Traditionally, this can be hard to accomplish. However, with Plugma, you can test your plugin using various tools.
 
+<blockquote class="warning">
+This is a work in progress and the implementation may change. You can also test the UI end-to-end using Playwright by running `npm init playwright@latest`, following the instructions and making sure the dev server is running with websockets enabled before running any tests.
+</blockquote>
+
 ## Unit testing the main code
 
 You can write unit tests for your plugin’s main code by creating files that end with `.test.ts` or `.test.js`.
@@ -59,17 +63,18 @@ Simulates the user opening the plugin. Useful for automating tests which require
 ##### Type signature
 
 ```js
-function launchPlugin(
+function launchPlugin({
     pluginName: string,
+    submenu: string | null = null,
     switchBack: boolean = false
-) : void;
+}) : Promise<void>;
 ```
 
 ### Further documentation
 
 For more options and documentation see the [Vitest](https://vitest.dev/guide/) site.
 
-## End-to-End UI Testing
+<!-- ## End-to-End UI Testing
 
 Plugma also supports end-to-end testing of your UI using Playwright.
 
@@ -113,4 +118,4 @@ With the plugin open in the Figma desktop app, now run the tests with Playright.
 
 ```bash
 npx playwright test
-```
+``` -->
