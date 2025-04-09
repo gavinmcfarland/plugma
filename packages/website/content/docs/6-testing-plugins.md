@@ -1,6 +1,6 @@
 # Testing plugins
 
-Testing is an important part of development plugins. Plugma comes with tools that allow you to test your plugin works as expected.
+Testing is an important part of plugin development. Traditionally, this can be hard to accomplish. However, with Plugma, you can test your plugin using various tools.
 
 ## Unit testing the main code
 
@@ -69,9 +69,9 @@ function launchPlugin(
 
 For more options and documentation see the [Vitest](https://vitest.dev/guide/) site.
 
-## End-to-End (E2E) UI Testing with Playwright
+## End-to-End UI Testing
 
-Plugma supports end-to-end testing of your UI using Playwright.
+Plugma also supports end-to-end testing of your UI using Playwright.
 
 ### Install Playwright
 
@@ -81,23 +81,27 @@ First, set up Playwright.
 npm init playwright@latest
 ```
 
-Now create a test.
+### Writing tests
+
+You can write end-to-end tests for your plugin by configuring Playwright and creating files that end with `.test.ts` or `.test.js`.
 
 ```js
 // create-10-rectangles.test.js
-import { test, expect } from '@playwright/test'
+import { test, expect } from '@playwright/test';
 
 test('create 10 rectangles', async ({ page }) => {
-	await page.goto('http://localhost:4000/')
-	await page.getByRole('spinbutton', { name: 'X-position' }).click()
-	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
-	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
-	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
-	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
-	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
-	await page.getByRole('button', { name: 'Create Rectangles' }).click()
-})
+	await page.goto('http://localhost:4000/');
+	await page.getByRole('spinbutton', { name: 'X-position' }).click();
+	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp');
+	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp');
+	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp');
+	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp');
+	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp');
+	await page.getByRole('button', { name: 'Create Rectangles' }).click();
+});
 ```
+
+### Running tests
 
 Now start the Plugma dev server with websockets enabled and a fixed port.
 

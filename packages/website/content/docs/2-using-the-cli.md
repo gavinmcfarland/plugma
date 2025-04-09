@@ -159,12 +159,12 @@ Run unit tests against your plugin.
 The developer server must be running first by using the `dev` command before running tests.
 
 ```bash
-plugma test [options]
+plugma test
 ```
 
-##### Options
+<!-- ##### Options
 
--   `-w`, `--watch`: Watch for changes and rerun tests automatically.
+-   `-w`, `--watch`: Watch for changes and rerun tests automatically. -->
 
 ##### Example
 

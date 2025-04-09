@@ -46,6 +46,29 @@
 		>
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
+					><Icon svg="clipboard-check" size={24} opacity={1} />Unit Testing</span
+				>
+				<p class="m-0">
+					Test the live Figma API using Vitest. Write tests with files that end with
+					<code>.test.ts</code> and run tests using the new <code>test</code> command. Your
+					tests run directly in the Figma Desktop app, giving you access to the real Figma
+					API.
+				</p>
+			</div>
+
+			<div class="flex flex-col gap-3">
+				<span class="flex gap-3 font-semibold"
+					><Icon svg="screen-control" size={24} opacity={1} />End to End Testing</span
+				>
+				<p class="m-0">
+					Test your UI with Playwright. Record and run end-to-end tests with Playwright's
+					tools. Use the <code>playwright test</code> command to run your tests, or
+					<code>playwright codegen</code> to record new tests interactively.
+				</p>
+			</div>
+
+			<div class="flex flex-col gap-3">
+				<span class="flex gap-3 font-semibold"
 					><Icon svg="globe" size={24} opacity={1} />Reliable Browser Preview</span
 				>
 				<p class="m-0">
@@ -54,25 +77,21 @@
 					available.
 				</p>
 			</div>
-			<div class="flex flex-col gap-3">
-				<span class="flex gap-3 font-semibold"
-					><Icon svg="clipboard-check" size={24} opacity={1} />Testing Framework</span
-				>
-				<p class="m-0">
-					Catch bugs and ensure your plugin works as expected. Write tests with files that
-					end with <code>.test.ts</code> and run tests using the new <code>test</code> command.
-				</p>
-			</div>
 
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="apps" size={24} opacity={1} />Enhanced Build System</span
+					><Icon svg="apps" size={24} opacity={1} />Enhanced Bundling Config</span
 				>
 
-				<p class="m-0">
+				<!-- <p class="m-0">
 					Better support for different contexts using a special <code>context</code>
 					option. You can now specify different configurations for <code>main</code> and
 					<code>ui</code> with a single <code>vite.config.js</code> file.
+				</p> -->
+				<p class="m-0">
+					You can now specify different configurations for both the <code>main</code> code
+					and <code>ui</code> with a <code>vite.config.main.js</code> and
+					<code>vite.config.ui.js</code> file respectively.
 				</p>
 			</div>
 

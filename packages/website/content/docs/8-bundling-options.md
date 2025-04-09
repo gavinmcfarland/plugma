@@ -1,4 +1,4 @@
-# Bundling with Vite
+# Bundling options
 
 Vite is used to bundle both the main code and the UI code.
 

@@ -101,6 +101,32 @@
 			/>
 		</svg>
 	{/if}
+	{#if svg === 'screen-control'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M21 13.0128V4C21 3.44772 20.5523 3 20 3H4C3.44772 3 3 3.44772 3 4V16C3 16.5523 3.44772 17 4 17H5.7H12"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M14.7458 11.7955L16.1154 20.9612L17.8812 17.2263L21.9987 17.5645L14.7458 11.7955Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	{/if}
 	{#if svg === 'bug'}
 		<svg
 			style:width={sizePx}
