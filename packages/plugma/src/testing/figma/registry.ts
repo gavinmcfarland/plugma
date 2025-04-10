@@ -7,6 +7,7 @@
 
 import type { TestContext } from '#testing/types'
 import { expect as plugmaExpect } from './expect'
+import { nodeToObject } from './nodeToObject'
 import { testContext } from './test-context'
 
 // import { Logger } from '#utils/log/// logger.js';
@@ -23,6 +24,7 @@ interface TestResult {
 	startTime: number
 	endTime: number
 	duration: number
+	returnValue: unknown
 }
 
 /**
@@ -94,9 +96,9 @@ class TestRegistry {
 	 * @throws {Error} If no test is registered with the given name
 	 */
 	private createContext(name: string): TestContext {
-		if (!this.tests.has(name)) {
-			throw new Error(`No test registered with name: ${name}`)
-		}
+		// if (!this.tests.has(name)) {
+		// 	throw new Error(`No test registered with name: ${name}`)
+		// }
 
 		const context: TestContext = {
 			name,
@@ -136,16 +138,16 @@ class TestRegistry {
 	 * @returns A promise that resolves with the test result
 	 * @throws {Error} If no test is registered with the given name
 	 */
-	async runTest(name: string): Promise<TestResult> {
-		const fn = this.tests.get(name)
-		// console.log('test function string:', fn?.toString())
+	async runTest(name: string | undefined, testFn?: string): Promise<TestResult> {
+		let fn: TestFunction | undefined = this.tests.get(name || '')
+		const testName = name || 'anonymous test'
 
-		if (!fn) {
-			throw new Error(`Test "${name}" not found`)
+		if (!fn && !testFn) {
+			throw new Error('No test function provided')
 		}
 
 		// Initialize test context
-		const context = this.createContext(name)
+		const context = this.createContext(testName)
 		const startTime = Date.now()
 		context.startTime = startTime
 
@@ -156,8 +158,17 @@ class TestRegistry {
 			// Execute beforeEach hooks
 			await this.executeBeforeEachHooks()
 
-			// Execute test function
-			await Promise.resolve(fn(context, plugmaExpect))
+			// Execute test function and capture return value
+			let returnValue: unknown
+
+			if (testFn) {
+				const fn = new Function('context', 'expect', `return (${testFn})(context, expect)`)
+				returnValue = await Promise.resolve(fn(context, plugmaExpect))
+				returnValue = nodeToObject(returnValue as SceneNode)
+				console.log('returnValue', returnValue)
+			} else {
+				returnValue = await Promise.resolve(fn!(context, plugmaExpect))
+			}
 
 			// Add timing precision delay
 			await new Promise((resolve) => setTimeout(resolve, 10))
@@ -171,13 +182,14 @@ class TestRegistry {
 			context.duration = endTime - startTime
 
 			return {
-				testName: name,
+				testName: testName,
 				error: null,
 				pluginState: figma.root.getPluginData('state'),
 				assertions: [...context.assertions],
 				startTime,
 				endTime,
 				duration: endTime - startTime,
+				returnValue,
 			}
 		} catch (error) {
 			// Update timing on error
@@ -190,18 +202,19 @@ class TestRegistry {
 			testError.name = 'TestError'
 
 			return {
-				testName: name,
+				testName: testName,
 				error: testError,
 				pluginState: figma.root.getPluginData('state'),
 				assertions: [...context.assertions],
 				startTime,
 				endTime,
 				duration: endTime - startTime,
+				returnValue: undefined,
 			}
 		} finally {
 			// Reset test context
 			testContext.reset()
-			this.contexts.delete(name)
+			this.contexts.delete(testName)
 		}
 	}
 

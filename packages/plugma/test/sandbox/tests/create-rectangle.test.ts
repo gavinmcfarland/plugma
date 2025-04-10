@@ -7,7 +7,7 @@ const TEST_COLOR = {
 	b: Math.random(),
 }
 
-launchPlugin('Plugma Test Sandbox', true)
+launchPlugin('Plugma Test Sandbox', null, true)
 
 function clearCanvas() {
 	figma.currentPage.children.forEach((child) => {
@@ -23,6 +23,8 @@ test('creates a rectangle', async () => {
 	expect(rect.type).to.equal('RECTANGLE')
 	expect(rect.width).to.equal(200)
 	expect(rect.height).to.equal(200)
+
+	return rect
 })
 
 test("verifies the last created rectangle's color", async () => {
@@ -39,4 +41,6 @@ test("verifies the last created rectangle's color", async () => {
 	expect(color.r).to.be.approximately(TEST_COLOR.r, 0.0001)
 	expect(color.g).to.be.approximately(TEST_COLOR.g, 0.0001)
 	expect(color.b).to.be.approximately(TEST_COLOR.b, 0.0001)
+
+	return firstFill
 })

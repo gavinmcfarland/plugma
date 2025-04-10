@@ -60,9 +60,8 @@ export function handleTestMessage(message: TestMessage): void {
 				try {
 					// console.log('%crunning test', 'color: blue', message.data.testName)
 					registry
-						.runTest(message.data.testName)
+						.runTest(message.data.testName, message.data.testFn)
 						.then((result) => {
-							// console.log('📊 Test results:', result)
 							const response: TestMessage = result.error
 								? {
 										type: 'TEST_ERROR',
@@ -84,6 +83,7 @@ export function handleTestMessage(message: TestMessage): void {
 											room: 'test',
 											testRunId: message.data.testRunId,
 											assertionCode: result.assertions.join(';\n'),
+											returnValue: result.returnValue,
 										},
 									}
 
