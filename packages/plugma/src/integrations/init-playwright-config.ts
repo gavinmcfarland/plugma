@@ -1,4 +1,7 @@
-import { defineConfig, devices } from '@playwright/test'
+import fs from 'fs'
+import path from 'path'
+
+const configContent = `import { defineConfig, devices } from '@playwright/test'
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -17,7 +20,7 @@ export default defineConfig({
 	reporter: 'html',
 	/* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
 	use: {
-		/* Base URL to use in actions like `await page.goto('/')`. */
+		/* Base URL to use in actions like \`await page.goto('/')\`. */
 		// baseURL: 'http://127.0.0.1:3000',
 
 		/* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
@@ -39,3 +42,16 @@ export default defineConfig({
 		reuseExistingServer: !process.env.CI,
 	},
 })
+`
+
+const outputPath = path.resolve(process.cwd(), 'playwright.config.ts')
+
+export function initConfig() {
+	if (fs.existsSync(outputPath)) {
+		console.log(`⚠️ Playwright config already exists at ${outputPath}`)
+		return
+	}
+
+	fs.writeFileSync(outputPath, configContent, 'utf-8')
+	console.log(`✅ Created Playwright config at ${outputPath}`)
+}

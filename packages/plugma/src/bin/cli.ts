@@ -1,6 +1,7 @@
 import { readPlugmaPackageJson } from '#utils/fs/read-json.js'
 
 import { Command } from 'commander'
+import { intro, outro, select, confirm, isCancel, spinner } from '@clack/prompts'
 
 import {
 	type BuildCommandOptions,
@@ -17,6 +18,7 @@ import {
 import { colorStringify, debugLogger, defaultLogger } from '#utils'
 import chalk from 'chalk'
 import type { ReleaseType } from './types.js'
+import { add, installDependencies, initIntegration, addExamples } from '#commands/add.js'
 
 // Read package.json to get the version
 const packageJson = await readPlugmaPackageJson()
@@ -177,6 +179,98 @@ program
     Examples:
       plugma test
       plugma test --timeout 5000
+  `,
+	)
+
+// Add Command
+program
+	.command('add')
+	.argument('[integration]', 'Integration to add', 'playwright')
+	.action(async function (this: Command, integration: string) {
+		intro('Adding integration to your project')
+
+		// Question 1: Integration selection
+		const selectedIntegration = await select({
+			message: 'What integration would you like to add?',
+			options: [
+				{ value: 'playwright', label: 'Playwright' },
+				{ value: 'vitest', label: 'Vitest' },
+				{ value: 'tailwind', label: 'Tailwind CSS' },
+				{ value: 'shadcn-ui', label: 'Shadcn UI' },
+				{ value: 'eslint', label: 'ESLint' },
+				{ value: 'other', label: 'Other Integration' },
+			],
+			initialValue: integration,
+		})
+
+		if (isCancel(selectedIntegration)) {
+			outro('Operation cancelled')
+			process.exit(0)
+		}
+
+		// Initialize the integration
+		try {
+			await initIntegration(selectedIntegration)
+		} catch (error) {
+			console.error('Error initializing integration:', error)
+			process.exit(1)
+		}
+
+		// Question 2: Test examples (only for Playwright)
+		let createExamples = false
+		if (selectedIntegration === 'playwright') {
+			const testExamplesAnswer = await confirm({
+				message: 'Would you like to create test examples?',
+				initialValue: true,
+			})
+
+			if (isCancel(testExamplesAnswer)) {
+				outro('Operation cancelled')
+				process.exit(0)
+			}
+
+			if (testExamplesAnswer) {
+				await addExamples(selectedIntegration)
+			}
+		}
+
+		// Question 3: Install dependencies
+		const installDeps = await confirm({
+			message: 'Would you like to install dependencies?',
+			initialValue: true,
+		})
+
+		if (isCancel(installDeps)) {
+			outro('Operation cancelled')
+			process.exit(0)
+		}
+
+		// Start the integration process
+		try {
+			// If user wants to install dependencies, do it now
+			if (installDeps) {
+				const s = spinner()
+				s.start('Installing dependencies...')
+				try {
+					await installDependencies(selectedIntegration)
+					s.stop('Dependencies installed successfully!')
+				} catch (error) {
+					s.stop('Failed to install dependencies', 1)
+					throw error
+				}
+			}
+
+			outro('Integration added successfully!')
+		} catch (error) {
+			console.error('Error adding integration:', error)
+			process.exit(1)
+		}
+	})
+	.addHelpText(
+		'after',
+		`
+    Examples:
+      plugma add playwright
   `,
 	)
 

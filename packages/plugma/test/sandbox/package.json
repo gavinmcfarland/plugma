@@ -1,6 +1,7 @@
 {
 	"private": true,
 	"type": "module",
+	"packageManager": "pnpm@8.15.4",
 	"scripts": {
 		"build-plugma": "cd ../../ && nr build",
 		"list-dist": "command ls -la dist",
