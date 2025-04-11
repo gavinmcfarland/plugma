@@ -103,7 +103,7 @@ export function injectTests(options: any = {}): Plugin {
 
 				// FIXME: We inject the message event handlers here, because they need to appear before tests are registered, however there must be a cleaner way to do this
 				return {
-					code: `import { initializeTestHandlers } from '${__dirname}/../../testing/figma/handlers';\ninitializeTestHandlers();\n${imports}\n${code}`,
+					code: `${imports}\n${code}`,
 					map: null,
 				}
 			} catch (error) {

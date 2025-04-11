@@ -18,6 +18,7 @@ import {
 	injectTests,
 } from '#vite-plugins'
 import { createBuildNotifierPlugin } from '../create-build-notifier-plugin.js'
+import { injectEventListeners } from '#vite-plugins/transform/inject-event-listeners.js'
 
 const projectRoot = path.join(getDirName(), '../../..')
 const templateUiHtmlPath = path.join(projectRoot, 'templates/ui.html')
@@ -183,6 +184,7 @@ export function createViteConfigs(options: PluginOptions, userFiles: UserFiles):
 				testDir: '',
 				pluginOptions: options,
 			}),
+			injectEventListeners(),
 			injectRuntime(plugmaRuntimeCode, options),
 		],
 		build: {
