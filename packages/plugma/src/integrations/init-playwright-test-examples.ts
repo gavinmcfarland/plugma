@@ -72,7 +72,7 @@ test('verify rectangle count display', async ({ page, main }) => {
 })`
 
 const testsDir = path.resolve(process.cwd(), 'tests')
-const testFilePath = path.join(testsDir, 'create-rectangles-spec.ts')
+const testFilePath = path.join(testsDir, 'create-rectangles.spec.ts')
 
 export function initConfig() {
 	if (fs.existsSync(testFilePath)) {

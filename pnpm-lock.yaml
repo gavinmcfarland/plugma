@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  marked: ^14.1.3
-
 importers:
 
   .:
@@ -320,11 +317,11 @@ importers:
         specifier: ^11.10.0
         version: 11.11.1
       marked:
-        specifier: ^14.1.3
-        version: 14.1.4
+        specifier: ^13.0.2
+        version: 13.0.3
       marked-highlight:
         specifier: ^2.1.3
-        version: 2.2.1(marked@14.1.4)
+        version: 2.2.1(marked@13.0.3)
       mole:
         specifier: ^1.1.0-alpha.4
         version: 1.1.0-alpha.4(chokidar@3.6.0)
@@ -3191,11 +3188,26 @@ packages:
   marked-highlight@2.2.1:
     resolution: {integrity: sha512-SiCIeEiQbs9TxGwle9/OwbOejHCZsohQRaNTY2u8euEXYt2rYUFoiImUirThU3Gd/o6Q1gHGtH9qloHlbJpNIA==}
     peerDependencies:
-      marked: ^14.1.3
+      marked: '>=4 <16'
+
+  marked@1.2.9:
+    resolution: {integrity: sha512-H8lIX2SvyitGX+TRdtS06m1jHMijKN/XjfH6Ooii9fvxMlh8QdqBfBDkGUpMWH2kQNrtixjzYUa3SH8ROTgRRw==}
+    engines: {node: '>= 8.16.2'}
+    hasBin: true
+
+  marked@13.0.3:
+    resolution: {integrity: sha512-rqRix3/TWzE9rIoFGIn8JmsVfhiuC8VIQ8IdX5TfzmeBucdY05/0UlzKaw0eVtpcN/OdVFpBk7CjKGo9iHJ/zA==}
+    engines: {node: '>= 18'}
+    hasBin: true
 
   marked@14.1.4:
     resolution: {integrity: sha512-vkVZ8ONmUdPnjCKc5uTRvmkRbx4EAi2OkTOXmfTDhZz3OFqMNBM1oTTWwTr4HY4uAEojhzPf+Fy8F1DWa3Sndg==}
     engines: {node: '>= 18'}
+    hasBin: true
+
+  marked@5.1.2:
+    resolution: {integrity: sha512-ahRPGXJpjMjwSOlBoTMZAK7ATXkli5qCPxZ21TG44rx1KEo44bii4ekgTDQPNRQ4Kh7JMb9Ub1PVk1NxRSsorg==}
+    engines: {node: '>= 16'}
     hasBin: true
 
   marko@5.37.28:
@@ -4638,13 +4650,13 @@ snapshots:
       lru-cache: 5.1.1
       semver: 6.3.1
 
-  '@babel/helper-create-class-features-plugin@7.27.0(@babel/core@7.26.10(supports-color@9.4.0))(supports-color@9.4.0)':
+  '@babel/helper-create-class-features-plugin@7.27.0(@babel/core@7.26.10)(supports-color@9.4.0)':
     dependencies:
       '@babel/core': 7.26.10(supports-color@9.4.0)
       '@babel/helper-annotate-as-pure': 7.25.9
       '@babel/helper-member-expression-to-functions': 7.25.9(supports-color@9.4.0)
       '@babel/helper-optimise-call-expression': 7.25.9
-      '@babel/helper-replace-supers': 7.26.5(@babel/core@7.26.10(supports-color@9.4.0))(supports-color@9.4.0)
+      '@babel/helper-replace-supers': 7.26.5(@babel/core@7.26.10)(supports-color@9.4.0)
       '@babel/helper-skip-transparent-expression-wrappers': 7.25.9(supports-color@9.4.0)
       '@babel/traverse': 7.27.0(supports-color@9.4.0)
       semver: 6.3.1
@@ -4689,7 +4701,7 @@ snapshots:
 
   '@babel/helper-plugin-utils@7.26.5': {}
 
-  '@babel/helper-replace-supers@7.26.5(@babel/core@7.26.10(supports-color@9.4.0))(supports-color@9.4.0)':
+  '@babel/helper-replace-supers@7.26.5(@babel/core@7.26.10)(supports-color@9.4.0)':
     dependencies:
       '@babel/core': 7.26.10(supports-color@9.4.0)
       '@babel/helper-member-expression-to-functions': 7.25.9(supports-color@9.4.0)
@@ -4800,17 +4812,12 @@ snapshots:
       '@babel/core': 7.26.10
       '@babel/helper-plugin-utils': 7.26.5
 
-  '@babel/plugin-syntax-typescript@7.25.9(@babel/core@7.26.10(supports-color@9.4.0))':
-    dependencies:
-      '@babel/core': 7.26.10(supports-color@9.4.0)
-      '@babel/helper-plugin-utils': 7.26.5
-
   '@babel/plugin-syntax-typescript@7.25.9(@babel/core@7.26.10)':
     dependencies:
       '@babel/core': 7.26.10
       '@babel/helper-plugin-utils': 7.26.5
 
-  '@babel/plugin-transform-modules-commonjs@7.26.3(@babel/core@7.26.10(supports-color@9.4.0))(supports-color@9.4.0)':
+  '@babel/plugin-transform-modules-commonjs@7.26.3(@babel/core@7.26.10)(supports-color@9.4.0)':
     dependencies:
       '@babel/core': 7.26.10(supports-color@9.4.0)
       '@babel/helper-module-transforms': 7.26.0(@babel/core@7.26.10)(supports-color@9.4.0)
@@ -4818,14 +4825,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-typescript@7.27.0(@babel/core@7.26.10(supports-color@9.4.0))(supports-color@9.4.0)':
+  '@babel/plugin-transform-typescript@7.27.0(@babel/core@7.26.10)(supports-color@9.4.0)':
     dependencies:
       '@babel/core': 7.26.10(supports-color@9.4.0)
       '@babel/helper-annotate-as-pure': 7.25.9
-      '@babel/helper-create-class-features-plugin': 7.27.0(@babel/core@7.26.10(supports-color@9.4.0))(supports-color@9.4.0)
+      '@babel/helper-create-class-features-plugin': 7.27.0(@babel/core@7.26.10)(supports-color@9.4.0)
       '@babel/helper-plugin-utils': 7.26.5
       '@babel/helper-skip-transparent-expression-wrappers': 7.25.9(supports-color@9.4.0)
-      '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.10(supports-color@9.4.0))
+      '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.10)
     transitivePeerDependencies:
       - supports-color
 
@@ -5573,9 +5580,9 @@ snapshots:
       '@babel/core': 7.26.10(supports-color@9.4.0)
       '@babel/generator': 7.27.0
       '@babel/parser': 7.27.0
-      '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.10(supports-color@9.4.0))
-      '@babel/plugin-transform-modules-commonjs': 7.26.3(@babel/core@7.26.10(supports-color@9.4.0))(supports-color@9.4.0)
-      '@babel/plugin-transform-typescript': 7.27.0(@babel/core@7.26.10(supports-color@9.4.0))(supports-color@9.4.0)
+      '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.10)
+      '@babel/plugin-transform-modules-commonjs': 7.26.3(@babel/core@7.26.10)(supports-color@9.4.0)
+      '@babel/plugin-transform-typescript': 7.27.0(@babel/core@7.26.10)(supports-color@9.4.0)
       '@babel/runtime': 7.27.0
       '@babel/traverse': 7.27.0(supports-color@9.4.0)
       '@babel/types': 7.27.0
@@ -5601,7 +5608,7 @@ snapshots:
     dependencies:
       '@marko/compiler': 5.39.17(supports-color@9.4.0)
       '@marko/run-explorer': 0.1.2
-      '@marko/vite': 4.1.20(@marko/compiler@5.39.17(supports-color@9.4.0))(vite@5.4.12(@types/node@22.14.0)(terser@5.39.0))
+      '@marko/vite': 4.1.20(@marko/compiler@5.39.17)(vite@5.4.12(@types/node@22.14.0)(terser@5.39.0))
       browserslist: 4.24.4
       cli-table3: 0.6.5
       compression: 1.8.0(supports-color@9.4.0)
@@ -5631,7 +5638,7 @@ snapshots:
       - sugarss
       - terser
 
-  '@marko/vite@4.1.20(@marko/compiler@5.39.17(supports-color@9.4.0))(vite@5.4.12(@types/node@22.14.0)(terser@5.39.0))':
+  '@marko/vite@4.1.20(@marko/compiler@5.39.17)(vite@5.4.12(@types/node@22.14.0)(terser@5.39.0))':
     dependencies:
       '@chialab/cjs-to-esm': 0.18.0
       '@marko/compiler': 5.39.17(supports-color@9.4.0)
@@ -7738,11 +7745,17 @@ snapshots:
       punycode.js: 2.3.1
       uc.micro: 2.1.0
 
-  marked-highlight@2.2.1(marked@14.1.4):
+  marked-highlight@2.2.1(marked@13.0.3):
     dependencies:
-      marked: 14.1.4
+      marked: 13.0.3
+
+  marked@1.2.9: {}
+
+  marked@13.0.3: {}
 
   marked@14.1.4: {}
+
+  marked@5.1.2: {}
 
   marko@5.37.28:
     dependencies:
@@ -8469,7 +8482,7 @@ snapshots:
       hjson: 3.2.2
       json5: 2.2.3
       jsonata: 1.8.7
-      marked: 14.1.4
+      marked: 1.2.9
       node-fetch: 2.7.0
       pluralize: 8.0.0
       smarkt: 0.0.6
@@ -8623,7 +8636,7 @@ snapshots:
   svelte-markdown@0.4.1(svelte@4.2.19):
     dependencies:
       '@types/marked': 5.0.2
-      marked: 14.1.4
+      marked: 5.1.2
       svelte: 4.2.19
 
   svelte-preprocess@5.1.4(@babel/core@7.26.10)(postcss-load-config@4.0.2(postcss@8.5.3))(postcss@8.5.3)(svelte@4.2.19)(typescript@5.8.3):

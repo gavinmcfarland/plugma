@@ -36,23 +36,23 @@
 			code: Code
 		}}
 	/> -->
-	<MarkdownRenderer
+	<!-- <MarkdownRenderer
 		markdown={source}
 		components={{
 			code: Code
 		}}
-	/>
+	/> -->
 	<!-- <MarkdownRenderer2
 		content={source}
 		components={{
 			code: Code
 		}}
 	/> -->
-	<!-- <MarkdownRenderer3
+	<MarkdownRenderer3
 		{source}
 		renderers={{
 			code: Code,
 			heading: Heading
 		}}
-	/> -->
+	/>
 </div>

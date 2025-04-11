@@ -2,6 +2,10 @@
 
 Plugma comes with a Command Line Interface that supports the following commands.
 
+<blockquote class="info">
+When using the commands with `npm run` you need to pass the arguments with a double dash `--`, for example `npm run dev -- -p 3000`.
+</blockquote>
+
 ## Commands
 
 <details>
@@ -36,10 +40,6 @@ plugma dev -p 3000
 # Start development server with websockets enabled
 plugma dev -ws
 ```
-
-<blockquote class="info">
-When using the commands with `npm run` you need to pass the arguments with a double dash `--`, for example `npm run dev -- -p 3000`.
-</blockquote>
 
 </details>
 
@@ -118,8 +118,10 @@ plugma build -w
 
 Build the plugin and release to GitHub. This command automates creating a new GitHub release with your latest changes. If no version is specified, it will automatically update the `plugma.pluginVersion` field in `package.json`.
 
+##### Usage
+
 ```bash
-plugma build [version] [options]
+plugma release [version] [options]
 ```
 
 ##### Version
@@ -144,7 +146,7 @@ plugma release beta -t "New feature" -n "This release includes new features X an
 
 </details>
 
-<details>
+<!-- <details>
 
 <summary>
 
@@ -162,9 +164,9 @@ The developer server must be running first by using the `dev` command before run
 plugma test
 ```
 
-<!-- ##### Options
+##### Options
 
--   `-w`, `--watch`: Watch for changes and rerun tests automatically. -->
+-   `-w`, `--watch`: Watch for changes and rerun tests automatically.
 
 ##### Example
 
@@ -177,6 +179,37 @@ plugma test # In another terminal
 <blockquote class="info">
 When using the commands with `npm run` you need to pass the arguments with a double dash `--`, for example `npm run dev -- -p 3000`.
 </blockquote>
+
+</details> -->
+
+<details>
+
+<summary>
+
+### `add`
+
+</summary>
+
+Add integrations to your project.
+
+##### Usage
+
+```bash
+plugma add [integration?]
+```
+
+##### Integration
+
+-   `playwright`
+-   `vitest`
+-   `tailwind`
+-   `shadcn`
+
+##### Example
+
+```bash
+plugma add playwright
+```
 
 </details>
 
