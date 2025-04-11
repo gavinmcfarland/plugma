@@ -2,7 +2,7 @@
 export * from './launch-plugin.js'
 export * from './execute-assertions.js'
 export * from './test.js'
-export * from './main.js'
+export * from './playwright/main.js'
 export * from './types.js'
 //@endindex
 

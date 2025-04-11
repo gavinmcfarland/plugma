@@ -1,7 +1,6 @@
-import { test, expect } from '@playwright/test'
-import { main } from '../node_modules/plugma/dist/testing/main'
+import { test, expect } from '../node_modules/plugma/dist/testing/playwright'
 
-async function clearCanvas() {
+async function clearCanvas(main: any) {
 	return await main(async () => {
 		figma.currentPage.children.forEach((child) => {
 			child.remove()
@@ -9,17 +8,17 @@ async function clearCanvas() {
 	})
 }
 
-test('create 10 rectangles', async ({ page }) => {
-	await clearCanvas()
+test('create 10 rectangles', async ({ ui, main }) => {
+	await clearCanvas(main)
 
-	await page.goto('http://localhost:4000/')
-	await page.getByRole('spinbutton', { name: 'X-position' }).click()
-	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
-	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
-	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
-	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
-	await page.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
-	await page.getByRole('button', { name: 'Create Rectangles' }).click()
+	await ui.goto('http://localhost:4000/')
+	await ui.getByRole('spinbutton', { name: 'X-position' }).click()
+	await ui.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
+	await ui.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
+	await ui.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
+	await ui.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
+	await ui.getByRole('spinbutton', { name: 'X-position' }).press('ArrowUp')
+	await ui.getByRole('button', { name: 'Create Rectangles' }).click()
 
 	const rects = await main(async () => {
 		return figma.currentPage.children
@@ -28,7 +27,7 @@ test('create 10 rectangles', async ({ page }) => {
 	expect(rects.length).toBe(10)
 })
 
-test('create 1 rectangle', async ({ page }) => {
+test('create 1 rectangle', async ({ page, main }) => {
 	await main(async () => {
 		figma.currentPage.children.forEach((child) => {
 			child.remove()
@@ -47,7 +46,7 @@ test('create 1 rectangle', async ({ page }) => {
 	expect(rects.length).toBe(1)
 })
 
-test('verify rectangle count display', async ({ page }) => {
+test('verify rectangle count display', async ({ page, main }) => {
 	await main(async () => {
 		figma.currentPage.children.forEach((child) => {
 			child.remove()

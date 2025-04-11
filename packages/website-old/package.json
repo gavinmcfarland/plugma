@@ -1,5 +1,5 @@
 {
-	"name": "website",
+	"name": "website-old",
 	"version": "0.0.1",
 	"scripts": {
 		"dev": "node mole/mole.js & node stancyClient.js & vite dev",
