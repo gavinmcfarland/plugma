@@ -43,8 +43,9 @@ export function injectRuntime(customFunctions: string, pluginOptions: PluginOpti
 
 			// Add the import only if we actually made replacements
 			if (codeToReplace !== code) {
+				let newCode = `import * as customFunctions from 'virtual:plugma';\n${codeToReplace}`
 				return {
-					code: `import * as customFunctions from 'virtual:plugma';\n${codeToReplace}`,
+					code: newCode,
 					map: null,
 				}
 			}

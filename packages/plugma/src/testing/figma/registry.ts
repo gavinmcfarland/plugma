@@ -54,7 +54,6 @@ class TestRegistry {
 	 * @throws {Error} If a test with the same name is already registered or if fn is not a function
 	 */
 	register(name: string, fn: TestFunction): void {
-		// logger.debug('Registering test:', name);
 		if (this.tests.has(name)) {
 			throw new Error('Test already registered')
 		}

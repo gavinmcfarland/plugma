@@ -179,11 +179,11 @@ export function createViteConfigs(options: PluginOptions, userFiles: UserFiles):
 				patterns: ['*.env.*'],
 			}),
 			replacePlugmaTesting(),
-			injectRuntime(plugmaRuntimeCode, options),
 			injectTests({
 				testDir: '',
 				pluginOptions: options,
 			}),
+			injectRuntime(plugmaRuntimeCode, options),
 		],
 		build: {
 			minify: false,

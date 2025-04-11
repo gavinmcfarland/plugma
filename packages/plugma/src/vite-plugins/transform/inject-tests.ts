@@ -2,6 +2,10 @@ import { glob } from 'glob'
 import { relative } from 'node:path'
 import type { Plugin } from 'vite'
 import fs from 'fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 interface InjectTestsOptions {
 	/**
@@ -97,8 +101,9 @@ export function injectTests(options: any = {}): Plugin {
 					})
 					.join('\n')
 
+				// FIXME: We inject the message event handlers here, because they need to appear before tests are registered, however there must be a cleaner way to do this
 				return {
-					code: `${imports}\n${code}`,
+					code: `import { initializeTestHandlers } from '${__dirname}/../../testing/figma/handlers';\ninitializeTestHandlers();\n${imports}\n${code}`,
 					map: null,
 				}
 			} catch (error) {

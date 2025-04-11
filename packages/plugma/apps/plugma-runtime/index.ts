@@ -48,8 +48,10 @@ const windowHandlers = {
 } as const
 
 // // Import test message handlers
-// // Couldn't move this from src/testing/test. Not sure why. Importing them here seems to mean tests fail because test not found.
-// import '../../src/testing/figma/handlers'
+// Test handlers need to initialize before tests, but importing them here means they will appear after the tests have been registered.
+// import { initializeTestHandlers } from '../../src/testing/figma/handlers'
+
+// initializeTestHandlers()
 
 // Set up message listener for window management
 figma.ui.on('message', async (msg) => {
