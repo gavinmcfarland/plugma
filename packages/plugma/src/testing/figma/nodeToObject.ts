@@ -45,7 +45,5 @@ export function nodeToObject(node: SceneNode | SceneNode[]): Record<string, any>
 		result = node
 	}
 
-	console.log('result', result)
-
 	return result
 }

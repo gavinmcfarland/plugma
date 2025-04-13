@@ -164,7 +164,6 @@ class TestRegistry {
 				const fn = new Function('context', 'expect', `return (${testFn})(context, expect)`)
 				returnValue = await Promise.resolve(fn(context, plugmaExpect))
 				returnValue = nodeToObject(returnValue as SceneNode)
-				console.log('returnValue', returnValue)
 			} else {
 				returnValue = await Promise.resolve(fn!(context, plugmaExpect))
 			}
