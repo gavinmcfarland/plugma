@@ -17,8 +17,8 @@ import {
 	serveUi,
 	injectTests,
 } from '#vite-plugins'
-import { createBuildNotifierPlugin } from '../create-build-notifier-plugin.js'
-import { injectEventListeners } from '#vite-plugins/transform/inject-event-listeners.js'
+import { createBuildNotifierPlugin } from '../../vite-plugins/build-notifier.js'
+import { injectEventListeners } from '#vite-plugins/main/inject-test-event-listeners.js'
 
 const projectRoot = path.join(getDirName(), '../../..')
 const templateUiHtmlPath = path.join(projectRoot, 'templates/ui.html')

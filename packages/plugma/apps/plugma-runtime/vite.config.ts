@@ -1,5 +1,5 @@
-import { defineConfig } from "vite";
-import { gatherBuildOutputs } from "../../src/vite-plugins/build/gather-build-outputs";
+import { defineConfig } from 'vite'
+import { gatherBuildOutputs } from '../../src/vite-plugins/build/gather-build-outputs'
 
 // const srcRoot = path.resolve(__dirname, '../../src');
 // const entryFile = path.resolve(srcRoot, 'figma/plugma-runtime.ts');
@@ -7,19 +7,19 @@ import { gatherBuildOutputs } from "../../src/vite-plugins/build/gather-build-ou
 export default defineConfig({
 	build: {
 		lib: {
-			entry: "index.ts",
-			formats: ["es"],
-			fileName: "plugma-runtime",
+			entry: 'index.ts',
+			formats: ['es'],
+			fileName: 'plugma-runtime',
 		},
 		rollupOptions: {
 			output: {
 				inlineDynamicImports: true,
 				// Prevents generating export default
-				exports: "named",
+				exports: 'named',
 			},
 		},
-		target: "esnext",
-		outDir: "dist", // Vite default output directory
+		target: 'esnext',
+		outDir: 'dist', // Vite default output directory
 		minify: false,
 		sourcemap: false,
 		emptyOutDir: false,
@@ -27,9 +27,9 @@ export default defineConfig({
 	plugins: [
 		gatherBuildOutputs({
 			from: `dist`,
-			to: "../../dist/apps",
-			transformPath: (file) => file.replace(".cjs", ".js"),
+			to: '../../dist/apps',
+			transformPath: (file) => file.replace('.cjs', '.js'),
 			removeSource: false,
 		}),
 	],
-});
+})
