@@ -10,7 +10,7 @@ import {
 } from "#test";
 import { build } from "vite";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { GetFilesTask } from "../../../src/tasks/common/get-files.js";
+import { GetFilesTask } from "../../../src/tasks/get-files.js";
 import { viteState } from "../../../src/tasks/server/vite.js";
 import { BuildMainTask } from "../../../src/tasks/build/main.js";
 

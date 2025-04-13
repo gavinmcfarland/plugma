@@ -3,7 +3,7 @@
  * @module tasks/release
  */
 
-export * from './git-release.js';
-export * from './git-status.js';
-export * from './version-update.js';
-export * from './workflow-templates.js';
+export * from './push-to-github.js'
+export * from './git-status.js'
+export * from './update-plugin-version.js'
+export * from './update-github-workflow-templates.js'

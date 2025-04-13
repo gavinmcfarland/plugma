@@ -10,10 +10,10 @@ import { nanoid } from 'nanoid'
 import { serial } from '../tasks/runner.js'
 import { RunVitestTask } from '../tasks/test/run-vitest.js'
 import type { TestCommandOptions } from './types.js'
-import { LoadOptionsTask } from '#tasks/common/temp-options.js'
+import { LoadOptionsTask } from '#tasks/save-cli-options.js'
 
 import { InitTestClientTask } from '../tasks/test/init-test-client.js'
-import StartWebSocketsServerTask from '#tasks/server/websocket.js'
+import StartWebSocketsServerTask from '#tasks/start-websocket-server.js'
 
 /**
  * Main test command implementation

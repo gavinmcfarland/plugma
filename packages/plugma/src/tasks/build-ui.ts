@@ -7,9 +7,9 @@ import { join, resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import type { ViteDevServer } from 'vite'
 import { type InlineConfig, build, mergeConfig } from 'vite'
-import { GetFilesTask } from '../common/get-files.js'
-import { task } from '../runner.js'
-import { viteState } from '../server/vite.js'
+import { GetFilesTask } from '#tasks/get-files.js'
+import { task } from '#tasks/runner.js'
+import { viteState } from '#tasks/start-dev-server.js'
 import { loadConfig } from '#utils/config/load-config.js'
 /**
  * Result type for the build-ui task

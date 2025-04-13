@@ -1,5 +1,5 @@
 import PlugmaPackageJson from '#packageJson' with { type: 'json' };
-import type { GetFilesTaskResult } from '#tasks/common/get-files.js';
+import type { GetFilesTaskResult } from '#tasks/get-files.js';
 import userPkgJson from '#test/fixtures/user-package.json' with {
   type: 'json',
 };

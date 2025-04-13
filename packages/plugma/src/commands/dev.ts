@@ -17,7 +17,7 @@ import { serial } from '#tasks/runner.js'
 import { Logger } from '#utils/log/logger.js'
 import { nanoid } from 'nanoid'
 import { getRandomPort } from '../utils/get-random-port.js'
-import { SaveOptionsTask } from '#tasks/common/temp-options.js'
+import { SaveOptionsTask } from '#tasks/save-cli-options.js'
 import { setConfig } from '#utils/set-config.js'
 
 /**
