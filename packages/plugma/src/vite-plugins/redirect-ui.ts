@@ -31,7 +31,7 @@ export function serveUi(options: PluginOptions): Plugin {
 					try {
 						// Was ui.html, but now using index.html
 						const localTemplatePath = path.join(process.cwd(), 'index.html')
-						const defaultTemplatePath = path.join(__dirname, '../../../', 'templates/ui.html')
+						const defaultTemplatePath = path.join(__dirname, '../../', 'templates/ui.html')
 						let templatePath = defaultTemplatePath
 
 						// Use local template if it exists

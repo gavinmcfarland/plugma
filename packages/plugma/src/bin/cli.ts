@@ -1,7 +1,6 @@
 import { readPlugmaPackageJson } from '#utils/fs/read-json.js'
 
 import { Command } from 'commander'
-import { intro, outro, select, confirm, isCancel, spinner } from '@clack/prompts'
 
 import {
 	type BuildCommandOptions,
@@ -18,7 +17,7 @@ import {
 import { colorStringify, debugLogger, defaultLogger } from '#utils'
 import chalk from 'chalk'
 import type { ReleaseType } from './types.js'
-import { add, installDependencies, initIntegration, addExamples } from '#commands/add.js'
+import { add } from '#commands/add.js'
 
 // Read package.json to get the version
 const packageJson = await readPlugmaPackageJson()
