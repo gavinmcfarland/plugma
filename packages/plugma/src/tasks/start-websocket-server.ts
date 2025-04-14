@@ -4,7 +4,7 @@ import { createSocketServer } from '#core/websockets/server.js'
 import { GetFilesTask } from '#tasks/get-files.js'
 import { task } from '#tasks/runner.js'
 import http from 'http'
-import { getConfig } from '#utils/set-config.js'
+import { getConfig } from '#utils/save-plugma-cli-options.js'
 const logger = new Logger()
 
 /**

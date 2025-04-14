@@ -5,7 +5,7 @@ import { executeAssertions } from './execute-assertions.js'
 import type { TestFn } from './types.js'
 import { SocketClient } from '#core/websockets/client.js'
 import { getTestSocket } from './socket.js'
-import { getConfig } from '../utils/set-config.js'
+import { getConfig } from '../utils/save-plugma-cli-options.js'
 
 /**
  * Configuration for test execution

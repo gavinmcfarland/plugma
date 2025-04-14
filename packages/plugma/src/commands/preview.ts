@@ -18,7 +18,7 @@ import { Logger } from '#utils/log/logger.js'
 import { nanoid } from 'nanoid'
 import { serial } from '../tasks/runner.js'
 import type { PreviewCommandOptions } from './types.js'
-import { setConfig } from '#utils/set-config.js'
+import { setConfig } from '#utils/save-plugma-cli-options.js'
 
 /**
  * Main preview command implementation

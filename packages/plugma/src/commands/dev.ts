@@ -18,7 +18,7 @@ import { Logger } from '#utils/log/logger.js'
 import { nanoid } from 'nanoid'
 import { getRandomPort } from '../utils/get-random-port.js'
 import { SaveOptionsTask } from '#tasks/save-cli-options.js'
-import { setConfig } from '#utils/set-config.js'
+import { setConfig } from '#utils/save-plugma-cli-options.js'
 
 /**
  * Main development command implementation
