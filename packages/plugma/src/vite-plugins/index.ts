@@ -1,5 +1,4 @@
 //@index('./*/*.ts', f => `export * from '${f.path}.js';`)
-export * from './build/gather-build-outputs.js'
 export * from './log-file-updates.js'
 export * from './redirect-ui.js'
 export * from './suppress-logs.js'

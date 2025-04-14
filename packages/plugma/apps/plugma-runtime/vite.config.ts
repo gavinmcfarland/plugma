@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
-import { gatherBuildOutputs } from '../../src/vite-plugins/build/gather-build-outputs'
+import { gatherBuildOutputs } from '../gather-build-outputs'
 
 // const srcRoot = path.resolve(__dirname, '../../src');
 // const entryFile = path.resolve(srcRoot, 'figma/plugma-runtime.ts');

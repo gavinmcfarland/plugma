@@ -4,7 +4,7 @@ import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { defineConfig } from 'vite'
 import { viteSingleFile } from 'vite-plugin-singlefile'
 
-import { gatherBuildOutputs } from '../src/vite-plugins/build/gather-build-outputs'
+import { gatherBuildOutputs } from './gather-build-outputs'
 
 const apps = {
 	'dev-server': {
