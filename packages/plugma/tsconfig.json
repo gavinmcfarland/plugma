@@ -39,6 +39,6 @@
         "test/**/*.ts",
         "./package.json",
         "__tests__/**/*.test.ts"
-, "apps/gather-build-outputs.ts"    ],
+    ],
     "exclude": ["archive", "dist", "node_modules"]
 }

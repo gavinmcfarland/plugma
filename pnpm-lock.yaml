@@ -76,6 +76,15 @@ importers:
       '@playwright/test':
         specifier: ^1.51.1
         version: 1.51.1
+      '@swc/core':
+        specifier: ^1.11.21
+        version: 1.11.21
+      acorn-typescript:
+        specifier: ^1.4.13
+        version: 1.4.13(acorn@8.14.1)
+      astring:
+        specifier: ^1.9.0
+        version: 1.9.0
       chalk:
         specifier: ^5.3.0
         version: 5.4.1
@@ -97,6 +106,12 @@ importers:
       inquirer:
         specifier: ^12.0.0
         version: 12.5.2(@types/node@22.14.0)
+      magic-string:
+        specifier: ^0.30.17
+        version: 0.30.17
+      package-manager-detector:
+        specifier: ^1.1.0
+        version: 1.1.0
       prettier:
         specifier: ^3.3.3
         version: 3.5.3
@@ -196,7 +211,7 @@ importers:
         version: 22.14.0
       plugma:
         specifier: file:../../
-        version: link:../..
+        version: file:packages/plugma(@playwright/test@1.51.1)(@types/debug@4.1.12)(@types/node@22.14.0)(@vitest/ui@3.1.1)(terser@5.39.0)
       svelte:
         specifier: ^5.1.3
         version: 5.25.12
@@ -1624,6 +1639,81 @@ packages:
       svelte: ^5.0.0-next.96 || ^5.0.0
       vite: ^5.0.0
 
+  '@swc/core-darwin-arm64@1.11.21':
+    resolution: {integrity: sha512-v6gjw9YFWvKulCw3ZA1dY+LGMafYzJksm1mD4UZFZ9b36CyHFowYVYug1ajYRIRqEvvfIhHUNV660zTLoVFR8g==}
+    engines: {node: '>=10'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@swc/core-darwin-x64@1.11.21':
+    resolution: {integrity: sha512-CUiTiqKlzskwswrx9Ve5NhNoab30L1/ScOfQwr1duvNlFvarC8fvQSgdtpw2Zh3MfnfNPpyLZnYg7ah4kbT9JQ==}
+    engines: {node: '>=10'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@swc/core-linux-arm-gnueabihf@1.11.21':
+    resolution: {integrity: sha512-YyBTAFM/QPqt1PscD8hDmCLnqPGKmUZpqeE25HXY8OLjl2MUs8+O4KjwPZZ+OGxpdTbwuWFyMoxjcLy80JODvg==}
+    engines: {node: '>=10'}
+    cpu: [arm]
+    os: [linux]
+
+  '@swc/core-linux-arm64-gnu@1.11.21':
+    resolution: {integrity: sha512-DQD+ooJmwpNsh4acrftdkuwl5LNxxg8U4+C/RJNDd7m5FP9Wo4c0URi5U0a9Vk/6sQNh9aSGcYChDpqCDWEcBw==}
+    engines: {node: '>=10'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@swc/core-linux-arm64-musl@1.11.21':
+    resolution: {integrity: sha512-y1L49+snt1a1gLTYPY641slqy55QotPdtRK9Y6jMi4JBQyZwxC8swWYlQWb+MyILwxA614fi62SCNZNznB3XSA==}
+    engines: {node: '>=10'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@swc/core-linux-x64-gnu@1.11.21':
+    resolution: {integrity: sha512-NesdBXv4CvVEaFUlqKj+GA4jJMNUzK2NtKOrUNEtTbXaVyNiXjFCSaDajMTedEB0jTAd9ybB0aBvwhgkJUWkWA==}
+    engines: {node: '>=10'}
+    cpu: [x64]
+    os: [linux]
+
+  '@swc/core-linux-x64-musl@1.11.21':
+    resolution: {integrity: sha512-qFV60pwpKVOdmX67wqQzgtSrUGWX9Cibnp1CXyqZ9Mmt8UyYGvmGu7p6PMbTyX7vdpVUvWVRf8DzrW2//wmVHg==}
+    engines: {node: '>=10'}
+    cpu: [x64]
+    os: [linux]
+
+  '@swc/core-win32-arm64-msvc@1.11.21':
+    resolution: {integrity: sha512-DJJe9k6gXR/15ZZVLv1SKhXkFst8lYCeZRNHH99SlBodvu4slhh/MKQ6YCixINRhCwliHrpXPym8/5fOq8b7Ig==}
+    engines: {node: '>=10'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@swc/core-win32-ia32-msvc@1.11.21':
+    resolution: {integrity: sha512-TqEXuy6wedId7bMwLIr9byds+mKsaXVHctTN88R1UIBPwJA92Pdk0uxDgip0pEFzHB/ugU27g6d8cwUH3h2eIw==}
+    engines: {node: '>=10'}
+    cpu: [ia32]
+    os: [win32]
+
+  '@swc/core-win32-x64-msvc@1.11.21':
+    resolution: {integrity: sha512-BT9BNNbMxdpUM1PPAkYtviaV0A8QcXttjs2MDtOeSqqvSJaPtyM+Fof2/+xSwQDmDEFzbGCcn75M5+xy3lGqpA==}
+    engines: {node: '>=10'}
+    cpu: [x64]
+    os: [win32]
+
+  '@swc/core@1.11.21':
+    resolution: {integrity: sha512-/Y3BJLcwd40pExmdar8MH2UGGvCBrqNN7hauOMckrEX2Ivcbv3IMhrbGX4od1dnF880Ed8y/E9aStZCIQi0EGw==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      '@swc/helpers': '>=0.5.17'
+    peerDependenciesMeta:
+      '@swc/helpers':
+        optional: true
+
+  '@swc/counter@0.1.3':
+    resolution: {integrity: sha512-e2BR4lsJkkRlKZ/qCHPw9ZaSxc0MVUd7gtbtaB7aMvHeJVYe8sOB8DBZkP2DtISHGSku9sCK6T6cnY0CtXrOCQ==}
+
+  '@swc/types@0.1.21':
+    resolution: {integrity: sha512-2YEtj5HJVbKivud9N4bpPBAyZhj4S2Ipe5LkUG94alTpr7in/GU/EARgPAd3BwU+YOmFVJC2+kjqhGRi3r0ZpQ==}
+
   '@tsconfig/svelte@5.0.4':
     resolution: {integrity: sha512-BV9NplVgLmSi4mwKzD8BD/NQ8erOY/nUE/GpgWe2ckx+wIQF5RyRirn/QsSSCPeulVpc3RA/iJt6DpfTIZps0Q==}
 
@@ -1815,6 +1905,11 @@ packages:
     peerDependencies:
       acorn: ^8
 
+  acorn-typescript@1.4.13:
+    resolution: {integrity: sha512-xsc9Xv0xlVfwp2o7sQ+GCQ1PgbkdcpWdTzrwXxO3xDMTAywVS3oXVOcOHuRjAPkS4P9b+yc/qNF15460v+jp4Q==}
+    peerDependencies:
+      acorn: '>=8.9.0'
+
   acorn@8.14.1:
     resolution: {integrity: sha512-OvQ/2pUDKmgfCg++xsTX1wGxfTaszcHVcTctW4UJB4hibJx2HXxxO5UmVgyjMa+ZDsiaf5wWLXYpRWMmBI0QHg==}
     engines: {node: '>=0.4.0'}
@@ -1908,6 +2003,10 @@ packages:
   assertion-error@2.0.1:
     resolution: {integrity: sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==}
     engines: {node: '>=12'}
+
+  astring@1.9.0:
+    resolution: {integrity: sha512-LElXdjswlqjWrPpJFg1Fx4wpkOCxj1TDHlSV4PlaRxHGWko024xICaa97ZkMfs6DRKlCguiAI+rbXv5GWwXIkg==}
+    hasBin: true
 
   async-sema@3.1.1:
     resolution: {integrity: sha512-tLRNUXati5MFePdAk8dw7Qt7DpxPB60ofAgn8WRhW6a2rcimZnYBP9oxHiv0OHy+Wz7kPMG+t4LGdt31+4EmGg==}
@@ -3478,6 +3577,9 @@ packages:
   package-json-from-dist@1.0.1:
     resolution: {integrity: sha512-UEZIS3/by4OC8vL3P2dTXRETpebLI2NiI5vIrjaD/5UtrkFX/tNbwjTSRAGC/+7CAo2pIcBaRgWmcBBHcsaCIw==}
 
+  package-manager-detector@1.1.0:
+    resolution: {integrity: sha512-Y8f9qUlBzW8qauJjd/eu6jlpJZsuPJm2ZAV0cDVd420o4EdpH5RPdoCv+60/TdJflGatr4sDfpAL6ArWZbM5tA==}
+
   parse-json@5.2.0:
     resolution: {integrity: sha512-ayCKvm/phCGxOkYRSCM82iDwct8/EonSEgCSxWxD7ve6jHggsFl4fZVQBPRNgQoKiuV/odhFrGzQXZwbifC8Rg==}
     engines: {node: '>=8'}
@@ -3568,6 +3670,12 @@ packages:
     resolution: {integrity: sha512-kkx+MB2KQRkyxjYPc3a0wLZZoDczmppyGJIvQ43l+aZihkaVvmu/21kiyaHeHjiFxjxNNFnUncKmcGIyOojsaw==}
     engines: {node: '>=18'}
     hasBin: true
+
+  plugma@file:packages/plugma:
+    resolution: {directory: packages/plugma, type: directory}
+    hasBin: true
+    peerDependencies:
+      '@playwright/test': ^1.51.1
 
   pluralize@8.0.0:
     resolution: {integrity: sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==}
@@ -4650,13 +4758,13 @@ snapshots:
       lru-cache: 5.1.1
       semver: 6.3.1
 
-  '@babel/helper-create-class-features-plugin@7.27.0(@babel/core@7.26.10)(supports-color@9.4.0)':
+  '@babel/helper-create-class-features-plugin@7.27.0(@babel/core@7.26.10(supports-color@9.4.0))(supports-color@9.4.0)':
     dependencies:
       '@babel/core': 7.26.10(supports-color@9.4.0)
       '@babel/helper-annotate-as-pure': 7.25.9
       '@babel/helper-member-expression-to-functions': 7.25.9(supports-color@9.4.0)
       '@babel/helper-optimise-call-expression': 7.25.9
-      '@babel/helper-replace-supers': 7.26.5(@babel/core@7.26.10)(supports-color@9.4.0)
+      '@babel/helper-replace-supers': 7.26.5(@babel/core@7.26.10(supports-color@9.4.0))(supports-color@9.4.0)
       '@babel/helper-skip-transparent-expression-wrappers': 7.25.9(supports-color@9.4.0)
       '@babel/traverse': 7.27.0(supports-color@9.4.0)
       semver: 6.3.1
@@ -4701,7 +4809,7 @@ snapshots:
 
   '@babel/helper-plugin-utils@7.26.5': {}
 
-  '@babel/helper-replace-supers@7.26.5(@babel/core@7.26.10)(supports-color@9.4.0)':
+  '@babel/helper-replace-supers@7.26.5(@babel/core@7.26.10(supports-color@9.4.0))(supports-color@9.4.0)':
     dependencies:
       '@babel/core': 7.26.10(supports-color@9.4.0)
       '@babel/helper-member-expression-to-functions': 7.25.9(supports-color@9.4.0)
@@ -4812,12 +4920,17 @@ snapshots:
       '@babel/core': 7.26.10
       '@babel/helper-plugin-utils': 7.26.5
 
+  '@babel/plugin-syntax-typescript@7.25.9(@babel/core@7.26.10(supports-color@9.4.0))':
+    dependencies:
+      '@babel/core': 7.26.10(supports-color@9.4.0)
+      '@babel/helper-plugin-utils': 7.26.5
+
   '@babel/plugin-syntax-typescript@7.25.9(@babel/core@7.26.10)':
     dependencies:
       '@babel/core': 7.26.10
       '@babel/helper-plugin-utils': 7.26.5
 
-  '@babel/plugin-transform-modules-commonjs@7.26.3(@babel/core@7.26.10)(supports-color@9.4.0)':
+  '@babel/plugin-transform-modules-commonjs@7.26.3(@babel/core@7.26.10(supports-color@9.4.0))(supports-color@9.4.0)':
     dependencies:
       '@babel/core': 7.26.10(supports-color@9.4.0)
       '@babel/helper-module-transforms': 7.26.0(@babel/core@7.26.10)(supports-color@9.4.0)
@@ -4825,14 +4938,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-transform-typescript@7.27.0(@babel/core@7.26.10)(supports-color@9.4.0)':
+  '@babel/plugin-transform-typescript@7.27.0(@babel/core@7.26.10(supports-color@9.4.0))(supports-color@9.4.0)':
     dependencies:
       '@babel/core': 7.26.10(supports-color@9.4.0)
       '@babel/helper-annotate-as-pure': 7.25.9
-      '@babel/helper-create-class-features-plugin': 7.27.0(@babel/core@7.26.10)(supports-color@9.4.0)
+      '@babel/helper-create-class-features-plugin': 7.27.0(@babel/core@7.26.10(supports-color@9.4.0))(supports-color@9.4.0)
       '@babel/helper-plugin-utils': 7.26.5
       '@babel/helper-skip-transparent-expression-wrappers': 7.25.9(supports-color@9.4.0)
-      '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.10)
+      '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.10(supports-color@9.4.0))
     transitivePeerDependencies:
       - supports-color
 
@@ -5580,9 +5693,9 @@ snapshots:
       '@babel/core': 7.26.10(supports-color@9.4.0)
       '@babel/generator': 7.27.0
       '@babel/parser': 7.27.0
-      '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.10)
-      '@babel/plugin-transform-modules-commonjs': 7.26.3(@babel/core@7.26.10)(supports-color@9.4.0)
-      '@babel/plugin-transform-typescript': 7.27.0(@babel/core@7.26.10)(supports-color@9.4.0)
+      '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.10(supports-color@9.4.0))
+      '@babel/plugin-transform-modules-commonjs': 7.26.3(@babel/core@7.26.10(supports-color@9.4.0))(supports-color@9.4.0)
+      '@babel/plugin-transform-typescript': 7.27.0(@babel/core@7.26.10(supports-color@9.4.0))(supports-color@9.4.0)
       '@babel/runtime': 7.27.0
       '@babel/traverse': 7.27.0(supports-color@9.4.0)
       '@babel/types': 7.27.0
@@ -5608,7 +5721,7 @@ snapshots:
     dependencies:
       '@marko/compiler': 5.39.17(supports-color@9.4.0)
       '@marko/run-explorer': 0.1.2
-      '@marko/vite': 4.1.20(@marko/compiler@5.39.17)(vite@5.4.12(@types/node@22.14.0)(terser@5.39.0))
+      '@marko/vite': 4.1.20(@marko/compiler@5.39.17(supports-color@9.4.0))(vite@5.4.12(@types/node@22.14.0)(terser@5.39.0))
       browserslist: 4.24.4
       cli-table3: 0.6.5
       compression: 1.8.0(supports-color@9.4.0)
@@ -5638,7 +5751,7 @@ snapshots:
       - sugarss
       - terser
 
-  '@marko/vite@4.1.20(@marko/compiler@5.39.17)(vite@5.4.12(@types/node@22.14.0)(terser@5.39.0))':
+  '@marko/vite@4.1.20(@marko/compiler@5.39.17(supports-color@9.4.0))(vite@5.4.12(@types/node@22.14.0)(terser@5.39.0))':
     dependencies:
       '@chialab/cjs-to-esm': 0.18.0
       '@marko/compiler': 5.39.17(supports-color@9.4.0)
@@ -5898,6 +6011,58 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@swc/core-darwin-arm64@1.11.21':
+    optional: true
+
+  '@swc/core-darwin-x64@1.11.21':
+    optional: true
+
+  '@swc/core-linux-arm-gnueabihf@1.11.21':
+    optional: true
+
+  '@swc/core-linux-arm64-gnu@1.11.21':
+    optional: true
+
+  '@swc/core-linux-arm64-musl@1.11.21':
+    optional: true
+
+  '@swc/core-linux-x64-gnu@1.11.21':
+    optional: true
+
+  '@swc/core-linux-x64-musl@1.11.21':
+    optional: true
+
+  '@swc/core-win32-arm64-msvc@1.11.21':
+    optional: true
+
+  '@swc/core-win32-ia32-msvc@1.11.21':
+    optional: true
+
+  '@swc/core-win32-x64-msvc@1.11.21':
+    optional: true
+
+  '@swc/core@1.11.21':
+    dependencies:
+      '@swc/counter': 0.1.3
+      '@swc/types': 0.1.21
+    optionalDependencies:
+      '@swc/core-darwin-arm64': 1.11.21
+      '@swc/core-darwin-x64': 1.11.21
+      '@swc/core-linux-arm-gnueabihf': 1.11.21
+      '@swc/core-linux-arm64-gnu': 1.11.21
+      '@swc/core-linux-arm64-musl': 1.11.21
+      '@swc/core-linux-x64-gnu': 1.11.21
+      '@swc/core-linux-x64-musl': 1.11.21
+      '@swc/core-win32-arm64-msvc': 1.11.21
+      '@swc/core-win32-ia32-msvc': 1.11.21
+      '@swc/core-win32-x64-msvc': 1.11.21
+
+  '@swc/counter@0.1.3': {}
+
+  '@swc/types@0.1.21':
+    dependencies:
+      '@swc/counter': 0.1.3
+
   '@tsconfig/svelte@5.0.4': {}
 
   '@types/babel__core@7.20.5':
@@ -6092,6 +6257,10 @@ snapshots:
     dependencies:
       acorn: 8.14.1
 
+  acorn-typescript@1.4.13(acorn@8.14.1):
+    dependencies:
+      acorn: 8.14.1
+
   acorn@8.14.1: {}
 
   agent-base@7.1.3: {}
@@ -6160,6 +6329,8 @@ snapshots:
   assertion-error@1.1.0: {}
 
   assertion-error@2.0.1: {}
+
+  astring@1.9.0: {}
 
   async-sema@3.1.1: {}
 
@@ -7963,6 +8134,8 @@ snapshots:
 
   package-json-from-dist@1.0.1: {}
 
+  package-manager-detector@1.1.0: {}
+
   parse-json@5.2.0:
     dependencies:
       '@babel/code-frame': 7.26.2
@@ -8035,6 +8208,52 @@ snapshots:
       playwright-core: 1.51.1
     optionalDependencies:
       fsevents: 2.3.2
+
+  plugma@file:packages/plugma(@playwright/test@1.51.1)(@types/debug@4.1.12)(@types/node@22.14.0)(@vitest/ui@3.1.1)(terser@5.39.0):
+    dependencies:
+      '@clack/prompts': 0.10.1
+      '@playwright/test': 1.51.1
+      '@swc/core': 1.11.21
+      chalk: 5.4.1
+      chokidar: 4.0.3
+      commander: 12.1.0
+      cross-dirname: 0.1.0
+      debug: 4.4.0(supports-color@9.4.0)
+      glob: 11.0.1
+      inquirer: 12.5.2(@types/node@22.14.0)
+      magic-string: 0.30.17
+      package-manager-detector: 1.1.0
+      prettier: 3.5.3
+      rollup: 4.39.0
+      semver: 7.7.1
+      socket.io: 4.8.1
+      socket.io-client: 4.8.1
+      source-map: 0.7.4
+      tsx: 4.19.3
+      vite: 5.4.12(@types/node@22.14.0)(terser@5.39.0)
+      vite-plugin-singlefile: 0.13.5(rollup@4.39.0)(vite@5.4.12(@types/node@22.14.0)(terser@5.39.0))
+      vitest: 3.1.1(@types/debug@4.1.12)(@types/node@22.14.0)(@vitest/ui@3.1.1)(terser@5.39.0)
+      ws: 8.18.1
+    transitivePeerDependencies:
+      - '@edge-runtime/vm'
+      - '@swc/helpers'
+      - '@types/debug'
+      - '@types/node'
+      - '@vitest/browser'
+      - '@vitest/ui'
+      - bufferutil
+      - happy-dom
+      - jsdom
+      - less
+      - lightningcss
+      - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - utf-8-validate
 
   pluralize@8.0.0: {}
 
