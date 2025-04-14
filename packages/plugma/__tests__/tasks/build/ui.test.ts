@@ -33,7 +33,7 @@ const mocks = vi.hoisted(() => {
     },
     Logger: vi.fn().mockImplementation(() => loggerMock),
     loggerInstance: loggerMock,
-    validateOutputFiles: vi.fn(),
+    notifyInvalidManifestOptions: vi.fn(),
     createViteConfigs: vi.fn().mockReturnValue({
       ui: {
         build: {},
@@ -62,8 +62,8 @@ vi.mock('#utils/log/logger.js', () => ({
   Logger: mocks.Logger,
 }));
 
-vi.mock('#utils/config/validate-output-files.js', () => ({
-  validateOutputFiles: mocks.validateOutputFiles,
+vi.mock('#utils/config/notify-invalid-manifest-options.js', () => ({
+	notifyInvalidManifestOptions: mocks.notifyInvalidManifestOptions,
 }));
 
 vi.mock('#utils/config/create-vite-configs.js', () => ({
@@ -216,7 +216,7 @@ describe('BuildUiTask', () => {
 
     await BuildUiTask.run(baseOptions, context);
 
-    expect(mocks.validateOutputFiles).toHaveBeenCalledWith(
+    expect(mocks.notifyInvalidManifestOptions).toHaveBeenCalledWith(
       expect.any(Object),
       expect.any(Object),
       'plugin-built',

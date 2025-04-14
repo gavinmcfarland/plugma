@@ -4,7 +4,7 @@ import type { InlineConfig, ViteDevServer } from 'vite'
 import { createServer } from 'vite'
 import { GetFilesTask } from '#tasks/get-files.js'
 import { task } from '#tasks/runner.js'
-import { viteState } from '#tasks/start-dev-server.js'
+import { viteState } from '#tasks/vite-state.js'
 
 /**
  * Result type for the restart-vite-server task

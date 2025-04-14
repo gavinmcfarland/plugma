@@ -14,6 +14,8 @@ import type { LogLevel } from 'vite'
 
 import { createViteConfigs } from '#utils/config/create-vite-configs.js'
 import { loadConfig } from '#utils/config/load-config.js'
+import { BuildWatcherWrapper } from './build-ui.js'
+import { viteState } from './vite-state.js'
 
 /**
  * Result type for the start-vite-server task
@@ -23,22 +25,6 @@ export interface StartViteServerResult {
 	server: ViteDevServer
 	/** The port the server is running on */
 	port: number
-}
-
-/**
- * Shared Vite server state to manage server instances and build queue
- */
-export const viteState = {
-	/** Main Vite development server */
-	viteServer: null as ViteDevServer | null,
-	/** Build-specific Vite watcher */
-	viteMainWatcher: null as RollupWatcher | null,
-	/** UI-specific Vite server */
-	viteUi: null as ViteDevServer | null,
-	/** Flag to track if a build is in progress */
-	isBuilding: false,
-	/** Queue of messages to process after build */
-	messageQueue: [] as Array<{ message: string; senderId: string }>,
 }
 
 /**
@@ -123,15 +109,12 @@ const startViteServer = async (
 				}
 			}
 
-			// Close the UI server if it exists
-			if (viteState.viteUi) {
-				try {
-					await viteState.viteUi.close()
-					viteState.viteUi = null
-					log.success('Vite UI server closed')
-				} catch (error) {
-					log.error('Failed to close Vite UI server:', error)
-				}
+			// Replace explicit null assignment with close()
+			try {
+				await viteState.viteUi.close()
+				log.success('Vite UI server closed')
+			} catch (error) {
+				log.error('Failed to close Vite UI server:', error)
 			}
 
 			// Reset state

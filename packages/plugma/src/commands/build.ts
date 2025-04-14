@@ -60,7 +60,8 @@ export async function build(options: BuildCommandOptions): Promise<void> {
 
 		// log.debug(`Task execution results: ${JSON.stringify(results, null, 2)}`);
 
-		log.success('Production build completed successfully')
+		// log.success('Production build completed successfully')
+		// process.exit(0)
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : String(error)
 		log.error('Failed to build plugin:', errorMessage)

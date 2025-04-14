@@ -30,7 +30,17 @@ const INTEGRATIONS = {
 
 type IntegrationKey = keyof typeof INTEGRATIONS
 
-async function installRequiredIntegrations(integration: Integration): Promise<boolean> {
+interface DependencyCollection {
+	dependencies: Set<string>
+	devDependencies: Set<string>
+}
+
+interface RunIntegrationOptions {
+	name: string
+	prefixPrompts?: boolean
+}
+
+async function installRequiredIntegrations(integration: Integration, allDeps: DependencyCollection): Promise<boolean> {
 	if (!integration.requires?.length) return true
 
 	const requiredIntegrations = integration.requires.map((id) => INTEGRATIONS[id as IntegrationKey])
@@ -53,24 +63,18 @@ async function installRequiredIntegrations(integration: Integration): Promise<bo
 	// Install each required integration
 	for (const requiredId of integration.requires) {
 		const requiredIntegration = INTEGRATIONS[requiredId as IntegrationKey]
-		const result = await runIntegration(requiredIntegration)
+		const result = await runIntegration(requiredIntegration, {
+			name: requiredIntegration.name,
+			prefixPrompts: true,
+		})
 
 		if (!result) {
 			return false
 		}
 
-		// Install dependencies for the required integration
-		if (result.dependencies.length > 0 || result.devDependencies.length > 0) {
-			const s = spinner()
-			s.start(`Installing dependencies for ${requiredIntegration.name}...`)
-			try {
-				await installDependencies(result.dependencies, result.devDependencies)
-				s.stop('Dependencies installed successfully!')
-			} catch (error) {
-				s.stop('Failed to install dependencies')
-				throw error
-			}
-		}
+		// Collect dependencies from required integration
+		result.dependencies.forEach((dep) => allDeps.dependencies.add(dep))
+		result.devDependencies.forEach((dep) => allDeps.devDependencies.add(dep))
 	}
 
 	return true
@@ -98,22 +102,38 @@ export async function add(options: AddCommandOptions): Promise<void> {
 
 		const integration = INTEGRATIONS[selectedIntegration as IntegrationKey]
 
+		// Create collection for all dependencies
+		const allDeps: DependencyCollection = {
+			dependencies: new Set<string>(),
+			devDependencies: new Set<string>(),
+		}
+
 		// Handle required integrations first
-		const requiredInstalled = await installRequiredIntegrations(integration)
+		const requiredInstalled = await installRequiredIntegrations(integration, allDeps)
 		if (!requiredInstalled) {
 			outro('Operation cancelled')
 			process.exit(0)
 		}
 
-		const result = await runIntegration(integration)
+		const result = await runIntegration(integration, {
+			name: integration.name,
+			prefixPrompts: true,
+		})
 
 		if (!result) {
 			outro('Operation cancelled')
 			process.exit(0)
 		}
 
-		// Install dependencies
-		if (result.dependencies.length > 0 || result.devDependencies.length > 0) {
+		// Add main integration dependencies to collection
+		result.dependencies.forEach((dep) => allDeps.dependencies.add(dep))
+		result.devDependencies.forEach((dep) => allDeps.devDependencies.add(dep))
+
+		// Install all collected dependencies
+		const depsArray = Array.from(allDeps.dependencies)
+		const devDepsArray = Array.from(allDeps.devDependencies)
+
+		if (depsArray.length > 0 || devDepsArray.length > 0) {
 			const shouldInstall = await confirm({
 				message: 'Install dependencies?',
 				initialValue: true,
@@ -126,10 +146,10 @@ export async function add(options: AddCommandOptions): Promise<void> {
 
 			if (shouldInstall) {
 				const s = spinner()
-				s.start('Installing dependencies...')
+				s.start('Installing all dependencies...')
 				try {
-					await installDependencies(result.dependencies, result.devDependencies)
-					s.stop('Dependencies installed successfully!')
+					await installDependencies(depsArray, devDepsArray)
+					s.stop('All dependencies installed successfully!')
 				} catch (error) {
 					s.stop('Failed to install dependencies')
 					throw error
@@ -137,8 +157,8 @@ export async function add(options: AddCommandOptions): Promise<void> {
 			} else {
 				note(
 					`${chalk.bold('You can install the dependencies later by running:')}\n\n` +
-						`${chalk.cyan('Regular dependencies:')}\n${result.dependencies.map((dep) => `  • ${chalk.green(dep)}`).join('\n')}\n\n` +
-						`${chalk.cyan('Dev dependencies:')}\n${result.devDependencies.map((dep) => `  • ${chalk.yellow(dep)}`).join('\n')}`,
+						`${chalk.cyan('Regular dependencies:')}\n${depsArray.map((dep) => `  • ${chalk.green(dep)}`).join('\n')}\n\n` +
+						`${chalk.cyan('Dev dependencies:')}\n${devDepsArray.map((dep) => `  • ${chalk.yellow(dep)}`).join('\n')}`,
 					'Dependencies to install',
 				)
 			}

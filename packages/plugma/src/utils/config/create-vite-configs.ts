@@ -19,6 +19,7 @@ import {
 } from '#vite-plugins'
 import { createBuildNotifierPlugin } from '../../vite-plugins/build-notifier.js'
 import { injectEventListeners } from '#vite-plugins/main/inject-test-event-listeners.js'
+import viteCopyDirectoryPlugin from '#vite-plugins/move-dir.js'
 
 const projectRoot = path.join(getDirName(), '../../..')
 const templateUiHtmlPath = path.join(projectRoot, 'templates/ui.html')
@@ -41,29 +42,32 @@ export type ViteConfigs = {
 
 /**
  * Creates Vite configurations for both development and build
- *
- * @param options - Plugin configuration options
- * @param userFiles - User's plugin files configuration
- * @returns Vite configurations for different environments
  */
 export function createViteConfigs(options: PluginOptions, userFiles: UserFiles): ViteConfigs {
 	// Copy template to the current working directory
 	// Was ui.html, but now using index.html
 	const localUiHtmlPath = path.join(process.cwd(), 'index.html')
-	let uiHtmlPath = templateUiHtmlPath
+	let indexInputPath = templateUiHtmlPath
 	if (fs.existsSync(localUiHtmlPath)) {
-		uiHtmlPath = localUiHtmlPath
-		// fs.copyFileSync(uiHtmlPath, localUiHtmlPath);
+		indexInputPath = localUiHtmlPath
+		// fs.copyFileSync(indexInputPath, localUiHtmlPath);
 	}
 
 	// TODO: Change so that input is dynamically referenced. Checking if exists in project root and if not, use one from templates. Also should it be called ui.html?
 	defaultLogger.debug('Creating Vite configs with:', {
-		browserIndexPath: uiHtmlPath,
+		browserIndexPath: indexInputPath,
 		outputDir: options.output,
 		cwd: process.cwd(),
 	})
 
-	const commonVitePlugins: Plugin[] = [viteSingleFile(), createBuildNotifierPlugin(options.port)]
+	const commonVitePlugins: Plugin[] = [
+		viteSingleFile(),
+		createBuildNotifierPlugin(options.port),
+		// viteCopyDirectoryPlugin({
+		// 	sourceDir: path.join(options.output, 'node_modules', 'plugma', 'tmp'),
+		// 	targetDir: path.join(options.output),
+		// }),
+	]
 
 	const placeholders = {
 		pluginName: userFiles.manifest.name,
@@ -103,7 +107,7 @@ export function createViteConfigs(options: PluginOptions, userFiles: UserFiles):
 				emptyOutDir: false,
 				write: true,
 				rollupOptions: {
-					input: uiHtmlPath,
+					input: indexInputPath,
 					output: {
 						entryFileNames: '[name].js',
 						chunkFileNames: '[name].js',

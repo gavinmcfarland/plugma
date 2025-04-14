@@ -47,7 +47,6 @@ export function createFileHelpers(cwd = process.cwd()): FileHelpers {
 				let json: Record<string, any> = {}
 				try {
 					const trimmedContent = content.trim()
-					console.log('trimmedContent', trimmedContent)
 					// Use comment-json to parse while preserving comments
 					json = content ? (commentJson.parse(trimmedContent) as Record<string, any>) : {}
 					updater(json)

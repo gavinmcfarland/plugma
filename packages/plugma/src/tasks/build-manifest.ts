@@ -2,7 +2,7 @@ import type { GetTaskTypeFor, ManifestFile, PluginOptions, ResultsOfTask } from 
 import { GetFilesTask, type GetFilesTaskResult } from '#tasks/get-files.js'
 import RestartViteServerTask from '#tasks/start-dev-server.js'
 import { registerCleanup } from '#utils/cleanup.js'
-import { validateOutputFiles } from '#utils/config/validate-output-files.js'
+import { notifyInvalidManifestOptions } from '#utils/config/notify-invalid-manifest-options.js'
 import { filterNullProps } from '#utils/filter-null-props.js'
 import { getFilesRecursively } from '#utils/fs/get-files-recursively.js'
 import { Logger, defaultLogger as log } from '#utils/log/logger.js'
@@ -91,7 +91,7 @@ const buildManifest = async (
 				const { raw } = await _buildManifestFile(options)
 
 				// Validate output files
-				validateOutputFiles(options, files, 'manifest-changed')
+				notifyInvalidManifestOptions(options, files, 'manifest-changed')
 
 				// Trigger server restart if not in build mode
 				if (options.command !== 'build') {
@@ -133,7 +133,7 @@ const buildManifest = async (
 					await BuildMainTask.run(options, context)
 				}
 
-				validateOutputFiles(options, files, 'file-added')
+				notifyInvalidManifestOptions(options, files, 'file-added')
 			})
 
 			// Register cleanup for watchers

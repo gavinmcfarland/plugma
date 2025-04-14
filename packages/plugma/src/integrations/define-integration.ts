@@ -56,48 +56,16 @@ export function defineIntegration(integration: Integration): Integration {
 	return integration
 }
 
-async function askQuestions(questions: Question[], answers: Record<string, any> = {}) {
-	for (const question of questions) {
-		if (question.condition && !question.condition(answers)) {
-			continue
-		}
-
-		let answer
-		switch (question.type) {
-			case 'select':
-				answer = await select({
-					message: question.question,
-					options: question.options,
-					initialValue: question.default,
-				})
-				break
-			case 'confirm':
-				answer = await confirm({
-					message: question.question,
-					initialValue: question.default,
-				})
-				break
-			case 'text':
-				answer = await text({
-					message: question.question,
-					initialValue: question.default,
-				})
-				break
-		}
-
-		if (isCancel(answer)) {
-			return null
-		}
-
-		answers[question.id] = answer
-	}
-
-	return answers
+interface RunIntegrationOptions {
+	name: string
+	prefixPrompts?: boolean
 }
 
-export async function runIntegration(integration: Integration) {
+export async function runIntegration(integration: Integration, options?: RunIntegrationOptions) {
 	// Get answers to all questions
-	const answers = integration.questions ? await askQuestions(integration.questions) : {}
+	const answers = integration.questions
+		? await askQuestions(integration.questions, {}, options?.prefixPrompts ? options.name : undefined)
+		: {}
 
 	if (!answers) return null
 
@@ -116,4 +84,45 @@ export async function runIntegration(integration: Integration) {
 		files: integration.files || [],
 		nextSteps: integration.nextSteps?.(answers) || [],
 	}
+}
+
+async function askQuestions(questions: Question[], answers: Record<string, any> = {}, prefixName?: string) {
+	for (const question of questions) {
+		if (question.condition && !question.condition(answers)) {
+			continue
+		}
+
+		const message = prefixName ? `[${prefixName}] ${question.question}` : question.question
+
+		let answer
+		switch (question.type) {
+			case 'select':
+				answer = await select({
+					message,
+					options: question.options,
+					initialValue: question.default,
+				})
+				break
+			case 'confirm':
+				answer = await confirm({
+					message,
+					initialValue: question.default,
+				})
+				break
+			case 'text':
+				answer = await text({
+					message,
+					initialValue: question.default,
+				})
+				break
+		}
+
+		if (isCancel(answer)) {
+			return null
+		}
+
+		answers[question.id] = answer
+	}
+
+	return answers
 }

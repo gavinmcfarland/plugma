@@ -9,7 +9,7 @@ import { createViteConfigs } from '#utils/config/create-vite-configs.js'
 import { Logger } from '#utils/log/logger.js'
 import { GetFilesTask } from '#tasks/get-files.js'
 import { task } from '#tasks/runner.js'
-import { viteState } from '#tasks/start-dev-server.js'
+import { viteState } from '#tasks/vite-state.js'
 import { loadConfig } from '#utils/config/load-config.js'
 
 /**
@@ -99,7 +99,7 @@ const buildMain = async (options: PluginOptions, context: ResultsOfTask<GetFiles
 			viteState.viteMainWatcher = buildResult as RollupWatcher
 		}
 
-		log.success('Main script built successfully at dist/main.js')
+		// log.success('Main script built successfully at dist/main.js')
 
 		return { outputPath }
 	} catch (error) {

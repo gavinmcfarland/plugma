@@ -1,6 +1,6 @@
 import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '#core/types.js'
 import { createViteConfigs } from '#utils/config/create-vite-configs.js'
-import { validateOutputFiles } from '#utils/config/validate-output-files.js'
+import { notifyInvalidManifestOptions } from '#utils/config/notify-invalid-manifest-options.js'
 import { Logger } from '#utils/log/logger.js'
 import { access } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
@@ -9,16 +9,89 @@ import type { ViteDevServer } from 'vite'
 import { type InlineConfig, build, mergeConfig } from 'vite'
 import { GetFilesTask } from '#tasks/get-files.js'
 import { task } from '#tasks/runner.js'
-import { viteState } from '#tasks/start-dev-server.js'
+import { viteState } from '#tasks/vite-state.js'
 import { loadConfig } from '#utils/config/load-config.js'
-/**
- * Result type for the build-ui task
- */
-interface Result {
-	/** Path to the built UI HTML file */
+import { getUserFiles } from '#utils/config/get-user-files.js'
+
+interface BuildUiResult {
 	outputPath: string
-	/** Build duration in milliseconds */
 	duration?: string
+}
+
+interface ViteConfigOptions {
+	options: PluginOptions
+	viteConfigs: any
+	userUIConfig: any
+}
+
+// Create a more accurate type for our watcher wrapper
+export interface BuildWatcherWrapper {
+	close: () => Promise<void>
+	config: InlineConfig
+	watcher: any
+}
+
+// Helper function to check if file exists
+async function fileExists(path: string): Promise<boolean> {
+	return access(path)
+		.then(() => true)
+		.catch(() => false)
+}
+
+async function runWatchMode({ options, viteConfigs, userUIConfig }: ViteConfigOptions): Promise<void> {
+	const watchConfig = mergeConfig(
+		{
+			...viteConfigs.ui.build,
+			...(userUIConfig?.config ?? {}),
+			build: {
+				watch: {},
+				outDir: join(options.output),
+			},
+		},
+		{},
+	)
+
+	const watcher = await build(watchConfig)
+
+	if ('close' in watcher) {
+		viteState.viteUi.setInstance({
+			close: async () => {
+				if (watcher) {
+					await watcher.close()
+				}
+			},
+			config: watchConfig,
+			watcher: watcher,
+		})
+		return
+	}
+
+	throw new Error('Failed to create watcher')
+}
+
+// Improved build mode configuration
+async function runBuild({ options, viteConfigs, userUIConfig }: ViteConfigOptions): Promise<void> {
+	const buildConfig = mergeConfig(
+		{
+			...viteConfigs.ui.build,
+			...(userUIConfig?.config ?? {}),
+		},
+		{},
+	)
+
+	await build(buildConfig)
+}
+
+// Helper to handle build success logging
+async function logBuildSuccess(logger: Logger, duration: string, currentFiles: any) {
+	if (currentFiles.manifest.main) {
+		const mainExists = await fileExists(resolve(currentFiles.manifest.main))
+		const uiExists = !currentFiles.manifest.ui || (await fileExists(resolve(currentFiles.manifest.ui)))
+
+		if (mainExists && uiExists) {
+			logger.success(`build created in ${duration}ms\n`)
+		}
+	}
 }
 
 /**
@@ -50,171 +123,45 @@ interface Result {
  * @param context - Task context containing results from previous tasks
  * @returns Object containing the output file path and build duration
  */
-const buildUi = async (options: PluginOptions, context: ResultsOfTask<GetFilesTask>): Promise<Result> => {
+const buildUi = async (options: PluginOptions, context: ResultsOfTask<GetFilesTask>): Promise<BuildUiResult> => {
 	const logger = new Logger({
 		debug: options.debug,
 		prefix: 'build:ui',
 	})
 
 	try {
-		logger.debug('Starting build:ui task...')
-
-		const fileResult = context[GetFilesTask.name]
-		if (!fileResult) {
-			throw new Error('get-files task must run first')
-		}
-
-		const { files } = fileResult
+		const currentFiles = await getUserFiles(options)
 		const outputPath = join(options.output || 'dist', 'ui.html')
 
-		logger.debug('Task context:', {
-			files: {
-				manifest: files.manifest,
-				userPkgJson: files.userPkgJson,
-			},
-			outputPath,
-		})
+		await viteState.viteUi.close()
 
-		// Close existing UI server if any
-		if (viteState.viteUi) {
-			logger.debug('Closing existing UI server...')
-			await viteState.viteUi.close()
-			logger.debug('UI server closed')
-		}
-
-		// Get Vite config from createConfigs
-		logger.debug('Creating Vite configs...')
-		const configs = createViteConfigs(options, files)
-		logger.debug('Vite configs created')
-		const userUIConfig = await loadConfig('vite.config.ui', options)
-
-		// Start build timer as close to build as possible
 		const startTime = performance.now()
+		let duration: string | undefined
 
-		// Only build if UI is specified and file exists
-		if (files.manifest.ui) {
-			const uiPath = resolve(files.manifest.ui)
-			logger.debug('Checking UI file existence:', uiPath)
-			const uiExists = await access(uiPath)
-				.then(() => true)
-				.catch(() => false)
-
-			if (uiExists) {
-				logger.debug(`Building UI from ${files.manifest.ui}...`)
-
-				// Build UI with Vite
-				if (options.command === 'build' && options.watch) {
-					logger.debug('Starting UI build in watch mode...')
-					const watchConfig = mergeConfig(
-						{
-							...configs.ui.build,
-							configFile: false,
-							build: {
-								watch: {},
-								minify: true,
-								outDir: join(options.output),
-								emptyOutDir: false,
-							},
-						},
-						userUIConfig?.config ?? {},
-					) as InlineConfig
-
-					logger.debug('Watch config:', watchConfig)
-					const watcher = await build(watchConfig)
-					logger.debug('Watch build completed')
-
-					if ('close' in watcher) {
-						viteState.viteUi = {
-							close: async () => {
-								await watcher.close()
-							},
-							config: watchConfig,
-							pluginContainer: {} as any,
-							middlewares: {} as any,
-							httpServer: null,
-							watcher: watcher as any,
-							ws: null as any,
-							moduleGraph: null as any,
-							transformRequest: null as any,
-							transformIndexHtml: null as any,
-							transformCode: null as any,
-							resolvedUrls: null as any,
-							ssrTransform: null as any,
-							listen: async () => ({ port: 0 }),
-							printUrls: () => {},
-							bindCLIShortcuts: () => {},
-							restart: async () => {},
-						} as any as ViteDevServer
-					}
-				} else {
-					const buildConfig = mergeConfig(
-						{
-							...configs.ui.build,
-							configFile: false,
-							build: {
-								minify: true,
-								outDir: join(options.output),
-								emptyOutDir: false,
-							},
-						},
-						userUIConfig?.config ?? {},
-					) as InlineConfig
-
-					logger.debug('Build config:', buildConfig)
-					await build(buildConfig)
-					logger.debug('Production build completed')
-				}
-			} else {
-				logger.debug(`UI file not found at ${uiPath}, skipping build`)
-			}
-		} else {
+		if (!currentFiles.manifest.ui) {
 			logger.debug('No UI specified in manifest, skipping build')
+			return { outputPath }
 		}
 
-		// Calculate elapsed time in milliseconds
-		const endTime = performance.now()
-		const duration = (endTime - 250 - startTime).toFixed(0) // Remove decimals for a Vite-like appearance
-
-		// Show build status
-		if (
-			!options.watch &&
-			files.manifest.main &&
-			(await access(resolve(files.manifest.main))
-				.then(() => true)
-				.catch(() => false))
-		) {
-			if (
-				!files.manifest.ui ||
-				(files.manifest.ui &&
-					(await access(resolve(files.manifest.ui))
-						.then(() => true)
-						.catch(() => false)))
-			) {
-				logger.success(`build created in ${duration}ms\n`)
-			}
+		const uiPath = resolve(currentFiles.manifest.ui)
+		if (!(await fileExists(uiPath))) {
+			console.error(`UI file not found at ${uiPath}, skipping build`)
+			return { outputPath }
 		}
 
-		// Validate output files
-		logger.debug('Validating output files...')
-		await validateOutputFiles(options, files, 'plugin-built')
-		logger.debug('Output files validated')
+		const viteConfigs = createViteConfigs(options, currentFiles)
+		const userUIConfig = await loadConfig('vite.config.ui', options)
+		const configOptions = { options, viteConfigs, userUIConfig }
 
-		// Check if ui.html file exists when debugging this task
-		if (process.env.PLUGMA_DEBUG_TASK === 'build:ui') {
-			try {
-				const uiHtmlPath = join(options.output || 'dist', 'ui.html')
-				const uiHtmlExists = await access(uiHtmlPath)
-					.then(() => true)
-					.catch(() => false)
-				if (uiHtmlExists) {
-					logger.debug('✓ Verified ui.html exists at:', uiHtmlPath)
-				} else {
-					logger.debug('✗ ui.html was not created at:', uiHtmlPath)
-				}
-			} catch (err) {
-				logger.debug('Error checking ui.html file:', err)
-			}
+		if (options.command === 'build' && options.watch) {
+			runWatchMode(configOptions)
+		} else {
+			await runBuild(configOptions)
+			duration = (performance.now() - startTime).toFixed(0)
+			await logBuildSuccess(logger, duration, currentFiles)
 		}
+
+		await notifyInvalidManifestOptions(options, currentFiles, 'plugin-built')
 
 		return { outputPath, duration }
 	} catch (err) {
