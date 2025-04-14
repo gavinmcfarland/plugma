@@ -7,10 +7,11 @@ import { build, mergeConfig } from 'vite'
 import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '#core/types.js'
 import { createViteConfigs } from '#utils/config/create-vite-configs.js'
 import { Logger } from '#utils/log/logger.js'
-import { GetFilesTask } from '#tasks/get-files.js'
+import getFiles, { GetFilesTask } from '#tasks/get-files.js'
 import { task } from '#tasks/runner.js'
 import { viteState } from '#tasks/vite-state.js'
 import { loadConfig } from '#utils/config/load-config.js'
+import { getUserFiles } from '#utils/config/get-user-files.js'
 
 /**
  * Result type for the build-main task
@@ -54,13 +55,7 @@ const buildMain = async (options: PluginOptions, context: ResultsOfTask<GetFiles
 			debug: options.debug,
 			prefix: 'build:main',
 		})
-
-		const fileResult = context[GetFilesTask.name]
-		if (!fileResult) {
-			throw new Error('get-files task must run first')
-		}
-
-		const { files } = fileResult
+		const files = await getUserFiles(options)
 		const outputPath = join(options.output || 'dist', 'main.js')
 
 		// Close existing build server if any

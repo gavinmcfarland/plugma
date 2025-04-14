@@ -5,6 +5,8 @@ import { createServer } from 'vite'
 import { GetFilesTask } from '#tasks/get-files.js'
 import { task } from '#tasks/runner.js'
 import { viteState } from '#tasks/vite-state.js'
+import { getUserFiles } from '#utils/config/get-user-files'
+import { createViteConfigs } from '#utils/config/create-vite-configs'
 
 /**
  * Result type for the restart-vite-server task
@@ -47,13 +49,8 @@ export const restartViteServer = async (
 	const log = new Logger({ debug: options.debug })
 
 	try {
-		// Get files from previous task
-		const fileResult = context[GetFilesTask.name]
-		if (!fileResult) {
-			throw new Error('get-files task must run first')
-		}
-
-		const { files, config } = fileResult
+		const files = await getUserFiles(options)
+		const config = createViteConfigs(options, files)
 
 		// Skip if no UI is specified
 		if (!files.manifest?.ui) {

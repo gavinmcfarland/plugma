@@ -1,5 +1,5 @@
 import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '#core/types.js'
-import { getDirName } from '#utils'
+import { createViteConfigs, getDirName, getUserFiles } from '#utils'
 import { Logger } from '#utils/log/logger.js'
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
@@ -64,11 +64,8 @@ const wrapPluginUi = async (
 		prefix: 'build:wrap-plugin-ui',
 	})
 
-	if (!context[GetFilesTask.name]) {
-		throw new Error('get-files task must run first')
-	}
+	const files = await getUserFiles(options)
 
-	const { files } = context[GetFilesTask.name]
 	logger.debug('Task context loaded', {
 		manifest: files.manifest,
 		hasUI: !!files.manifest.ui,

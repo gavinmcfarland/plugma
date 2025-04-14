@@ -1,5 +1,5 @@
 import type { GetTaskTypeFor, ManifestFile, PluginOptions, ResultsOfTask } from '#core/types.js'
-import { GetFilesTask, type GetFilesTaskResult } from '#tasks/get-files.js'
+import getFiles, { GetFilesTask, type GetFilesTaskResult } from '#tasks/get-files.js'
 import RestartViteServerTask from '#tasks/start-dev-server.js'
 import { registerCleanup } from '#utils/cleanup.js'
 import { notifyInvalidManifestOptions } from '#utils/config/notify-invalid-manifest-options.js'
@@ -53,12 +53,8 @@ const buildManifest = async (
 	context: ResultsOfTask<GetFilesTask>,
 ): Promise<BuildManifestResult> => {
 	try {
-		const fileResult = context[GetFilesTask.name]
-		if (!fileResult) {
-			throw new Error('get-files task must run first')
-		}
+		const files = await getUserFiles(options)
 
-		const { files } = fileResult
 		let previousMainValue = files.manifest.main
 		let previousUiValue = files.manifest.ui
 
@@ -181,20 +177,7 @@ async function _buildManifestFile(options: PluginOptions): Promise<BuildManifest
 
 	// Get the most up-to-date files
 	const currentFiles = await getUserFiles(options)
-
-	logger.debug('Building manifest file...', {
-		outputDirPath,
-		manifestPath,
-		files: {
-			manifest: currentFiles.manifest,
-			userPkgJson: currentFiles.userPkgJson,
-		},
-	})
-
-	// Ensure output directory exists
-	logger.debug('Ensuring output directory exists...')
 	await mkdir(outputDirPath, { recursive: true })
-	logger.debug('Output directory created/verified')
 
 	// Define default and overridden values
 	const defaultValues = {
@@ -221,12 +204,7 @@ async function _buildManifestFile(options: PluginOptions): Promise<BuildManifest
 		...overriddenValues,
 	})
 
-	logger.debug('Final manifest content:', processed)
-
-	// Write manifest file
-	logger.debug('Writing manifest file...')
 	await writeFile(manifestPath, JSON.stringify(processed, null, 2), 'utf-8')
-	logger.debug('Manifest file written successfully')
 
 	// Check if manifest file exists when debugging this task
 	if (process.env.PLUGMA_DEBUG_TASK === 'build:manifest') {

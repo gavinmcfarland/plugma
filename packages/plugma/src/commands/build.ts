@@ -43,14 +43,7 @@ export async function build(options: BuildCommandOptions): Promise<void> {
 			command: 'build',
 		}
 
-		log.debug(`Plugin options: ${JSON.stringify(pluginOptions)}`)
-
-		// Execute tasks in sequence
-		log.info('Executing tasks...')
-
-		// Pass the task objects directly - BuildMainTask first, BuildManifestTask last
 		const results = await serial(
-			GetFilesTask,
 			ShowPlugmaPromptTask,
 			EnsureDistTask, // ensures a clean dist directory
 			BuildManifestTask, // creates a manifest

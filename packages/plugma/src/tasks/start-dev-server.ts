@@ -16,6 +16,7 @@ import { createViteConfigs } from '#utils/config/create-vite-configs.js'
 import { loadConfig } from '#utils/config/load-config.js'
 import { BuildWatcherWrapper } from './build-ui.js'
 import { viteState } from './vite-state.js'
+import { getUserFiles } from '#utils/config/index.js'
 
 /**
  * Result type for the start-vite-server task
@@ -60,14 +61,7 @@ const startViteServer = async (
 	try {
 		const log = new Logger({ debug: options.debug })
 
-		// Get files from previous task
-		const fileResult = context[GetFilesTask.name]
-		if (!fileResult) {
-			throw new Error('get-files task must run first')
-		}
-
-		const { files } = fileResult
-
+		const files = await getUserFiles(options)
 		const configs = createViteConfigs(options, files)
 
 		// Skip if no UI is specified

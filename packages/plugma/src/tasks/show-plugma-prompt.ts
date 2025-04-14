@@ -6,7 +6,10 @@ import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '#core/types.j
 import { Logger } from '#utils/log/logger.js'
 import chalk from 'chalk'
 import { task } from '#tasks/runner.js'
-import { GetFilesTask } from '#tasks/get-files.js'
+import getFiles, { GetFilesTask } from '#tasks/get-files.js'
+import { getUserFiles } from '#utils/config/get-user-files.js'
+import { createViteConfigs } from '#utils/config/create-vite-configs.js'
+import { readPlugmaPackageJson } from '#utils/fs/read-json.js'
 
 /**
  * Result type for the show-plugma-prompt task
@@ -25,16 +28,16 @@ const showPlugmaPrompt = async (
 	context: ResultsOfTask<GetFilesTask>,
 ): Promise<ShowPlugmaPromptResult> => {
 	try {
-		if (!context[GetFilesTask.name]) {
-			throw new Error('get-files task must run first')
-		}
-
 		const log = new Logger({
 			debug: options.debug,
 			prefix: 'common:show-plugma-prompt',
 		})
 
-		const { version } = context[GetFilesTask.name].plugmaPkg
+		const version = (await readPlugmaPackageJson()).version
+
+		const files = await getUserFiles(options)
+		const config = createViteConfigs(options, files)
+
 		// Match original formatting with chalk
 		log.text(
 			`${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}`)} - A modern Figma plugin development toolkit
