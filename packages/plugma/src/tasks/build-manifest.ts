@@ -12,7 +12,7 @@ import { join, relative, resolve } from 'node:path'
 import { task } from './runner.js'
 import BuildMainTask from './build-main.js'
 import { getUserFiles } from '#utils/config/get-user-files.js'
-import BuildUiTask from './build-ui.js'
+import { BuildUiTask } from './build-ui.js'
 
 /**
  * Result type for the build-manifest task

@@ -10,4 +10,5 @@ export * from './replace-placeholders.js'
 export * from './rewrite-postmessage-origin.js'
 export * from './dot-env-loader.js'
 export * from './main/inject-tests.js'
+export * from './rename-index-html.js'
 //@endindex
