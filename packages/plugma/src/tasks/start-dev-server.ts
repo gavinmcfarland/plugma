@@ -16,7 +16,7 @@ import { createViteConfigs } from '../utils/config/create-vite-configs.js'
 import { loadConfig } from '../utils/config/load-config.js'
 import { BuildWatcherWrapper } from './build-ui.js'
 import { viteState } from '../utils/vite-state-manager.js'
-import { getUserFiles } from '../utils/config/index.js'
+import { getUserFiles } from '../utils/get-user-files.js'
 
 /**
  * Result type for the start-vite-server task

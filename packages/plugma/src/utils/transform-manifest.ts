@@ -1,4 +1,4 @@
-import type { ManifestFile, PluginOptions } from '../../core/types.js'
+import type { ManifestFile, PluginOptions } from '../core/types.js'
 
 /**
  * Transforms network access configuration in the manifest

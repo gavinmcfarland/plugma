@@ -5,7 +5,7 @@ import { createServer } from 'vite'
 import { GetFilesTask } from '../tasks/get-files.js'
 import { task } from '../tasks/runner.js'
 import { viteState } from '../utils/vite-state-manager.js'
-import { getUserFiles } from '../utils/config/get-user-files.js'
+import { getUserFiles } from '../utils/get-user-files.js'
 import { createViteConfigs } from '../utils/config/create-vite-configs.js'
 
 /**

@@ -6,7 +6,7 @@ import { notifyInvalidManifestOptions } from '../utils/config/notify-invalid-man
 import { filterNullProps } from '../utils/filter-null-props.js'
 import { getFilesRecursively } from '../utils/fs/get-files-recursively.js'
 import { Logger, defaultLogger as log } from '../utils/log/logger.js'
-import { getUserFiles } from '../utils/config/get-user-files.js'
+import { getUserFiles } from '../utils/get-user-files.js'
 import { BuildMainTask } from './build-main.js'
 import { BuildUiTask } from './build-ui.js'
 import chokidar, { FSWatcher } from 'chokidar'

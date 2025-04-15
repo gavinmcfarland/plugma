@@ -5,7 +5,7 @@
 
 import type { GetTaskTypeFor, PluginOptions } from '../../core/types.js'
 import { createViteConfigs } from '../../utils/config/create-vite-configs.js'
-import { getUserFiles } from '../../utils/config/get-user-files.js'
+import { getUserFiles } from '../../utils/get-user-files.js'
 import { Logger } from '../../utils/log/logger.js'
 import { replacePlugmaTesting } from '../../vite-plugins/replace-testing-import-path.js'
 import { startVitest } from 'vitest/node'

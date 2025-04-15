@@ -1,7 +1,7 @@
 import path from 'node:path'
-import { readJson } from '../fs/read-json.js'
+import { readJson } from './fs/read-json.js'
 
-import type { ManifestFile, PluginOptions, UserFiles } from '../../core/types.js'
+import type { ManifestFile, PluginOptions, UserFiles } from '../core/types.js'
 import { transformManifest } from './transform-manifest.js'
 
 function validateManifest(manifest?: Partial<ManifestFile>) {
