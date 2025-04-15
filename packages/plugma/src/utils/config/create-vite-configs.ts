@@ -22,7 +22,7 @@ import { injectEventListeners } from '../../vite-plugins/main/inject-test-event-
 import viteCopyDirectoryPlugin from '../../vite-plugins/move-dir.js'
 
 const projectRoot = path.join(getDirName(), '../../..')
-const templateUiHtmlPath = path.join(projectRoot, 'templates/ui.html')
+const templateUiHtmlPath = path.join(projectRoot, 'templates/vite/ui.html')
 
 // Before using the runtime code, bundle it
 const runtimeBundlePath = path.join(projectRoot, 'dist/apps/plugma-runtime.js')
