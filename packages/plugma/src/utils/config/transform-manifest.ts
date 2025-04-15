@@ -24,7 +24,7 @@ import type { ManifestFile, PluginOptions } from '../../core/types.js'
  *   - Type safety
  */
 
-export function transformObject(input: ManifestFile | undefined, options: PluginOptions): ManifestFile {
+export function transformManifest(input: ManifestFile | undefined, options: PluginOptions): ManifestFile {
 	if (!input) {
 		throw new Error('No manifest found in manifest.json or package.json')
 	}

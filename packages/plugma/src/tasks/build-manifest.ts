@@ -192,9 +192,9 @@ async function buildManifestFile(
 	files: Awaited<ReturnType<typeof getUserFiles>>
 	result: BuildManifestResult
 }> {
+	const files = await getUserFiles(options)
 	const outputDirPath = resolve(options.cwd || process.cwd(), options.output)
 	const manifestPath = join(outputDirPath, 'manifest.json')
-	const files = await getUserFiles(options)
 
 	const overriddenValues: Partial<ManifestFile> = {}
 

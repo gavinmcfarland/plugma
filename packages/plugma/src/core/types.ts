@@ -20,7 +20,7 @@ export interface PluginOptions {
 	watch?: boolean
 	manifest?: ManifestFile
 	/** The working directory for the plugin */
-	cwd?: string
+	cwd: string
 	[key: string]: unknown
 }
 
@@ -55,6 +55,7 @@ export type UserPackageJson = PackageJson & {
 export interface UserFiles {
 	manifest: ManifestFile
 	userPkgJson: UserPackageJson
+	rawManifest: ManifestFile
 }
 
 export interface ViteConfigs {

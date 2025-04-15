@@ -41,6 +41,7 @@ export async function build(options: BuildCommandOptions): Promise<void> {
 			port: 3000, // Build command doesn't need a port, but it's required by PluginOptions
 			output: options.output || 'dist',
 			command: 'build',
+			cwd: options.cwd || process.cwd(),
 		}
 
 		const results = await serial(

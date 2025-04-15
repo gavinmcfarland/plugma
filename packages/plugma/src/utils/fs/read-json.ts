@@ -9,8 +9,8 @@ import { join } from 'node:path'
  *
  * @template T - The expected type of the parsed JSON data
  * @param filePath - Absolute or relative path to the JSON file
- * @returns Promise that resolves to the parsed JSON object of type T
- * @throws {Error} 'File not found' if the file doesn't exist
+ * @param throwOnNotFound - Whether to throw an error if the file doesn't exist
+ * @returns Promise that resolves to the parsed JSON object of type T or null if the file doesn't exist
  * @throws {Error} 'Invalid JSON format' if the file contains invalid JSON
  * @throws {Error} Original error for other file system errors
  * @throws {Error} 'Unknown error reading JSON file' for unexpected errors
@@ -30,13 +30,16 @@ import { join } from 'node:path'
  * }
  * ```
  */
-export async function readJson<T>(filePath: string): Promise<T> {
+export async function readJson<T>(filePath: string, dontThrow: true): Promise<T | null>
+export async function readJson<T>(filePath: string, dontThrow?: false): Promise<T>
+export async function readJson<T>(filePath: string, dontThrow = false): Promise<T | null> {
 	try {
 		const data = await fsPromises.readFile(filePath, 'utf8')
 		return JSON.parse(data)
 	} catch (err) {
 		if (err instanceof Error) {
 			if ('code' in err && (err as any).code === 'ENOENT') {
+				if (dontThrow) return null
 				throw new Error('File not found')
 			}
 			if (err instanceof SyntaxError) {
