@@ -269,6 +269,7 @@ async function verifyManifestFile(manifestPath: string, logger: Logger): Promise
 
 /**
  * Main task function that generates and maintains the plugin manifest file.
+ * Important: This task ensures the dist directory exists and maintains the files in it. You should not clean the dist dir in one go because it will cause issues when the plugin window is open in figma.
  */
 export const BuildManifestTask = task(
 	'build:manifest',
