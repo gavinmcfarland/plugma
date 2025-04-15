@@ -15,12 +15,12 @@
         "test"
     ],
     "scripts": {
-        "build:all-apps": "./build/build-all-apps.sh",
+        "build:apps": "./build/build-all-apps.sh",
         "build:dev-server": "cd apps/dev-server && vite build",
         "build:figma-bridge": "cd apps/figma-bridge && vite build",
         "build:runtime": "cd apps/plugma-runtime && vite build",
         "build:plugma": "./build/header.sh Plugma && tsc -p tsconfig.build.json",
-        "build": "nr clean && nr build:all-apps && nr build:plugma",
+        "build": "nr clean && nr build:apps && nr build:plugma",
         "build:watch": "concurrently -c green,blue,yellow,cyan -n plugma,dev-app,bridge,runtime 'nr dev:plugma --watch' 'nr build:dev-server --watch' 'nr build:figma-bridge --watch' 'nr build:runtime --watch'",
         "test-cmd": "nr clean && nr build && cd ../../sandbox && ../packages/plugma/bin/plugma",
         "check": "tsc --noEmit",
