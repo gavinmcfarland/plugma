@@ -35,9 +35,6 @@ const showPlugmaPrompt = async (
 
 		const version = (await readPlugmaPackageJson()).version
 
-		const files = await getUserFiles(options)
-		const config = createViteConfigs(options, files)
-
 		// Match original formatting with chalk
 		log.text(
 			`${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}`)} - A modern Figma plugin development toolkit`,

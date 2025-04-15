@@ -45,7 +45,6 @@ export async function build(options: BuildCommandOptions): Promise<void> {
 
 		const results = await serial(
 			ShowPlugmaPromptTask,
-			EnsureDistTask, // ensures a clean dist directory
 			BuildManifestTask, // creates a manifest
 			BuildUiTask, // copies and transforms UI
 			BuildMainTask, // builds the main script

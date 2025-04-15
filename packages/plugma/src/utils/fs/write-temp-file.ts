@@ -28,6 +28,10 @@ const CURR_DIR = cwd()
  * ```
  */
 export function writeTempFile(fileName: string, userFiles: UserFiles, options: PluginOptions): string {
+	if (!userFiles.manifest.main) {
+		throw new Error('No main script specified in manifest')
+	}
+
 	const tempFilePath = path.join(os.tmpdir(), fileName)
 	const stringPath = path.join(CURR_DIR, userFiles.manifest.main)
 	// Replace backslashes with forward slashes for cross-platform compatibility as this doesn't change in node whatever the OS

@@ -1,229 +1,307 @@
 import type { GetTaskTypeFor, ManifestFile, PluginOptions, ResultsOfTask } from '../core/types.js'
-import getFiles, { GetFilesTask, type GetFilesTaskResult } from '../tasks/get-files.js'
+import { GetFilesTask } from '../tasks/get-files.js'
 import RestartViteServerTask from '../tasks/start-dev-server.js'
 import { registerCleanup } from '../utils/cleanup.js'
 import { notifyInvalidManifestOptions } from '../utils/config/notify-invalid-manifest-options.js'
 import { filterNullProps } from '../utils/filter-null-props.js'
 import { getFilesRecursively } from '../utils/fs/get-files-recursively.js'
 import { Logger, defaultLogger as log } from '../utils/log/logger.js'
-import chokidar from 'chokidar'
-import { access, mkdir, writeFile } from 'node:fs/promises'
+import { getUserFiles } from '../utils/config/get-user-files.js'
+import { BuildMainTask } from './build-main.js'
+import { BuildUiTask } from './build-ui.js'
+import chokidar, { FSWatcher } from 'chokidar'
+import { access, mkdir, writeFile, unlink } from 'node:fs/promises'
 import { join, relative, resolve } from 'node:path'
 import { task } from './runner.js'
-import { BuildMainTask } from './build-main.js'
-import { getUserFiles } from '../utils/config/get-user-files.js'
-import { BuildUiTask } from './build-ui.js'
 
-/**
- * Result type for the build-manifest task
- */
+// Interfaces and Types
 export interface BuildManifestResult {
-	/** The original manifest file contents before processing */
 	raw: ManifestFile
-	/** The processed manifest with defaults and overrides applied */
 	processed: ManifestFile
 }
 
+interface WatcherState {
+	previousMainValue: string | undefined
+	previousUiValue: string | undefined
+	existingFiles: Set<string>
+}
+
+// Constants
+const DEFAULT_MANIFEST_VALUES = {
+	api: '1.0.0',
+}
+
 /**
- * Task that generates and maintains the plugin manifest file.
- *
- * This task is responsible for:
- * 1. Creating the initial manifest file with proper defaults and overrides
- * 2. In development mode:
- *    - Watching manifest.json and package.json for changes
- *    - Watching src directory for file additions/removals
- *    - Triggering server restart when needed
- *    - Rebuilding main script when its path changes
- *    - Validating output files against source files
- * 3. In build mode:
- *    - Creating the final manifest for production
- *    - Preserving build artifacts
- *
- * The manifest file is central to the plugin's functionality as it:
- * - Defines the plugin's metadata (name, id, version)
- * - Specifies entry points (main script, UI)
- * - Sets API compatibility version
- *
- * @param options - Plugin build options including command, output path, etc
- * @param context - Task context containing results from previous tasks
- * @returns The raw and processed manifest contents
+ * Sets up file watchers for development mode
  */
-const buildManifest = async (
+async function setupWatchers(
 	options: PluginOptions,
 	context: ResultsOfTask<GetFilesTask>,
-): Promise<BuildManifestResult> => {
-	try {
-		const files = await getUserFiles(options)
+	files: Awaited<ReturnType<typeof getUserFiles>>,
+	initialManifest: ManifestFile,
+	logger: Logger,
+): Promise<void> {
+	const state: WatcherState = {
+		previousMainValue: initialManifest.main,
+		previousUiValue: initialManifest.ui,
+		existingFiles: new Set(await getFilesRecursively(resolve('./src'))),
+	}
 
-		let previousMainValue = files.manifest.main
-		let previousUiValue = files.manifest.ui
+	const manifestWatcher = setupManifestWatcher(options, context, files, state, logger)
+	const srcWatcher = setupSourceWatcher(options, context, files, state, logger)
 
-		// Initial build
-		const result = await _buildManifestFile(options)
+	registerCleanup(async () => {
+		await Promise.all([manifestWatcher.close(), srcWatcher.close()])
+	})
+}
 
-		// Set up watchers for development mode
-		if (
-			options.command === 'dev' ||
-			options.command === 'preview' ||
-			(options.command === 'build' && options.watch)
-		) {
-			const manifestPath = resolve('./manifest.json')
-			const userPkgPath = resolve('./package.json')
-			const srcPath = resolve('./src')
-			const existingFiles = new Set<string>()
+/**
+ * Sets up watcher for manifest.json and package.json
+ */
+function setupManifestWatcher(
+	options: PluginOptions,
+	context: ResultsOfTask<GetFilesTask>,
+	files: Awaited<ReturnType<typeof getUserFiles>>,
+	state: WatcherState,
+	logger: Logger,
+): FSWatcher {
+	const manifestPath = resolve('./manifest.json')
+	const userPkgPath = resolve('./package.json')
+	const outputDirPath = resolve(options.cwd || process.cwd(), options.output)
 
-			// Initialize existing files
-			const srcFiles = await getFilesRecursively(srcPath)
-			for (const file of srcFiles) {
-				existingFiles.add(file)
+	const watcher = chokidar.watch([manifestPath, userPkgPath], {
+		persistent: true,
+		ignoreInitial: false,
+		awaitWriteFinish: {
+			stabilityThreshold: 100,
+			pollInterval: 100,
+		},
+	})
+
+	watcher.on('change', async () => {
+		try {
+			const { files, result } = await buildManifestFile(options, logger)
+			notifyInvalidManifestOptions(options, files, 'manifest-changed')
+
+			const outputMainPath = join(outputDirPath, 'main.js')
+			const outputUiPath = join(outputDirPath, 'ui.html')
+
+			// Handle main.js file
+			if (result.raw.main !== state.previousMainValue) {
+				if (result.raw.main) {
+					await BuildMainTask.run(options, context)
+				} else {
+					// Remove main.js if it was removed from manifest
+					try {
+						await unlink(outputMainPath)
+						logger.debug('Removed main.js as it was removed from manifest')
+					} catch (error) {
+						// Ignore if file doesn't exist
+					}
+				}
+				state.previousMainValue = result.raw.main
+			} else if (result.raw.main && !(await fileExists(outputMainPath))) {
+				await BuildMainTask.run(options, context)
 			}
 
-			// Watch manifest and package.json
-			const manifestWatcher = chokidar.watch([manifestPath, userPkgPath], {
-				persistent: true,
-				ignoreInitial: false,
-			})
-			manifestWatcher.on('change', async () => {
-				const { raw } = await _buildManifestFile(options)
-
-				// Validate output files
-				notifyInvalidManifestOptions(options, files, 'manifest-changed')
-
-				// Trigger server restart if not in build mode
-				if (options.command !== 'build') {
-					await RestartViteServerTask.run(options, context)
-				}
-
-				// Rebuild main if needed
-				if (raw.main !== previousMainValue) {
-					previousMainValue = raw.main
-					await BuildMainTask.run(options, context)
-				}
-
-				// Rebuild ui if needed
-				if (raw.ui !== previousUiValue) {
-					previousUiValue = raw.ui
-					await BuildUiTask.run(options, context)
-				}
-			})
-
-			// Watch src directory
-			const srcWatcher = chokidar.watch([srcPath], {
-				persistent: true,
-				ignoreInitial: false,
-			})
-
-			srcWatcher.on('add', async (filePath) => {
-				if (existingFiles.has(filePath)) return
-				existingFiles.add(filePath)
-
-				const relativePath = relative(process.cwd(), filePath)
-				const { raw } = await _buildManifestFile(options)
-
-				if (relativePath === raw.ui) {
+			// Handle ui.html file
+			if (result.raw.ui !== state.previousUiValue) {
+				if (result.raw.ui) {
 					if (options.command !== 'build') {
 						await RestartViteServerTask.run(options, context)
 					}
+					await BuildUiTask.run(options, context)
+				} else {
+					// Remove ui.html if it was removed from manifest
+					try {
+						await unlink(outputUiPath)
+						logger.debug('Removed ui.html as it was removed from manifest')
+					} catch (error) {
+						// Ignore if file doesn't exist
+					}
 				}
-				if (relativePath === raw.main) {
-					await BuildMainTask.run(options, context)
+				state.previousUiValue = result.raw.ui
+			} else if (result.raw.ui && !(await fileExists(outputUiPath))) {
+				if (options.command !== 'build') {
+					await RestartViteServerTask.run(options, context)
 				}
+				await BuildUiTask.run(options, context)
+			}
+		} catch (error) {
+			logger.debug('Error processing manifest change:', error)
+		}
+	})
 
-				notifyInvalidManifestOptions(options, files, 'file-added')
-			})
+	return watcher
+}
 
-			// Register cleanup for watchers
-			registerCleanup(async () => {
-				await Promise.all([manifestWatcher.close(), srcWatcher.close()])
-			})
-		} else if (options.command === 'build') {
-			// Register a cleanup handler that will NOT delete the manifest file in build mode
-			registerCleanup(async () => {
-				log.debug('Skipping manifest cleanup in build mode')
-			})
+/**
+ * Sets up watcher for the src directory
+ */
+function setupSourceWatcher(
+	options: PluginOptions,
+	context: ResultsOfTask<GetFilesTask>,
+	files: Awaited<ReturnType<typeof getUserFiles>>,
+	state: WatcherState,
+	logger: Logger,
+): FSWatcher {
+	const srcPath = resolve('./src')
+
+	const watcher = chokidar.watch([srcPath], {
+		persistent: true,
+		ignoreInitial: false,
+	})
+
+	watcher.on('add', async (filePath) => {
+		if (state.existingFiles.has(filePath)) return
+		state.existingFiles.add(filePath)
+
+		const relativePath = relative(process.cwd(), filePath)
+		const { result } = await buildManifestFile(options, logger)
+
+		if (relativePath === result.raw.ui && options.command !== 'build') {
+			await RestartViteServerTask.run(options, context)
+		}
+		if (relativePath === result.raw.main) {
+			await BuildMainTask.run(options, context)
 		}
 
-		return result
-	} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : String(error)
-		throw new Error(`Failed to build manifest: ${errorMessage}`)
+		notifyInvalidManifestOptions(options, files, 'file-added')
+	})
+
+	return watcher
+}
+
+// Add helper function to check if file exists
+async function fileExists(filePath: string): Promise<boolean> {
+	try {
+		await access(filePath)
+		return true
+	} catch {
+		return false
 	}
 }
 
-export const BuildManifestTask = task('build:manifest', buildManifest)
-export type BuildManifestTask = GetTaskTypeFor<typeof BuildManifestTask>
-
-export default BuildManifestTask
-
 /**
- * Builds and writes the manifest file to disk.
- * This function:
- * 1. Creates the output directory if it doesn't exist
- * 2. Applies default values (api version)
- * 3. Overrides main/ui paths with their output filenames
- * 4. Writes the processed manifest to disk
- *
- * @param options - Plugin build options
- * @param files - Files context from get-files task
- * @returns The raw and processed manifest contents
+ * Builds and writes the manifest file to disk
  */
-async function _buildManifestFile(options: PluginOptions): Promise<BuildManifestResult> {
-	const logger = new Logger({
-		debug: options.debug,
-		prefix: 'build:manifest',
-	})
-	const outputDirPath = resolve(options.cwd || process.cwd(), options.output || 'dist')
+async function buildManifestFile(
+	options: PluginOptions,
+	logger: Logger,
+): Promise<{
+	files: Awaited<ReturnType<typeof getUserFiles>>
+	result: BuildManifestResult
+}> {
+	const outputDirPath = resolve(options.cwd || process.cwd(), options.output)
 	const manifestPath = join(outputDirPath, 'manifest.json')
-
-	// Get the most up-to-date files
-	const currentFiles = await getUserFiles(options)
-	await mkdir(outputDirPath, { recursive: true })
-
-	// Define default and overridden values
-	const defaultValues = {
-		api: '1.0.0',
-	}
+	const files = await getUserFiles(options)
 
 	const overriddenValues: Partial<ManifestFile> = {}
 
-	// Override main/ui paths with their output filenames
-	if (currentFiles.manifest.main) {
+	// Handle main.js file
+	if (files.manifest.main) {
 		logger.debug('Setting main path to main.js')
 		overriddenValues.main = 'main.js'
+	} else {
+		// Remove main.js if not specified
+		const mainPath = join(outputDirPath, 'main.js')
+		try {
+			await unlink(mainPath)
+			logger.debug('Removed main.js as it was not specified in manifest')
+		} catch (error) {
+			// Ignore if file doesn't exist
+		}
 	}
 
-	if (currentFiles.manifest.ui) {
+	// Handle ui.html file
+	if (files.manifest.ui) {
 		logger.debug('Setting ui path to ui.html')
 		overriddenValues.ui = 'ui.html'
+	} else {
+		// Remove ui.html if not specified
+		const uiPath = join(outputDirPath, 'ui.html')
+		try {
+			await unlink(uiPath)
+			logger.debug('Removed ui.html as it was not specified in manifest')
+		} catch (error) {
+			// Ignore if file doesn't exist
+		}
 	}
 
-	// Merge manifest values and filter out null/undefined
 	const processed = filterNullProps({
-		...defaultValues,
-		...currentFiles.manifest,
+		...DEFAULT_MANIFEST_VALUES,
+		...files.manifest,
 		...overriddenValues,
 	})
 
 	await writeFile(manifestPath, JSON.stringify(processed, null, 2), 'utf-8')
-
-	// Check if manifest file exists when debugging this task
-	if (process.env.PLUGMA_DEBUG_TASK === 'build:manifest') {
-		try {
-			const manifestExists = await access(manifestPath)
-				.then(() => true)
-				.catch(() => false)
-			if (manifestExists) {
-				logger.debug('✓ Verified manifest.json exists at:', manifestPath)
-			} else {
-				logger.debug('✗ manifest.json was not created at:', manifestPath)
-			}
-		} catch (err) {
-			logger.debug('Error checking manifest file:', err)
-		}
-	}
+	await verifyManifestFile(manifestPath, logger)
 
 	return {
-		raw: currentFiles.manifest,
-		processed,
+		files,
+		result: {
+			raw: files.manifest,
+			processed,
+		},
 	}
 }
+
+/**
+ * Verifies the manifest file was created correctly when in debug mode
+ */
+async function verifyManifestFile(manifestPath: string, logger: Logger): Promise<void> {
+	if (process.env.PLUGMA_DEBUG_TASK !== 'build:manifest') return
+
+	try {
+		const manifestExists = await access(manifestPath)
+			.then(() => true)
+			.catch(() => false)
+
+		if (manifestExists) {
+			logger.debug('✓ Verified manifest.json exists at:', manifestPath)
+		} else {
+			logger.debug('✗ manifest.json was not created at:', manifestPath)
+		}
+	} catch (err) {
+		logger.debug('Error checking manifest file:', err)
+	}
+}
+
+/**
+ * Main task function that generates and maintains the plugin manifest file.
+ */
+export const BuildManifestTask = task(
+	'build:manifest',
+	async (options: PluginOptions, context: ResultsOfTask<GetFilesTask>): Promise<BuildManifestResult> => {
+		const logger = new Logger({
+			debug: options.debug,
+			prefix: 'build:manifest',
+		})
+
+		try {
+			// Create output directory before building manifest
+			const outputDirPath = resolve(options.cwd || process.cwd(), options.output)
+			await mkdir(outputDirPath, { recursive: true })
+
+			const { files, result } = await buildManifestFile(options, logger)
+
+			const isWatchMode =
+				options.command === 'dev' ||
+				options.command === 'preview' ||
+				(options.command === 'build' && options.watch)
+
+			if (isWatchMode) {
+				await setupWatchers(options, context, files, result.raw, logger)
+			} else if (options.command === 'build') {
+				registerCleanup(async () => {
+					logger.debug('Skipping manifest cleanup in build mode')
+				})
+			}
+
+			return result
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : String(error)
+			throw new Error(`Failed to build manifest: ${errorMessage}`)
+		}
+	},
+)

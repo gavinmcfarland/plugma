@@ -8,6 +8,8 @@ interface Result {
 	outputPath: string
 }
 
+// FIXME: Can't clean the directory because this causes an issue between builds when the plugin window is open because Figma warns of missing files. Suggestion is to move this responsibility to build:manifest task.
+
 /**
  * Task that ensures the dist directory exists and is empty.
  * This task should run before any other build tasks to provide a clean slate.
@@ -26,7 +28,7 @@ const ensureDist = async (options: PluginOptions): Promise<Result> => {
 		logger.debug(`Ensuring clean dist directory at ${outputPath}`)
 
 		// Remove existing directory and its contents if it exists
-		await rm(outputPath, { recursive: true, force: true })
+		// await rm(outputPath, { recursive: true, force: true })
 
 		// Create fresh directory with proper permissions
 		await mkdir(outputPath, { recursive: true, mode: 0o755 })
