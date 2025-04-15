@@ -29,7 +29,7 @@ export default defineConfig({
 			from: `dist`,
 			to: '../../dist/apps',
 			transformPath: (file) => file.replace('.cjs', '.js'),
-			removeSource: false,
+			removeSource: true,
 		}),
 	],
 })
