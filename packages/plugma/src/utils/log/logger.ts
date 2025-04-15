@@ -202,7 +202,7 @@ export class Logger {
 	 * @param args - Arguments to log
 	 */
 	success(...args: unknown[]): this {
-		this.logSeparator(true)
+		// this.logSeparator(true)
 		this.log(args, 'success', true)
 		return this
 	}

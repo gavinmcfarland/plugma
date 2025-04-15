@@ -89,7 +89,7 @@ async function logBuildSuccess(logger: Logger, duration: string, currentFiles: a
 		const uiExists = !currentFiles.manifest.ui || (await fileExists(resolve(currentFiles.manifest.ui)))
 
 		if (mainExists && uiExists) {
-			logger.success(`build created in ${duration}ms\n`)
+			logger.success(`ui created in ${duration}ms`)
 		}
 	}
 }

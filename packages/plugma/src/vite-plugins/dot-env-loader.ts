@@ -73,7 +73,7 @@ function loadEnvFiles(mode: string): EnvRecord {
 			const content = readFileSync(file, 'utf-8')
 			const parsedEnv = parseEnvFile(content)
 			Object.assign(envWithoutProblematicVars, parsedEnv)
-			console.log(`[custom-env-loader] Loaded environment variables from: ${file}`)
+			// console.log(`[custom-env-loader] Loaded environment variables from: ${file}`)
 		}
 	}
 

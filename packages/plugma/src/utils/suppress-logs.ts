@@ -1,4 +1,4 @@
-import type { PluginOptions } from '../../core/types.js'
+import type { PluginOptions } from '../core/types.js'
 
 type Pattern = RegExp | string
 
@@ -6,13 +6,16 @@ type Pattern = RegExp | string
  * Suppresses specific log patterns during build and development
  * @param options - Plugin options containing output path
  */
-export function suppressLogs(options: PluginOptions): void {
+export function suppressLogs(options: any): void {
 	// need to remove any trailing slashes for it to match correctly
 	const output = options.output.replace(/\/+$/, '') // Removes trailing slash(es)
 	const escapedOutput = output.replace(/\//g, '\\/')
 
 	const MAIN_BUILT_REGEX = new RegExp(
-		`^${escapedOutput}/main\\.js\\s+\\d+(\\.\\d+)?\\s+kB\\s+│\\s+gzip:\\s+\\d+(\\.\\d+)?\\s+kB$`,
+		`^${escapedOutput}/index\\.html\\s+\\d+(\\.\\d+)?\\s+kB\\s+│\\s+gzip:\\s+\\d+(\\.\\d+)?\\s+kB(\\s+│\\s+map:\\s+\\d+(\\.\\d+)?\\s+kB)?$`,
+	)
+	const INDEX_BUILT_REGEX = new RegExp(
+		`^${escapedOutput}/main\\.js\\s+\\d+(\\.\\d+)?\\s+kB\\s+│\\s+gzip:\\s+\\d+(\\.\\d+)?\\s+kB(\\s+│\\s+map:\\s+\\d+(\\.\\d+)?\\s+kB)?$`,
 	)
 	const TEMP_INDEX_PATH_REGEX = new RegExp(
 		`^${escapedOutput}/node_modules/plugma/tmp/index\\.html\\s+\\d+(\\.\\d+)?\\s+kB\\s+│\\s+gzip:\\s+\\d+(\\.\\d+)?\\s+kB$`,
@@ -20,13 +23,14 @@ export function suppressLogs(options: PluginOptions): void {
 
 	const patterns: Pattern[] = [
 		/^vite v\d+\.\d+\.\d+ building for \w+\.\.\.$/,
-		/^build started...$/,
+		/^build started\.\.\.(\s+\(x\d+\))?$/,
 		/^✓ \d+ module(s)? transformed\.$/,
 		/^✓?\s*built in \d+(\.\d+)?ms\.?$/,
 		/^✓?\s*built in \d+(\.\d+)?s\.?$/,
 		/^watching for file changes...$/,
 		TEMP_INDEX_PATH_REGEX,
 		MAIN_BUILT_REGEX,
+		INDEX_BUILT_REGEX,
 		'transforming',
 	]
 

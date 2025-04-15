@@ -17,6 +17,7 @@ import { colorStringify, debugLogger, defaultLogger } from '../utils/index.js'
 import chalk from 'chalk'
 import type { ReleaseType } from './types.js'
 import { add } from '../commands/add.js'
+import { suppressLogs } from '../utils/suppress-logs.js'
 
 // Read package.json to get the version
 const packageJson = await readPlugmaPackageJson()
@@ -63,6 +64,7 @@ program
 	.option('-d, --debug', 'Enable debug mode', false)
 	.action(function (this: Command, options: DevCommandOptions) {
 		handleDebug(this.name(), options)
+		suppressLogs(options)
 		dev(options)
 	})
 	.addHelpText(
@@ -88,6 +90,7 @@ program
 	.option('-d, --debug', 'Enable debug mode', false)
 	.action(function (this: Command, options: PreviewCommandOptions) {
 		handleDebug(this.name(), options)
+		suppressLogs(options)
 		preview(options)
 	})
 	.addHelpText(
@@ -109,6 +112,7 @@ program
 	.option('-d, --debug', 'Enable debug mode', false)
 	.action(function (this: Command, options: BuildCommandOptions) {
 		handleDebug(this.name(), options)
+		suppressLogs(options)
 		build(options)
 	})
 	.addHelpText(

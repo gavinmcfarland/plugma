@@ -50,7 +50,7 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 	const messageQueues = new Map<string, QueuedMessage[]>()
 	const QUEUE_TIMEOUT = 10000 // 10 seconds in milliseconds
 
-	console.log(chalk.cyan(`\n⚡ Initializing Socket.IO Server...\n`))
+	// console.log(chalk.cyan(`\n⚡ Initializing Socket.IO Server...\n`))
 
 	const io = new Server(server, {
 		cors: cors ?? {

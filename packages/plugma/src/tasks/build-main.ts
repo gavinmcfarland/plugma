@@ -89,7 +89,7 @@ async function logBuildSuccess(logger: Logger, duration: string, files: any) {
 	if (files.manifest.main) {
 		const mainExists = await fileExists(resolve(files.manifest.main))
 		if (mainExists) {
-			logger.success(`build created in ${duration}ms\n`)
+			logger.success(`main created in ${duration}ms`)
 		}
 	}
 }
