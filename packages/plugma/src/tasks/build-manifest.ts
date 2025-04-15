@@ -10,7 +10,7 @@ import chokidar from 'chokidar'
 import { access, mkdir, writeFile } from 'node:fs/promises'
 import { join, relative, resolve } from 'node:path'
 import { task } from './runner.js'
-import BuildMainTask from './build-main.js'
+import { BuildMainTask } from './build-main.js'
 import { getUserFiles } from '../utils/config/get-user-files.js'
 import { BuildUiTask } from './build-ui.js'
 

@@ -7,11 +7,12 @@ import { join, resolve } from 'node:path'
 import { type InlineConfig, build, mergeConfig } from 'vite'
 import { GetFilesTask } from '../tasks/get-files.js'
 import { task } from '../tasks/runner.js'
-import { viteState } from '../tasks/vite-state.js'
+import { viteState } from '../utils/vite-state-manager.js'
 import { loadConfig } from '../utils/config/load-config.js'
 import { getUserFiles } from '../utils/config/get-user-files.js'
 import { renameIndexHtml } from '../vite-plugins/rename-index-html.js'
 import { Timer } from '../utils/timer.js'
+import chalk from 'chalk'
 
 interface BuildUiResult {
 	outputPath: string
@@ -133,12 +134,11 @@ export const BuildUiTask = task(
 
 		try {
 			const currentFiles = await getUserFiles(options)
-			const outputPath = join(options.output || 'dist', 'ui.html')
+			const outputPath = join(options.output, 'ui.html')
 
 			await viteState.viteUi.close()
 
 			const timer = new Timer()
-			timer.start()
 
 			if (!currentFiles.manifest.ui) {
 				logger.debug('No UI specified in manifest, skipping build')
@@ -156,8 +156,10 @@ export const BuildUiTask = task(
 			const configOptions = { options, viteConfigs, userUIConfig }
 
 			if (options.command === 'build' && options.watch) {
+				logger.text(`${chalk.bgGreenBright('[build-ui]')} Watching for changes`)
 				runWatchMode(configOptions)
 			} else {
+				timer.start()
 				await runBuild(configOptions)
 				timer.stop()
 

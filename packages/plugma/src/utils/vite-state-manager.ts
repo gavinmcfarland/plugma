@@ -1,11 +1,11 @@
 import type { ViteDevServer } from 'vite'
 import type { RollupWatcher } from 'rollup'
-import type { BuildWatcherWrapper } from './build-ui.js'
+import type { BuildWatcherWrapper } from '../tasks/build-ui.js'
 
-class UIServerManager {
-	private _instance: BuildWatcherWrapper | undefined
+class InstanceManager<T extends { close(): Promise<void> }> {
+	private _instance: T | undefined
 
-	async setInstance(instance: BuildWatcherWrapper) {
+	async setInstance(instance: T) {
 		await this.close()
 		this._instance = instance
 	}
@@ -28,10 +28,10 @@ class UIServerManager {
 export const viteState = {
 	/** Main Vite development server */
 	viteServer: null as ViteDevServer | null,
-	/** Build-specific Vite watcher */
-	viteMainWatcher: null as RollupWatcher | null,
+	/** Build-specific Vite watcher manager */
+	viteMain: new InstanceManager<RollupWatcher>(),
 	/** UI-specific Vite server manager */
-	viteUi: new UIServerManager(),
+	viteUi: new InstanceManager<BuildWatcherWrapper>(),
 	/** Flag to track if a build is in progress */
 	isBuilding: false,
 	/** Queue of messages to process after build */

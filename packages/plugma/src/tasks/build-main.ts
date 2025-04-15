@@ -9,16 +9,89 @@ import { createViteConfigs } from '../utils/config/create-vite-configs.js'
 import { Logger } from '../utils/log/logger.js'
 import { GetFilesTask } from '../tasks/get-files.js'
 import { task } from '../tasks/runner.js'
-import { viteState } from '../tasks/vite-state.js'
+import { viteState } from '../utils/vite-state-manager.js'
 import { loadConfig } from '../utils/config/load-config.js'
 import { getUserFiles } from '../utils/config/get-user-files.js'
+import { access } from 'node:fs/promises'
+import { Timer } from '../utils/timer.js'
+import chalk from 'chalk'
 
 /**
  * Result type for the build-main task
  */
-interface Result {
+interface BuildMainResult {
 	/** Path to the built main script file */
 	outputPath: string
+	duration?: string
+}
+
+interface ViteConfigOptions {
+	options: PluginOptions
+	viteConfigs: any
+	userMainConfig: any
+}
+
+// Helper function to check if file exists
+async function fileExists(path: string): Promise<boolean> {
+	return access(path)
+		.then(() => true)
+		.catch(() => false)
+}
+
+async function runWatchMode({ options, viteConfigs, userMainConfig }: ViteConfigOptions): Promise<void> {
+	const config = options.command === 'build' ? viteConfigs.main.build : viteConfigs.main.dev
+
+	const watchConfig = mergeConfig(
+		{
+			configFile: false,
+			...config,
+			build: {
+				...config.build,
+				watch: {},
+			},
+		},
+		userMainConfig?.config ?? {},
+	)
+
+	const buildResult = await build(watchConfig)
+
+	// Handle both array and single watcher cases
+	if (Array.isArray(buildResult)) {
+		const watcher = buildResult[0]
+		if (watcher && typeof watcher === 'object' && 'close' in watcher) {
+			await viteState.viteMain.setInstance(watcher as unknown as RollupWatcher)
+			return
+		}
+	} else if (typeof buildResult === 'object' && 'close' in buildResult) {
+		await viteState.viteMain.setInstance(buildResult as unknown as RollupWatcher)
+		return
+	}
+
+	throw new Error('Failed to create watcher')
+}
+
+async function runBuild({ options, viteConfigs, userMainConfig }: ViteConfigOptions): Promise<void> {
+	const config = options.command === 'build' ? viteConfigs.main.build : viteConfigs.main.dev
+
+	const buildConfig = mergeConfig(
+		{
+			configFile: false,
+			...config,
+		},
+		userMainConfig?.config ?? {},
+	)
+
+	await build(buildConfig)
+}
+
+// Helper to handle build success logging
+async function logBuildSuccess(logger: Logger, duration: string, files: any) {
+	if (files.manifest.main) {
+		const mainExists = await fileExists(resolve(files.manifest.main))
+		if (mainExists) {
+			logger.success(`build created in ${duration}ms\n`)
+		}
+	}
 }
 
 /**
@@ -49,61 +122,58 @@ interface Result {
  * @param context - Task context containing results from previous tasks
  * @returns Object containing the output file path
  */
-const buildMain = async (options: PluginOptions, context: ResultsOfTask<GetFilesTask>): Promise<Result> => {
-	try {
-		const log = new Logger({
+export const BuildMainTask = task(
+	'build:main',
+	async (options: PluginOptions, context: ResultsOfTask<GetFilesTask>): Promise<BuildMainResult> => {
+		const logger = new Logger({
 			debug: options.debug,
 			prefix: 'build:main',
 		})
-		const files = await getUserFiles(options)
-		const outputPath = join(options.output || 'dist', 'main.js')
 
-		// Close existing build server if any
-		if (viteState.viteMainWatcher) {
-			await viteState.viteMainWatcher.close()
+		try {
+			const files = await getUserFiles(options)
+			const outputPath = join(options.output || 'main.js')
+			const timer = new Timer()
+
+			await viteState.viteMain.close()
+
+			if (!files.manifest.main) {
+				logger.debug('No main script specified in manifest, build skipped')
+				return { outputPath }
+			}
+
+			const mainPath = resolve(files.manifest.main)
+			if (!(await fileExists(mainPath))) {
+				console.error(`Main script not found at ${mainPath}, skipping build`)
+				return { outputPath }
+			}
+
+			logger.debug(`Building main script from: ${mainPath}`)
+
+			const viteConfigs = createViteConfigs(options, files)
+			const userMainConfig = await loadConfig('vite.config.main', options)
+			const configOptions = { options, viteConfigs, userMainConfig }
+
+			if (options.watch || ['dev', 'preview'].includes(options.command ?? '')) {
+				logger.text(`${chalk.bgGreenBright('[build-main]')} Watching for changes`)
+				await runWatchMode(configOptions)
+			} else {
+				timer.start()
+				await runBuild(configOptions)
+				timer.stop()
+
+				if (timer.getDuration()) {
+					await logBuildSuccess(logger, timer.getDuration()!, files)
+				}
+			}
+
+			const duration = timer.getDuration()
+			return { outputPath, duration }
+		} catch (error) {
+			const err = error instanceof Error ? error : new Error(String(error))
+			err.message = `Failed to build main script: ${err.message}`
+			logger.debug(err)
+			throw err
 		}
-
-		// Only build if main script is specified
-		if (!files.manifest.main) {
-			log.debug('No main script specified in manifest, skipping build')
-			return { outputPath }
-		}
-
-		const mainPath = resolve(files.manifest.main)
-		log.debug(`Building main script from: ${mainPath}`)
-
-		// Get the appropriate Vite config from createViteConfigs
-		const configs = createViteConfigs(options, files)
-		const config = options.command === 'build' ? configs.main.build : configs.main.dev
-
-		const userMainConfig = await loadConfig('vite.config.main', options)
-
-		// Build main script with Vite using the correct config
-		const buildResult = await build(
-			mergeConfig(
-				{
-					configFile: false,
-					...config,
-				},
-				userMainConfig?.config ?? {},
-			),
-		)
-
-		// Only store the watcher in watch mode
-		if (options.watch || ['dev', 'preview'].includes(options.command ?? '')) {
-			viteState.viteMainWatcher = buildResult as RollupWatcher
-		}
-
-		// log.success('Main script built successfully at dist/main.js')
-
-		return { outputPath }
-	} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : String(error)
-		throw new Error(`Failed to build main script: ${errorMessage}`)
-	}
-}
-
-export const BuildMainTask = task('build:main', buildMain)
-export type BuildMainTask = GetTaskTypeFor<typeof BuildMainTask>
-
-export default BuildMainTask
+	},
+)

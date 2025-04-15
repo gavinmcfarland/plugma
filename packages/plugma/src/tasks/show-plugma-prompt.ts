@@ -30,7 +30,7 @@ const showPlugmaPrompt = async (
 	try {
 		const log = new Logger({
 			debug: options.debug,
-			prefix: 'common:show-plugma-prompt',
+			prefix: 'show-plugma-prompt',
 		})
 
 		const version = (await readPlugmaPackageJson()).version
@@ -40,17 +40,8 @@ const showPlugmaPrompt = async (
 
 		// Match original formatting with chalk
 		log.text(
-			`${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}`)} - A modern Figma plugin development toolkit
-`,
+			`${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}`)} - A modern Figma plugin development toolkit`,
 		)
-
-		if (
-			options.command === 'dev' ||
-			options.command === 'preview' ||
-			(options.command === 'build' && options.watch)
-		) {
-			console.log('Watching for changes...')
-		}
 
 		return { shown: true }
 	} catch (error) {

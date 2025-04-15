@@ -15,7 +15,7 @@ import type { LogLevel } from 'vite'
 import { createViteConfigs } from '../utils/config/create-vite-configs.js'
 import { loadConfig } from '../utils/config/load-config.js'
 import { BuildWatcherWrapper } from './build-ui.js'
-import { viteState } from './vite-state.js'
+import { viteState } from '../utils/vite-state-manager.js'
 import { getUserFiles } from '../utils/config/index.js'
 
 /**
@@ -93,10 +93,9 @@ const startViteServer = async (
 			}
 
 			// Close the main watcher if it exists
-			if (viteState.viteMainWatcher) {
+			if (viteState.viteMain) {
 				try {
-					await viteState.viteMainWatcher.close()
-					viteState.viteMainWatcher = null
+					await viteState.viteMain.close()
 					log.success('Vite main watcher closed')
 				} catch (error) {
 					log.error('Failed to close Vite main watcher:', error)
