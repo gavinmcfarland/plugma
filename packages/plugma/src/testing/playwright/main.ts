@@ -1,6 +1,6 @@
 // FIXME: Why does running the test for the first time trigger the plugin to reload? Answer: Caused by launchPlugin function. Find out if there is a way to prevent from relauncgin if plugin already open.
 
-import { SocketClient } from '#core/websockets/client.js'
+import { SocketClient } from '../../core/websockets/client.js'
 import { getTestSocket } from '../socket.js'
 import { getConfig } from '../../utils/save-plugma-cli-options.js'
 

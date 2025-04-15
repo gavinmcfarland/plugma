@@ -1,5 +1,5 @@
 import type { Vite, VitestPluginContext } from 'vitest/node'
-import { createClient } from '#core/websockets/client.js'
+import { createClient } from '../core/websockets/client.js'
 
 console.log('[plugin] running plugin...')
 

@@ -1,4 +1,4 @@
-import type { ManifestFile, PluginOptions } from "#core/types";
+import type { ManifestFile, PluginOptions } from '../../core/types.js'
 
 /**
  * Transforms network access configuration in the manifest
@@ -24,32 +24,30 @@ import type { ManifestFile, PluginOptions } from "#core/types";
  *   - Type safety
  */
 
-export function transformObject(
-	input: ManifestFile | undefined,
-	options: PluginOptions,
-): ManifestFile {
+export function transformObject(input: ManifestFile | undefined, options: PluginOptions): ManifestFile {
 	if (!input) {
-		throw new Error("No manifest found in manifest.json or package.json");
+		throw new Error('No manifest found in manifest.json or package.json')
 	}
 
-	const transformed = JSON.parse(JSON.stringify(input));
+	const transformed = JSON.parse(JSON.stringify(input))
 
 	if (transformed?.networkAccess?.devAllowedDomains) {
-		transformed.networkAccess.devAllowedDomains =
-			transformed.networkAccess.devAllowedDomains.map((domain: string) => {
+		transformed.networkAccess.devAllowedDomains = transformed.networkAccess.devAllowedDomains.map(
+			(domain: string) => {
 				if (
-					domain === "http://localhost:*" ||
-					domain === "https://localhost:*" ||
-					domain === "ws://localhost:*"
+					domain === 'http://localhost:*' ||
+					domain === 'https://localhost:*' ||
+					domain === 'ws://localhost:*'
 				) {
-					const port = domain.startsWith("ws")
+					const port = domain.startsWith('ws')
 						? (Number(options.port) + 1).toString()
-						: options.port.toString();
-					return domain.replace("*", port);
+						: options.port.toString()
+					return domain.replace('*', port)
 				}
-				return domain;
-			});
+				return domain
+			},
+		)
 	}
 
-	return transformed;
+	return transformed
 }

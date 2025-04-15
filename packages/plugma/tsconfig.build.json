@@ -5,24 +5,9 @@
     "rootDir": "./src",
     "baseUrl": "src",
     "declaration": true,
-    "paths": {
-      "#core": ["core/index.ts"],
-      "#core/*": ["core/*"],
-      "#commands": ["commands/index.ts"],
-      "#commands/*": ["commands/*"],
-      "#tasks": ["tasks/index.ts"],
-      "#tasks/*": ["tasks/*"],
-      "#utils": ["utils/index.ts"],
-      "#utils/*": ["utils/*"],
-      "#vite-plugins": ["vite-plugins/index.ts"],
-      "#vite-plugins/*": ["vite-plugins/*"],
-      "#testing": ["testing/index.ts"],
-      "#testing/*": ["testing/*"],
-      "#packageJson": ["../package.json"]
-    },
     // FIXME: Disabled because of warning about missing source maps in testing dir
-    // "sourceMap": true,
-    // "sourceRoot": "src"
+    "sourceMap": true,
+    "sourceRoot": "src"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": [

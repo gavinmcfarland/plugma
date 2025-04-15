@@ -1,6 +1,6 @@
 import type { ExpectStatic } from 'vitest'
 
-import type { TestContext } from '#testing/types.js'
+import type { TestContext } from '../../testing/types.js'
 import { testContext } from './test-context'
 
 /**

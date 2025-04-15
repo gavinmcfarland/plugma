@@ -30,7 +30,7 @@
  *   - Initialization
  */
 
-import type { PluginOptions, UserFiles } from '#core/types.js'
+import type { PluginOptions, UserFiles } from '../../core/types.js'
 import chalk from 'chalk'
 import { access, lstat, rm, unlink } from 'node:fs/promises'
 import { join, resolve } from 'node:path'

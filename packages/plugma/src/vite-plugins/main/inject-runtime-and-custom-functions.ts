@@ -1,4 +1,4 @@
-import type { PluginOptions } from '#core/types.js'
+import type { PluginOptions } from '../../core/types.js'
 import type { Plugin } from 'vite' // vite.config.js
 
 /**
