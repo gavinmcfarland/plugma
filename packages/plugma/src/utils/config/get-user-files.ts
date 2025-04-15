@@ -34,31 +34,16 @@ function validateManifest(manifest?: Partial<ManifestFile>) {
  *
  */
 
-export async function getUserFiles(options: PluginOptions): Promise<UserFiles> {
-	try {
-		const userPkgPath = path.resolve(options.cwd, 'package.json')
-		const userPkgJson = await readJson<UserFiles['userPkgJson']>(userPkgPath)
-		if (!userPkgJson) throw new Error('package.json not found')
+export const getUserFiles = async (options: PluginOptions): Promise<UserFiles> => {
+	const userPkgJson = await readJson<UserFiles['userPkgJson']>(path.resolve(options.cwd, 'package.json'))
+	const manifestFile = await readJson<ManifestFile>(path.resolve(options.cwd, 'manifest.json'), true)
+	const manifest = manifestFile || userPkgJson?.plugma?.manifest
 
-		const manifestPath = path.resolve(options.cwd, 'manifest.json')
-		const manifestFile = await readJson<ManifestFile>(manifestPath, true)
+	if (!userPkgJson) throw new Error('package.json not found')
+	if (!manifest) throw new Error('No manifest found in manifest.json or package.json')
 
-		const packageManifest = userPkgJson.plugma?.manifest
+	const processedManifest = transformManifest(manifest, options)
+	validateManifest(processedManifest)
 
-		if (!manifestFile && !packageManifest) {
-			throw new Error('No manifest found in manifest.json or package.json')
-		}
-
-		const userManifest = manifestFile || (packageManifest as ManifestFile)
-
-		const processedManifest = transformManifest(userManifest, options)
-		validateManifest(processedManifest)
-
-		return { manifest: processedManifest, userPkgJson, rawManifest: userManifest }
-	} catch (error) {
-		if (error instanceof Error) {
-			throw error
-		}
-		throw new Error('Failed to read plugin files')
-	}
+	return { manifest: processedManifest, userPkgJson, rawManifest: manifest }
 }
