@@ -1,4 +1,4 @@
-import PlugmaPackageJson from '#packageJson' with { type: 'json' };
+import PlugmaPackageJson from '../../../package.json' with { type: 'json' };
 import type { GetFilesTaskResult } from '#tasks/get-files.js';
 import userPkgJson from '#test/fixtures/user-package.json' with {
   type: 'json',

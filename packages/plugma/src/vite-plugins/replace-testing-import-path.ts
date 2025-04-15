@@ -7,7 +7,7 @@ import path from 'node:path'
 
 import type { Plugin } from 'vite'
 
-import { getDirName } from '#utils/get-dir-name.js'
+import { getDirName } from '../utils/get-dir-name.js'
 
 /**
  * Creates a Vite plugin that injects our test framework

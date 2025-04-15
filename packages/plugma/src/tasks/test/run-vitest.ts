@@ -3,11 +3,10 @@
  * Handles test discovery, execution, and reporting
  */
 
-import type { GetTaskTypeFor, PluginOptions } from '#core/types.js'
-import { Logger } from '#utils/log/logger.js'
+import type { GetTaskTypeFor, PluginOptions } from '../../core/types.js'
+import { Logger } from '../../utils/log/logger.js'
 import { startVitest } from 'vitest/node'
 import { task } from '../runner.js'
-import initTestClient from '../../vitest-plugins/init-test-client.js'
 import { type UserConfig } from 'vite'
 
 /**

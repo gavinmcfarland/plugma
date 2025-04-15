@@ -5,13 +5,10 @@
  * @module TestRegistry
  */
 
-import type { TestContext } from '#testing/types'
+import type { TestContext } from '../../testing/types'
 import { expect as plugmaExpect } from './expect'
 import { nodeToObject } from './nodeToObject'
 import { testContext } from './test-context'
-
-// import { Logger } from '#utils/log/// logger.js';
-// const logger = new Logger({ prefix: 'test-registry', debug: true });
 
 /**
  * Represents the result of a test execution

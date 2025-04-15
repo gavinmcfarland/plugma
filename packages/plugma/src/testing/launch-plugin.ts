@@ -8,8 +8,6 @@ export const launchPlugin =
 				// Dynamically import Node.js modules
 				const { exec } = await import('child_process')
 				const { promisify } = await import('util')
-				// const { getUserFiles } = await import("#utils");
-				// const files = await getUserFiles(options);
 				name = name ?? 'Plugma Test Sandbox'
 				const scriptLaunchPlugin = `
 -- Get the currently active app

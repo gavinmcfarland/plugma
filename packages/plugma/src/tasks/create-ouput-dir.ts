@@ -1,5 +1,5 @@
-import type { GetTaskTypeFor, PluginOptions } from '#core/types.js'
-import { Logger } from '#utils/log/logger.js'
+import type { GetTaskTypeFor, PluginOptions } from '../core/types.js'
+import { Logger } from '../utils/log/logger.js'
 import { mkdir, rm } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { task } from './runner.js'

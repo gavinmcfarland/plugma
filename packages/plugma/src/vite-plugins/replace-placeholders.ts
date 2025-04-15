@@ -1,10 +1,10 @@
-import { Logger } from '#utils';
-import type { IndexHtmlTransformContext, Plugin } from 'vite';
+import { Logger } from '../utils/log/logger.js'
+import type { IndexHtmlTransformContext, Plugin } from 'vite'
 
 const logger = new Logger({
-  prefix: 'vite-plugin:placeholders',
-  debug: !!process.env.PLUGMA_DEBUG,
-});
+	prefix: 'vite-plugin:placeholders',
+	debug: !!process.env.PLUGMA_DEBUG,
+})
 
 /**
  * Options for configuring placeholder replacement in HTML templates.
@@ -27,22 +27,22 @@ const logger = new Logger({
  * each option key to UPPER_SNAKE_CASE to generate the matching placeholder.
  */
 interface ReplacePlaceholdersOptions {
-  /**
-   * The name of the plugin to be inserted in the HTML template.
-   * Example placeholder: <!--[ PLUGIN_NAME ]-->
-   */
-  pluginName?: string;
-  /**
-   * The path to the plugin's UI file to be inserted as a script in the HTML template.
-   * Example placeholder: <!--[ PLUGIN_UI ]-->
-   */
-  pluginUi?: string;
-  [key: string]: unknown;
+	/**
+	 * The name of the plugin to be inserted in the HTML template.
+	 * Example placeholder: <!--[ PLUGIN_NAME ]-->
+	 */
+	pluginName?: string
+	/**
+	 * The path to the plugin's UI file to be inserted as a script in the HTML template.
+	 * Example placeholder: <!--[ PLUGIN_UI ]-->
+	 */
+	pluginUi?: string
+	[key: string]: unknown
 }
 
 // Utility function to transform a string to UPPER_SNAKE_CASE.
 function toUpperSnakeCase(key: string): string {
-  return key.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
+	return key.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase()
 }
 
 /**
@@ -57,21 +57,18 @@ function toUpperSnakeCase(key: string): string {
  *
  * @internal
  */
-function _replacePlaceholders(
-  html: string,
-  options: ReplacePlaceholdersOptions,
-): string {
-  let result = html;
-  logger.debug('replacePlaceholders: Starting replacements');
-  for (const key in options) {
-    const placeholder = toUpperSnakeCase(key);
-    logger.debug(`Replacing "${placeholder}" with "${options[key]}"`);
-    result = result.replace(
-      new RegExp(`(/\\*|<!)--\\[\\s*${placeholder}\\s*\\]--(>|\\*/)`, 'g'),
-      String(options[key]),
-    );
-  }
-  return result;
+function _replacePlaceholders(html: string, options: ReplacePlaceholdersOptions): string {
+	let result = html
+	logger.debug('replacePlaceholders: Starting replacements')
+	for (const key in options) {
+		const placeholder = toUpperSnakeCase(key)
+		logger.debug(`Replacing "${placeholder}" with "${options[key]}"`)
+		result = result.replace(
+			new RegExp(`(/\\*|<!)--\\[\\s*${placeholder}\\s*\\]--(>|\\*/)`, 'g'),
+			String(options[key]),
+		)
+	}
+	return result
 }
 
 /**
@@ -94,7 +91,7 @@ function _replacePlaceholders(
  *
  * @example
  * ```typescript
- * import { replacePlaceholders } from '#vite-plugins';
+ * import { replacePlaceholders } from '../vite-plugins/replace-placeholders.js';
  *
  * export default defineConfig({
  *   plugins: [
@@ -106,28 +103,26 @@ function _replacePlaceholders(
  * });
  * ```
  */
-export function replacePlaceholders(
-  options: ReplacePlaceholdersOptions = {},
-): Plugin {
-  return {
-    name: 'replace-js-input',
-    transformIndexHtml: {
-      order: 'pre',
-      handler(html: string, ctx: IndexHtmlTransformContext): string {
-        logger.debug('replacePlaceholders: transformIndexHtml called');
-        return _replacePlaceholders(html, options);
-      },
-    },
+export function replacePlaceholders(options: ReplacePlaceholdersOptions = {}): Plugin {
+	return {
+		name: 'replace-js-input',
+		transformIndexHtml: {
+			order: 'pre',
+			handler(html: string, ctx: IndexHtmlTransformContext): string {
+				logger.debug('replacePlaceholders: transformIndexHtml called')
+				return _replacePlaceholders(html, options)
+			},
+		},
 
-    // Transform hook to handle HTML files beyond index.html (e.g. ui.html in build mode)
-    transform(code: string, id: string) {
-      if (id.endsWith('.html')) {
-        logger.debug(`replacePlaceholders: transform called for ${id}`);
-        return _replacePlaceholders(code, options);
-      }
-      return null;
-    },
-  };
+		// Transform hook to handle HTML files beyond index.html (e.g. ui.html in build mode)
+		transform(code: string, id: string) {
+			if (id.endsWith('.html')) {
+				logger.debug(`replacePlaceholders: transform called for ${id}`)
+				return _replacePlaceholders(code, options)
+			}
+			return null
+		},
+	}
 }
 
-export default replacePlaceholders;
+export default replacePlaceholders

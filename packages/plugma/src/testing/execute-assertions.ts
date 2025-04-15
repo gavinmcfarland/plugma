@@ -1,4 +1,3 @@
-import { defaultLogger as logger } from '#utils/log/logger.js'
 import { expect as vitestExpect } from 'vitest'
 
 /**

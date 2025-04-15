@@ -2,7 +2,7 @@ import { Server, ServerOptions } from 'socket.io'
 import chalk from 'chalk'
 import type { Server as HttpServer } from 'node:http'
 import { WebSocketServer } from 'ws'
-import { Logger } from '#utils/log/logger.js'
+import { Logger } from '../../utils/log/logger.js'
 
 const logger = new Logger()
 

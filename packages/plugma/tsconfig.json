@@ -13,23 +13,6 @@
         "resolveJsonModule": true,
         "types": ["@figma/plugin-typings"],
         "baseUrl": ".",
-        "paths": {
-            "#core": ["src/core/index.ts"],
-            "#core/*": ["src/core/*"],
-            "#commands": ["src/commands/index.ts"],
-            "#commands/*": ["src/commands/*"],
-            "#tasks": ["src/tasks/index.ts"],
-            "#tasks/*": ["src/tasks/*"],
-            "#utils": ["src/utils/index.ts"],
-            "#utils/*": ["src/utils/*"],
-            "#vite-plugins": ["src/vite-plugins/index.ts"],
-            "#vite-plugins/*": ["src/vite-plugins/*"],
-            "#test": ["test/index.ts"],
-            "#test/*": ["test/*"],
-            "#testing": ["src/testing/index.ts"],
-            "#testing/*": ["src/testing/*"],
-            "#packageJson": ["package.json"]
-        }
     },
     "include": [
         "src/**/*.ts",

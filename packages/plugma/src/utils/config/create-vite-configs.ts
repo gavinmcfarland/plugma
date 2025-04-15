@@ -4,9 +4,9 @@ import path from 'node:path'
 import type { Plugin, UserConfig } from 'vite'
 import { viteSingleFile } from 'vite-plugin-singlefile'
 
-import type { PluginOptions, UserFiles } from '#core/types.js'
-import { defaultLogger, writeTempFile } from '#utils'
-import { getDirName } from '#utils/get-dir-name.js'
+import type { PluginOptions, UserFiles } from '../../core/types.js'
+import { defaultLogger, writeTempFile } from '../../utils/index.js'
+import { getDirName } from '../../utils/get-dir-name.js'
 import {
 	dotEnvLoader,
 	htmlTransform,
@@ -16,10 +16,10 @@ import {
 	rewritePostMessageTargetOrigin,
 	serveUi,
 	injectTests,
-} from '#vite-plugins'
+} from '../../vite-plugins/index.js'
 import { createBuildNotifierPlugin } from '../../vite-plugins/build-notifier.js'
-import { injectEventListeners } from '#vite-plugins/main/inject-test-event-listeners.js'
-import viteCopyDirectoryPlugin from '#vite-plugins/move-dir.js'
+import { injectEventListeners } from '../../vite-plugins/main/inject-test-event-listeners.js'
+import viteCopyDirectoryPlugin from '../../vite-plugins/move-dir.js'
 
 const projectRoot = path.join(getDirName(), '../../..')
 const templateUiHtmlPath = path.join(projectRoot, 'templates/ui.html')

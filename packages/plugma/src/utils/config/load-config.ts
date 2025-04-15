@@ -1,9 +1,9 @@
-import { existsSync } from "fs";
-import { Logger } from "#utils/log/logger.js";
+import { existsSync } from 'fs'
+import { Logger } from '../../utils/log/logger.js'
 
-import { join } from "node:path";
-import { loadConfigFromFile } from "vite";
-import { PluginOptions } from "#core/types";
+import { join } from 'node:path'
+import { loadConfigFromFile } from 'vite'
+import { PluginOptions } from '../../core/types'
 
 /**
  * Loads and resolves a Vite configuration file. If the specified config file is not found,
@@ -24,33 +24,26 @@ import { PluginOptions } from "#core/types";
  * ```
  */
 export async function loadConfig(configName: string, options: PluginOptions) {
-	const log = new Logger({ debug: options.debug });
+	const log = new Logger({ debug: options.debug })
 
 	// Try to find an existing config file
-	const configPaths = [
-		`${configName}.ts`,
-		`${configName}.js`,
-		`${configName}.mjs`,
-		`${configName}.cjs`,
-	];
+	const configPaths = [`${configName}.ts`, `${configName}.js`, `${configName}.mjs`, `${configName}.cjs`]
 
-	const existingConfigPath = configPaths.find((path) =>
-		existsSync(join(process.cwd(), path)),
-	);
+	const existingConfigPath = configPaths.find((path) => existsSync(join(process.cwd(), path)))
 
-	let userConfig = null;
+	let userConfig = null
 
 	userConfig = await loadConfigFromFile(
 		{
-			command: "build",
-			mode: options.mode || process.env.NODE_ENV || "development",
+			command: 'build',
+			mode: options.mode || process.env.NODE_ENV || 'development',
 		},
 		existingConfigPath,
 		process.cwd(),
-	);
+	)
 	if (userConfig) {
-		log.debug(`Loaded Vite config from ${existingConfigPath}`);
+		log.debug(`Loaded Vite config from ${existingConfigPath}`)
 	}
 
-	return userConfig;
+	return userConfig
 }

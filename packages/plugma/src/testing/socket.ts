@@ -1,5 +1,5 @@
-import { createClient, SocketClient } from '#core/websockets/client.js'
-import { Logger } from '#utils/log/logger.js'
+import { createClient, SocketClient } from '../core/websockets/client.js'
+import { Logger } from '../utils/log/logger.js'
 
 let socket: SocketClient | null = null
 let isSocketConnected = false

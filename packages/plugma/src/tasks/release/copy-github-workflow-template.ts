@@ -1,5 +1,5 @@
-import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '#core/types.js'
-import { Logger } from '#utils/log/logger.js'
+import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '../../core/types.js'
+import { Logger } from '../../utils/log/logger.js'
 import { writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { EnsureDistTask } from '../create-ouput-dir.js'

@@ -1,14 +1,12 @@
-import type { PluginOptions } from '#core/types.js'
-import { Logger } from '#utils/log/logger.js'
+import type { PluginOptions } from '../core/types.js'
+import { Logger } from '../utils/log/logger.js'
 import { readFile } from 'node:fs/promises'
-import { join } from 'node:path'
 import type { Plugin } from 'vite'
 import { fileURLToPath } from 'url'
 import path from 'node:path'
 import fs from 'node:fs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const rootDir = process.cwd()
 
 /**
  * Creates a Vite plugin that serves the UI at the root path.

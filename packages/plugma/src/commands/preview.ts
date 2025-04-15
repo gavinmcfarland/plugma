@@ -3,7 +3,7 @@
  * Handles preview server for testing plugin builds
  */
 
-import type { PluginOptions } from '#core/types.js'
+import type { PluginOptions } from '../core/types.js'
 import {
 	BuildMainTask,
 	BuildManifestTask,
@@ -12,13 +12,13 @@ import {
 	StartViteServerTask,
 	StartWebSocketsServerTask,
 	WrapPluginUiTask,
-} from '#tasks'
-import { getRandomPort } from '#utils'
-import { Logger } from '#utils/log/logger.js'
+} from '../tasks/index.js'
+import { getRandomPort } from '../utils/index.js'
+import { Logger } from '../utils/log/logger.js'
 import { nanoid } from 'nanoid'
 import { serial } from '../tasks/runner.js'
 import type { PreviewCommandOptions } from './types.js'
-import { setConfig } from '#utils/save-plugma-cli-options.js'
+import { setConfig } from '../utils/save-plugma-cli-options.js'
 
 /**
  * Main preview command implementation

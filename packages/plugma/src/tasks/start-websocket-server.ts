@@ -1,10 +1,10 @@
-import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '#core/types.js'
-import { Logger } from '#utils/log/logger.js'
-import { createSocketServer } from '#core/websockets/server.js'
-import { GetFilesTask } from '#tasks/get-files.js'
-import { task } from '#tasks/runner.js'
+import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '../core/types.js'
+import { Logger } from '../utils/log/logger.js'
+import { createSocketServer } from '../core/websockets/server.js'
+import { GetFilesTask } from '../tasks/get-files.js'
+import { task } from '../tasks/runner.js'
 import http from 'http'
-import { getConfig } from '#utils/save-plugma-cli-options.js'
+import { getConfig } from '../utils/save-plugma-cli-options.js'
 const logger = new Logger()
 
 /**

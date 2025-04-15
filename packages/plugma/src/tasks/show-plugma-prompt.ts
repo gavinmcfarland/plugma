@@ -2,14 +2,14 @@
  * Task that shows the Plugma startup prompt
  */
 
-import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '#core/types.js'
-import { Logger } from '#utils/log/logger.js'
+import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '../core/types.js'
+import { Logger } from '../utils/log/logger.js'
 import chalk from 'chalk'
-import { task } from '#tasks/runner.js'
-import getFiles, { GetFilesTask } from '#tasks/get-files.js'
-import { getUserFiles } from '#utils/config/get-user-files.js'
-import { createViteConfigs } from '#utils/config/create-vite-configs.js'
-import { readPlugmaPackageJson } from '#utils/fs/read-json.js'
+import { task } from '../tasks/runner.js'
+import getFiles, { GetFilesTask } from '../tasks/get-files.js'
+import { getUserFiles } from '../utils/config/get-user-files.js'
+import { createViteConfigs } from '../utils/config/create-vite-configs.js'
+import { readPlugmaPackageJson } from '../utils/fs/read-json.js'
 
 /**
  * Result type for the show-plugma-prompt task

@@ -3,11 +3,11 @@
  * Handles WebSocket connection setup for plugin testing
  */
 
-import type { GetTaskTypeFor, PluginOptions } from '#core/types.js'
-import { Logger } from '#utils/log/logger.js'
+import type { GetTaskTypeFor, PluginOptions } from '../../core/types.js'
+import { Logger } from '../../utils/log/logger.js'
 import { task } from '../runner.js'
-import { getTestSocket } from '#testing/socket.js'
-import { SocketClient } from '#core/websockets/client.js'
+import { getTestSocket } from '../../testing/socket.js'
+import { SocketClient } from '../../core/websockets/client.js'
 /**
  * Result type for the initTestClient task
  */

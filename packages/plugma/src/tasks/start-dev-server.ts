@@ -2,21 +2,21 @@
  * Vite server task implementation
  */
 
-import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '#core/types.js'
-import { registerCleanup } from '#utils/cleanup.js'
-import { Logger } from '#utils/log/logger.js'
+import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '../core/types.js'
+import { registerCleanup } from '../utils/cleanup.js'
+import { Logger } from '../utils/log/logger.js'
 import type { RollupWatcher } from 'rollup'
 import type { ViteDevServer } from 'vite'
 import { createServer, mergeConfig } from 'vite'
-import { GetFilesTask } from '#tasks/get-files.js'
-import { task } from '#tasks/runner.js'
+import { GetFilesTask } from '../tasks/get-files.js'
+import { task } from '../tasks/runner.js'
 import type { LogLevel } from 'vite'
 
-import { createViteConfigs } from '#utils/config/create-vite-configs.js'
-import { loadConfig } from '#utils/config/load-config.js'
+import { createViteConfigs } from '../utils/config/create-vite-configs.js'
+import { loadConfig } from '../utils/config/load-config.js'
 import { BuildWatcherWrapper } from './build-ui.js'
 import { viteState } from './vite-state.js'
-import { getUserFiles } from '#utils/config/index.js'
+import { getUserFiles } from '../utils/config/index.js'
 
 /**
  * Result type for the start-vite-server task

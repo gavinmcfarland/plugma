@@ -3,7 +3,7 @@
  * Handles development server and file watching for plugin development
  */
 
-import type { DevCommandOptions } from '#commands/types.js'
+import type { DevCommandOptions } from '../commands/types.js'
 import {
 	BuildMainTask,
 	BuildManifestTask,
@@ -12,13 +12,13 @@ import {
 	StartViteServerTask,
 	StartWebSocketsServerTask,
 	WrapPluginUiTask,
-} from '#tasks'
-import { serial } from '#tasks/runner.js'
-import { Logger } from '#utils/log/logger.js'
+} from '../tasks/index.js'
+import { serial } from '../tasks/runner.js'
+import { Logger } from '../utils/log/logger.js'
 import { nanoid } from 'nanoid'
 import { getRandomPort } from '../utils/get-random-port.js'
-import { SaveOptionsTask } from '#tasks/save-cli-options.js'
-import { setConfig } from '#utils/save-plugma-cli-options.js'
+import { SaveOptionsTask } from '../tasks/save-cli-options.js'
+import { setConfig } from '../utils/save-plugma-cli-options.js'
 
 /**
  * Main development command implementation

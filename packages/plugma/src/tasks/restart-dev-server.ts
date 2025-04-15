@@ -1,12 +1,12 @@
-import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '#core/types.js'
-import { Logger } from '#utils/log/logger.js'
+import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '../core/types.js'
+import { Logger } from '../utils/log/logger.js'
 import type { InlineConfig, ViteDevServer } from 'vite'
 import { createServer } from 'vite'
-import { GetFilesTask } from '#tasks/get-files.js'
-import { task } from '#tasks/runner.js'
-import { viteState } from '#tasks/vite-state.js'
-import { getUserFiles } from '#utils/config/get-user-files'
-import { createViteConfigs } from '#utils/config/create-vite-configs'
+import { GetFilesTask } from '../tasks/get-files.js'
+import { task } from '../tasks/runner.js'
+import { viteState } from '../tasks/vite-state.js'
+import { getUserFiles } from '../utils/config/get-user-files.js'
+import { createViteConfigs } from '../utils/config/create-vite-configs.js'
 
 /**
  * Result type for the restart-vite-server task

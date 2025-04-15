@@ -1,4 +1,4 @@
-import { readPlugmaPackageJson } from '#utils/fs/read-json.js'
+import { readPlugmaPackageJson } from '../utils/fs/read-json.js'
 
 import { Command } from 'commander'
 
@@ -12,12 +12,11 @@ import {
 	dev,
 	preview,
 	release,
-	test,
-} from '#commands'
-import { colorStringify, debugLogger, defaultLogger } from '#utils'
+} from '../commands/index.js'
+import { colorStringify, debugLogger, defaultLogger } from '../utils/index.js'
 import chalk from 'chalk'
 import type { ReleaseType } from './types.js'
-import { add } from '#commands/add.js'
+import { add } from '../commands/add.js'
 
 // Read package.json to get the version
 const packageJson = await readPlugmaPackageJson()
@@ -41,7 +40,7 @@ const handleDebug = async (command: string, options: Record<string, any> & { deb
 		debugLogger.info('Debug mode enabled - preloading source maps...')
 
 		// Preload source maps before any logging occurs
-		const { preloadSourceMaps } = await import('#utils/fs/map-to-source.js')
+		const { preloadSourceMaps } = await import('../utils/fs/map-to-source.js')
 		await preloadSourceMaps()
 
 		debugLogger.info(`command: ${command}`)
@@ -158,26 +157,6 @@ program
     Examples:
       plugma release
       plugma release alpha --title "Alpha Release" --notes "Initial alpha release"
-  `,
-	)
-
-// Test Command
-program
-	.command('test')
-	.description('Run tests for your plugin')
-	.option('-w, --watch', 'Watch for changes and rerun tests')
-	.option('-t, --timeout <number>', 'Test timeout in milliseconds', '10000')
-	.option('-d, --debug', 'Enable debug mode', false)
-	.action(function (this: Command, options: TestCommandOptions) {
-		handleDebug(this.name(), options)
-		test(options)
-	})
-	.addHelpText(
-		'after',
-		`
-    Examples:
-      plugma test
-      plugma test --timeout 5000
   `,
 	)
 

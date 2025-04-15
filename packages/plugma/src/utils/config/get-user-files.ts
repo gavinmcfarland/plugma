@@ -1,8 +1,8 @@
-import path from "node:path";
+import path from 'node:path'
 
-import type { ManifestFile, PluginOptions, UserFiles } from "#core/types";
-import { readJson, readUserPackageJson } from "#utils";
-import { transformObject } from "./transform-manifest.js";
+import type { ManifestFile, PluginOptions, UserFiles } from '../../core/types.js'
+import { readJson, readUserPackageJson } from '../../utils/fs/read-json.js'
+import { transformObject } from './transform-manifest.js'
 
 /**
  * Gets the plugin's configuration files and settings
@@ -44,53 +44,47 @@ import { transformObject } from "./transform-manifest.js";
 export async function getUserFiles(options: PluginOptions): Promise<UserFiles> {
 	try {
 		// Replace existing package.json reading code with:
-		const userPkgJson = await readUserPackageJson(options.cwd);
+		const userPkgJson = await readUserPackageJson(options.cwd)
 
 		if (!userPkgJson) {
-			throw new Error("package.json not found");
+			throw new Error('package.json not found')
 		}
 
-		let rootManifest: ManifestFile | undefined;
+		let rootManifest: ManifestFile | undefined
 
 		try {
 			// Try reading standalone manifest first
-			const manifestPath = path.resolve(
-				options.cwd || process.cwd(),
-				"manifest.json",
-			);
-			const rawManifest = await readJson<ManifestFile>(manifestPath);
-			rootManifest = transformObject(rawManifest, options);
+			const manifestPath = path.resolve(options.cwd || process.cwd(), 'manifest.json')
+			const rawManifest = await readJson<ManifestFile>(manifestPath)
+			rootManifest = transformObject(rawManifest, options)
 		} catch {}
 
 		if (!rootManifest && !userPkgJson.plugma?.manifest) {
-			throw new Error("No manifest found in manifest.json or package.json");
+			throw new Error('No manifest found in manifest.json or package.json')
 		}
 
-		const manifest =
-			rootManifest || transformObject(userPkgJson.plugma?.manifest, options);
+		const manifest = rootManifest || transformObject(userPkgJson.plugma?.manifest, options)
 
-		validateManifest(manifest);
+		validateManifest(manifest)
 
-		return { manifest, userPkgJson };
+		return { manifest, userPkgJson }
 	} catch (error) {
 		if (error instanceof Error) {
-			throw error;
+			throw error
 		}
-		throw new Error("Failed to read plugin files");
+		throw new Error('Failed to read plugin files')
 	}
 }
 function validateManifest(manifest?: Partial<ManifestFile>) {
 	if (!manifest) {
-		throw new Error("No manifest found in manifest.json or package.json");
+		throw new Error('No manifest found in manifest.json or package.json')
 	}
 
 	if (!manifest.main && !manifest.ui) {
-		throw new Error("No main or UI file specified");
+		throw new Error('No main or UI file specified')
 	}
 
 	if (!manifest.name) {
-		console.warn(
-			'Plugma: Please specify the name in the manifest. Example: `{ name: "My Plugin" }`',
-		);
+		console.warn('Plugma: Please specify the name in the manifest. Example: `{ name: "My Plugin" }`')
 	}
 }

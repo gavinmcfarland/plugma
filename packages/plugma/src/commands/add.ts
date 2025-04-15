@@ -2,7 +2,7 @@
  * Add new integrations to Plugma
  */
 
-import { Logger } from '#utils/log/logger.js'
+import { Logger } from '../utils/log/logger.js'
 import { exec } from 'child_process'
 import { detect } from 'package-manager-detector/detect'
 import { resolveCommand } from 'package-manager-detector/commands'
@@ -13,7 +13,6 @@ import tailwindIntegration from '../integrations/tailwind.js'
 import shadcnIntegration from '../integrations/shadcn.js'
 import chalk from 'chalk'
 import type { Integration } from '../integrations/define-integration.js'
-// Import other integrations here...
 
 interface AddCommandOptions {
 	integration?: string

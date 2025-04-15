@@ -4,14 +4,14 @@ import { build, mergeConfig } from 'vite'
 /**
  * Main script build task implementation
  */
-import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '#core/types.js'
-import { createViteConfigs } from '#utils/config/create-vite-configs.js'
-import { Logger } from '#utils/log/logger.js'
-import getFiles, { GetFilesTask } from '#tasks/get-files.js'
-import { task } from '#tasks/runner.js'
-import { viteState } from '#tasks/vite-state.js'
-import { loadConfig } from '#utils/config/load-config.js'
-import { getUserFiles } from '#utils/config/get-user-files.js'
+import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '../core/types.js'
+import { createViteConfigs } from '../utils/config/create-vite-configs.js'
+import { Logger } from '../utils/log/logger.js'
+import { GetFilesTask } from '../tasks/get-files.js'
+import { task } from '../tasks/runner.js'
+import { viteState } from '../tasks/vite-state.js'
+import { loadConfig } from '../utils/config/load-config.js'
+import { getUserFiles } from '../utils/config/get-user-files.js'
 
 /**
  * Result type for the build-main task

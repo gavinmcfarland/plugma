@@ -38,21 +38,6 @@
         "test": "vitest --run",
         "start:websocket-server": "tsx src/tasks/server/websocket.ts"
     },
-    "imports": {
-        "#core": "./dist/core/index.js",
-        "#core/*": "./dist/core/*",
-        "#commands": "./dist/commands/index.js",
-        "#commands/*": "./dist/commands/*",
-        "#utils": "./dist/utils/index.js",
-        "#utils/*": "./dist/utils/*",
-        "#tasks": "./dist/tasks/index.js",
-        "#tasks/*": "./dist/tasks/*",
-        "#vite-plugins": "./dist/vite-plugins/index.js",
-        "#vite-plugins/*": "./dist/vite-plugins/*",
-        "#testing/*": "./dist/testing/*",
-        "#test/*": "./test/*",
-        "#packageJson": "./package.json"
-    },
     "exports": {
         "./core": {
             "import": "./dist/core/index.js",

@@ -1,7 +1,7 @@
-import type { PlugmaPackageJson, UserPackageJson } from '#core/types';
-import { getDirName } from '#utils/get-dir-name.js';
-import { promises as fsPromises } from 'node:fs';
-import { join } from 'node:path';
+import type { PlugmaPackageJson, UserPackageJson } from '../../core/types.js'
+import { getDirName } from '../../utils/get-dir-name.js'
+import { promises as fsPromises } from 'node:fs'
+import { join } from 'node:path'
 
 /**
  * Reads and parses a JSON file asynchronously.
@@ -31,21 +31,21 @@ import { join } from 'node:path';
  * ```
  */
 export async function readJson<T>(filePath: string): Promise<T> {
-  try {
-    const data = await fsPromises.readFile(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch (err) {
-    if (err instanceof Error) {
-      if ('code' in err && (err as any).code === 'ENOENT') {
-        throw new Error('File not found');
-      }
-      if (err instanceof SyntaxError) {
-        throw new Error('Invalid JSON format');
-      }
-      throw err;
-    }
-    throw new Error('Unknown error reading JSON file');
-  }
+	try {
+		const data = await fsPromises.readFile(filePath, 'utf8')
+		return JSON.parse(data)
+	} catch (err) {
+		if (err instanceof Error) {
+			if ('code' in err && (err as any).code === 'ENOENT') {
+				throw new Error('File not found')
+			}
+			if (err instanceof SyntaxError) {
+				throw new Error('Invalid JSON format')
+			}
+			throw err
+		}
+		throw new Error('Unknown error reading JSON file')
+	}
 }
 
 /**
@@ -55,14 +55,14 @@ export async function readJson<T>(filePath: string): Promise<T> {
  * @throws {Error} If package.json can't be found or parsed
  */
 export async function readPlugmaPackageJson(): Promise<PlugmaPackageJson> {
-  const plugmaPkgPath = join(
-    getDirName(),
-    '..',
-    '..',
-    '..', // Adjust based on actual path from utils/fs to project root
-    'package.json',
-  );
-  return readJson<PlugmaPackageJson>(plugmaPkgPath);
+	const plugmaPkgPath = join(
+		getDirName(),
+		'..',
+		'..',
+		'..', // Adjust based on actual path from utils/fs to project root
+		'package.json',
+	)
+	return readJson<PlugmaPackageJson>(plugmaPkgPath)
 }
 
 /**
@@ -72,10 +72,8 @@ export async function readPlugmaPackageJson(): Promise<PlugmaPackageJson> {
  * @returns Promise resolving to user's package.json contents
  * @throws {Error} If package.json can't be found or parsed
  */
-export async function readUserPackageJson(
-  cwd?: string,
-): Promise<UserPackageJson> {
-  const searchPath = cwd || process.cwd();
-  const userPkgPath = join(searchPath, 'package.json');
-  return readJson<UserPackageJson>(userPkgPath);
+export async function readUserPackageJson(cwd?: string): Promise<UserPackageJson> {
+	const searchPath = cwd || process.cwd()
+	const userPkgPath = join(searchPath, 'package.json')
+	return readJson<UserPackageJson>(userPkgPath)
 }

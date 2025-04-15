@@ -1,10 +1,10 @@
-import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '#core/types.js'
-import { createViteConfigs, getDirName, getUserFiles } from '#utils'
-import { Logger } from '#utils/log/logger.js'
+import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '../core/types.js'
+import { createViteConfigs, getDirName, getUserFiles } from '../utils/index.js'
+import { Logger } from '../utils/log/logger.js'
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
-import { GetFilesTask } from '#tasks/get-files.js'
-import { task } from '#tasks/runner.js'
+import { GetFilesTask } from '../tasks/get-files.js'
+import { task } from '../tasks/runner.js'
 
 /**
  * Result type for the build:wrap-plugin-ui task

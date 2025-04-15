@@ -3,9 +3,9 @@
  * Handles production builds and watch mode for plugin development
  */
 
-import type { PluginOptions } from '#core/types.js'
-import EnsureDistTask from '#tasks/create-ouput-dir.js'
-import { Logger } from '#utils/log/logger.js'
+import type { PluginOptions } from '../core/types.js'
+import EnsureDistTask from '../tasks/create-ouput-dir.js'
+import { Logger } from '../utils/log/logger.js'
 import { nanoid } from 'nanoid'
 import { BuildMainTask } from '../tasks/build-main.js'
 import { BuildManifestTask } from '../tasks/build-manifest.js'

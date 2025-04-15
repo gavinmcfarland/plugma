@@ -1,8 +1,8 @@
-import type { GetTaskTypeFor, PluginOptions, PlugmaPackageJson, UserFiles } from '#core/types.js'
-import { createViteConfigs } from '#utils/config/create-vite-configs.js'
-import { getUserFiles } from '#utils/config/get-user-files.js'
-import { readPlugmaPackageJson } from '#utils/fs/read-json.js'
-import { Logger } from '#utils/log/logger.js'
+import type { GetTaskTypeFor, PluginOptions, PlugmaPackageJson, UserFiles } from '../core/types.js'
+import { createViteConfigs } from '../utils/config/create-vite-configs.js'
+import { getUserFiles } from '../utils/config/get-user-files.js'
+import { readPlugmaPackageJson } from '../utils/fs/read-json.js'
+import { Logger } from '../utils/log/logger.js'
 import { task } from './runner.js'
 
 /**
