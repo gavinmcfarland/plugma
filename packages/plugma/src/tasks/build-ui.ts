@@ -1,11 +1,9 @@
-import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '../core/types.js'
+import type { PluginOptions, ResultsOfTask } from '../core/types.js'
 import { createViteConfigs } from '../utils/config/create-vite-configs.js'
 import { notifyInvalidManifestOptions } from '../utils/config/notify-invalid-manifest-options.js'
 import { Logger } from '../utils/log/logger.js'
 import { access } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
-import { performance } from 'node:perf_hooks'
-import type { ViteDevServer } from 'vite'
 import { type InlineConfig, build, mergeConfig } from 'vite'
 import { GetFilesTask } from '../tasks/get-files.js'
 import { task } from '../tasks/runner.js'
@@ -13,6 +11,7 @@ import { viteState } from '../tasks/vite-state.js'
 import { loadConfig } from '../utils/config/load-config.js'
 import { getUserFiles } from '../utils/config/get-user-files.js'
 import { renameIndexHtml } from '../vite-plugins/rename-index-html.js'
+import { Timer } from '../utils/timer.js'
 
 interface BuildUiResult {
 	outputPath: string
@@ -138,8 +137,8 @@ export const BuildUiTask = task(
 
 			await viteState.viteUi.close()
 
-			const startTime = performance.now()
-			let duration: string | undefined
+			const timer = new Timer()
+			timer.start()
 
 			if (!currentFiles.manifest.ui) {
 				logger.debug('No UI specified in manifest, skipping build')
@@ -160,12 +159,16 @@ export const BuildUiTask = task(
 				runWatchMode(configOptions)
 			} else {
 				await runBuild(configOptions)
-				duration = (performance.now() - startTime).toFixed(0)
-				await logBuildSuccess(logger, duration, currentFiles)
+				timer.stop()
+
+				if (timer.getDuration()) {
+					await logBuildSuccess(logger, timer.getDuration()!, currentFiles)
+				}
 			}
 
 			await notifyInvalidManifestOptions(options, currentFiles, 'plugin-built')
 
+			const duration = timer.getDuration()
 			return { outputPath, duration }
 		} catch (err) {
 			const error = err instanceof Error ? err : new Error(String(err))
