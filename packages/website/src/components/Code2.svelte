@@ -56,17 +56,6 @@
 		border-color: var(--color-border);
 	}
 
-	:global(.Code pre) {
-		margin: 0;
-		padding: 0;
-	}
-
-	:global(.Code code) {
-		background: none !important;
-		padding: 0 !important;
-		font-family: var(--font-mono);
-	}
-
 	.copy-button {
 		position: absolute;
 		top: 8px;

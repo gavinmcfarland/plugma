@@ -114,18 +114,18 @@
 {/each}
 
 <style>
-	:global(.shiki) {
+	/* :global(.shiki) {
 		background-color: #24292e;
 		padding: 1rem;
 		border-radius: 0.5rem;
 		overflow-x: auto;
-	}
+	} */
 
-	:global(.shiki .line) {
+	/* :global(.shiki .line) {
 		line-height: 1.5;
-	}
+	} */
 
-	:global(.token) {
+	/* :global(.token) {
 		font-family: 'Fira Code', monospace;
-	}
+	} */
 </style>
