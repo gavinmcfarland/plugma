@@ -7,89 +7,111 @@
 	} from 'shiki';
 	import { onMount } from 'svelte';
 	import MarkdownIt from 'markdown-it';
+	import markdownItAttrs from 'markdown-it-attrs';
 
 	export let content: string;
 	export let components: Record<string, any> = {};
 
 	let parsedContent: string = '';
-	let highlighter: Highlighter;
-	let isHighlighterReady = false;
 
-	const md = new MarkdownIt({
-		html: true,
-		highlight: function (str: string, lang: string | undefined) {
-			// Simple fallback highlighting while Shiki loads
-			if (!isHighlighterReady) {
-				return `<pre class="shiki"><code>${str}</code></pre>`;
-			}
-
-			try {
-				const tokens = highlighter.codeToTokens(str, {
-					lang: lang as BundledLanguage | SpecialLanguage,
-					theme: 'github-dark'
-				});
-				let html = '<pre class="shiki">';
-				for (const line of tokens.tokens) {
-					html += '<span class="line">';
-					for (const token of line) {
-						const scopeName = token.explanation?.[0]?.scopes[0]?.scopeName;
-						const component = scopeName ? components[scopeName] : undefined;
-						if (component) {
-							html += `<span class="token ${scopeName}" data-component="${component.__name}">${token.content}</span>`;
-						} else {
-							html += `<span style="color: ${token.color}">${token.content}</span>`;
-						}
-					}
-					html += '</span>\n';
-				}
-				html += '</pre>';
-				return html;
-			} catch (e) {
-				console.error('Error highlighting code:', e);
-				return `<pre class="shiki"><code>${str}</code></pre>`;
-			}
-		}
-	});
-
-	// Process the markdown content
-	function processContent() {
-		parsedContent = md.render(content);
-	}
-
-	// Watch for content changes
-	$: if (content) {
-		processContent();
-	}
-
-	// Initialize shiki highlighter in the background
-	onMount(async () => {
-		// Render content immediately with basic formatting
-		processContent();
-
-		highlighter = await createHighlighter({
-			themes: ['github-dark'],
-			langs: [
-				'javascript',
-				'typescript',
-				'svelte',
-				'json',
-				'markdown',
-				'bash',
-				'shell',
-				'jsonc',
-				'html'
-			]
+	// Pre-process content to handle markdown inside HTML blocks
+	function preprocessContent(content: string) {
+		// First, preserve code blocks
+		const codeBlocks: string[] = [];
+		content = content.replace(/```([\s\S]*?)```/g, (match, code) => {
+			codeBlocks.push(code);
+			return `__CODE_BLOCK_${codeBlocks.length - 1}__`;
 		});
 
-		// Mark highlighter as ready and re-render content
-		isHighlighterReady = true;
-		processContent();
-	});
+		// Process markdown inside any HTML tags
+		// content = content.replace(
+		// 	/<([a-zA-Z0-9]+)(\s+[^>]*)?>([\s\S]*?)<\/\1>/g,
+		// 	(match, tag, attributes, inner) => {
+		// 		// Skip if the tag is a code block or pre (these should be handled by shiki)
+		// 		if (tag === 'code' || tag === 'pre') return match;
+
+		// 		// Process the inner content with markdown
+		// 		const processedInner = md.render(inner.trim());
+		// 		return `<${tag}${attributes || ''}>${processedInner}</${tag}>`;
+		// 	}
+		// );
+
+		// Restore code blocks
+		content = content.replace(/__CODE_BLOCK_(\d+)__/g, (match, index) => {
+			return `\`\`\`${codeBlocks[parseInt(index)]}\`\`\``;
+		});
+
+		return content;
+	}
+
+	// Initialize markdown-it outside of component lifecycle
+	const md = new MarkdownIt({
+		html: true,
+		breaks: true,
+		block: true,
+		inline: true
+	}).use(markdownItAttrs);
+
+	// Add a function to process components in the rendered content
+	function processComponents(html: string) {
+		// Replace component placeholders with actual components
+		return html.replace(
+			/<([a-zA-Z0-9]+)(\s+[^>]*)?>([\s\S]*?)<\/\1>/g,
+			(match, tag, attributes, inner) => {
+				// Check if we have a component for this tag
+				if (components[tag]) {
+					// Create a unique ID for the component
+					const id = `component-${Math.random().toString(36).substr(2, 9)}`;
+
+					// Store the component data
+					componentData[id] = {
+						component: components[tag],
+						props: parseAttributes(attributes),
+						content: inner
+					};
+
+					// Return a placeholder that will be replaced by the component
+					return `<div id="${id}"></div>`;
+				}
+				return match;
+			}
+		);
+	}
+
+	// Helper function to parse HTML attributes into an object
+	function parseAttributes(attrString: string) {
+		if (!attrString) return {};
+		const attrs = {};
+		attrString.match(/\w+="[^"]*"/g)?.forEach((attr) => {
+			const [name, value] = attr.split('=');
+			attrs[name] = value.replace(/"/g, '');
+		});
+		return attrs;
+	}
+
+	// Store component data
+	let componentData: Record<string, any> = {};
+
+	// Update the processContent function
+	function processContent(content: string) {
+		const preprocessedContent = preprocessContent(content);
+		const renderedContent = md.render(preprocessedContent);
+		return processComponents(renderedContent);
+	}
+
+	// Initialize parsedContent with processed content immediately
+	$: parsedContent = content ? md.render(processContent(content)) : '';
 </script>
 
 {#if parsedContent}
 	{@html parsedContent}
 {/if}
+
+{#each Object.entries(componentData) as [id, data]}
+	<svelte:component this={data.component} {...data.props}>
+		{@html data.content}
+	</svelte:component>
+{/each}
 
 <style>
 	:global(.shiki) {

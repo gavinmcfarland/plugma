@@ -6,6 +6,18 @@
 	border-color: inherit;
 }
 
+:root {
+	--code-foreground: #c9d1d9;
+	--code-background: #0d1117;
+	--code-keyword: #ff7b72;
+	--code-string: #a5d6ff;
+	--code-number: #79c0ff;
+	--code-comment: #8b949e;
+	--code-function: #d2a8ff;
+	--code-variable: #ffa657;
+	--code-operator: #c9d1d9;
+}
+
 @layer base {
 	:root {
 		--color-text: black;
@@ -593,4 +605,16 @@ blockquote.info {
 		color: #a5d6ff;
 		font-style: underline;
 	}
+}
+
+/* Add these styles to your global CSS */
+.shiki-wrapper {
+	background: transparent !important;
+}
+
+.shiki-wrapper pre {
+	background-color: var(--shiki-bg, #24292e);
+	font-family: 'Fira Code', monospace;
+	font-size: 0.9em;
+	line-height: 1.5;
 }
