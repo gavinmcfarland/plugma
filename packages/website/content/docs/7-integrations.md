@@ -1,14 +1,14 @@
-# Integrations
+# Add-ons
 
 Plugma makes it easy to add integrations with other libraries and frameworks.
 
 ## Usage
 
 ```bash
-npx plugma add [integration?]
+npx plugma add [add-on?]
 ```
 
-## Supported integrations
+## Supported add-ons
 
 - `tailwindcss`
 - `shadcn`
