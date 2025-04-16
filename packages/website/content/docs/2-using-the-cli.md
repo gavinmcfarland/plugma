@@ -26,10 +26,10 @@ plugma dev [options]
 
 ##### Options
 
--   `-p`, `--port`: Specify a port number for the plugin preview.
--   `-o`, `--output`: Specify an output dir, default is `dist`.
--   `-m`, `--mode`: Specify a mode.
--   `-ws`, `--websockets`: Enable WebSockets to preview in browser.
+- `-p`, `--port`: Specify a port number for the plugin preview.
+- `-o`, `--output`: Specify an output dir, default is `dist`.
+- `-m`, `--mode`: Specify a mode.
+- `-ws`, `--websockets`: Enable WebSockets to preview in browser.
 
 ##### Example
 
@@ -61,9 +61,9 @@ plugma preview [options]
 
 ##### Options
 
--   `-p`, `--port`: Specify a port number for the plugin preview.
--   `-o`, `--output`: Specify an output dir, default is `dist`.
--   `-m`, `--mode`: Specify a mode.
+- `-p`, `--port`: Specify a port number for the plugin preview.
+- `-o`, `--output`: Specify an output dir, default is `dist`.
+- `-m`, `--mode`: Specify a mode.
 
 ##### Example
 
@@ -92,9 +92,9 @@ plugma build [options]
 
 ##### Options
 
--   `-w`, `--watch`: Watch for changes and rebuild automatically.
--   `-o`, `--output`: Specify an output dir, default is `dist`.
--   `-m`, `--mode`: Specify a mode.
+- `-w`, `--watch`: Watch for changes and rebuild automatically.
+- `-o`, `--output`: Specify an output dir, default is `dist`.
+- `-m`, `--mode`: Specify a mode.
 
 ##### Example
 
@@ -126,13 +126,13 @@ plugma release [version] [options]
 
 ##### Version
 
--   `alpha`, `beta`, `stable` or an integer (optional)
+- `alpha`, `beta`, `stable` or an integer (optional)
 
 ##### Options
 
--   `-t`, `--title`: Custom title for the release.
--   `-n`, `--notes`: Add release notes.
--   `-o`, `--output`: Specify an output dir, default is `dist`.
+- `-t`, `--title`: Custom title for the release.
+- `-n`, `--notes`: Add release notes.
+- `-o`, `--output`: Specify an output dir, default is `dist`.
 
 ##### Example
 
@@ -200,10 +200,10 @@ plugma add [integration?]
 
 ##### Integration
 
--   `playwright`
--   `vitest`
--   `tailwind`
--   `shadcn`
+- `playwright`
+- `vitest`
+- `tailwind`
+- `shadcn`
 
 ##### Example
 

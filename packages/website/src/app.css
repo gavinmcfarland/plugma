@@ -70,7 +70,6 @@ li {
 
 code {
 	font-size: 0.9em;
-	background-color: hsl(var(--color-bg-hsl) / 0.8);
 }
 
 a {
@@ -94,12 +93,18 @@ strong {
 }
 
 .main-content h3 {
-	@apply text-lg font-normal mt-8 mb-4;
+	@apply text-lg font-normal mt-9 mb-5;
 }
 
 h3,
 h5 {
 	@apply text-base font-medium mt-6 mb-4;
+}
+
+h3 code:not(pre code),
+h4 code:not(pre code),
+h5 code:not(pre code) {
+	color: hsl(var(--color-info-hsl) / 1);
 }
 
 /* svg {
@@ -111,6 +116,7 @@ code:not(pre code) {
 	color: var(--color-text);
 	border: 1px solid var(--color-border);
 	@apply rounded-sm px-1 py-[1px];
+	background-color: hsl(var(--color-bg-hsl) / 0.8);
 }
 
 .Button:hover svg path,

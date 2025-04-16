@@ -3,7 +3,6 @@
 	import Code from '@/components/Code.svelte';
 	import SvelteMarkdown from 'svelte-markdown';
 	import MarkdownRenderer from '@/components/MarkdownRenderer.svelte';
-	import MarkdownRenderer2 from '@/components/MarkdownRenderer2.svelte';
 	import MarkdownRenderer3 from '@/components/MarkdownRenderer3.svelte';
 	import Heading from '@/components/Heading.svelte';
 	import { onMount } from 'svelte';
@@ -36,23 +35,17 @@
 			code: Code
 		}}
 	/> -->
-	<!-- <MarkdownRenderer
+	<MarkdownRenderer
 		markdown={source}
 		components={{
 			code: Code
 		}}
-	/> -->
-	<!-- <MarkdownRenderer2
-		content={source}
-		components={{
-			code: Code
-		}}
-	/> -->
-	<MarkdownRenderer3
+	/>
+	<!-- <MarkdownRenderer3
 		{source}
 		renderers={{
 			code: Code,
 			heading: Heading
 		}}
-	/>
+	/> -->
 </div>

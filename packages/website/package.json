@@ -36,7 +36,9 @@
 		"vite": "^5.0.3"
 	},
 	"dependencies": {
-		"@vercel/speed-insights": "^1.0.14"
+		"@vercel/speed-insights": "^1.0.14",
+		"nanoid": "^5.1.5",
+		"shiki": "^3.2.2"
 	},
 	"resolutions": {
 		"marked": "^14.1.3"
