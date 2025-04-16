@@ -7,6 +7,7 @@
 	import Heading from '@/components/Heading.svelte';
 	import { onMount } from 'svelte';
 	import Meta from '@/components/Meta.svelte';
+	import MarkdownRenderer4 from '@/components/MarkdownRenderer4.svelte';
 	export let data;
 
 	// function replaceSyntax(data) {
@@ -35,12 +36,12 @@
 			code: Code
 		}}
 	/> -->
-	<MarkdownRenderer
+	<!-- <MarkdownRenderer
 		markdown={source}
 		components={{
 			code: Code
 		}}
-	/>
+	/> -->
 	<!-- <MarkdownRenderer3
 		{source}
 		renderers={{
@@ -48,4 +49,10 @@
 			heading: Heading
 		}}
 	/> -->
+	<MarkdownRenderer4
+		content={source}
+		components={{
+			code: Code
+		}}
+	/>
 </div>
