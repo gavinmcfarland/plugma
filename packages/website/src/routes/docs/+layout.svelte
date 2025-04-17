@@ -40,6 +40,7 @@
 					navItems={data.navItems}
 					folders={data.folders}
 					isOpen={isMenuOpen}
+					onNavigate={() => (isMenuOpen = false)}
 				/>
 
 				<div class="grow shrink main-content min-w-0">

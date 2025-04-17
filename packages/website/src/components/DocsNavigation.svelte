@@ -4,11 +4,13 @@
 	const {
 		navItems,
 		folders,
-		isOpen = false
+		isOpen = false,
+		onNavigate
 	} = $props<{
 		navItems: Array<{ slug: string; title: string }>;
 		folders: Array<{ name: string; items: Array<{ slug: string; title: string }> }>;
 		isOpen?: boolean;
+		onNavigate: () => void;
 	}>();
 
 	let slug = $state('');
@@ -30,6 +32,7 @@
 					<li>
 						<a
 							href={`/docs/${itemSlug}`}
+							onclick={onNavigate}
 							class="hover:underline {slug === itemSlug ? 'active' : ''}"
 						>
 							{title}
@@ -45,6 +48,7 @@
 						<li>
 							<a
 								href={`/docs/${folder.name}/${item.slug}`}
+								onclick={onNavigate}
 								class="hover:underline {slug === item.slug ? 'active' : ''}"
 							>
 								{item.title}
@@ -82,6 +86,13 @@
 			z-index: 40;
 			overflow-y: auto;
 			margin-bottom: 2rem;
+			z-index: 100;
+			position: fixed;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			padding: 24px;
+			background-color: var(--color-bg);
 		}
 
 		.nav-content {
