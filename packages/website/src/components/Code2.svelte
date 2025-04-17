@@ -1,44 +1,62 @@
+<!-- @migration-task Error while migrating Svelte code: $$props is used together with named props in a way that cannot be automatically migrated. -->
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Icon from './Icon.svelte';
 	import { notify } from '@/stores';
 	import { highlighter } from '@/lib/stores/shiki';
 
-	export let lang;
-	export let text;
-	export let persistCopyButton = false;
-	let copied = false;
-	let html_now = '';
+	// Add counter for generating unique IDs
+	let idCounter = 0;
+	const generateId = () => `code-block-${++idCounter}`;
 
-	// Update HTML whenever the highlighter or text changes
-	$: if ($highlighter && typeof ($highlighter as any).codeToHtml === 'function') {
-		html_now = ($highlighter as any).codeToHtml(text, {
-			lang,
-			theme: 'github-dark'
-		});
-	}
+	const props = $props<{
+		lang: string;
+		text: string;
+		persistCopyButton?: boolean;
+		class_?: string;
+		id?: string;
+	}>();
+
+	const { persistCopyButton = false, class_ = '', id } = props;
+	// Get text reactively using $derived
+	const text = $derived(props.text);
+	const lang = $derived(props.lang);
+	// Generate ID if not provided in props
+	const elementId = props.id ?? generateId();
+
+	let copied = $state(false);
+	let html_now = $state('');
+
+	$effect(() => {
+		console.log('Effect running:', { text, lang, highlighter: $highlighter });
+		if ($highlighter && typeof ($highlighter as any).codeToHtml === 'function') {
+			html_now = ($highlighter as any).codeToHtml(text, {
+				lang,
+				theme: 'github-dark'
+			});
+		}
+	});
 
 	// Function to copy text to clipboard
-	const copyToClipboard = () => {
-		const tempInput = document.createElement('textarea');
-		tempInput.value = text;
-		document.body.appendChild(tempInput);
-		tempInput.select();
-		document.execCommand('copy');
-		document.body.removeChild(tempInput);
-		copied = true;
-		setTimeout(() => (copied = false), 5000);
+	const copyToClipboard = async () => {
+		try {
+			await navigator.clipboard.writeText(text);
+			copied = true;
+			setTimeout(() => (copied = false), 5000);
+		} catch (err) {
+			notify({ type: 'error', message: 'Failed to copy to clipboard' });
+		}
 	};
 </script>
 
-<div class="Code border mt-4 mb-4 rounded-md {$$props.class}">
+<div class="Code border mt-4 mb-4 rounded-md {class_}">
 	<div class="overflow-auto p-4 pr-16">
 		{@html html_now}
 		<button
 			aria-label="Copy code"
 			class="copy-button p-2 {persistCopyButton ? 'visible' : 'hidden'}"
 			class:copied
-			on:click={copyToClipboard}
+			onclick={copyToClipboard}
 		>
 			{#if copied}
 				<Icon size={24} svg="check" isAnimated color="var(--color-success)" />

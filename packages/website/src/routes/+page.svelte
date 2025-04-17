@@ -39,10 +39,10 @@
 					Experience the future<br /> of Figma plugin development
 				</h1>
 				<p class="mb-10">Supports React, Svelte, Vue, and vanilla JS/TS</p>
-				<Code
-					class="max-w-fit mx-auto"
+				<Code2
+					class_="max-w-fit mx-auto"
 					persistCopyButton
-					lang="js"
+					lang="bash"
 					text="npm create plugma@next"
 				/>
 				<Button class="mt-4 mx-auto" href="docs/getting-started">Get started</Button>
@@ -88,19 +88,19 @@
 		<div class="lg:max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
 			<div>
 				<h3 class="font-bold mb-2">Start dev server</h3>
-				<Code2 class="mb-1" lang="bash" text="plugma dev" />
+				<Code2 class_="mb-1" lang="bash" text="plugma dev" />
 				<p>Development is faster because it doesn’t require a rebuild for each change.</p>
 			</div>
 			<div>
 				<h3 class="font-bold mb-2">Preview in any browser</h3>
-				<Code2 class="mb-1" lang="bash" text="plugma preview" />
+				<Code2 class_="mb-1" lang="bash" text="plugma preview" />
 				<p>
 					Debug and test across different browsers without having to publish your plugin.
 				</p>
 			</div>
 			<div>
 				<h3 class="font-bold mb-2">Create a build</h3>
-				<Code2 class="mb-1" lang="bash" text="plugma build" />
+				<Code2 class_="mb-1" lang="bash" text="plugma build" />
 				<p>
 					When you're ready to publish, create a minified version with with everything
 					inlined.
@@ -108,7 +108,7 @@
 			</div>
 			<div>
 				<h3 class="font-bold mb-2">Release to github</h3>
-				<Code2 class="mb-1" lang="bash" text="plugma release" />
+				<Code2 class_="mb-1" lang="bash" text="plugma release" />
 				<p>A built-in command that allows you to keep track of your releases.</p>
 			</div>
 		</div>

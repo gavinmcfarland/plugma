@@ -1,12 +1,23 @@
 <script lang="ts">
-	export let svg;
-	export let color = 'currentColor';
-	export let opacity: number = 0.8;
-	export let strokeWidth: number = 1.5;
-	export let isAnimated: boolean = false;
 
-	export let size: number = 16;
-	$: sizePx = `${size}px`;
+	interface Props {
+		svg: any;
+		color?: string;
+		opacity?: number;
+		strokeWidth?: number;
+		isAnimated?: boolean;
+		size?: number;
+	}
+
+	let {
+		svg,
+		color = 'currentColor',
+		opacity = 0.8,
+		strokeWidth = 1.5,
+		isAnimated = false,
+		size = 16
+	}: Props = $props();
+	let sizePx = $derived(`${size}px`);
 </script>
 
 <span class="Icon">

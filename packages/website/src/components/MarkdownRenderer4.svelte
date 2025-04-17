@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import {
 		createHighlighter,
 		type Highlighter,
@@ -9,10 +11,14 @@
 	import MarkdownIt from 'markdown-it';
 	import markdownItAttrs from 'markdown-it-attrs';
 
-	export let content: string;
-	export let components: Record<string, any> = {};
+	interface Props {
+		content: string;
+		components?: Record<string, any>;
+	}
 
-	let parsedContent: string = '';
+	let { content, components = {} }: Props = $props();
+
+	let parsedContent: string = $state('');
 
 	// Pre-process content to handle markdown inside HTML blocks
 	function preprocessContent(content: string) {
@@ -90,7 +96,7 @@
 	}
 
 	// Store component data
-	let componentData: Record<string, any> = {};
+	let componentData: Record<string, any> = $state({});
 
 	// Update the processContent function
 	function processContent(content: string) {
@@ -100,7 +106,9 @@
 	}
 
 	// Initialize parsedContent with processed content immediately
-	$: parsedContent = content ? md.render(processContent(content)) : '';
+	run(() => {
+		parsedContent = content ? md.render(processContent(content)) : '';
+	});
 </script>
 
 {#if parsedContent}
@@ -108,9 +116,9 @@
 {/if}
 
 {#each Object.entries(componentData) as [id, data]}
-	<svelte:component this={data.component} {...data.props}>
+	<data.component {...data.props}>
 		{@html data.content}
-	</svelte:component>
+	</data.component>
 {/each}
 
 <style>

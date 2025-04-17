@@ -1,11 +1,23 @@
 <script lang="ts">
-	// Define optional props without default values
-	export let title: string | undefined = undefined;
-	export let description: string | undefined = undefined;
-	export let url: string | undefined = undefined;
-	export let image: string | undefined = undefined;
-	export let siteName: string | undefined = undefined;
-	export let type: string | undefined = undefined;
+	
+	interface Props {
+		// Define optional props without default values
+		title?: string | undefined;
+		description?: string | undefined;
+		url?: string | undefined;
+		image?: string | undefined;
+		siteName?: string | undefined;
+		type?: string | undefined;
+	}
+
+	let {
+		title = undefined,
+		description = undefined,
+		url = undefined,
+		image = undefined,
+		siteName = undefined,
+		type = undefined
+	}: Props = $props();
 </script>
 
 <!-- Primary Meta Tags -->

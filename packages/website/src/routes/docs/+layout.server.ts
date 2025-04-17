@@ -3,7 +3,7 @@ import path from 'path';
 
 export const prerender = true;
 
-export async function load(data) {
+export async function load(data: { params: Record<string, string> }) {
 	const contentDir = path.join(process.cwd(), 'content/docs');
 
 	function getMarkdownFiles(dir: string) {
@@ -18,10 +18,15 @@ export async function load(data) {
 
 			if (stat.isDirectory()) {
 				// Handle directory
+				const match = file.match(/^(\d+)-(.+)$/);
+				const order = match ? parseInt(match[1], 10) : null;
+				const folderName = match ? match[2] : file;
+
 				const folderFiles = getMarkdownFiles(fullPath);
 				if (folderFiles.items.length > 0 || folderFiles.folders.length > 0) {
 					folders.push({
-						name: file,
+						name: folderName,
+						order: order ?? Infinity,
 						...folderFiles
 					});
 				}
@@ -46,12 +51,16 @@ export async function load(data) {
 
 		// Sort items by order
 		items.sort((a, b) => a.order - b.order);
+		// Sort folders by order
+		folders.sort((a, b) => a.order - b.order);
+
 		// Remove order property after sorting
 		const cleanedItems = items.map(({ order, ...rest }) => rest);
+		const cleanedFolders = folders.map(({ order, ...rest }) => rest);
 
 		return {
 			items: cleanedItems,
-			folders
+			folders: cleanedFolders
 		};
 	}
 

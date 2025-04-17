@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { inject } from '@vercel/analytics';
 	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
 	import '../app.css';
@@ -7,6 +7,11 @@
 	import Icon from '@/components/Icon.svelte';
 	import Meta from '@/components/Meta.svelte';
 	import Banner from '@/components/Banner.svelte';
+	interface Props {
+		children?: import('svelte').Snippet;
+	}
+
+	let { children }: Props = $props();
 
 	inject();
 	injectSpeedInsights();
@@ -43,7 +48,7 @@
 					<a href="/docs" class="hover:underline">Docs</a>
 					<a
 						href="https://github.com/gavinmcfarland/plugma"
-						class="hover:underline"
+						style="display: flex"
 						target="_blank"
 					>
 						<Icon svg="github" size={24} strokeWidth={1.5} /></a
@@ -54,7 +59,7 @@
 	</div>
 
 	<main class="grow">
-		<slot />
+		{@render children?.()}
 	</main>
 
 	<footer class="p-4 flex justify-between">

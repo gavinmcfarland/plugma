@@ -1,15 +1,20 @@
 <script lang="ts">
-	import { marked } from 'marked';
-	import { SvelteComponent } from 'svelte';
+	import { run } from 'svelte/legacy';
 
-	export let markdown: string = '';
-	export let components: Record<string, typeof SvelteComponent> = {};
+	import { marked } from 'marked';
+
+	interface Props {
+		markdown?: string;
+		components?: Record<string>;
+	}
+
+	let { markdown = '', components = {} }: Props = $props();
 
 	let structuredMarkdown: {
 		id: number;
-		component: typeof SvelteComponent | string | null;
+		component: string | null;
 		props: Record<string, any>;
-	}[] = [];
+	}[] = $state([]);
 
 	let uniqueId = 0;
 
@@ -201,7 +206,9 @@
 	}
 
 	// Reactive statement that calls parseMarkdown when `markdown` changes
-	$: parseMarkdown(markdown);
+	run(() => {
+		parseMarkdown(markdown);
+	});
 </script>
 
 <!-- Render each item in structuredMarkdown separately -->
@@ -212,6 +219,7 @@
 		<!-- {console.log(props)} -->
 		{@html `<${component} ${props.attributes} id=${props.id}>${props.innerHTML}</${component}>`}
 	{:else}
-		<svelte:component this={component} {...props} />
+		{@const Component = component}
+		<Component {...props} />
 	{/if}
 {/each}

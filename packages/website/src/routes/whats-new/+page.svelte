@@ -1,12 +1,12 @@
-<script>
+<script lang="ts">
 	import { page } from '$app/stores';
 	import Badge from '@/components/Badge.svelte';
 	import Code from '@/components/Code.svelte';
 	import Icon from '@/components/Icon.svelte';
 	import Meta from '@/components/Meta.svelte';
-	export let data;
+	let { data } = $props();
 
-	// function replaceSyntax(data) {
+	
 	// 	data.content = data.content.replace(
 	// 		/\[info\]([\s\S]*?)\[\/info\]/g,
 	// 		'<info-placeholder>$1</info-placeholder>'
