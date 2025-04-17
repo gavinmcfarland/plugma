@@ -24,7 +24,7 @@
 		"autoprefixer": "^10.4.21",
 		"highlight.js": "^11.11.1",
 		"markdown-it": "^14.1.0",
-		"marked": "^14.1.4",
+		"marked": "^15.0.8",
 		"postcss-custom-media": "^11.0.5",
 		"prettier": "^3.5.3",
 		"prettier-plugin-svelte": "^3.3.3",
@@ -42,8 +42,5 @@
 		"markdown-it-attrs": "^4.3.1",
 		"nanoid": "^5.1.5",
 		"shiki": "^3.2.2"
-	},
-	"resolutions": {
-		"marked": "^14.1.3"
 	}
 }
