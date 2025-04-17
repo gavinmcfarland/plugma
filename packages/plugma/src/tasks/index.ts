@@ -14,5 +14,4 @@ export * from './release/index.js'
 export * from './release/update-plugin-version.js'
 export * from './release/update-github-workflow-templates.js'
 export * from './start-dev-server.js'
-export * from './test/run-vitest.js'
 //@endindex
