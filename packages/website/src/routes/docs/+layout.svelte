@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { page } from '$app/stores'; // To get the current page URL and slug
+	import Folder from '@/components/Folder.svelte';
 	import Icon from '@/components/Icon.svelte';
 	import { onMount } from 'svelte';
 	export let data;
 
 	let slug = '';
 	let currentIndex = -1;
-	let prevItem = null;
-	let nextItem = null;
+	let prevItem: { slug: string; title: string } | null = null;
+	let nextItem: { slug: string; title: string } | null = null;
 
 	// Get the slug from the current page's path when the page changes
 	page.subscribe(({ url }) => {
@@ -27,7 +28,23 @@
 	<div class="border-t-0 mt-12 mb-16 px-4">
 		<div class="max-w-4xl mx-auto md:flex gap-6">
 			<div class="w-60 mb-12 shrink-0">
-				<nav class="md:sticky top-[105px]">
+				<nav class="md:sticky top-[143px]">
+					<h3 class="mb-2">Commands</h3>
+					<ul>
+						{#each data.folders as folder}
+							{#each folder.items as item}
+								<li>
+									<a
+										href={`/docs/${folder.name}/${item.slug}`}
+										class="hover:underline {slug === item.slug ? 'active' : ''}"
+									>
+										{item.title}
+									</a>
+								</li>
+							{/each}
+						{/each}
+					</ul>
+					<h3 class="mb-2">Docs</h3>
 					<ul>
 						{#each data.navItems as { slug: itemSlug, title }}
 							<li>

@@ -121,7 +121,7 @@ li {
 }
 
 code {
-	font-size: 0.9em;
+	font-size: 0.87em;
 }
 
 a {
@@ -151,12 +151,6 @@ strong {
 h3,
 h5 {
 	@apply text-base font-medium mt-6 mb-4;
-}
-
-h3 code:not(pre code),
-h4 code:not(pre code),
-h5 code:not(pre code) {
-	color: hsl(var(--color-info-hsl) / 1);
 }
 
 /* svg {
@@ -645,16 +639,4 @@ blockquote.info {
 		color: #a5d6ff;
 		font-style: underline;
 	}
-}
-
-/* Add these styles to your global CSS */
-.shiki-wrapper {
-	background: transparent !important;
-}
-
-.shiki-wrapper pre {
-	background-color: var(--shiki-bg, #24292e);
-	font-family: 'Fira Code', monospace;
-	font-size: 0.9em;
-	line-height: 1.5;
 }

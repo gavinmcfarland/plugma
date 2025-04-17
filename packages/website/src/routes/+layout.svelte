@@ -41,8 +41,12 @@
 				</div>
 				<div class="flex gap-6">
 					<a href="/docs" class="hover:underline">Docs</a>
-					<a href="https://github.com/gavinmcfarland/plugma" class="hover:underline" target="_blank"
-						>GitHub</a
+					<a
+						href="https://github.com/gavinmcfarland/plugma"
+						class="hover:underline"
+						target="_blank"
+					>
+						<Icon svg="github" size={24} strokeWidth={1.5} /></a
 					>
 				</div>
 			</nav>

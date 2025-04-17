@@ -16,7 +16,7 @@ When using the commands with `npm run` you need to pass the arguments with a dou
 
 </summary>
 
-Start a server to develop your plugin. This command builds the `ui.html` and points it to the dev server making it easier to develop and debug your plugin.
+Start a server to develop your plugin. This command builds a placeholder `ui.html` that points to the dev server. This enabled various developer tools to help you build your plugin.
 
 ##### Usage
 
@@ -82,7 +82,7 @@ plugma preview -p 8080
 
 </summary>
 
-Create a build before publishing. This command compiles and bundles your plugin, preparing it for distribution.
+Create a build before publishing. This command bundles and minifies your plugin, preparing it for distribution.
 
 ##### Usage
 
@@ -116,7 +116,7 @@ plugma build -w
 
 </summary>
 
-Build the plugin and release to GitHub. This command automates creating a new GitHub release with your latest changes. If no version is specified, it will automatically update the `plugma.pluginVersion` field in `package.json`.
+This command builds your plugin and automatically creates a new GitHub release with your latest changes.
 
 ##### Usage
 
@@ -124,14 +124,16 @@ Build the plugin and release to GitHub. This command automates creating a new Gi
 plugma release [version] [options]
 ```
 
+If no version is specified, it will automatically update the `plugma.pluginVersion` field in `package.json`.
+
 ##### Version
 
 - `alpha`, `beta`, `stable` or an integer (optional)
 
 ##### Options
 
-- `-t`, `--title`: Custom title for the release.
-- `-n`, `--notes`: Add release notes.
+- `--title`: Custom title for the release.
+- `--notes`: Add release notes.
 - `-o`, `--output`: Specify an output dir, default is `dist`.
 
 ##### Example
@@ -190,12 +192,12 @@ When using the commands with `npm run` you need to pass the arguments with a dou
 
 </summary>
 
-Add integrations to your project.
+Adds support for various integrations to your project, including testing frameworks, UI libraries, and other development tools.
 
 ##### Usage
 
 ```bash
-plugma add [integration?]
+plugma add [integration] [options]
 ```
 
 ##### Integration
@@ -205,6 +207,10 @@ plugma add [integration?]
 - `tailwind`
 - `shadcn`
 
+##### Options
+
+- `--no-install` - prevents installing dependencies
+
 ##### Example
 
 ```bash
@@ -213,7 +219,7 @@ plugma add playwright
 
 </details>
 
-## Installing globally
+## Installing globally
 
 If you'd prefer to use the CLI globally you can install it using the following.
 

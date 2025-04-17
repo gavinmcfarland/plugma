@@ -11,7 +11,7 @@
 	let html_now = '';
 
 	// Update HTML whenever the highlighter or text changes
-	$: if ($highlighter) {
+	$: if ($highlighter && typeof ($highlighter as any).codeToHtml === 'function') {
 		html_now = ($highlighter as any).codeToHtml(text, {
 			lang,
 			theme: 'github-dark'
