@@ -239,12 +239,18 @@ importers:
 
   packages/website:
     dependencies:
+      '@shikijs/langs':
+        specifier: ^3.2.2
+        version: 3.2.2
       '@vercel/speed-insights':
         specifier: ^1.0.14
         version: 1.2.0(@sveltejs/kit@2.20.5(@sveltejs/vite-plugin-svelte@4.0.4(svelte@5.25.12)(vite@5.4.12(@types/node@22.14.0)(terser@5.39.0)))(svelte@5.25.12)(vite@5.4.12(@types/node@22.14.0)(terser@5.39.0)))(svelte@5.25.12)
       dompurify:
         specifier: ^3.2.5
         version: 3.2.5
+      javascript:
+        specifier: link:@shikijs/langs/javascript
+        version: link:@shikijs/langs/javascript
       markdown-it-attrs:
         specifier: ^4.3.1
         version: 4.3.1(markdown-it@14.1.0)
