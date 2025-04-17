@@ -1,19 +1,18 @@
 <script lang="ts">
-	import { page } from '$app/state'; // To get the current page URL and slug
+	import { page } from '$app/state';
 	import Folder from '@/components/Folder.svelte';
 	import Icon from '@/components/Icon.svelte';
-	import { onMount } from 'svelte';
+	import DocsNavigation from '@/components/DocsNavigation.svelte';
+
 	let { data, children } = $props();
 
-	let slug = $state('');
 	let currentIndex = -1;
 	let prevItem: { slug: string; title: string } | null = $state(null);
 	let nextItem: { slug: string; title: string } | null = $state(null);
 
-	// In Svelte 5, you can use $effect instead of subscribe
 	$effect(() => {
 		const { url } = page;
-		slug = url.pathname.split('/').pop();
+		const slug = url.pathname.split('/').pop() ?? '';
 		currentIndex = data.navItems.findIndex((item) => item.slug === slug);
 
 		if (currentIndex !== -1) {
@@ -28,37 +27,7 @@
 	<div class="border-t-0 mt-12 mb-16 px-4">
 		<div class="max-w-4xl mx-auto md:flex gap-6">
 			<div class="w-60 mb-12 shrink-0">
-				<nav class="md:sticky top-[143px]">
-					<h3 class="mb-2">Guides</h3>
-					<ul>
-						{#each data.navItems as { slug: itemSlug, title }}
-							<li>
-								<a
-									href={`/docs/${itemSlug}`}
-									class="hover:underline {slug === itemSlug ? 'active' : ''}"
-								>
-									{title}
-								</a>
-							</li>
-						{/each}
-					</ul>
-
-					{#each data.folders as folder}
-						<h3 class="mb-2" style="text-transform: capitalize">{folder.name}</h3>
-						{#each folder.items as item}
-							<ul>
-								<li>
-									<a
-										href={`/docs/${folder.name}/${item.slug}`}
-										class="hover:underline {slug === item.slug ? 'active' : ''}"
-									>
-										{item.title}
-									</a>
-								</li>
-							</ul>
-						{/each}
-					{/each}
-				</nav>
+				<DocsNavigation navItems={data.navItems} folders={data.folders} />
 			</div>
 
 			<div class="grow shrink main-content min-w-0">

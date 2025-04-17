@@ -1,5 +1,4 @@
 <script lang="ts">
-
 	interface Props {
 		svg: any;
 		color?: string;
@@ -39,6 +38,64 @@
 				d="M5.00049 16C4.47005 16 3.96135 15.7893 3.58627 15.4142C3.2112 15.0391 3.00049 14.5304 3.00049 14V5C3.00049 4.46957 3.2112 3.96086 3.58627 3.58579C3.96135 3.21071 4.47005 3 5.00049 3H14.0005C14.5309 3 15.0396 3.21071 15.4147 3.58579C15.7898 3.96086 16.0005 4.46957 16.0005 5"
 				stroke={color}
 				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	{/if}
+	{#if svg === 'menu'}
+		<svg
+			width={sizePx}
+			height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M19.7292 12.3632H5.72925"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M19.7292 7.36321H5.72925"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M19.7292 17.3632H5.72925"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	{/if}
+	{#if svg === 'close'}
+		<svg
+			width={sizePx}
+			height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M18.0001 6L6.00006 18"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M6.00006 6L18.0001 18"
+				stroke={color}
 				stroke-width={strokeWidth}
 				stroke-linecap="round"
 				stroke-linejoin="round"

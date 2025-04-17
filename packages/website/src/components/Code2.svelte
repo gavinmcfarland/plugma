@@ -3,148 +3,148 @@
 	import { onMount } from 'svelte';
 	import Icon from './Icon.svelte';
 	import { notify } from '@/stores';
-	// import { highlighter } from '@/lib/stores/shiki';
-	import { createHighlighterCoreSync } from 'shiki/core';
-	import js from '@shikijs/langs/javascript';
-	import bash from '@shikijs/langs/bash';
-	import css from '@shikijs/langs/css';
-	import jsonc from '@shikijs/langs/jsonc';
-	import html from '@shikijs/langs/html';
-	import ts from '@shikijs/langs/typescript';
-	import md from '@shikijs/langs/markdown';
-	import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
+	import { highlighter } from '@/lib/stores/shiki';
+	// import { createHighlighterCoreSync } from 'shiki/core';
+	// import js from '@shikijs/langs/javascript';
+	// import bash from '@shikijs/langs/bash';
+	// import css from '@shikijs/langs/css';
+	// import jsonc from '@shikijs/langs/jsonc';
+	// import html from '@shikijs/langs/html';
+	// import ts from '@shikijs/langs/typescript';
+	// import md from '@shikijs/langs/markdown';
+	// import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
 
-	// Using syncronous version to avoid loading/delay
-	const highlighter = createHighlighterCoreSync({
-		engine: createJavaScriptRegexEngine(),
-		themes: [
-			{
-				name: 'github-dark',
-				bg: 'transparent',
-				fg: 'var(--code-punctuation)',
-				settings: [
-					{
-						scope: ['*'],
-						settings: {
-							foreground: '#fff'
-						}
-					},
-					{
-						scope: ['keyword', 'keyword.control', 'storage.type', 'storage.modifier'],
-						settings: {
-							foreground: 'var(--code-keyword)'
-						}
-					},
-					{
-						scope: ['string', 'string.quoted', 'string.template'],
-						settings: {
-							foreground: 'var(--code-string)'
-						}
-					},
-					{
-						scope: ['constant.numeric', 'constant.language', 'constant.character'],
-						settings: {
-							foreground: 'var(--code-number)'
-						}
-					},
-					{
-						scope: ['comment', 'comment.line', 'comment.block'],
-						settings: {
-							foreground: 'var(--code-comment)',
-							fontStyle: 'italic'
-						}
-					},
-					{
-						scope: ['entity.name.function', 'support.function'],
-						settings: {
-							foreground: 'var(--code-function)'
-						}
-					},
-					{
-						scope: [
-							'variable',
-							'variable.other',
-							'variable.parameter',
-							'support.variable'
-						],
-						settings: {
-							foreground: 'var(--code-variable)'
-						}
-					},
-					{
-						scope: ['operator', 'keyword.operator'],
-						settings: {
-							foreground: 'var(--code-operator)'
-						}
-					},
-					{
-						scope: ['punctuation'],
-						settings: {
-							foreground: 'var(--code-punctuation)'
-						}
-					},
-					{
-						scope: [
-							'entity.name.type',
-							'support.type',
-							'support.class',
-							'support.type.property-name',
-							'variable',
-							'meta.definition.variable.name',
-							'support.variable',
-							'entity.name.variable',
-							'constant.other.placeholder'
-						],
-						settings: {
-							foreground: 'var(--code-type)'
-						}
-					},
-					{
-						scope: [
-							'meta.tag',
-							'entity.name.tag',
-							'support.class',
-							'support.type',
-							'entity.name.type',
-							'entity.name.namespace',
-							'entity.other.attribute',
-							'entity.name.scope-resolution',
-							'entity.name.class',
-							'storage.type.numeric.go',
-							'storage.type.byte.go',
-							'storage.type.boolean.go',
-							'storage.type.string.go',
-							'storage.type.uintptr.go',
-							'storage.type.error.go',
-							'storage.type.rune.go',
-							'storage.type.cs',
-							'storage.type.generic.cs',
-							'storage.type.modifier.cs',
-							'storage.type.variable.cs',
-							'storage.type.annotation.java',
-							'storage.type.generic.java',
-							'storage.type.java',
-							'storage.type.object.array.java',
-							'storage.type.primitive.array.java',
-							'storage.type.primitive.java',
-							'storage.type.token.java',
-							'storage.type.groovy',
-							'storage.type.annotation.groovy',
-							'storage.type.parameters.groovy',
-							'storage.type.generic.groovy',
-							'storage.type.object.array.groovy',
-							'storage.type.primitive.array.groovy',
-							'storage.type.primitive.groovy'
-						],
-						settings: {
-							foreground: 'var(--code-tag)'
-						}
-					}
-				]
-			}
-		],
-		langs: [js, bash, css, jsonc, html, ts, md]
-	});
+	// // Using syncronous version to avoid loading/delay
+	// const highlighter = createHighlighterCoreSync({
+	// 	engine: createJavaScriptRegexEngine(),
+	// 	themes: [
+	// 		{
+	// 			name: 'github-dark',
+	// 			bg: 'transparent',
+	// 			fg: 'var(--code-punctuation)',
+	// 			settings: [
+	// 				{
+	// 					scope: ['*'],
+	// 					settings: {
+	// 						foreground: '#fff'
+	// 					}
+	// 				},
+	// 				{
+	// 					scope: ['keyword', 'keyword.control', 'storage.type', 'storage.modifier'],
+	// 					settings: {
+	// 						foreground: 'var(--code-keyword)'
+	// 					}
+	// 				},
+	// 				{
+	// 					scope: ['string', 'string.quoted', 'string.template'],
+	// 					settings: {
+	// 						foreground: 'var(--code-string)'
+	// 					}
+	// 				},
+	// 				{
+	// 					scope: ['constant.numeric', 'constant.language', 'constant.character'],
+	// 					settings: {
+	// 						foreground: 'var(--code-number)'
+	// 					}
+	// 				},
+	// 				{
+	// 					scope: ['comment', 'comment.line', 'comment.block'],
+	// 					settings: {
+	// 						foreground: 'var(--code-comment)',
+	// 						fontStyle: 'italic'
+	// 					}
+	// 				},
+	// 				{
+	// 					scope: ['entity.name.function', 'support.function'],
+	// 					settings: {
+	// 						foreground: 'var(--code-function)'
+	// 					}
+	// 				},
+	// 				{
+	// 					scope: [
+	// 						'variable',
+	// 						'variable.other',
+	// 						'variable.parameter',
+	// 						'support.variable'
+	// 					],
+	// 					settings: {
+	// 						foreground: 'var(--code-variable)'
+	// 					}
+	// 				},
+	// 				{
+	// 					scope: ['operator', 'keyword.operator'],
+	// 					settings: {
+	// 						foreground: 'var(--code-operator)'
+	// 					}
+	// 				},
+	// 				{
+	// 					scope: ['punctuation'],
+	// 					settings: {
+	// 						foreground: 'var(--code-punctuation)'
+	// 					}
+	// 				},
+	// 				{
+	// 					scope: [
+	// 						'entity.name.type',
+	// 						'support.type',
+	// 						'support.class',
+	// 						'support.type.property-name',
+	// 						'variable',
+	// 						'meta.definition.variable.name',
+	// 						'support.variable',
+	// 						'entity.name.variable',
+	// 						'constant.other.placeholder'
+	// 					],
+	// 					settings: {
+	// 						foreground: 'var(--code-type)'
+	// 					}
+	// 				},
+	// 				{
+	// 					scope: [
+	// 						'meta.tag',
+	// 						'entity.name.tag',
+	// 						'support.class',
+	// 						'support.type',
+	// 						'entity.name.type',
+	// 						'entity.name.namespace',
+	// 						'entity.other.attribute',
+	// 						'entity.name.scope-resolution',
+	// 						'entity.name.class',
+	// 						'storage.type.numeric.go',
+	// 						'storage.type.byte.go',
+	// 						'storage.type.boolean.go',
+	// 						'storage.type.string.go',
+	// 						'storage.type.uintptr.go',
+	// 						'storage.type.error.go',
+	// 						'storage.type.rune.go',
+	// 						'storage.type.cs',
+	// 						'storage.type.generic.cs',
+	// 						'storage.type.modifier.cs',
+	// 						'storage.type.variable.cs',
+	// 						'storage.type.annotation.java',
+	// 						'storage.type.generic.java',
+	// 						'storage.type.java',
+	// 						'storage.type.object.array.java',
+	// 						'storage.type.primitive.array.java',
+	// 						'storage.type.primitive.java',
+	// 						'storage.type.token.java',
+	// 						'storage.type.groovy',
+	// 						'storage.type.annotation.groovy',
+	// 						'storage.type.parameters.groovy',
+	// 						'storage.type.generic.groovy',
+	// 						'storage.type.object.array.groovy',
+	// 						'storage.type.primitive.array.groovy',
+	// 						'storage.type.primitive.groovy'
+	// 					],
+	// 					settings: {
+	// 						foreground: 'var(--code-tag)'
+	// 					}
+	// 				}
+	// 			]
+	// 		}
+	// 	],
+	// 	langs: [js, bash, css, jsonc, html, ts, md]
+	// });
 
 	// Add counter for generating unique IDs
 	let idCounter = 0;
@@ -167,8 +167,8 @@
 	let html_now = $state('');
 
 	const updateHighlighting = () => {
-		if (highlighter && typeof (highlighter as any).codeToHtml === 'function') {
-			html_now = (highlighter as any).codeToHtml(text, {
+		if ($highlighter && typeof ($highlighter as any).codeToHtml === 'function') {
+			html_now = ($highlighter as any).codeToHtml(text, {
 				lang,
 				theme: 'github-dark'
 			});

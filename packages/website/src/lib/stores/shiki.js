@@ -1,8 +1,13 @@
 import { writable } from 'svelte/store';
 import { createHighlighter } from 'shiki';
 import { createHighlighterCoreSync } from 'shiki/core'
-import js from '@shikijs/langs/javascript'
-import bash from '@shikijs/langs/bash'
+import js from '@shikijs/langs/javascript';
+import bash from '@shikijs/langs/bash';
+import css from '@shikijs/langs/css';
+import jsonc from '@shikijs/langs/jsonc';
+import html from '@shikijs/langs/html';
+import ts from '@shikijs/langs/typescript';
+import md from '@shikijs/langs/markdown';
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 
 export const highlighter = writable({});
@@ -251,7 +256,7 @@ const highlighterSync = createHighlighterCoreSync({
 
 		],
 	}],
-	langs: [js, bash]
+	langs: [js, bash, css, jsonc, html, ts, md]
 })
 
 highlighter.set(highlighterSync);
