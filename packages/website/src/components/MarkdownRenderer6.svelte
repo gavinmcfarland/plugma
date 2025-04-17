@@ -1,18 +1,16 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import { marked } from 'marked';
 
 	interface Props {
 		markdown?: string;
-		components?: Record<string>;
+		components?: Record<string, typeof import('svelte').SvelteComponent>;
 	}
 
 	let { markdown = '', components = {} }: Props = $props();
 
 	let structuredMarkdown: {
 		id: number;
-		component: string | null;
+		component: typeof import('svelte').SvelteComponent | string | null;
 		props: Record<string, any>;
 	}[] = $state([]);
 
@@ -38,7 +36,7 @@
 	};
 
 	function parseMarkdown(content: string) {
-		structuredMarkdown = [];
+		const newStructuredMarkdown = [];
 		uniqueId = 0;
 
 		const tokens = marked.lexer(content);
@@ -54,7 +52,7 @@
 
 					if (components[componentTag]) {
 						// Only add the anchor link if the heading depth is greater than 1
-						structuredMarkdown.push({
+						newStructuredMarkdown.push({
 							id,
 							component: components[componentTag],
 							props: {
@@ -74,7 +72,7 @@
 				</svg></a></span> ${content}`
 								: content;
 
-						structuredMarkdown.push({
+						newStructuredMarkdown.push({
 							id,
 							component: `h${token.depth}`,
 							props: {
@@ -88,7 +86,7 @@
 
 				case 'code': {
 					if (components['code']) {
-						structuredMarkdown.push({
+						newStructuredMarkdown.push({
 							id,
 							component: components['code'],
 							props: {
@@ -97,7 +95,7 @@
 							}
 						});
 					} else {
-						structuredMarkdown.push({
+						newStructuredMarkdown.push({
 							id,
 							component: 'pre',
 							props: {
@@ -115,7 +113,7 @@
 							(item: { text: string }) => `<li>${marked.parseInline(item.text)}</li>`
 						)
 						.join('');
-					structuredMarkdown.push({
+					newStructuredMarkdown.push({
 						id,
 						component: listTag,
 						props: { innerHTML: items }
@@ -146,7 +144,7 @@
 							.join(' ');
 
 						// Remove the extra line break and directly parse the content
-						structuredMarkdown.push({
+						newStructuredMarkdown.push({
 							id,
 							component: tagName,
 							props: {
@@ -157,7 +155,7 @@
 					} else {
 						// Fallback to treating as raw HTML if no matching HTML structure
 						const parsedContent = marked.parseInline(token.text);
-						structuredMarkdown.push({
+						newStructuredMarkdown.push({
 							id,
 							component: null,
 							props: { innerHTML: parsedContent }
@@ -169,7 +167,7 @@
 				case 'paragraph': {
 					const content = String(marked.parseInline(token.text)).trim();
 					if (content) {
-						structuredMarkdown.push({
+						newStructuredMarkdown.push({
 							id,
 							component: 'p',
 							props: { innerHTML: content }
@@ -181,7 +179,7 @@
 				case 'space': {
 					// Skip 'space' tokens with two or more newlines
 					if (!token.raw.includes('\n\n')) {
-						structuredMarkdown.push({
+						newStructuredMarkdown.push({
 							id,
 							component: 'br',
 							props: {}
@@ -194,7 +192,7 @@
 					const tag = tokenToTagMap[token.type] || 'div';
 					const content = marked.parser([token]);
 
-					structuredMarkdown.push({
+					newStructuredMarkdown.push({
 						id,
 						component: tag,
 						props: { innerHTML: content }
@@ -203,11 +201,13 @@
 				}
 			}
 		}
+
+		return newStructuredMarkdown;
 	}
 
-	// Reactive statement that calls parseMarkdown when `markdown` changes
-	run(() => {
-		parseMarkdown(markdown);
+	// Replace the run() with $effect
+	$effect(() => {
+		structuredMarkdown = parseMarkdown(markdown);
 	});
 </script>
 
@@ -219,7 +219,7 @@
 		<!-- {console.log(props)} -->
 		{@html `<${component} ${props.attributes} id=${props.id}>${props.innerHTML}</${component}>`}
 	{:else}
-		{@const Component = component}
+		{@const Component = component as typeof import('svelte').SvelteComponent}
 		<Component {...props} />
 	{/if}
 {/each}
