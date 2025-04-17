@@ -23,42 +23,50 @@
 </script>
 
 <!-- Navigation menu -->
-<div class="md:w-60 shrink-0">
-	<nav class="md:sticky top-[143px] {isOpen ? 'mobile-menu-open' : 'mobile-menu-closed'}">
-		<div class="nav-content">
-			<h3 class="mb-2">Guides</h3>
-			<ul>
-				{#each navItems as { slug: itemSlug, title }}
-					<li>
-						<a
-							href={`/docs/${itemSlug}`}
-							onclick={onNavigate}
-							class="hover:underline {slug === itemSlug ? 'active' : ''}"
-						>
-							{title}
-						</a>
-					</li>
-				{/each}
-			</ul>
-
-			{#each folders as folder}
-				<h3 class="mb-2" style="text-transform: capitalize">{folder.name}</h3>
-				{#each folder.items as item}
-					<ul>
+<div
+	class="skrim {isOpen ? 'mobile-menu-open' : 'mobile-menu-closed'}"
+	onclick={onNavigate}
+	onkeydown={(e) => e.key === 'Escape'}
+	role="dialog"
+	tabindex="0"
+>
+	<div class="md:w-60 shrink-0">
+		<nav class="md:sticky top-[143px] menu">
+			<div class="nav-content">
+				<h3 class="mb-2">Guides</h3>
+				<ul>
+					{#each navItems as { slug: itemSlug, title }}
 						<li>
 							<a
-								href={`/docs/${folder.name}/${item.slug}`}
+								href={`/docs/${itemSlug}`}
 								onclick={onNavigate}
-								class="hover:underline {slug === item.slug ? 'active' : ''}"
+								class="hover:underline {slug === itemSlug ? 'active' : ''}"
 							>
-								{item.title}
+								{title}
 							</a>
 						</li>
-					</ul>
+					{/each}
+				</ul>
+
+				{#each folders as folder}
+					<h3 class="mb-2" style="text-transform: capitalize">{folder.name}</h3>
+					{#each folder.items as item}
+						<ul>
+							<li>
+								<a
+									href={`/docs/${folder.name}/${item.slug}`}
+									onclick={onNavigate}
+									class="hover:underline {slug === item.slug ? 'active' : ''}"
+								>
+									{item.title}
+								</a>
+							</li>
+						</ul>
+					{/each}
 				{/each}
-			{/each}
-		</div>
-	</nav>
+			</div>
+		</nav>
+	</div>
 </div>
 
 <style>
@@ -78,14 +86,24 @@
 	}
 
 	@media (max-width: 768px) {
-		.mobile-menu-closed .nav-content {
+		.skrim {
+			/* backdrop-filter: blur(30px); */
+			width: 100%;
+			height: 100%;
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background-color: rgba(20, 20, 20, 0.9);
+			z-index: 100;
+		}
+		.mobile-menu-closed {
 			display: none;
 		}
 
-		.mobile-menu-open {
-			z-index: 40;
+		.mobile-menu-open .menu {
 			overflow-y: auto;
-			margin-bottom: 2rem;
 			z-index: 100;
 			position: fixed;
 			top: 0;

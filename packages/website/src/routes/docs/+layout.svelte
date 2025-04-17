@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import Folder from '@/components/Folder.svelte';
 	import Icon from '@/components/Icon.svelte';
@@ -11,6 +12,8 @@
 	let prevItem: { slug: string; title: string } | null = $state(null);
 	let nextItem: { slug: string; title: string } | null = $state(null);
 	let isMenuOpen = $state(false);
+
+	let navContainer: HTMLDivElement;
 
 	$effect(() => {
 		const { url } = page;
@@ -27,13 +30,36 @@
 	function toggleMenu() {
 		isMenuOpen = !isMenuOpen;
 	}
+
+	// Function to close the menu if the click is outside
+	function handleClickOutside(event: MouseEvent) {
+		// toggleMenu();
+	}
+
+	// Add event listener when the component is mounted
+	onMount(() => {
+		document.addEventListener('click', handleClickOutside);
+
+		return () => {
+			// Clean up the event listener when the component is destroyed
+			document.removeEventListener('click', handleClickOutside);
+		};
+	});
 </script>
 
 <div class="docs-layout">
 	<div class="md:hidden flex justify-between items-center px-4 py-3 border-b">
-		<DocsMobileMenuButton onToggle={toggleMenu} isOpen={isMenuOpen} />
+		<div data-mobile-menu>
+			<DocsMobileMenuButton onToggle={toggleMenu} isOpen={isMenuOpen} />
+		</div>
 	</div>
-	<div>
+	<div
+		bind:this={navContainer}
+		onclick={handleClickOutside}
+		onkeydown={(e) => e.key === 'Escape' && (isMenuOpen = false)}
+		role="dialog"
+		tabindex="0"
+	>
 		<div class="border-t-0 mt-8 md:mt-12 mb-16 px-4">
 			<div class="max-w-4xl mx-auto md:flex gap-6">
 				<DocsNavigation
