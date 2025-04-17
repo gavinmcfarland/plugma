@@ -39,7 +39,6 @@
 		"@shikijs/langs": "^3.2.2",
 		"@vercel/speed-insights": "^1.0.14",
 		"dompurify": "^3.2.5",
-		"javascript": "link:@shikijs/langs/javascript",
 		"markdown-it-attrs": "^4.3.1",
 		"nanoid": "^5.1.5",
 		"shiki": "^3.2.2"
