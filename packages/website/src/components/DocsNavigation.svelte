@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
-
-	const {
+	import { onMount } from 'svelte';
+	import { afterNavigate } from '$app/navigation';
+	let {
 		navItems,
 		folders,
 		isOpen = false,
@@ -20,13 +21,25 @@
 		// Ensure slug is never undefined by providing a default empty string
 		slug = url.pathname.split('/').pop() ?? '';
 	});
+
+	onMount(() => {
+		const unsubscribe = afterNavigate(() => {
+			onNavigate();
+		});
+
+		return unsubscribe;
+	});
 </script>
 
 <!-- Navigation menu -->
 <div
 	class="skrim {isOpen ? 'mobile-menu-open' : 'mobile-menu-closed'}"
-	onclick={onNavigate}
 	onkeydown={(e) => e.key === 'Escape'}
+	onclick={(e) => {
+		if (e.target === e.currentTarget) {
+			onNavigate();
+		}
+	}}
 	role="dialog"
 	tabindex="0"
 >
@@ -39,7 +52,6 @@
 						<li>
 							<a
 								href={`/docs/${itemSlug}`}
-								onclick={onNavigate}
 								class="hover:underline {slug === itemSlug ? 'active' : ''}"
 							>
 								{title}
@@ -55,7 +67,6 @@
 							<li>
 								<a
 									href={`/docs/${folder.name}/${item.slug}`}
-									onclick={onNavigate}
 									class="hover:underline {slug === item.slug ? 'active' : ''}"
 								>
 									{item.title}
@@ -109,7 +120,8 @@
 			top: 0;
 			left: 0;
 			bottom: 0;
-			padding: 24px;
+			padding: 24px 16px;
+			padding-top: 106px;
 			background-color: var(--color-bg);
 		}
 

@@ -8,13 +8,13 @@
 </script>
 
 <button
-	class="md:hidden z-50 flex items-center gap-2 h-6"
+	class="md:hidden z-50 flex items-center gap-2 text-sm opacity-70 hover:opacity-100"
 	onclick={() => onToggle()}
 	aria-label="Toggle navigation menu"
 >
 	{#if isOpen}
-		<Icon size={20} svg="close"></Icon>
+		<Icon size={18} svg="close"></Icon>
 	{:else}
-		<Icon size={20} svg="menu"></Icon> Menu
+		<Icon size={18} svg="menu"></Icon> Menu
 	{/if}
 </button>
