@@ -156,7 +156,7 @@ const startViteServer = async (
 			logLevel: (options.debug ? 'info' : 'error') as LogLevel,
 		}
 
-		const userUIConfig = await loadConfig('vite.config.ui', options)
+		const userUIConfig = await loadConfig('vite.config.ui', options, 'ui')
 
 		// Configure Vite server with caching workarounds
 		const server = await createServer(

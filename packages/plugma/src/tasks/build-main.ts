@@ -151,7 +151,7 @@ export const BuildMainTask = task(
 			logger.debug(`Building main script from: ${mainPath}`)
 
 			const viteConfigs = createViteConfigs(options, files)
-			const userMainConfig = await loadConfig('vite.config.main', options)
+			const userMainConfig = await loadConfig('vite.config.main', options, 'main')
 			const configOptions = { options, viteConfigs, userMainConfig }
 
 			if (options.watch || ['dev', 'preview'].includes(options.command ?? '')) {

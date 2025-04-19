@@ -152,7 +152,7 @@ export const BuildUiTask = task(
 			}
 
 			const viteConfigs = createViteConfigs(options, currentFiles)
-			const userUIConfig = await loadConfig('vite.config.ui', options)
+			const userUIConfig = await loadConfig('vite.config.ui', options, 'ui')
 			const configOptions = { options, viteConfigs, userUIConfig }
 
 			if (options.command === 'build' && options.watch) {
