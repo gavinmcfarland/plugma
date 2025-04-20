@@ -152,7 +152,8 @@
 		<MarkdownRenderer6
 			markdown={source}
 			components={{
-				code: Code2
+				code: Code2,
+				heading: Heading
 			}}
 		/>
 	</div>
