@@ -17,13 +17,34 @@
 
 	$effect(() => {
 		const { url } = page;
-		const slug = url.pathname.split('/').pop() ?? '';
-		currentIndex = data.navItems.findIndex((item) => item.slug === slug);
+		const fullSlug = url.pathname.replace('/docs/', '');
+
+		// Flatten all items from all folders into a single array
+		const allItems = data.folders.reduce((acc, folder) => {
+			return acc.concat(
+				folder.items.map((item) => ({
+					...item,
+					folderName: folder.name
+				}))
+			);
+		}, []);
+
+		// Find the current item index in the flattened array
+		const currentIndex = allItems.findIndex((item) => {
+			// For index folder items, compare just the slug
+			if (item.folderName === 'index') {
+				return item.slug === fullSlug;
+			}
+			// For other folders, compare the full path (folder/slug)
+			return `${item.folderName}/${item.slug.split('/').pop()}` === fullSlug;
+		});
 
 		if (currentIndex !== -1) {
-			prevItem = currentIndex > 0 ? data.navItems[currentIndex - 1] : null;
-			nextItem =
-				currentIndex < data.navItems.length - 1 ? data.navItems[currentIndex + 1] : null;
+			prevItem = currentIndex > 0 ? allItems[currentIndex - 1] : null;
+			nextItem = currentIndex < allItems.length - 1 ? allItems[currentIndex + 1] : null;
+		} else {
+			prevItem = null;
+			nextItem = null;
 		}
 	});
 
@@ -61,7 +82,7 @@
 		tabindex="0"
 	>
 		<div class="border-t-0 mt-8 md:mt-12 mb-16 px-4">
-			<div class="max-w-4xl mx-auto md:flex gap-6">
+			<div class="max-w-5xl mx-auto md:flex gap-6">
 				<DocsNavigation
 					navItems={data.navItems}
 					folders={data.folders}
@@ -69,7 +90,7 @@
 					onNavigate={() => (isMenuOpen = false)}
 				/>
 
-				<div class="grow shrink main-content min-w-0">
+				<div class="shrink main-content min-w-0">
 					{@render children?.()}
 
 					<!-- Add next and previous navigation links -->

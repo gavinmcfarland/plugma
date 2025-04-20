@@ -6,7 +6,7 @@ export const prerender = true;
 export async function load(data: { params: Record<string, string> }) {
 	const contentDir = path.join(process.cwd(), 'content/docs');
 
-	function getMarkdownFiles(dir: string) {
+	function getMarkdownFiles(dir: string, parentPath: string = '') {
 		const items: any[] = [];
 		const folders: any[] = [];
 
@@ -22,7 +22,15 @@ export async function load(data: { params: Record<string, string> }) {
 				const order = match ? parseInt(match[1], 10) : null;
 				const folderName = match ? match[2] : file;
 
-				const folderFiles = getMarkdownFiles(fullPath);
+				// Special handling for 'index' folder
+				const newParentPath =
+					folderName === 'index'
+						? ''
+						: parentPath
+							? `${parentPath}/${folderName}`
+							: folderName;
+
+				const folderFiles = getMarkdownFiles(fullPath, newParentPath);
 				if (folderFiles.items.length > 0 || folderFiles.folders.length > 0) {
 					folders.push({
 						name: folderName,
@@ -34,11 +42,12 @@ export async function load(data: { params: Record<string, string> }) {
 				// Handle markdown file
 				const match = file.match(/^(\d+)-(.+)\.md$/);
 				const order = match ? parseInt(match[1], 10) : null;
-				const slug = match ? match[2] : file.replace('.md', '');
+				const fileName = match ? match[2] : file.replace('.md', '');
+				const slug = parentPath ? `${parentPath}/${fileName}` : fileName;
 
 				const fileContent = fs.readFileSync(fullPath, 'utf-8');
 				const titleMatch = fileContent.match(/^# (.+)$/m);
-				const title = titleMatch ? titleMatch[1] : slug.replace(/-/g, ' ');
+				const title = titleMatch ? titleMatch[1] : fileName.replace(/-/g, ' ');
 
 				items.push({
 					order: order ?? Infinity,

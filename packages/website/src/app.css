@@ -140,14 +140,6 @@ strong {
 	font-weight: 600;
 }
 
-.main-content h2 {
-	@apply mt-8 mb-4;
-}
-
-.main-content h3 {
-	@apply text-lg font-normal mt-9 mb-5;
-}
-
 h3,
 h5 {
 	@apply text-base font-medium mt-6 mb-4;
@@ -195,6 +187,18 @@ body {
 }
 
 .main-content {
+	h1 {
+		@apply text-3xl font-medium mb-9 capitalize;
+	}
+
+	h2 {
+		@apply mt-8 mb-4 capitalize;
+	}
+
+	h3 {
+		@apply text-lg font-normal mt-9 mb-5 capitalize;
+	}
+
 	ol {
 		list-style: none;
 		counter-reset: my-awesome-counter;
@@ -219,8 +223,31 @@ body {
 	ul li::before {
 		content: '-';
 		margin-left: -24px;
-		display: inline-block;
+		position: absolute;
+		display: block;
 		min-width: 24px;
+	}
+
+	.blank-list {
+		margin-left: 0;
+	}
+
+	.blank-list li {
+		margin-bottom: 4px;
+	}
+
+	.blank-list li::before {
+		display: none;
+	}
+
+	.blank-list li {
+		margin-left: 0;
+	}
+
+	.active {
+		color: var(--color-primary);
+		font-weight: 500;
+		text-decoration: underline;
 	}
 }
 
@@ -639,4 +666,8 @@ blockquote.info {
 		color: #a5d6ff;
 		font-style: underline;
 	}
+}
+
+.blank-list a {
+	transition: color 0.2s ease;
 }

@@ -1,41 +1,42 @@
 import fs from 'fs';
 import path from 'path';
-import { redirect } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 
 export async function load() {
 	// Define the path to the content folder
 	const contentDir = path.join(process.cwd(), 'content/docs');
 
-	const files = fs.readdirSync(contentDir);
+	// Helper function to get first markdown file without number prefix
+	const getFirstMarkdownFile = (directory: string) => {
+		if (!fs.existsSync(directory)) return null;
+		const files = fs.readdirSync(directory);
+		const markdownFiles = files.filter((file) => file.endsWith('.md'));
+		if (markdownFiles.length === 0) return null;
+		return markdownFiles[0].replace(/^\d+-/, '').replace('.md', '');
+	};
 
-	// Filter for Markdown files
-	const markdownFiles = files.filter((file) => file.endsWith('.md'));
+	// Helper function to find index directory (including numbered prefixes)
+	const findIndexDirectory = (baseDir: string) => {
+		if (!fs.existsSync(baseDir)) return null;
+		const items = fs.readdirSync(baseDir);
+		const indexDirs = items.filter((item) => {
+			const fullPath = path.join(baseDir, item);
+			return fs.statSync(fullPath).isDirectory() && /^(\d+-)?index$/.test(item);
+		});
+		return indexDirs.length > 0 ? path.join(baseDir, indexDirs[0]) : null;
+	};
 
-	// If there are any Markdown files, redirect to the first one
-	if (markdownFiles.length > 0) {
-		let firstSlug = markdownFiles[0].replace('.md', '');
-		firstSlug = firstSlug.replace(/^\d+-/, '');
+	// Check index directory first, then main directory
+	const indexDir = findIndexDirectory(contentDir);
+	const indexSlug = indexDir ? getFirstMarkdownFile(indexDir) : null;
+	const mainSlug = getFirstMarkdownFile(contentDir);
 
-		redirect(307, `/docs/${firstSlug}`);
-	} else {
-		// If no Markdown files exist, return a 404 error
-		return {
-			status: 404,
-			error: {
-				message: 'No documentation pages available'
-			}
-		};
+	if (indexSlug) {
+		redirect(307, `/docs/${indexSlug}`);
+	} else if (mainSlug) {
+		redirect(307, `/docs/${mainSlug}`);
 	}
 
-	// try {
-	// 	// Read all files in the content directory
-
-	// } catch (err) {
-	// 	return {
-	// 		status: 500,
-	// 		error: {
-	// 			message: 'Error reading documentation files'
-	// 		}
-	// 	};
-	// }
+	// If no Markdown files exist in either location, return a 404 error
+	throw error(404, 'Page not found');
 }

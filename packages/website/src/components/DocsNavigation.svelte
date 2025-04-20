@@ -46,8 +46,7 @@
 	<div class="md:w-60 shrink-0">
 		<nav class="md:sticky top-[143px] menu">
 			<div class="nav-content">
-				<h3 class="mb-2">Guides</h3>
-				<ul>
+				<!-- <ul>
 					{#each navItems as { slug: itemSlug, title }}
 						<li>
 							<a
@@ -58,15 +57,17 @@
 							</a>
 						</li>
 					{/each}
-				</ul>
+				</ul> -->
 
 				{#each folders as folder}
-					<h3 class="mb-2" style="text-transform: capitalize">{folder.name}</h3>
+					{#if folder.name !== 'index'}
+						<h3 class="mb-2" style="text-transform: capitalize">{folder.name}</h3>
+					{/if}
 					{#each folder.items as item}
 						<ul>
 							<li>
 								<a
-									href={`/docs/${folder.name}/${item.slug}`}
+									href={`/docs/${item.slug}`}
 									class="hover:underline {slug === item.slug ? 'active' : ''}"
 								>
 									{item.title}
