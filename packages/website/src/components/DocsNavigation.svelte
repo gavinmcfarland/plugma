@@ -43,7 +43,7 @@
 	role="dialog"
 	tabindex="0"
 >
-	<div class="md:w-60 shrink-0">
+	<div class="md:w-64 shrink-0">
 		<nav class="md:sticky top-[143px] menu">
 			<div class="nav-content">
 				<!-- <ul>

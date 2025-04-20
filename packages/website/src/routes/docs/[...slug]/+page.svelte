@@ -81,9 +81,9 @@
 </svelte:head>
 
 <div class="md:flex gap-6 relative">
-	<div class="w-[220px] grow-0 shrink-0 md:order-2 mb-8">
+	<div class="md:w-[220px] grow-0 shrink-0 md:order-2 mb-8">
 		{#if data.headings && data.headings.length > 0}
-			<div class="md:fixed md:left-[40dw]">
+			<div class="md:fixed md:left-[40dw] md:w-[220px]">
 				<p class="text-sm mt-0 font-semibold" style="margin-top: 0px">On this page</p>
 
 				<ul class="blank-list">

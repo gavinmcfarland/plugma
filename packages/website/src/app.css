@@ -153,7 +153,7 @@ code:not(pre code) {
 	/* background-color: var(--color-bg-secondary); */
 	color: var(--color-text);
 	border: 1px solid var(--color-border);
-	@apply rounded-sm px-1 py-[1px];
+	@apply rounded-sm px-1 py-[2px];
 	background-color: hsl(var(--color-bg-hsl) / 0.8);
 }
 
@@ -176,6 +176,7 @@ html {
 }
 
 html {
+	line-height: 1.6;
 	scrollbar-width: thin;
 	scrollbar-color: var(--color-bg-secondary) transparent;
 }
@@ -248,6 +249,14 @@ body {
 		color: var(--color-primary);
 		font-weight: 500;
 		text-decoration: underline;
+	}
+
+	kbd {
+		color: var(--color-text);
+		@apply rounded-sm px-1 py-[2px];
+		background-color: hsl(var(--color-info-hsl) / 0.2);
+		font-weight: normal;
+		font-size: 0.87em;
 	}
 }
 

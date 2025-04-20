@@ -82,7 +82,7 @@
 		tabindex="0"
 	>
 		<div class="border-t-0 mt-8 md:mt-12 mb-16 px-4">
-			<div class="max-w-5xl mx-auto md:flex gap-6">
+			<div class="max-w-6xl mx-auto md:flex gap-6">
 				<DocsNavigation
 					navItems={data.navItems}
 					folders={data.folders}

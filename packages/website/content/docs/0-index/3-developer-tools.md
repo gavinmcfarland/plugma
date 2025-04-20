@@ -4,7 +4,7 @@ Plugma comes with several developer tools to make developing plugins easier, wit
 
 ## Developer toolbar
 
-Open the developer toolbar by clicking into the plugin window and pressing `Opt + Cmd + J`.
+The developer tool bar allows you to open the browser preview, minimise the plugin window and clear `clientStorage` and `pluginData`. You can open the developer toolbar by clicking into the plugin window and pressing <kbd>Opt</kbd> + <kbd>Cmd</kbd> + <kbd>J</kbd>.
 
 ##### Websockets URL button
 

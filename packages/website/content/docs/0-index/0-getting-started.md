@@ -1,12 +1,12 @@
 # Getting started
 
-Plugma is a powerful command-line interface designed to streamline your development workflow. It makes it easier to create, build, and manage your plugins.
+Plugma is a powerful toolkit designed to streamline your development workflow. It makes it easier to create, build, and test your plugins.
 
-## Prerequisites
+<!-- ## Prerequisites
 
-Before you start, ensure you have [Node.js](https://nodejs.org/en) and the [Figma desktop app](https://www.figma.com/downloads/) installed. These tools are essential for developing plugins.
+Before you start, ensure you have [Node.js](https://nodejs.org/en) and the [Figma desktop app](https://www.figma.com/downloads/) installed. These tools are essential for developing plugins. -->
 
-## Start from a template
+## Starting from a template
 
 To create a plugin from a template, run the following command in your terminal and follow the prompts.
 
@@ -14,11 +14,7 @@ To create a plugin from a template, run the following command in your terminal a
 npm create plugma@latest
 ```
 
-## Migrate an existing plugin
-
-If you already have a Figma plugin, you can follow our [migration guide](./migrating-an-existing-plugin) to convert it to use Plugma.
-
-## Install and import
+### Install and import
 
 Change to the plugin directory and install the dependencies.
 
@@ -33,7 +29,7 @@ Run the following to watch for changes while developing.
 npm run dev
 ```
 
-### Import the plugin
+## Importing the plugin
 
 After you've run the `dev`, `build` or `preview` command, a `dist` directory will be created where you can import the plugin from the `manifest.json` file.
 
@@ -43,10 +39,14 @@ After you've run the `dev`, `build` or `preview` command, a `dist` directory wil
 
 Open the Figma desktop app, go to the Actions menu, search for your plugin, and select it. Your code changes will update instantly in the UI.
 
-## Before publishing
+### Before publishing
 
 Before publishing your plugin, make sure to create a build. If not, it will still point to the dev server and won't work properly for users.
 
 ```bash
 npm run build
 ```
+
+## Migrating an existing plugin
+
+If you already have a Figma plugin, you can follow our [migration guide](./migrating-an-existing-plugin) to convert it to use Plugma.
