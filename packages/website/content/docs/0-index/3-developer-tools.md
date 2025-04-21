@@ -1,6 +1,6 @@
 # Developer tools
 
-Plugma comes with several developer tools to make developing plugins easier, with more coming soon.
+Plugma comes with several tools to make developing plugins easier, with more coming soon.
 
 ## Developer toolbar
 
