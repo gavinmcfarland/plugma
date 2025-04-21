@@ -24,12 +24,12 @@
 
 	let currentHeading: HTMLElement | null = $state(null);
 
-	function logFirstH2InView() {
-		const isInViewport = (element) => {
-			let threashold = 100;
+	function trackVisibleHeading() {
+		const isInViewport = (element: HTMLElement) => {
+			let threshold = 100;
 			const rect = element.getBoundingClientRect();
 			return (
-				rect.top >= threashold &&
+				rect.top >= threshold &&
 				rect.left >= 0 &&
 				rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
 				rect.right <= (window.innerWidth || document.documentElement.clientWidth)
@@ -37,12 +37,12 @@
 		};
 
 		const handleScroll = () => {
-			const h2Elements = document.querySelectorAll('h2');
+			const headingElements = document.querySelectorAll('h1, h2');
 			let found = false;
 
-			for (let i = 0; i < h2Elements.length; i++) {
-				if (isInViewport(h2Elements[i])) {
-					currentHeading = h2Elements[i];
+			for (let i = 0; i < headingElements.length; i++) {
+				if (isInViewport(headingElements[i] as HTMLElement)) {
+					currentHeading = headingElements[i] as HTMLElement;
 					found = true;
 					break;
 				}
@@ -70,7 +70,7 @@
 		// Reset current heading when data changes
 		currentHeading = null;
 		// Re-run the heading detection
-		const cleanup = logFirstH2InView();
+		const cleanup = trackVisibleHeading();
 		return cleanup;
 	});
 </script>

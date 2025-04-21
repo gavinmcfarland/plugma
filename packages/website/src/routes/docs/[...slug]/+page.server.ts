@@ -73,23 +73,54 @@ export async function load({ params }) {
 		const fileContent = fs.readFileSync(filePath, 'utf-8');
 		const htmlContent = fileContent;
 
-		// Extract title and h2 headings
-		const titleMatch = fileContent.match(/^#\s+(.*)/);
-		const title = titleMatch ? titleMatch[1] : 'Untitled';
+		// Extract title from first h1 that's not in a code block
+		const lines = fileContent.split('\n');
+		let inCodeBlock = false;
+		let title = 'Untitled';
 
-		// Extract h2 headings and create anchor links
-		const h2Matches = fileContent.matchAll(/^##\s+(.*)/gm);
-		const headings = Array.from(h2Matches).map((match) => {
-			const headingText = match[1];
-			// Convert heading to URL-friendly anchor
-			const anchor = headingText
-				.toLowerCase()
-				.replace(/[^\w\s-]/g, '')
-				.replace(/\s+/g, '-');
-			return {
-				text: headingText,
-				anchor: `#${anchor}`
-			};
+		for (const line of lines) {
+			if (line.trim().startsWith('```')) {
+				inCodeBlock = !inCodeBlock;
+				continue;
+			}
+
+			if (!inCodeBlock) {
+				const titleMatch = line.match(/^#\s+(.*)/);
+				if (titleMatch) {
+					title = titleMatch[1];
+					break;
+				}
+			}
+		}
+
+		// Extract h1 and h2 headings and create anchor links, ignoring those in code blocks
+		const headings: Array<{ text: string; anchor: string; level: number }> = [];
+		inCodeBlock = false;
+
+		lines.forEach((line) => {
+			if (line.trim().startsWith('```')) {
+				inCodeBlock = !inCodeBlock;
+				return;
+			}
+
+			if (!inCodeBlock) {
+				const headingMatch = line.match(/^(#{1,2})\s+(.*)/);
+				if (headingMatch) {
+					const level = headingMatch[1].length; // # = 1, ## = 2
+					const headingText = headingMatch[2];
+					// Convert heading to URL-friendly anchor
+					const anchor = headingText
+						.toLowerCase()
+						.replace(/[^\w\s-]/g, '')
+						.replace(/\s+/g, '-');
+
+					headings.push({
+						text: headingText,
+						anchor: `#${anchor}`,
+						level
+					});
+				}
+			}
 		});
 
 		return {
