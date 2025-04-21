@@ -25,3 +25,7 @@ Specifying a custom mode allows for tailored environment setups, such as testing
 # .env.testing.local
 VITE_API_KEY=123456789
 ```
+
+## Referencing environment variables
+
+To reference environment variables in your main code, `use process.env.SOME_KEY`. For variables used in the `ui` code, use `import.meta.env.VITE_SOME_KEY`. Note that UI environment variables must begin with `VITE_`. This is to prevent accidentally leaking env variables to the browser client.
