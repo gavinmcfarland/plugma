@@ -1,10 +1,10 @@
 # Testing plugins
 
-Testing is an important part of plugin development. Traditionally, this can be hard to accomplish. However, with Plugma, you can test your plugin using various tools.
+Testing is an important part of plugin development. Traditionally, this can be hard to accomplish. However, with Plugma makes this easier by enabling certain features.
 
-<blockquote class="warning">
-This is a work in progress and the implementation may change. You can also test the UI end-to-end using Playwright by running `npm init playwright@latest`, following the instructions and making sure the dev server is running with websockets enabled before running any tests.
-</blockquote>
+## Using console.log()
+
+## Using Vitest and Playwright
 
 ## Unit testing the main code
 
@@ -34,22 +34,6 @@ test('creates a rectangle with specific color', async () => {
 });
 ```
 
-### Running tests
-
-First, start the dev server in one terminal.
-
-```bash
-npm run dev
-```
-
-Then, in another terminal, run:
-
-```bash
-npm run test
-```
-
-Once the plugin is open the test runner will connect to the plugin and execute all `.test.ts` or `.test.js` files.
-
 <blockquote class="info">
 The plugin must be running in the Figma desktop app for tests to run.
 </blockquote>
@@ -69,10 +53,6 @@ function launchPlugin({
     switchBack: boolean = false
 }) : Promise<void>;
 ```
-
-### Further documentation
-
-For more options and documentation see the [Vitest](https://vitest.dev/guide/) site.
 
 <!-- ## End-to-End UI Testing
 
