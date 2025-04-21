@@ -1,4 +1,4 @@
-# Bundling your Plugin
+# Bundling with Vite
 
 Plugma uses Vite to bundle both your plugin's main code and UI code. Bundling is the process of combining multiple files and dependencies into optimised, production-ready files. This guide explains how to configure the bundling process to suit your plugin's needs.
 
