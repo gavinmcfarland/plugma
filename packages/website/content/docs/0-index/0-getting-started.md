@@ -14,7 +14,7 @@ To create a plugin from a template, run the following command in your terminal a
 npm create plugma@latest
 ```
 
-### Install and import
+### Installing Plugma
 
 Change to the plugin directory and install the dependencies.
 
@@ -29,7 +29,7 @@ Run the following to watch for changes while developing.
 npm run dev
 ```
 
-## Importing the plugin
+### Importing the plugin
 
 After you've run the `dev`, `build` or `preview` command, a `dist` directory will be created where you can import the plugin from the `manifest.json` file.
 
@@ -39,7 +39,7 @@ After you've run the `dev`, `build` or `preview` command, a `dist` directory wil
 
 Open the Figma desktop app, go to the Actions menu, search for your plugin, and select it. Your code changes will update instantly in the UI.
 
-### Before publishing
+## Before publishing
 
 Before publishing your plugin, make sure to create a build. If not, it will still point to the dev server and won't work properly for users.
 
