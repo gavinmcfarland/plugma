@@ -3,7 +3,7 @@
 Plugma enables your plugin to run in the browser during development by using WebSockets for two-way communication between Figma and the plugin UI. For the browser preview to work, WebSockets must be enabled.
 
 <blockquote class="warning">
-Due to a current limitation, messages from the main thread can be missed if the plugin runs before the browser preview is open. To work around this, wait for a “ready” message from the UI before sending messages.
+If the plugin runs before the browser preview is open, any messages sent from the main thread at that time might be missed. To prevent this, wait for a “ready” message from the UI before sending messages.
 </blockquote>
 
 ## Browser Testing
