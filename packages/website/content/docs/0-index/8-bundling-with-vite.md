@@ -24,7 +24,7 @@ Alternative you can configure vite to use seperate files for `main` and `ui`.
 - `vite.config.ui.js` - For UI code configuration
 - `vite.config.main.js` - For main process configuration
 
-## Environment-Specific Configuration
+## Environment-Specific
 
 You can set different bundling options based on the environment (development, production, testing) using the `mode` parameter:
 
@@ -40,7 +40,7 @@ export default defineConfig(({ mode, context }) => (
 }));
 ```
 
-## Customizing the UI Template
+## Customising the UI Template
 
 By default, Plugma provides an HTML template for your UI. You can override this by creating an `index.html` file in your project root:
 

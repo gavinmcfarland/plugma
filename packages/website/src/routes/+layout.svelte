@@ -31,13 +31,13 @@
 <div class="app">
 	<!-- <Header /> -->
 
-	<div class="sticky top-0 z-50">
+	<div class="fixed top-0 z-50 w-full">
 		<Banner>
 			<p>Previewing the next release of Plugma</p>
 		</Banner>
 
-		<div class="navbar p-4 pr-5 flex justify-between border-b">
-			<nav class="max-w-7xl mx-auto flex grow justify-between">
+		<div class="navbar py-4 px-6 flex justify-between border-b">
+			<nav class="max-w-[1400px] mx-auto flex grow justify-between">
 				<div class="flex">
 					<a href="/" class="items-center flex gap-3">
 						<Icon svg="plug-filled" size={20} strokeWidth={1.5} />
@@ -58,7 +58,7 @@
 		</div>
 	</div>
 
-	<main class="grow">
+	<main class="grow mt-[100px]">
 		{@render children?.()}
 	</main>
 

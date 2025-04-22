@@ -69,7 +69,7 @@
 </script>
 
 <div class="docs-layout">
-	<div class="md:hidden flex justify-between items-center px-4 py-3 border-b">
+	<div class="md:hidden flex justify-between items-center px-6 py-3 border-b">
 		<div data-mobile-menu>
 			<DocsMobileMenuButton onToggle={toggleMenu} isOpen={isMenuOpen} />
 		</div>
@@ -81,7 +81,7 @@
 		role="dialog"
 		tabindex="0"
 	>
-		<div class="border-t-0 mt-8 md:mt-12 mb-16 px-4">
+		<div class="border-t-0 mt-8 md:mt-8 mb-16 px-6">
 			<div class="max-w-6xl mx-auto md:flex gap-6">
 				<DocsNavigation
 					navItems={data.navItems}

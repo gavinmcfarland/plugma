@@ -43,8 +43,8 @@
 	role="dialog"
 	tabindex="0"
 >
-	<div class="md:w-64 shrink-0">
-		<nav class="md:sticky top-[143px] menu">
+	<div class="md:w-[240px] shrink-0">
+		<nav class="md:fixed top-[132px] menu">
 			<div class="nav-content">
 				<!-- <ul>
 					{#each navItems as { slug: itemSlug, title }}
@@ -107,7 +107,7 @@
 			left: 0;
 			right: 0;
 			bottom: 0;
-			background-color: rgba(20, 20, 20, 0.9);
+			background-color: hsl(var(--color-bg-hsl) / 0.9);
 			z-index: 100;
 		}
 		.mobile-menu-closed {
@@ -115,15 +115,16 @@
 		}
 
 		.mobile-menu-open .menu {
+			width: 300px;
 			overflow-y: auto;
 			z-index: 100;
 			position: fixed;
 			top: 0;
 			left: 0;
 			bottom: 0;
-			padding: 24px 16px;
-			padding-top: 106px;
+			padding: 24px;
 			background-color: var(--color-bg);
+			box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);
 		}
 
 		.nav-content {

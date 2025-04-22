@@ -4,7 +4,7 @@ This guide outlines the steps to update your Figma plugin to work seamlessly wit
 
 ## Steps to migrate
 
-### Step 1: Install Plugma
+### 1: Install Plugma
 
 Add Plugma as a dependency in your project.
 
@@ -12,7 +12,7 @@ Add Plugma as a dependency in your project.
 npm install plugma@latest
 ```
 
-### Step 2: Update `package.json` scripts
+### 2: Update `package.json` scripts
 
 Add Plugma commands in the scripts section to handle development, building, previewing, releasing and testing.
 
@@ -26,7 +26,7 @@ Add Plugma commands in the scripts section to handle development, building, prev
 }
 ```
 
-### Step 3: Update file paths in `manifest.json`
+### 3: Update file paths in `manifest.json`
 
 Make sure the `main` and `ui` fields point to the source files and not the dist files. The `ui` field should point to where the UI is mounted. You can organize these files however you prefer. To avoid confusion with the `main` field, consider renaming your UI entry file (typically `main.ts` or `main.js`) to something like `ui.ts`.
 
@@ -38,7 +38,7 @@ Make sure the `main` and `ui` fields point to the source files and not the dist 
 }
 ```
 
-### Step 4: Allow development network access
+### 4: Allow development network access
 
 To allow local development with live reloading, previewing in the browser and testing, add the following domains to the `devAllowedDomains` field in your manifest.
 
@@ -52,7 +52,7 @@ To allow local development with live reloading, previewing in the browser and te
 }
 ```
 
-### Step 5: Wrap your `main` code in a default function
+### 5: Wrap your `main` code in a default function
 
 Plugma requires that your `main` code is wrapped in and exported as a default function, so that it can enable certain features during development.
 
@@ -62,7 +62,7 @@ export default function () {
 }
 ```
 
-### Step 6: Update or remove the `index.html` template file
+### 6: Update or remove the `index.html` template file
 
 If you have an `index.html` file either remove it or update it to include the `<!--[ PLUGIN_UI ]-->` placeholder where the Plugma generated UI code will be injected.
 
@@ -78,7 +78,7 @@ If you have an `index.html` file either remove it or update it to include the `<
 </html>
 ```
 
-### Step 7: Add TypeScript definitions for Figma
+### 7: Add TypeScript definitions for Figma
 
 If your project uses TypeScript, install the necessary type definitions for Figma
 
@@ -97,7 +97,7 @@ And add the following to your `tsconfig.json` file.
 }
 ```
 
-### Step 8: Build and import the plugin in Figma
+### 8: Build and import the plugin in Figma
 
 Run the `build` command to create a `dist` folder with it's own `manifest.json` file, and import it using the Figma desktop app.
 
@@ -109,4 +109,4 @@ Use Figma's [Actions](https://help.figma.com/hc/en-us/articles/23570416033943-Us
 
 ## Additional considerations
 
-Since Figma plugins must be bundled into a single `main` file and a `ui` file, ensure all assets are either inlined or hosted externally and must be included in the `networkAccess` field of your manifest.
+Since Figma plugins must be bundled into a single `main` file and a `ui` file, ensure all assets are either inlined or hosted externally and are included in the `networkAccess` field of your manifest.

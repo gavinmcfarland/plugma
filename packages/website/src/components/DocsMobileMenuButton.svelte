@@ -8,7 +8,7 @@
 </script>
 
 <button
-	class="md:hidden z-50 flex items-center gap-2 text-sm opacity-70 hover:opacity-100"
+	class="md:hidden z-50 flex items-center gap-2 text-sm opacity-60 hover:opacity-100 p-4 -m-4"
 	onclick={() => onToggle()}
 	aria-label="Toggle navigation menu"
 >
