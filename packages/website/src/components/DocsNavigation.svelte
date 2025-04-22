@@ -33,7 +33,7 @@
 
 <!-- Navigation menu -->
 <div
-	class="skrim {isOpen ? 'mobile-menu-open' : 'mobile-menu-closed'}"
+	class="skrim {isOpen ? 'mobile-menu-open' : 'mobile-menu-closed'} capitalize"
 	onkeydown={(e) => e.key === 'Escape'}
 	onclick={(e) => {
 		if (e.target === e.currentTarget) {

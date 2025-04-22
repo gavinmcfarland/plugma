@@ -6,7 +6,7 @@ Plugma is a powerful toolkit designed to streamline your development workflow. I
 
 Before you start, ensure you have [Node.js](https://nodejs.org/en) and the [Figma desktop app](https://www.figma.com/downloads/) installed. These tools are essential for developing plugins. -->
 
-## Starting from a template
+## Scaffold a plugin
 
 To create a plugin from a template, run the following command in your terminal and follow the prompts.
 
@@ -29,7 +29,7 @@ Run the following to watch for changes while developing.
 npm run dev
 ```
 
-### Importing the plugin
+## Importing the plugin
 
 After you've run the `dev`, `build` or `preview` command, a `dist` directory will be created where you can import the plugin from the `manifest.json` file.
 
