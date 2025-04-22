@@ -198,7 +198,7 @@ body {
 	}
 
 	h3 {
-		@apply text-lg font-normal mt-9 mb-5 capitalize;
+		@apply text-lg font-normal mt-7 mb-5 capitalize;
 	}
 
 	ol {
