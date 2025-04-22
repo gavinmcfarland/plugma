@@ -32,10 +32,15 @@ export function suppressLogs(options: any): void {
 		MAIN_BUILT_REGEX,
 		INDEX_BUILT_REGEX,
 		'transforming',
+
+		// Add error message patterns
+		/^failed to load config from/,
 	]
 
 	const originalStdoutWrite = process.stdout.write.bind(process.stdout)
+	const originalStderrWrite = process.stderr.write.bind(process.stderr)
 	const originalLog = console.log
+	const originalError = console.error
 
 	/**
 	 * Removes ANSI color codes from a string
@@ -61,29 +66,57 @@ export function suppressLogs(options: any): void {
 	// Override console.log with a filter based on the provided patterns
 	console.log = (...args: unknown[]): void => {
 		const message = args.join(' ')
-		const cleanMessage = stripAnsiCodes(message) // Remove ANSI codes for matching
+		const cleanMessage = stripAnsiCodes(message)
 
-		// Suppress message if it matches any of the specified patterns (after cleaning)
 		if (!matchesPattern(cleanMessage, patterns)) {
 			originalLog(...args)
 		}
 	}
 
-	// Suppress specific logs in `process.stdout.write`
+	// Add console.error override
+	console.error = (...args: unknown[]): void => {
+		const message = args.join(' ')
+		const cleanMessage = stripAnsiCodes(message)
+
+		if (!matchesPattern(cleanMessage, patterns)) {
+			originalError(...args)
+		}
+	}
+
+	// Override process.stdout.write and process.stderr.write
 	process.stdout.write = ((
 		chunk: string | Uint8Array,
 		encoding?: BufferEncoding | ((error?: Error | null) => void),
 		callback?: (error?: Error | null) => void,
 	): boolean => {
 		const message = chunk.toString()
-		const cleanMessage = stripAnsiCodes(message) // Remove ANSI codes for matching
+		const cleanMessage = stripAnsiCodes(message)
 
 		if (!matchesPattern(cleanMessage, patterns)) {
 			return originalStdoutWrite(chunk, encoding as BufferEncoding, callback)
 		}
 
 		if (typeof callback === 'function') {
-			callback() // Prevents hanging if a callback is required
+			callback()
+		}
+
+		return true
+	}) as typeof process.stdout.write
+
+	process.stderr.write = ((
+		chunk: string | Uint8Array,
+		encoding?: BufferEncoding | ((error?: Error | null) => void),
+		callback?: (error?: Error | null) => void,
+	): boolean => {
+		const message = chunk.toString()
+		const cleanMessage = stripAnsiCodes(message)
+
+		if (!matchesPattern(cleanMessage, patterns)) {
+			return originalStderrWrite(chunk, encoding as BufferEncoding, callback)
+		}
+
+		if (typeof callback === 'function') {
+			callback()
 		}
 
 		return true

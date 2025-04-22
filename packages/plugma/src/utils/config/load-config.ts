@@ -37,11 +37,11 @@ export async function loadConfig(configName: string, options: PluginOptions, con
 
 	try {
 		const userConfig = await loadConfigFromFile(configEnv, existingConfigPath, process.cwd())
-		// const userConfig = null
 
 		return userConfig
 	} catch (error) {
-		console.warn(`Warning: No Vite config found for ${context}`, configName, error)
+		// console.warn(`Warning: No Vite config found for ${context}`, configName, error)
+
 		return null
 	}
 }
