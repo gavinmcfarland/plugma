@@ -32,6 +32,7 @@ export function suppressLogs(options: any): void {
 		MAIN_BUILT_REGEX,
 		INDEX_BUILT_REGEX,
 		'transforming',
+		'computing gzip size',
 
 		// Add error message patterns
 		/^failed to load config from/,

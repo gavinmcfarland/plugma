@@ -43,14 +43,18 @@ async function fileExists(path: string): Promise<boolean> {
 async function runWatchMode({ options, viteConfigs, userUIConfig }: ViteConfigOptions): Promise<void> {
 	const watchConfig = mergeConfig(
 		viteConfigs.ui.build,
-		mergeConfig(userUIConfig?.config ?? {}, {
-			build: {
-				...viteConfigs.ui.build.build,
-				watch: {},
-				outDir: join(options.output),
+		mergeConfig(
+			{
+				configFile: false,
+				build: {
+					...viteConfigs.ui.build.build,
+					watch: {},
+					outDir: join(options.output),
+				},
+				plugins: [renameIndexHtml()],
 			},
-			plugins: [renameIndexHtml()],
-		}),
+			userUIConfig?.config ?? {},
+		),
 	)
 
 	console.log('build ui config', colorStringify(watchConfig, 2))
@@ -77,9 +81,13 @@ async function runWatchMode({ options, viteConfigs, userUIConfig }: ViteConfigOp
 async function runBuild({ options, viteConfigs, userUIConfig }: ViteConfigOptions): Promise<void> {
 	const buildConfig = mergeConfig(
 		viteConfigs.ui.build,
-		mergeConfig(userUIConfig?.config ?? {}, {
-			plugins: [renameIndexHtml()],
-		}),
+		mergeConfig(
+			{
+				configFile: false,
+				plugins: [renameIndexHtml()],
+			},
+			userUIConfig?.config ?? {},
+		),
 	)
 
 	await build(buildConfig)

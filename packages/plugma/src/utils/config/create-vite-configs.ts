@@ -20,9 +20,12 @@ import {
 import { createBuildNotifierPlugin } from '../../vite-plugins/build-notifier.js'
 import { injectEventListeners } from '../../vite-plugins/main/inject-test-event-listeners.js'
 import viteCopyDirectoryPlugin from '../../vite-plugins/move-dir.js'
+import { fileURLToPath } from 'node:url'
 
-const projectRoot = path.join(getDirName(), '../../..')
-const templateUiHtmlPath = path.join(projectRoot, 'templates/vite/ui.html')
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+const projectRoot = path.join(__dirname, '../../..')
+const templateUiHtmlPath = path.join('node_modules', 'plugma', 'templates', 'vite', 'ui.html')
 
 // Before using the runtime code, bundle it
 const runtimeBundlePath = path.join(projectRoot, 'dist/apps/plugma-runtime.js')
@@ -63,15 +66,15 @@ export function createViteConfigs(options: PluginOptions, userFiles: UserFiles):
 	const commonVitePlugins: Plugin[] = [
 		viteSingleFile(),
 		createBuildNotifierPlugin(options.port),
-		// viteCopyDirectoryPlugin({
-		// 	sourceDir: path.join(options.output, 'node_modules', 'plugma', 'tmp'),
-		// 	targetDir: path.join(options.output),
-		// }),
+		viteCopyDirectoryPlugin({
+			sourceDir: path.join(options.output, 'node_modules', 'plugma', 'templates', 'vite'),
+			targetDir: path.join(options.output),
+		}),
 	]
 
 	const placeholders = {
 		pluginName: userFiles.manifest.name,
-		pluginUi: `<script type="module" src="${userFiles.manifest.ui}"></script>`,
+		pluginUi: `<script type="module" src="/${userFiles.manifest.ui}"></script>`,
 	}
 
 	const viteConfigUI = {

@@ -36,7 +36,7 @@ function copyDirectory(source: string, destination: string) {
 			copyDirectory(sourcePath, destPath)
 		} else {
 			// Check if file is named 'index.html'
-			if (file === 'index.html') {
+			if (file === 'index.html' || file === 'ui.html') {
 				// Rename 'index.html' to 'ui.html' during copy
 				fs.copyFileSync(sourcePath, path.join(destination, 'ui.html'))
 			} else {
@@ -56,13 +56,19 @@ function copyDirectory(source: string, destination: string) {
 	}
 }
 
+// This is used because Vite outputs files to same path as the input file. Therefore we need to move the files to a different path after Vite outputs the files to the output directory.
+
 export default function moveDir({ sourceDir, targetDir }: { sourceDir: string; targetDir: string }) {
 	return {
 		name: 'vite-plugin-copy-dir',
 		apply: 'build' as const,
 		writeBundle() {
-			copyDirectory(sourceDir, targetDir)
-			// removeDirectory(sourceDir)
+			// Only copy if source directory exists
+
+			if (fs.existsSync(sourceDir)) {
+				copyDirectory(sourceDir, targetDir)
+				// removeDirectory(sourceDir)
+			}
 		},
 	}
 }
