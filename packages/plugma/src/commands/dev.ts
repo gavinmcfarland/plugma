@@ -64,8 +64,8 @@ export async function dev(options: DevCommandOptions): Promise<void> {
 			BuildManifestTask,
 			WrapPluginUiTask,
 			BuildMainTask,
-			StartWebSocketsServerTask,
-			StartViteServerTask,
+			// StartWebSocketsServerTask,
+			// StartViteServerTask,
 		)(pluginOptions)
 
 		log.success('Development server started successfully')

@@ -17,6 +17,7 @@ import { loadConfig } from '../utils/config/load-config.js'
 import { BuildWatcherWrapper } from './build-ui.js'
 import { viteState } from '../utils/vite-state-manager.js'
 import { getUserFiles } from '../utils/get-user-files.js'
+import { colorStringify } from '../utils/cli/colorStringify.js'
 
 /**
  * Result type for the start-vite-server task
@@ -158,16 +159,17 @@ const startViteServer = async (
 
 		const userUIConfig = await loadConfig('vite.config.ui', options, 'ui')
 
+		const serverConfig = mergeConfig(
+			{
+				configFile: false,
+				...baseConfig,
+			},
+			userUIConfig?.config ?? {},
+		)
+
+		// console.log('dev server ui config', colorStringify(serverConfig, 2))
 		// Configure Vite server with caching workarounds
-		const server = await createServer(
-			mergeConfig(
-				{
-					configFile: false,
-					...baseConfig,
-				},
-				userUIConfig?.config ?? {},
-			),
-		).catch((error) => {
+		const server = await createServer(serverConfig).catch((error) => {
 			const message = error instanceof Error ? error.message : String(error)
 			throw new Error(`Failed to create Vite server: ${message}`)
 		})

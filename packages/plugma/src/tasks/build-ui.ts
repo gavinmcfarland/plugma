@@ -13,6 +13,7 @@ import { getUserFiles } from '../utils/get-user-files.js'
 import { renameIndexHtml } from '../vite-plugins/rename-index-html.js'
 import { Timer } from '../utils/timer.js'
 import chalk from 'chalk'
+import { colorStringify } from '../utils/cli/colorStringify.js'
 
 interface BuildUiResult {
 	outputPath: string
@@ -51,6 +52,8 @@ async function runWatchMode({ options, viteConfigs, userUIConfig }: ViteConfigOp
 			plugins: [renameIndexHtml()],
 		}),
 	)
+
+	console.log('build ui config', colorStringify(watchConfig, 2))
 
 	const watcher = await build(watchConfig)
 

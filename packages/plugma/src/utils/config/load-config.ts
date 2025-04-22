@@ -3,15 +3,25 @@ import { Logger } from '../../utils/log/logger.js'
 import { join } from 'node:path'
 import { loadConfigFromFile, type ConfigEnv } from 'vite'
 import { PluginOptions } from '../../core/types'
+import { colorStringify } from '../cli/colorStringify.js'
 
 interface CustomConfigEnv extends ConfigEnv {
 	context: 'main' | 'ui'
 }
 
-export async function loadConfig(configName: string, options: PluginOptions, context: 'main' | 'ui') {
+export async function loadConfig(configName: string, options: PluginOptions, context: 'main' | 'ui'): Promise<any> {
 	const log = new Logger({ debug: options.debug })
 
-	const configPaths = [`${configName}.ts`, `${configName}.js`, `${configName}.mjs`, `${configName}.cjs`]
+	const configPaths = [
+		`${configName}.ts`,
+		`${configName}.js`,
+		`${configName}.mjs`,
+		`${configName}.cjs`,
+		`vite.config.ts`,
+		`vite.config.js`,
+		`vite.config.mjs`,
+		`vite.config.cjs`,
+	]
 	const existingConfigPath = configPaths.find((path) => existsSync(join(process.cwd(), path)))
 
 	if (!existingConfigPath) {
@@ -25,11 +35,13 @@ export async function loadConfig(configName: string, options: PluginOptions, con
 		context,
 	}
 
-	const userConfig = await loadConfigFromFile(configEnv, existingConfigPath, process.cwd())
+	try {
+		const userConfig = await loadConfigFromFile(configEnv, existingConfigPath, process.cwd())
+		// const userConfig = null
 
-	if (userConfig) {
-		log.debug(`Loaded Vite config from ${existingConfigPath} with context: ${context}`)
+		return userConfig
+	} catch (error) {
+		console.warn(`Warning: No Vite config found for ${context}`, configName, error)
+		return null
 	}
-
-	return userConfig
 }

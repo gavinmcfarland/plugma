@@ -1,6 +1,7 @@
 import { join, resolve } from 'node:path'
 import type { RollupWatcher } from 'rollup'
 import { build, mergeConfig } from 'vite'
+import { colorStringify } from '../utils/cli/colorStringify.js'
 /**
  * Main script build task implementation
  */
@@ -53,6 +54,8 @@ async function runWatchMode({ options, viteConfigs, userMainConfig }: ViteConfig
 		userMainConfig?.config ?? {},
 	)
 
+	// console.log('devmain config', colorStringify(watchConfig, 2))
+
 	const buildResult = await build(watchConfig)
 
 	// Handle both array and single watcher cases
@@ -80,6 +83,8 @@ async function runBuild({ options, viteConfigs, userMainConfig }: ViteConfigOpti
 		},
 		userMainConfig?.config ?? {},
 	)
+
+	// console.log('build main config', colorStringify(buildConfig, 2))
 
 	await build(buildConfig)
 }
@@ -151,6 +156,7 @@ export const BuildMainTask = task(
 			logger.debug(`Building main script from: ${mainPath}`)
 
 			const viteConfigs = createViteConfigs(options, files)
+
 			const userMainConfig = await loadConfig('vite.config.main', options, 'main')
 			const configOptions = { options, viteConfigs, userMainConfig }
 
