@@ -14,7 +14,7 @@ export default defineIntegration({
 		// Update package.json
 		await helpers.updateJson('package.json', (json) => {
 			json.scripts = json.scripts || {}
-			json.scripts['test:e2e'] = 'playwright test'
+			json.scripts['test:e2e'] = 'npx playwright test'
 		})
 
 		await helpers.writeFile(

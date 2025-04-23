@@ -2,6 +2,8 @@ import chalk from 'chalk'
 import { defineIntegration } from './define-integration.js'
 import dedent from 'dedent'
 
+// TODO: Update tsconfig.json to include tests
+
 export default defineIntegration({
 	id: 'vitest',
 	name: 'Vitest',
@@ -14,7 +16,7 @@ export default defineIntegration({
 		// Update package.json
 		await helpers.updateJson('package.json', (json) => {
 			json.scripts = json.scripts || {}
-			json.scripts['test'] = 'vitest'
+			json.scripts['test'] = 'npx vitest'
 		})
 
 		// await helpers.writeFile(
