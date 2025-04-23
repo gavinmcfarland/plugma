@@ -76,11 +76,11 @@ export function injectTests(options: any = {}): Plugin {
 					),
 				].filter((file) => file.endsWith('.ts') || file.endsWith('.js'))
 
-				// Filter files that contain 'plugma/testing' in their contents
+				// Filter files that contain 'plugma/vitest' in their contents
 				const filteredTestFiles = await Promise.all(
 					testFiles.map(async (file) => {
 						const content = await fs.promises.readFile(file, 'utf-8')
-						return content.includes('plugma/testing') ? file : null
+						return content.includes('plugma/vitest') ? file : null
 					}),
 				).then((files) => files.filter((file): file is string => file !== null))
 

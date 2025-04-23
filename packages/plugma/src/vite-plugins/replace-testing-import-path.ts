@@ -14,12 +14,13 @@ import { getDirName } from '../utils/get-dir-name.js'
  */
 export function replacePlugmaTesting(): Plugin {
 	return {
-		name: 'plugma:test',
+		name: 'plugma:replace-testing-import-path',
 		enforce: 'pre',
 
 		resolveId(id: string) {
-			// Intercept plugma/testing imports
-			if (id === 'plugma/testing') {
+			// Intercept plugma/vitest imports
+			if (id === 'plugma/vitest') {
+				console.log('intercepting plugma/vitest import', getDirName(), '../testing/figma/index.js')
 				return path.resolve(getDirName(), '../testing/figma/index.js')
 			}
 		},
