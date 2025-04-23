@@ -52,19 +52,18 @@ export default defineIntegration({
 				};
 
 				test('creates a rectangle', async () => {
-				const rect = figma.createRectangle();
+					const rect = figma.createRectangle();
 
-				rect.x = 0;
-				rect.y = 0;
-				rect.resize(200, 200);
+					rect.x = 0;
+					rect.y = 0;
+					rect.resize(200, 200);
 
-				rect.fills = [{ type: 'SOLID', color: TEST_COLOR }];
+					rect.fills = [{ type: 'SOLID', color: TEST_COLOR }];
 
-				expect(rect.type).to.equal('RECTANGLE');
-				expect(rect.width).to.equal(200);
-				expect(rect.height).to.equal(200);
+					expect(rect.type).to.equal('RECTANGLE');
+					expect(rect.width).to.equal(200);
+					expect(rect.height).to.equal(200);
 
-				return rect;
 				});
 			`,
 		)
