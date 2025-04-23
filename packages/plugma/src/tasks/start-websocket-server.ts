@@ -39,8 +39,6 @@ const isPortInUse = async (port: number): Promise<boolean> => {
 	})
 }
 
-const config = getConfig()
-
 /**
  * Task that starts the WebSocket server and routes messages to the correct client.
  * The WebSocket server is used by `dev`, `preview` and `test` commands.
@@ -52,6 +50,7 @@ const config = getConfig()
  * @throws Error if server fails to start
  */
 export const startWebSocketsServer = async (options: PluginOptions, context: ResultsOfTask<GetFilesTask>) => {
+	const config = getConfig()
 	try {
 		const port = getWebSocketPort(options)
 

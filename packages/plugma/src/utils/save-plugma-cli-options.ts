@@ -1,4 +1,4 @@
-import { writeFileSync, readFileSync } from 'fs'
+import { writeFileSync, readFileSync, unlinkSync } from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
 
@@ -14,5 +14,13 @@ export function getConfig(): any {
 		return JSON.parse(config)
 	} catch (error) {
 		throw new Error('Config not initialized')
+	}
+}
+
+export function clearConfig() {
+	try {
+		unlinkSync(CONFIG_PATH)
+	} catch (error) {
+		// Ignore error if file doesn't exist
 	}
 }
