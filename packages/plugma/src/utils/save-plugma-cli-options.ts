@@ -1,8 +1,12 @@
 import { writeFileSync, readFileSync, unlinkSync } from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
+import { cwd } from 'process'
 
-const CONFIG_PATH = join(tmpdir(), 'plugma-test-config.json')
+// Create a project-specific config path using the current working directory
+const CONFIG_PATH = join(tmpdir(), `plugma-test-config-${Buffer.from(cwd()).toString('base64url')}.json`)
+
+// console.log('CONFIG_PATH', CONFIG_PATH)
 
 export function setConfig(newConfig: any) {
 	writeFileSync(CONFIG_PATH, JSON.stringify(newConfig))

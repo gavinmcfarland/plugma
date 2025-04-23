@@ -5,7 +5,7 @@
     "main": "index.js",
     "type": "module",
     "bin": {
-        "plugma": "./bin/plugma"
+        "plugma": "./bin/plugma.js"
     },
     "files": [
         "bin",
