@@ -11,7 +11,7 @@ import path from 'node:path'
  */
 export function renameIndexHtml(): Plugin {
 	return {
-		name: 'rename-index-html',
+		name: 'plugma:rename-index-html',
 		apply: 'build',
 
 		generateBundle(options: NormalizedOutputOptions, bundle: any) {

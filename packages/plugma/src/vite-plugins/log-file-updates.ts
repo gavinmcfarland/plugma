@@ -13,7 +13,7 @@ export function logFileUpdates(): Plugin {
 	let root = ''
 
 	return {
-		name: 'log-file-updates',
+		name: 'plugma:log-file-updates',
 
 		configResolved(config: ResolvedConfig) {
 			root = config.root // Capture the root directory from the Vite config

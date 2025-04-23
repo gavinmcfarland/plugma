@@ -60,7 +60,7 @@ function copyDirectory(source: string, destination: string) {
 
 export default function moveDir({ sourceDir, targetDir }: { sourceDir: string; targetDir: string }) {
 	return {
-		name: 'vite-plugin-copy-dir',
+		name: 'plugma:move-dir',
 		apply: 'build' as const,
 		writeBundle() {
 			// Only copy if source directory exists

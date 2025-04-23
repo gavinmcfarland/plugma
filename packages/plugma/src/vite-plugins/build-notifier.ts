@@ -11,7 +11,7 @@ export function createBuildNotifierPlugin(port: number): Plugin {
 	let socket: SocketClient
 
 	return {
-		name: 'build-notifier',
+		name: 'plugma:build-notifier',
 		async buildStart() {
 			socket = createClient({
 				room: 'vite',

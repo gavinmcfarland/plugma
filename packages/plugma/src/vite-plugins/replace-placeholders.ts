@@ -105,7 +105,7 @@ function _replacePlaceholders(html: string, options: ReplacePlaceholdersOptions)
  */
 export function replacePlaceholders(options: ReplacePlaceholdersOptions = {}): Plugin {
 	return {
-		name: 'replace-js-input',
+		name: 'plugma:replace-placeholders',
 		transformIndexHtml: {
 			order: 'pre',
 			handler(html: string, ctx: IndexHtmlTransformContext): string {

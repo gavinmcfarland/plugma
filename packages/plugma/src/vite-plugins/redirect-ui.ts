@@ -21,7 +21,7 @@ export function serveUi(options: PluginOptions): Plugin {
 	let template: string | null = null
 
 	return {
-		name: 'plugma:serve-ui',
+		name: 'plugma:redirect-ui',
 		configureServer(server) {
 			// Add middleware to serve UI at root
 			server.middlewares.use('/', async (req, res, next) => {

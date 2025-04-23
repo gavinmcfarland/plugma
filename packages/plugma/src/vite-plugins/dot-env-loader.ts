@@ -106,7 +106,7 @@ export function dotEnvLoader(options = {}): Plugin {
 	let watcher: FSWatcher | undefined
 
 	return {
-		name: 'custom-env-loader',
+		name: 'plugma:dot-env-loader',
 
 		configResolved(config) {
 			mode = config.mode
@@ -118,7 +118,7 @@ export function dotEnvLoader(options = {}): Plugin {
 				const env = loadEnvFiles(mode)
 				return createEnvConfig(env)
 			} catch (error) {
-				console.error(`[custom-env-loader] Error loading env files: ${error}`)
+				console.error(`[plugma:dot-env-loader] Error loading env files: ${error}`)
 				return {}
 			}
 		},

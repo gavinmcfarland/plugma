@@ -1,4 +1,4 @@
-import type { Plugin, TransformResult } from 'vite';
+import type { Plugin, TransformResult } from 'vite'
 
 /**
  * A Vite plugin that rewrites postMessage target origins from "https://www.figma.com" to "*".
@@ -9,25 +9,25 @@ import type { Plugin, TransformResult } from 'vite';
  * @returns A Vite plugin configuration object
  */
 export function rewritePostMessageTargetOrigin(): Plugin {
-  return {
-    name: 'rewrite-postmessage-origin',
+	return {
+		name: 'plugma:rewrite-postmessage-origin',
 
-    transform(code: string, id: string): TransformResult {
-      // Process only JavaScript files (or files already transformed into JavaScript)
-      // if (!id.endsWith('.js')) return null;
+		transform(code: string, id: string): TransformResult {
+			// Process only JavaScript files (or files already transformed into JavaScript)
+			// if (!id.endsWith('.js')) return null;
 
-      // Replace "https://www.figma.com" with "*"
-      const updatedCode = code.replace(
-        /postMessage\((.*?),\s*["']https:\/\/www\.figma\.com["']\)/g,
-        'postMessage($1, "*")',
-      );
+			// Replace "https://www.figma.com" with "*"
+			const updatedCode = code.replace(
+				/postMessage\((.*?),\s*["']https:\/\/www\.figma\.com["']\)/g,
+				'postMessage($1, "*")',
+			)
 
-      return {
-        code: updatedCode,
-        map: null,
-      };
-    },
-  };
+			return {
+				code: updatedCode,
+				map: null,
+			}
+		},
+	}
 }
 
-export default rewritePostMessageTargetOrigin;
+export default rewritePostMessageTargetOrigin
