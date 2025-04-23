@@ -37,7 +37,7 @@
 		</Banner>
 
 		<div class="navbar py-4 px-6 flex justify-between border-b">
-			<nav class="max-w-[1400px] mx-auto flex grow justify-between">
+			<nav class="mx-auto flex grow justify-between">
 				<div class="flex">
 					<a href="/" class="items-center flex gap-3">
 						<Icon svg="plug-filled" size={20} strokeWidth={1.5} />
@@ -58,7 +58,7 @@
 		</div>
 	</div>
 
-	<main class="grow mt-[100px]">
+	<main class="grow mt-[98px] max-w-[1200px] mx-auto">
 		{@render children?.()}
 	</main>
 

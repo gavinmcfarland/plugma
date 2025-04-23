@@ -29,13 +29,12 @@
 
 	<Section class="border-t-0 text-primary">
 		<div class="svg-background">
-			<!-- Content of the page goes here -->
 			<div class="gradient"></div>
 		</div>
 		<div class="max-w-6xl mx-auto">
 			<div class="text-center">
 				<Badge href="/whats-new">V2 What's New<Icon svg="arrow-right" /></Badge>
-				<h1 class="text-5xl/tight md:text-7xl/tight text-center font-medium mb-4">
+				<h1 class="text-4xl/tight md:text-7xl/tight text-center font-medium mb-4">
 					Experience the future<br /> of Figma plugin development
 				</h1>
 				<p class="mb-10">Supports React, Svelte, Vue, and vanilla JS/TS</p>
@@ -50,7 +49,7 @@
 		</div>
 	</Section>
 
-	<Section class="border-t-0 pt-0 md:pt-0">
+	<!-- <Section class="border-t-0 pt-0 md:pt-0">
 		<h2 class="text-3xl sm:text-4xl text-center font-medium mb-8">Features</h2>
 
 		<div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
@@ -81,6 +80,89 @@
 				</p>
 			</Card>
 		</div>
+	</Section> -->
+
+	<Section class="border-t-0 pt-0 md:pt-0">
+		<h2 class="text-3xl text-center font-medium mb-12">Features</h2>
+
+		<div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+			<Card>
+				<div class="flex flex-col gap-3">
+					<span class="flex gap-3 font-semibold"
+						><Icon svg="terminal" size={24} opacity={1} />Easy to Set Up</span
+					>
+					<p class="m-0">
+						Get started quickly with minimal configuration, everything from bundling to
+						setup is handled for you, so your plugin just works in Figma.
+					</p>
+				</div>
+			</Card>
+
+			<Card>
+				<div class="flex flex-col gap-3">
+					<span class="flex gap-3 font-semibold"
+						><Icon svg="globe" size={24} opacity={1} />Browser Preview</span
+					>
+					<p class="m-0">
+						Preview your plugin across multiple browsers during development before
+						publishing. Test manually or automate with tools like <b>Playwright</b> to ensure
+						consistent behavior across browsers.
+					</p>
+				</div>
+			</Card>
+
+			<Card>
+				<div class="flex flex-col gap-3">
+					<span class="flex gap-3 font-semibold"
+						><Icon svg="boolean-subtract" size={24} opacity={1} />First-Class Testing</span
+					>
+					<p class="m-0">
+						Write fast, reliable unit tests with <b>Vitest</b> and run full end-to-end
+						tests using <b>Playwright</b>, without ever leaving your development
+						workflow. The first toolkit to bring comprehensive testing to Figma plugins.
+					</p>
+				</div>
+			</Card>
+
+			<Card>
+				<div class="flex flex-col gap-3">
+					<span class="flex gap-3 font-semibold"
+						><Icon svg="layout" size={24} opacity={1} />Developer Tools</span
+					>
+					<p class="m-0">
+						Quickly preview in browser, minimize the plugin window, and clear stored
+						data, all from the plugin window. Activate or hide the developer toolbar
+						instantly with <kbd>Cmd</kbd> + <kbd>Opt</kbd> + <kbd>J</kbd>.
+					</p>
+				</div>
+			</Card>
+
+			<Card>
+				<div class="flex flex-col gap-3">
+					<span class="flex gap-3 font-semibold"
+						><Icon svg="copy" size={24} opacity={1} />Modes and Environments</span
+					>
+					<p class="m-0">
+						Test various setups with <code>.env</code> variables and the
+						<code>--mode</code> option, allowing you to build, run, and debug for different
+						environments with ease.
+					</p>
+				</div>
+			</Card>
+
+			<Card>
+				<div class="flex flex-col gap-3">
+					<span class="flex gap-3 font-semibold"
+						><Icon svg="cloud-upload-alt" size={24} opacity={1} />GitHub Workflows</span
+					>
+					<p class="m-0">
+						Sync your Figma release with your source code using a single command.
+						Automatically bump versions and create GitHub releases to keep everything
+						aligned and easy to track.
+					</p>
+				</div>
+			</Card>
+		</div>
 	</Section>
 
 	<Section class="commands">
@@ -89,7 +171,7 @@
 			<div>
 				<h3 class="font-bold mb-2">Start dev server</h3>
 				<Code2 class_="mb-1" lang="bash" text="plugma dev" />
-				<p>Development is faster because it doesn’t require a rebuild for each change.</p>
+				<p>Development is faster because it doesn't require a rebuild for each change.</p>
 			</div>
 			<div>
 				<h3 class="font-bold mb-2">Preview in any browser</h3>

@@ -6,7 +6,6 @@
 	import Meta from '@/components/Meta.svelte';
 	let { data } = $props();
 
-	
 	// 	data.content = data.content.replace(
 	// 		/\[info\]([\s\S]*?)\[\/info\]/g,
 	// 		'<info-placeholder>$1</info-placeholder>'
@@ -25,7 +24,7 @@
 	/>
 </svelte:head>
 
-<div class="my-8 mx-4">
+<div class="my-8 mx-6">
 	<h1 class="text-center text-3xl my-24">What's new</h1>
 	<div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-12 gap-9">
 		<div
@@ -148,7 +147,8 @@
 		left: 0;
 		right: 0;
 		/* background-color: red; */
-		background: linear-gradient(0deg, var(--color-bg), transparent),
+		background:
+			linear-gradient(0deg, var(--color-bg), transparent),
 			linear-gradient(-90deg, var(--color-bg), transparent);
 	}
 

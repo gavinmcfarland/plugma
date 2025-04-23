@@ -63,8 +63,8 @@
 					{#if folder.name !== 'index'}
 						<h3 class="mb-2" style="text-transform: capitalize">{folder.name}</h3>
 					{/if}
-					{#each folder.items as item}
-						<ul>
+					<ul>
+						{#each folder.items as item}
 							<li>
 								<a
 									href={`/docs/${item.slug}`}
@@ -73,8 +73,8 @@
 									{item.title}
 								</a>
 							</li>
-						</ul>
-					{/each}
+						{/each}
+					</ul>
 				{/each}
 			</div>
 		</nav>

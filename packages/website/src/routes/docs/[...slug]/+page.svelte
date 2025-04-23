@@ -108,53 +108,55 @@
 		{/if}
 	</div>
 
-	<div class="grow-0 shrink min-w-0 md:order-1">
-		<!-- SvelteMarkdown doesn't process inline markdown but custom one isn't great either as it can't render nested elements -->
-		<!-- <SvelteMarkdown
+	<div class="grow min-w-0 md:order-1">
+		<div class="max-w-3xl">
+			<!-- SvelteMarkdown doesn't process inline markdown but custom one isn't great either as it can't render nested elements -->
+			<!-- <SvelteMarkdown
 		{source}
 		renderers={{
 			code: Code
 		}}
 	/> -->
-		<!-- <MarkdownRenderer
+			<!-- <MarkdownRenderer
 		markdown={source}
 		components={{
 			code: Code2
 		}}
 	/> -->
-		<!-- <MarkdownRenderer2
+			<!-- <MarkdownRenderer2
 		content={source}
 		components={{
 			code: Code2
 		}}
 	/> -->
-		<!-- <MarkdownRenderer3
+			<!-- <MarkdownRenderer3
 		{source}
 		renderers={{
 			code: Code2,
 			heading: Heading
 		}}
 	/> -->
-		<!-- <MarkdownRenderer4
+			<!-- <MarkdownRenderer4
 		content={source}
 		components={{
 			code: Code2,
 			heading: Heading
 		}}
 	/> -->
-		<!-- <MarkdownRenderer5
+			<!-- <MarkdownRenderer5
 		markdown={source}
 		components={{
 			code: Code2,
 			heading: Heading
 		}}
 	/> -->
-		<MarkdownRenderer6
-			markdown={source}
-			components={{
-				code: Code2,
-				heading: Heading
-			}}
-		/>
+			<MarkdownRenderer6
+				markdown={source}
+				components={{
+					code: Code2,
+					heading: Heading
+				}}
+			/>
+		</div>
 	</div>
 </div>

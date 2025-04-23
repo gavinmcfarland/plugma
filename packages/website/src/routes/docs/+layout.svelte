@@ -82,7 +82,7 @@
 		tabindex="0"
 	>
 		<div class="border-t-0 mt-8 md:mt-8 mb-16 px-6">
-			<div class="max-w-6xl mx-auto md:flex gap-6">
+			<div class=" mx-auto md:flex gap-6">
 				<DocsNavigation
 					navItems={data.navItems}
 					folders={data.folders}
@@ -90,7 +90,7 @@
 					onNavigate={() => (isMenuOpen = false)}
 				/>
 
-				<div class="shrink main-content min-w-0">
+				<div class="grow main-content min-w-0">
 					{@render children?.()}
 
 					<!-- Add next and previous navigation links -->

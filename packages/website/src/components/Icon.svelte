@@ -357,6 +357,37 @@
 			/>
 		</svg>
 	{/if}
+	{#if svg === 'cloud-upload-alt'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M16.9789 16.6508L12.9789 12.6508L8.97892 16.6508"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M12.9792 21.6508V12.6508"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M21.0492 18.6508C21.8391 18.084 22.4314 17.2752 22.7403 16.3417C23.0491 15.4081 23.0584 14.3984 22.7667 13.4592C22.4751 12.5199 21.8977 11.6999 21.1183 11.1181C20.339 10.5364 19.3982 10.2232 18.4326 10.2239H17.2878C17.0145 9.13731 16.5032 8.12809 15.7924 7.27227C15.0816 6.41645 14.1897 5.73631 13.184 5.28307C12.1783 4.82983 11.0849 4.61529 9.98619 4.65561C8.88745 4.69593 7.81198 4.99005 6.84077 5.51583C5.86955 6.04161 5.0279 6.78535 4.37916 7.69107C3.73041 8.59678 3.29148 9.64085 3.09542 10.7447C2.89936 11.8485 2.95129 12.9834 3.24727 14.0638C3.54325 15.1442 4.07558 16.142 4.80419 16.9821"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	{/if}
 	{#if svg === 'apps'}
 		<svg
 			style:width={sizePx}

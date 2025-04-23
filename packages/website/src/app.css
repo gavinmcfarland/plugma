@@ -136,8 +136,10 @@ h2 {
 	@apply text-2xl;
 }
 
-strong {
+strong,
+b {
 	font-weight: 600;
+	color: var(--color-text);
 }
 
 h3,
@@ -251,15 +253,15 @@ body {
 		font-weight: 500;
 		text-decoration: underline;
 	}
+}
 
-	kbd {
-		color: var(--color-text);
-		@apply rounded-sm px-1 py-[2px];
-		background-color: hsl(var(--color-info-hsl) / 0.1);
-		border: 1px solid hsl(var(--color-info-hsl) / 0.4);
-		font-weight: normal;
-		font-size: 0.87em;
-	}
+kbd {
+	color: var(--color-text);
+	@apply rounded-sm px-1 py-[2px];
+	background-color: hsl(var(--color-info-hsl) / 0.1);
+	border: 1px solid hsl(var(--color-info-hsl) / 0.4);
+	font-weight: normal;
+	font-size: 0.87em;
 }
 
 /* mark {
