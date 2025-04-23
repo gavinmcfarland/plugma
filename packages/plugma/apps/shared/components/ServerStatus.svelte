@@ -1,22 +1,14 @@
 <script lang="ts">
-	export let message: string | null = null;
-	export let isConnected: boolean = false;
+	export let message: string | null = null
+	export let isConnected: boolean = false
 
-	$: displayMessage = isConnected
-		? message || "Dev server active"
-		: "Dev server inactive";
+	$: displayMessage = isConnected ? message || 'Dev server active' : 'Dev server inactive'
 </script>
 
-<div id="plugma-status" class="container">
+<div id="plugma-status">
 	<div class="panel">
 		<div class="server-status" class:active={isConnected}>
-			<svg
-				width="32"
-				height="32"
-				viewBox="0 0 32 32"
-				fill="none"
-				xmlns="http://www.w3.org/2000/svg"
-			>
+			<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
 				<path
 					fill-rule="evenodd"
 					clip-rule="evenodd"
