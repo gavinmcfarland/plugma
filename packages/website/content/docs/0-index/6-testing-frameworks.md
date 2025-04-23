@@ -6,7 +6,7 @@ Testing is crucial for plugin development, and Plugma provides built-in support 
 
 Vitest allows you to write and run unit tests for your plugin's logic.
 
-##### Setup
+### Add Vitest to your project
 
 Add Vitest to your project:
 
@@ -14,13 +14,7 @@ Add Vitest to your project:
 npx plugma add vitest
 ```
 
-Start the Plugma dev server with WebSocket support:
-
-```bash
-npm run dev -- -ws
-```
-
-##### Writing Unit Tests
+### Writing Unit Tests
 
 Create test files with extensions `.test.ts`, `.test.js`, `.spec.ts`, or `.spec.js`. Import the testing utilities from `plugma/vitest`:
 
@@ -47,7 +41,13 @@ test('creates a rectangle with specific color', async () => {
 });
 ```
 
-##### Running Unit Tests
+### Running Unit Tests
+
+Start the Plugma dev server with WebSocket support:
+
+```bash
+npm run dev -- -ws
+```
 
 With your plugin open in Figma desktop app, run:
 
@@ -63,7 +63,7 @@ The plugin must be running in the Figma desktop app for tests to execute.
 
 Playwright enables testing your plugin's UI and interactions end-to-end.
 
-##### Setup
+### Add Playwright to your project
 
 Add Playwright to your project:
 
@@ -71,13 +71,7 @@ Add Playwright to your project:
 npx plugma add playwright
 ```
 
-Start the Plugma dev server with WebSocket support and a fixed port:
-
-```bash
-npm run dev -- -ws -p 4000
-```
-
-##### Writing E2E Tests
+### Writing E2E Tests
 
 Create test files with extensions `.test.ts`, `.test.js`, `.spec.ts`, or `.spec.js`. Import the testing utilities from `plugma/playwright`:
 
@@ -115,6 +109,12 @@ test('verify rectangle creation', async ({ main }) => {
 ```
 
 #### Running E2E Tests
+
+Start the Plugma dev server with WebSocket support and a fixed port:
+
+```bash
+npm run dev -- -ws -p 4000
+```
 
 With your plugin open in Figma desktop app, run:
 
