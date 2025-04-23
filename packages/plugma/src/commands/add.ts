@@ -13,7 +13,7 @@ import tailwindIntegration from '../integrations/tailwind.js'
 import shadcnIntegration from '../integrations/shadcn.js'
 import chalk from 'chalk'
 import type { Integration } from '../integrations/define-integration.js'
-
+import vitestIntegration from '../integrations/vitest.js'
 interface AddCommandOptions {
 	integration?: string
 	debug?: boolean
@@ -24,6 +24,7 @@ const INTEGRATIONS = {
 	playwright: playwrightIntegration,
 	tailwind: tailwindIntegration,
 	shadcn: shadcnIntegration,
+	vitest: vitestIntegration,
 	// Add other integrations here...
 } as const
 
