@@ -19,7 +19,7 @@ export default defineIntegration({
 
 		await helpers.writeFile(
 			`playwright.config.${ext}`,
-			dedent`import { defineConfig, devices } from '@playwright/test';
+			dedent`import { defineConfig, devices } from 'plugma/playwright';
 
 					export default defineConfig({
 					testDir: './e2e',

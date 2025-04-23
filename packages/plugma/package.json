@@ -77,7 +77,9 @@
             "default": "./dist/client.js"
         },
         "./server": "./dist/core/websockets/server.js",
-        "./client": "./dist/core/websockets/client.js"
+        "./client": "./dist/core/websockets/client.js",
+        "./vitest": "./dist/testing/index.js",
+        "./playwright": "./dist/testing/playwright/index.js"
     },
     "author": "",
     "license": "ISC",

@@ -41,7 +41,7 @@ export default defineIntegration({
 
 		await helpers.writeFile(
 			`tests/example.test.${ext}`,
-			dedent`import { expect, test } from 'plugma/testing';
+			dedent`import { expect, test } from 'plugma/vitest';
 
 				const TEST_COLOR = {
 				r: Math.random(),
