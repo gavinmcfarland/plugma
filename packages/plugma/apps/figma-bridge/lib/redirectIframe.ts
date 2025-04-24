@@ -57,7 +57,6 @@ export async function redirectIframe(url: string) {
 					iframeState.isReady = true
 					// Send all queued messages
 					messageQueue.forEach((message) => {
-						console.log('sending message', message)
 						iframe.contentWindow?.postMessage(message, '*')
 					})
 					messageQueue.length = 0 // Clear the queue
