@@ -25,12 +25,15 @@ async function waitForServer(url: string, timeout = 10000, interval = 300): Prom
 
 // Message queue for messages sent before iframe is ready
 const messageQueue: any[] = []
-let isIframeReady = false
+export const iframeState = {
+	isReady: false,
+}
 
 // Function to send messages to iframe
 export function sendMessageToIframe(message: any) {
+	// FIXME: At the moment, messages are always queued because isReady is not reactive
 	const iframe = document.getElementById('dev-server-ui') as HTMLIFrameElement
-	if (iframe?.contentWindow && isIframeReady) {
+	if (iframe?.contentWindow && iframeState.isReady) {
 		iframe.contentWindow.postMessage(message, '*')
 	} else {
 		messageQueue.push(message)
@@ -41,7 +44,7 @@ export async function redirectIframe(url: string) {
 	const iframe = document.getElementById('dev-server-ui') as HTMLIFrameElement
 	if (iframe) {
 		// Set the iframe source immediately
-		iframe.src = new URL(url).href
+		// iframe.src = new URL(url).href
 
 		// Verify server connection in the background and reload once available
 		waitForServer(url)
@@ -51,9 +54,10 @@ export async function redirectIframe(url: string) {
 
 				// Set up message listener for iframe ready state
 				const handleIframeLoad = () => {
-					isIframeReady = true
+					iframeState.isReady = true
 					// Send all queued messages
 					messageQueue.forEach((message) => {
+						console.log('sending message', message)
 						iframe.contentWindow?.postMessage(message, '*')
 					})
 					messageQueue.length = 0 // Clear the queue

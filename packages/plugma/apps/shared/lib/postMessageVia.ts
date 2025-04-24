@@ -23,7 +23,6 @@ export function postMessageVia(via: string | string[], message: any | any[]) {
 				// 	'color: initial;',
 				// 	message,
 				// )
-
 				iframeTarget.contentWindow!.postMessage(message, '*')
 			} else if (method === 'parent' && window.parent) {
 				// console.log(
