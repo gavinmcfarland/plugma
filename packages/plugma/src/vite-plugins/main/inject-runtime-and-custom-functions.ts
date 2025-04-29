@@ -38,8 +38,8 @@ export function injectRuntime(customFunctions: string, pluginOptions: PluginOpti
 
 			// Only transform the specific lines that need it
 			const codeToReplace = code
-				.replace(/figma\.showUI\((.*?)\)/g, 'customFunctions.customShowUI($1)')
-				.replace(/figma\.ui\.resize\((.*?)\)/g, 'customFunctions.customResize($1)')
+				.replace(/figma\.showUI\(([\s\S]*?)\)/g, 'customFunctions.customShowUI($1)')
+				.replace(/figma\.ui\.resize\(([\s\S]*?)\)/g, 'customFunctions.customResize($1)')
 
 			// Add the import only if we actually made replacements
 			if (codeToReplace !== code) {

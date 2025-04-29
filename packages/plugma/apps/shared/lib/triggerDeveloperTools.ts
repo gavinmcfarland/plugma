@@ -18,6 +18,8 @@ export async function triggerDeveloperTools() {
 	window.addEventListener('message', (event) => {
 		const message = event.data?.pluginMessage
 
+		console.log('message', message)
+
 		if (message.event === 'PLUGMA_PLUGIN_WINDOW_TOGGLE_TOOLBAR') {
 			saveFigmaBridgeSettings(devToolsActive, true)
 		}
@@ -38,6 +40,8 @@ export async function triggerDeveloperTools() {
 		if (isCmdOrCtrl && isOption && isJKey) {
 			event.preventDefault()
 
+			console.log('sending message')
+			// Send to iframe above
 			parent.postMessage(
 				{
 					pluginMessage: { event: 'PLUGMA_PLUGIN_WINDOW_TOGGLE_TOOLBAR' },
