@@ -19,7 +19,7 @@ export default defineIntegration({
 
 		await helpers.writeFile(
 			`playwright.config.${ext}`,
-			dedent`import { defineConfig, devices } from 'plugma/playwright';
+			dedent`import { defineConfig, devices } from '@playwright/test';
 
 					export default defineConfig({
 					testDir: './e2e',
@@ -41,7 +41,7 @@ export default defineIntegration({
 
 		await helpers.writeFile(
 			`e2e/example.spec.${ext}`,
-			dedent`import { test, expect } from '@playwright/test';
+			dedent`import { test, expect } from 'plugma/playwright';
 
 				test("create 10 rectangles", async ({ ui, main }) => {
 
