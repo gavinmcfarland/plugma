@@ -17,7 +17,6 @@ export function relayFigmaMessages() {
 			// Use the iframe state to determine how to send the message
 			// FIXME: Currently isReady is always false as it's not reactive. So messages are always queued until the server is ready
 			if (iframeState.isReady) {
-				console.log('sending message', iframeState.isReady)
 				postMessageVia(['iframe', 'ws'], event.data)
 			} else {
 				// If iframe isn't ready, only send to ws and queue the iframe message
