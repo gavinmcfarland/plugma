@@ -134,7 +134,8 @@ class TestRegistry {
 	 * @returns A promise that resolves with the test result
 	 * @throws {Error} If no test is registered with the given name
 	 */
-	async runTest(name: string | undefined, testFn?: string): Promise<TestResult> {
+	async runTest(name: string | undefined, testFn?: string, framework?: 'vitest' | 'playwright'): Promise<TestResult> {
+		const expectFn = framework === 'vitest' ? plugmaViteExpect : plugmaViteExpect
 		let fn: TestFunction | undefined = this.tests.get(name || '')
 		const testName = name || 'anonymous test'
 
@@ -157,12 +158,14 @@ class TestRegistry {
 			// Execute test function and capture return value
 			let returnValue: unknown
 
+			// If playwright, we need to create a new function from the testFn string
 			if (testFn) {
 				const fn = new Function('context', 'expect', `return (${testFn})(context, expect)`)
-				returnValue = await Promise.resolve(fn(context, plugmaViteExpect))
+				returnValue = await Promise.resolve(fn(context, expectFn))
 				returnValue = nodeToObject(returnValue as SceneNode)
 			} else {
-				returnValue = await Promise.resolve(fn!(context, plugmaViteExpect))
+				// If vitest, we can just call the function directly
+				returnValue = await Promise.resolve(fn!(context, expectFn))
 			}
 
 			// Add timing precision delay

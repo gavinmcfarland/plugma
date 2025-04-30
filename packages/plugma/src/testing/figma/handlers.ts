@@ -60,7 +60,7 @@ export function handleTestMessage(message: TestMessage): void {
 				try {
 					// console.log('%crunning test', 'color: blue', message.data.testName)
 					registry
-						.runTest(message.data.testName, message.data.testFn)
+						.runTest(message.data.testName, message.data.testFn, message.data.framework)
 						.then((result) => {
 							const response: TestMessage = result.error
 								? {

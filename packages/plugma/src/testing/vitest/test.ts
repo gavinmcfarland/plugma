@@ -87,6 +87,7 @@ export const test: TestFn = async (name, fn) => {
 				room: 'figma',
 				testName: name,
 				testRunId: testRunId,
+				framework: 'vitest',
 			})
 		}
 

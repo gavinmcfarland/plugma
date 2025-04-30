@@ -23,6 +23,15 @@ export function replacePlugmaTesting(): Plugin {
 				console.log('intercepting plugma/vitest import', getDirName(), '../testing/figma/index.js')
 				return path.resolve(getDirName(), '../testing/figma/vitest/index.js')
 			}
+			// // Intercept plugma/playwright imports
+			// if (id === 'plugma/playwright') {
+			// 	console.log(
+			// 		'intercepting plugma/playwright import',
+			// 		getDirName(),
+			// 		'../testing/figma/playwright/index.js',
+			// 	)
+			// 	return path.resolve(getDirName(), '../testing/figma/playwright/index.js')
+			// }
 		},
 	}
 }

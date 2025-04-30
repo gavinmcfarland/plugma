@@ -86,6 +86,7 @@ export const main = async <T>(fn: () => T | Promise<T>): Promise<T> => {
 			room: 'figma',
 			testRunId: testRunId,
 			testFn: fn.toString(),
+			framework: 'playwright',
 		})
 	}
 
