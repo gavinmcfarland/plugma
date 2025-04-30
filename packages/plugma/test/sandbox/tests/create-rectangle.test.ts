@@ -1,4 +1,4 @@
-import { expect, test, launchPlugin } from 'plugma/testing'
+import { expect, test, launchPlugin } from 'plugma/vitest'
 import { createRectangle } from '../src/create-rectangle-helper'
 
 const TEST_COLOR = {
