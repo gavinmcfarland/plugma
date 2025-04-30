@@ -5,7 +5,7 @@
  * @module TestRegistry
  */
 
-import type { TestContext } from '../../testing/types'
+import type { TestContext } from '../../testing/vitest/types.js'
 import { expect as plugmaExpect } from './expect'
 import { nodeToObject } from './nodeToObject'
 import { testContext } from './test-context'

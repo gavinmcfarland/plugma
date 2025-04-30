@@ -1,4 +1,4 @@
-import type { TestContext, TestMessage } from '../../testing/types.js'
+import type { TestContext, TestMessage } from '../../testing/vitest/types.js'
 import { expect as plugmaExpect } from './expect'
 import { registry } from './registry'
 
