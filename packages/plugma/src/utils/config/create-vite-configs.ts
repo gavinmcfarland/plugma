@@ -191,7 +191,8 @@ export function createViteConfigs(options: PluginOptions, userFiles: UserFiles):
 				testDir: '',
 				pluginOptions: options,
 			}),
-			injectEventListeners(),
+			// REVIEW:Not sure if tempFilePath is better or userFiles.manifest.main
+			injectEventListeners(tempFilePath),
 			injectRuntime(plugmaRuntimeCode, options),
 		],
 		build: {

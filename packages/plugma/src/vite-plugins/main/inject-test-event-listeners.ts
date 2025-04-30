@@ -5,13 +5,13 @@ import { fileURLToPath } from 'node:url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // Event listeners must be injected before tests are registered
-export function injectEventListeners(): Plugin {
+export function injectEventListeners(mainEntry: string): Plugin {
 	return {
 		name: 'inject-event-listeners',
 		enforce: 'post',
 		transform(code, id) {
 			// Only transform the entry point
-			if (!id.includes('src/main.ts')) {
+			if (!id.includes(mainEntry)) {
 				return null
 			}
 
