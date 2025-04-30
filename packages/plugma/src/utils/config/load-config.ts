@@ -28,7 +28,8 @@ export async function loadConfig(configName: string, options: PluginOptions, con
 		log.debug(`No Vite config found for ${configName}`)
 		return null
 	}
-
+	console.log(options.mode, process.env.NODE_ENV, 'development')
+	console.log(options.mode || process.env.NODE_ENV || 'development')
 	const configEnv: CustomConfigEnv = {
 		command: 'build',
 		mode: options.mode || process.env.NODE_ENV || 'development',
