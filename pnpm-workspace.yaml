@@ -1,6 +1,4 @@
 packages:
   - packages/*
+  - packages/plugma
   - packages/plugma/test/sandbox
-
-overrides:
-  plugma: link:../../../Library/pnpm/global/5/node_modules/plugma

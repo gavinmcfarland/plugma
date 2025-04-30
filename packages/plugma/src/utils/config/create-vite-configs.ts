@@ -105,6 +105,7 @@ export function createViteConfigs(options: PluginOptions, userFiles: UserFiles):
 		build: {
 			root: process.cwd(),
 			base: './',
+			define: { 'process.env.NODE_ENV': JSON.stringify(options.mode) },
 			build: {
 				outDir: path.resolve(process.cwd(), options.output),
 				emptyOutDir: false,
