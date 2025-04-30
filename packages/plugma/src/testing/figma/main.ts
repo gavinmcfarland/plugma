@@ -1,4 +1,6 @@
-import { registry } from './registry'
+/** is this used? */
+
+import { registry } from './vitest/registry'
 
 export function main(name: string, fn: () => void) {
 	if (typeof figma === 'undefined') {

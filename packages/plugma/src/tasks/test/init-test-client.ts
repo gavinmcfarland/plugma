@@ -6,7 +6,7 @@
 import type { GetTaskTypeFor, PluginOptions } from '../../core/types.js'
 import { Logger } from '../../utils/log/logger.js'
 import { task } from '../runner.js'
-import { getTestSocket } from '../../testing/socket.js'
+import { getTestSocket } from '../../testing/init-test-runner-socket.js'
 import { SocketClient } from '../../core/websockets/client.js'
 /**
  * Result type for the initTestClient task

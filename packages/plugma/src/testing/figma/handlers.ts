@@ -1,6 +1,6 @@
-import type { TestContext, TestMessage } from '../../testing/vitest/types.js'
-import { expect as plugmaExpect } from './expect'
-import { registry } from './registry'
+import type { TestContext, TestMessage } from '../types.js'
+import { expect as plugmaExpect } from './vitest/expect.js'
+import { registry } from './vitest/registry.js'
 
 /**
  * Handles test execution messages in the Figma plugin environment

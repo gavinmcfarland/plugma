@@ -1,10 +1,10 @@
-// FIXME: Why does running the test for the first time trigger the plugin to reload? Answer: Caused by launchPlugin function. Find out if there is a way to prevent from relauncgin if plugin already open.
+// NOTE: Why does running the test for the first time trigger the plugin to reload? Answer: Caused by launchPlugin function. Find out if there is a way to prevent from relauncgin if plugin already open.
 
 import { test as vitestTest } from 'vitest'
 import { executeAssertions } from './execute-assertions.js'
-import type { TestFn } from './types.js'
+import type { TestFn } from '../types.js'
 import { SocketClient } from '../../core/websockets/client.js'
-import { getTestSocket } from '../socket.js'
+import { getTestSocket } from '../init-test-runner-socket.js'
 import { getConfig } from '../../utils/save-plugma-cli-options.js'
 
 /**

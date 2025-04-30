@@ -21,7 +21,7 @@ export function replacePlugmaTesting(): Plugin {
 			// Intercept plugma/vitest imports
 			if (id === 'plugma/vitest') {
 				console.log('intercepting plugma/vitest import', getDirName(), '../testing/figma/index.js')
-				return path.resolve(getDirName(), '../testing/figma/index.js')
+				return path.resolve(getDirName(), '../testing/figma/vitest/index.js')
 			}
 		},
 	}

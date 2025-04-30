@@ -5,10 +5,10 @@
  * @module TestRegistry
  */
 
-import type { TestContext } from '../../testing/vitest/types.js'
-import { expect as plugmaExpect } from './expect'
-import { nodeToObject } from './nodeToObject'
-import { testContext } from './test-context'
+import type { TestContext } from '../../types.js'
+import { expect as plugmaExpect } from './expect.js'
+import { nodeToObject } from '../nodeToObject.js'
+import { testContext } from './test-context.js'
 
 /**
  * Represents the result of a test execution
