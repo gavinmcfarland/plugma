@@ -1,7 +1,7 @@
 import type { ExpectStatic } from 'vitest'
 
 import type { TestContext } from '../../types.js'
-import { testContext } from './test-context.js'
+import { testContext } from '../test-context.js'
 
 /**
  * @file Virtual Expect implementation for Figma plugin testing

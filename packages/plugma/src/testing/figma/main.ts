@@ -1,6 +1,6 @@
 /** is this used? */
 
-import { registry } from './vitest/registry'
+import { registry } from './registry'
 
 export function main(name: string, fn: () => void) {
 	if (typeof figma === 'undefined') {

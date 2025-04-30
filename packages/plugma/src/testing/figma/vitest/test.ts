@@ -1,4 +1,4 @@
-import { registry } from './registry'
+import { registry } from '../registry'
 
 export function test(name: string, fn: () => void) {
 	if (typeof figma === 'undefined') {

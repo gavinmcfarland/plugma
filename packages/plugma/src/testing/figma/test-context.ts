@@ -5,7 +5,7 @@
  * @module TestContext
  */
 
-import type { TestContext } from '../../types.js'
+import type { TestContext } from '../types.js'
 
 /**
  * Manages the current test context in a thread-safe way.

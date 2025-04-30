@@ -5,9 +5,9 @@
  * @module TestRegistry
  */
 
-import type { TestContext } from '../../types.js'
-import { expect as plugmaExpect } from './expect.js'
-import { nodeToObject } from '../nodeToObject.js'
+import type { TestContext } from '../types.js'
+import { expect as plugmaViteExpect } from './vitest/expect.js'
+import { nodeToObject } from './nodeToObject.js'
 import { testContext } from './test-context.js'
 
 /**
@@ -27,7 +27,7 @@ interface TestResult {
 /**
  * Function signature for test implementations
  */
-export type TestFunction = (context: TestContext, expect: typeof plugmaExpect) => Promise<void> | void
+export type TestFunction = (context: TestContext, expect: typeof plugmaViteExpect) => Promise<void> | void
 
 /**
  * Function signature for test lifecycle hooks
@@ -159,10 +159,10 @@ class TestRegistry {
 
 			if (testFn) {
 				const fn = new Function('context', 'expect', `return (${testFn})(context, expect)`)
-				returnValue = await Promise.resolve(fn(context, plugmaExpect))
+				returnValue = await Promise.resolve(fn(context, plugmaViteExpect))
 				returnValue = nodeToObject(returnValue as SceneNode)
 			} else {
-				returnValue = await Promise.resolve(fn!(context, plugmaExpect))
+				returnValue = await Promise.resolve(fn!(context, plugmaViteExpect))
 			}
 
 			// Add timing precision delay
