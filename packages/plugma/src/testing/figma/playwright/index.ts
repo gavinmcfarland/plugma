@@ -1,4 +1,4 @@
-export * from '../../utils/launch-plugin.js'
+// export * from '../../utils/launch-plugin.js'
 export * from '../registry.js'
 export * from '../test-context.js'
 // export * from '../vitest/expect.js'

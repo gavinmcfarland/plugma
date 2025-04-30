@@ -108,6 +108,10 @@ test('verify rectangle creation', async ({ main }) => {
 });
 ```
 
+<blockquote class="warning">
+Currently all code must be written in the main fixture, as the fixture is evaled in the main thread. This will be updated in a future release.
+</blockquote>
+
 #### Running E2E Tests
 
 Start the Plugma dev server with WebSocket support and a fixed port:
