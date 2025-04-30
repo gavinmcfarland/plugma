@@ -1,7 +1,7 @@
-import { writeFileSync, readFileSync, unlinkSync } from 'fs'
-import { join } from 'path'
-import { tmpdir } from 'os'
-import { cwd } from 'process'
+import { writeFileSync, readFileSync, unlinkSync } from 'node:fs'
+import { join } from 'node:path'
+import { tmpdir } from 'node:os'
+import { cwd } from 'node:process'
 
 // Create a project-specific config path using the current working directory
 const CONFIG_PATH = join(tmpdir(), `plugma-test-config-${Buffer.from(cwd()).toString('base64url')}.json`)
