@@ -183,10 +183,7 @@ export function createViteConfigs(options: PluginOptions, userFiles: UserFiles):
 			// "figma.showUI": "customShowUI",
 		},
 		plugins: [
-			dotEnvLoader({
-				...options,
-				patterns: ['*.env.*'],
-			}),
+			dotEnvLoader(options),
 			replacePlugmaTesting(),
 			injectTests({
 				testDir: '',
