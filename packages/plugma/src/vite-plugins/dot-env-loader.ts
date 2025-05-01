@@ -68,6 +68,9 @@ function loadEnvFiles(mode: string): EnvRecord {
 	delete envWithoutProblematicVars['CommonProgramFiles(x86)']
 	delete envWithoutProblematicVars['ProgramFiles(x86)']
 
+	// REVIEW: Temporary fix for env loader overriding NODE_ENV
+	delete envWithoutProblematicVars['NODE_ENV']
+
 	for (const file of envFiles) {
 		if (existsSync(file)) {
 			const content = readFileSync(file, 'utf-8')

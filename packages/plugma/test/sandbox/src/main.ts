@@ -12,6 +12,8 @@ customTest()
 export default function () {
 	console.clear()
 
+	console.log(process.env.NODE_ENV)
+
 	figma.showUI(__html__, { width: 300, height: 260, themeColors: true })
 
 	figma.ui.postMessage({
