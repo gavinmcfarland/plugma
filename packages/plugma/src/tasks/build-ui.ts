@@ -57,7 +57,7 @@ async function runWatchMode({ options, viteConfigs, userUIConfig }: ViteConfigOp
 		),
 	)
 
-	console.log('build ui config', colorStringify(watchConfig, 2))
+	// console.log('build ui config', colorStringify(watchConfig, 2))
 
 	const watcher = await build(watchConfig)
 

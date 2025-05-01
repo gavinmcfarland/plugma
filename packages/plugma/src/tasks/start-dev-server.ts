@@ -167,7 +167,7 @@ const startViteServer = async (
 			userUIConfig?.config ?? {},
 		)
 
-		console.log('dev server ui config', colorStringify(serverConfig, 2))
+		// console.log('dev server ui config', colorStringify(serverConfig, 2))
 		// Configure Vite server with caching workarounds
 		const server = await createServer(serverConfig).catch((error) => {
 			const message = error instanceof Error ? error.message : String(error)

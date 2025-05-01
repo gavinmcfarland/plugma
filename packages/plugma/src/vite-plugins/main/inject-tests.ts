@@ -21,11 +21,10 @@ interface InjectTestsOptions {
 }
 
 const DEFAULT_VITEST_PATTERNS = [
+	// '**/test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
 	'**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-	'**/test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-	'**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-	'**/tests/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-	'**/__tests__/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+	// '**/tests/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+	// '**/__tests__/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
 ]
 
 /**
