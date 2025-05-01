@@ -84,7 +84,7 @@ async function runBuild({ options, viteConfigs, userMainConfig }: ViteConfigOpti
 		userMainConfig?.config ?? {},
 	)
 
-	console.log('build main config', colorStringify(buildConfig, 2))
+	// console.log('build main config', colorStringify(buildConfig, 2))
 
 	await build(buildConfig)
 }
