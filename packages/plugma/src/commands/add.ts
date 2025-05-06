@@ -14,6 +14,7 @@ import shadcnIntegration from '../integrations/shadcn.js'
 import chalk from 'chalk'
 import type { Integration } from '../integrations/define-integration.js'
 import vitestIntegration from '../integrations/vitest.js'
+import eslintIntegration from '../integrations/eslint.js'
 interface AddCommandOptions {
 	integration?: string
 	debug?: boolean
@@ -25,6 +26,7 @@ const INTEGRATIONS = {
 	tailwind: tailwindIntegration,
 	shadcn: shadcnIntegration,
 	vitest: vitestIntegration,
+	eslint: eslintIntegration,
 	// Add other integrations here...
 } as const
 

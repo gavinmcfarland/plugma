@@ -27,7 +27,7 @@ export default defineIntegration({
 		})
 
 		await helpers.writeFile(
-			`eslint.config.cjs`,
+			`.eslintrc.cjs`,
 			dedent`/* eslint-env node */
 					module.exports = {
 					extends: [
