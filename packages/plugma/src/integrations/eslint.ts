@@ -27,21 +27,7 @@ export default defineIntegration({
 		})
 
 		await helpers.writeFile(
-			`eslint.config.mjs`,
-			dedent`// @ts-check
-
-				import eslint from '@eslint/js';
-				import tseslint from 'typescript-eslint';
-
-				export default tseslint.config(
-				eslint.configs.recommended,
-				tseslint.configs.recommended,
-				);
-			`,
-		)
-
-		await helpers.writeFile(
-			`eslint.config.mjs`,
+			`eslint.config.cjs`,
 			dedent`/* eslint-env node */
 					module.exports = {
 					extends: [
@@ -61,5 +47,6 @@ export default defineIntegration({
 
 	nextSteps: (answers) => dedent`
 		[Instructions here]
+		To run the linter, run \`npm run lint\`.
 	`,
 })
