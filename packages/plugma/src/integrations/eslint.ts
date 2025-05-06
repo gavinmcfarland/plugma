@@ -48,5 +48,6 @@ export default defineIntegration({
 	nextSteps: (answers) => dedent`
 		[Instructions here]
 		To run the linter, run \`npm run lint\`.
+		[Optional] Install ESLint extension for VSCode: ${chalk.cyan('https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint')}
 	`,
 })
