@@ -201,7 +201,7 @@ importers:
   packages/plugma/test/sandbox:
     dependencies:
       plugma:
-        specifier: workspace:2.0.0-24
+        specifier: workspace:*
         version: link:../..
     devDependencies:
       '@antfu/ni':
