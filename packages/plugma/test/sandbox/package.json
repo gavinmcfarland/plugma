@@ -53,6 +53,6 @@
 		}
 	},
 	"dependencies": {
-		"plugma": "workspace:2.0.0-24"
+		"plugma": "workspace:*"
 	}
 }
