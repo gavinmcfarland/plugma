@@ -16,13 +16,19 @@ This repository uses Lerna for managing and publishing packages. Follow these st
     - Make sure you have the necessary permissions to publish to npm
     - Verify you're logged in to npm (`npm whoami`)
 
-2. **Run the Publish Command**
+2. **Publish the Packages**
 
     ```bash
     npx lerna publish
     ```
 
-3. **Version Selection**
+3. **Publish a Next Release**
+
+    ```bash
+    npx lerna publish --dist-tag=next
+    ```
+
+4. **Version Selection**
 
     - Lerna will prompt you to select a version bump type:
         - `patch`: For backwards-compatible bug fixes
@@ -31,7 +37,7 @@ This repository uses Lerna for managing and publishing packages. Follow these st
         - `custom`: To specify a custom version
     - You can also use `--yes` flag to skip prompts and use the default version bump
 
-4. **Additional Options**
+5. **Additional Options**
 
     - To publish only changed packages: `npx lerna publish --since`
     - To preview changes without publishing: `npx lerna publish --dry-run`
