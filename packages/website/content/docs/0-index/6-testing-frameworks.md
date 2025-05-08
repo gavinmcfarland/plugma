@@ -158,12 +158,11 @@ The `launchPlugin()` utility helps you programmatically open your plugin during 
 
 ```typescript
 interface LaunchPluginOptions {
-	name: string; // Name of your plugin
 	submenu?: string | null; // Optional submenu name
-	switchBack?: boolean; // Whether to switch back after launching
+	returnToEditor?: boolean; // Whether to return focus to the Figma editor after launching
 }
 
-async function launchPlugin(options: LaunchPluginOptions): Promise<void>;
+async function launchPlugin(name: string, options: LaunchPluginOptions): Promise<void>;
 ```
 
 #### Example Usage
@@ -171,9 +170,8 @@ async function launchPlugin(options: LaunchPluginOptions): Promise<void>;
 ```typescript
 import { launchPlugin } from 'plugma/utils';
 
-launchPlugin({
-	name: 'My Plugin',
+launchPlugin('My Plugin, {
 	submenu: 'Create Rectangles',
-	switchBack: true
+	returnToEditor: true
 });
 ```
