@@ -5,7 +5,8 @@
 	"scripts": {
 		"build-plugma": "cd ../../ && nr build",
 		"list-dist": "command ls -la dist",
-		"dev": "nr build-plugma && plugma dev",
+		"dev": "nr build-plugma && plugma dev -ws -p 4000",
+		"dev:plugma": "pnpm --filter plugma build:watch",
 		"build": "nr build-plugma && plugma build",
 		"preview": "nr build-plugma && plugma preview",
 		"release": "nr build-plugma && plugma release",
@@ -14,6 +15,8 @@
 		"test:build": "nr build-plugma && plugma build --debug && nr list-dist",
 		"test:preview": "nr build-plugma && (timeout 5s plugma preview --debug); nr list-dist",
 		"test:release": "nr build-plugma && plugma release --debug && nr list-dist",
+		"playwright": "npx playwright test",
+		"vitest": "npx vitest",
 		"clean": "rm -rf dist node_modules"
 	},
 	"devDependencies": {
@@ -32,8 +35,8 @@
 	},
 	"plugma": {
 		"manifest": {
-			"id": "plugma-test-sandbox",
-			"name": "Plugma Test Sandbox",
+			"id": "com.plugma-sandbox",
+			"name": "plugma-sandbox",
 			"main": "src/main.ts",
 			"ui": "src/ui.ts",
 			"editorType": [

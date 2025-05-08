@@ -1,4 +1,5 @@
-import { expect, test, launchPlugin } from 'plugma/vitest'
+import { expect, test } from 'plugma/vitest'
+import { launchPlugin } from 'plugma/utils2'
 import { createRectangle } from '../src/create-rectangle-helper'
 
 const TEST_COLOR = {
@@ -7,7 +8,7 @@ const TEST_COLOR = {
 	b: Math.random(),
 }
 
-launchPlugin('Plugma Test Sandbox', null, true)
+// launchPlugin('Plugma Test Sandbox', null, true)
 
 function clearCanvas() {
 	figma.currentPage.children.forEach((child) => {

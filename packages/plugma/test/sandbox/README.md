@@ -6,16 +6,16 @@ This plugin was created with [Plugma](https://github.com/gavinmcfarland/plugma) 
 
 ### Requirements
 
--   [Node.js](https://nodejs.org/en)
--   [Figma desktop app](https://www.figma.com/downloads/)
+- [Node.js](https://nodejs.org/en)
+- [Figma desktop app](https://www.figma.com/downloads/)
 
 ### Install and Import
 
 1. Install the dependencies and watch for changes while developing:
 
     ```bash
-    npm install
-    npm run dev
+    pnpm install
+    pnpm dev
     ```
 
 2. Open the Figma desktop app and import the plugin:
@@ -26,39 +26,59 @@ This plugin was created with [Plugma](https://github.com/gavinmcfarland/plugma) 
 
 3. Manage `manifest` details from inside `package.json`.
 
+### Developing
+
+To develop Plugma locally while using the sandbox plugin.
+
+1. Run the following command:
+
+    ```bash
+    pnpm dev:plugma
+    ```
+
+2. And then in another terminal run:
+
+    ```bash
+    pnpm dev
+    ```
+
 ### Browser Preview
 
-Run this command to preview your plugin in the browser during development.
+To preview your plugin in the browser during development.
 
-```bash
-npm run preview
-```
+1. Open plugin in the Figma desktop app.
+2. Run the following command.
 
-_Make sure the plugin is open in the Figma desktop app._
+    ```bash
+    pnpm preview
+    ```
 
-### Before Publishing
+### Vitest
 
-Before publishing your plugin, make sure to create a build. If not, it will still point to the dev server and won't work properly for users.
+1. Open plugin in the Figma desktop app.
+2. Run the following command.
 
-```bash
-npm run build
-```
+    ```bash
+    pnpm dev
+    pnpm vitest
+    ```
 
-Now you can publish the plugin from the Figma desktop app.
+3. With Vitest's UI
+
+    ```bash
+    pnpm dev
+    pnpm vitest --ui
+    ```
+
+### Playwright
+
+1. Open plugin in the Figma desktop app.
+2. Run the following command.
+
+    ```bash
+    pnpm playwright
+    ```
 
 ### Advanced
 
 See the [Plugma docs](https://plugma.dev/docs) for further information.
-
-### To get the "test" feature working (temporary)
-
-1. Open the Figma desktop app and run the plugin.
-2. Then run the following commands:
-    ```bash
-    plugma dev -ws --port 9000
-    vitest
-    ```
-
-#### How does it work?
-
-When `vitest` runs on Node, it sends the tests to the plugin via WebSockets. The plugin evaluates these tests, executes the assertions, and then sends the results back to `vitest`. In order for this to work, the plugin needs to be open and the WebSocket server needs to be running.
