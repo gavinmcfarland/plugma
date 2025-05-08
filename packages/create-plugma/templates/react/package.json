@@ -23,7 +23,7 @@
 		"globals": "^15.11.0",
 		"vite": "^5.4.10",
 		"@figma/plugin-typings": "^1.100.2",
-		"plugma": "^<%- versions.plugma %>"
+		"plugma": "workspace:*"
 	},
 	"plugma": {
 		"manifest": {
@@ -41,7 +41,7 @@
 				],
 				"devAllowedDomains": [
 					"http://localhost:*",
-					"ws://localhost:9001"
+					"ws://localhost:*"
 				]
 			}
 		}

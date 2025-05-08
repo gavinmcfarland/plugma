@@ -16,7 +16,7 @@
 		"vite": "^5.4.10",
 		"vue-tsc": "^2.1.8",
 		"@figma/plugin-typings": "^1.88.0",
-		"plugma": "^<%- versions.plugma %>"
+		"plugma": "workspace:*"
 	},
 	"plugma": {
 		"manifest": {
@@ -34,7 +34,7 @@
 				],
 				"devAllowedDomains": [
 					"http://localhost:*",
-					"ws://localhost:9001"
+					"ws://localhost:*"
 				]
 			}
 		}
