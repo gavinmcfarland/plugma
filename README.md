@@ -16,7 +16,7 @@
 
 Plugma is a powerful command-line tool that simplifies your Figma plugin development workflow. It enables easy creation, development, and testing with features like true hot module reloading (HMR), in-browser previews, unified bundling, and .env support for environment variables.
 
-For full documentation see [plugma.dev](https://www.plugma.dev/).
+For full documentation see [plugma.dev](https://next.plugma.dev/).
 
 > [!WARNING]
 > This repository is in beta, and features may not work as expected or may undergo changes.
@@ -26,18 +26,7 @@ For full documentation see [plugma.dev](https://www.plugma.dev/).
 Create a new plugin from a template:
 
 ```bash
-npm create plugma@latest
-```
-
-For this beta you need to change the websocket in your manifest to use a wildcard:
-
-```jsonc
-{
-    // ...
-    "networkAccess": {
-        "devAllowedDomains": ["http://localhost:*", "ws://localhost:*"],
-    },
-}
+npm create plugma@next
 ```
 
 Supported frameworks:
