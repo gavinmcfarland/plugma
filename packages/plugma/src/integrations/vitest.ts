@@ -19,30 +19,20 @@ export default defineIntegration({
 			json.scripts['test'] = 'npx vitest'
 		})
 
-		// await helpers.writeFile(
-		// 	`vitest.config.${ext}`,
-		// 	dedent`import { defineConfig, devices } from '@playwright/test';
+		await helpers.writeFile(
+			`vitest.config.${ext}`,
+			dedent`import { defineConfig } from 'vitest/config'
 
-		// 			export default defineConfig({
-		// 			testDir: './tests',
-		// 			fullyParallel: true,
-		// 			projects: [
-		// 				{
-		// 				name: 'chromium',
-		// 				use: { ...devices['Desktop Chrome'] },
-		// 				},
-		// 			],
-		// 			webServer: {
-		// 				command: 'npm run dev -- -ws --port 4000',
-		// 				url: 'http://localhost:4000',
-		// 				reuseExistingServer: !process.env.CI,
-		// 			},
-		// 		});
-		// 	`,
-		// )
+				export default defineConfig({
+				test: {
+					include: ['vitest/**/*.test.ts'],
+				},
+				})
+			`,
+		)
 
 		await helpers.writeFile(
-			`tests/example.test.${ext}`,
+			`vitest/example.test.${ext}`,
 			dedent`import { expect, test } from 'plugma/vitest';
 
 				const TEST_COLOR = {

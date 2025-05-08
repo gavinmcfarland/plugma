@@ -22,7 +22,7 @@ export default defineIntegration({
 			dedent`import { defineConfig, devices } from '@playwright/test';
 
 					export default defineConfig({
-					testDir: './e2e',
+					testDir: './playwright',
 					fullyParallel: true,
 					projects: [
 						{
@@ -40,7 +40,7 @@ export default defineIntegration({
 		)
 
 		await helpers.writeFile(
-			`e2e/example.spec.${ext}`,
+			`playwright/example.spec.${ext}`,
 			dedent`import { test, expect } from 'plugma/playwright';
 
 				test("create 10 rectangles", async ({ ui, main }) => {
