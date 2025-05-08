@@ -2,6 +2,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
+		"publish": "npx lerna publish",
 		"test:coverage": "vitest --run --coverage",
 		"test:watch": "vitest",
 		"test": "vitest --run"
