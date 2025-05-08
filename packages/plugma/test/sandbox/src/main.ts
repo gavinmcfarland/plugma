@@ -10,14 +10,41 @@ import { customTest } from './customTest'
 customTest()
 
 export default function () {
-	console.clear()
-
-	console.log(process.env.NODE_ENV)
+	// console.clear()
 
 	figma.showUI(__html__, { width: 300, height: 260, themeColors: true })
 
-	figma.ui.postMessage({
-		type: 'PLUGIN_OPENED',
+	figma.ui.postMessage({ type: 'PLUGIN_OPENED' })
+
+	figma.on('drop', (event) => {
+		console.log('drop', event)
+		const { files, node, dropMetadata } = event
+
+		if (files.length > 0 && files[0].type === 'image/svg+xml') {
+			files[0].getTextAsync().then((text) => {
+				if (dropMetadata.parentingStrategy === 'page') {
+					const newNode = figma.createNodeFromSvg(text)
+					newNode.x = event.absoluteX
+					newNode.y = event.absoluteY
+
+					figma.currentPage.selection = [newNode]
+				} else if (dropMetadata.parentingStrategy === 'immediate') {
+					const newNode = figma.createNodeFromSvg(text)
+
+					// We can only append page nodes to documents
+					if ('appendChild' in node && node.type !== 'DOCUMENT') {
+						node.appendChild(newNode)
+					}
+
+					newNode.x = event.x
+					newNode.y = event.y
+
+					figma.currentPage.selection = [newNode]
+				}
+			})
+
+			return false
+		}
 	})
 
 	figma.ui.onmessage = async (message) => {
@@ -34,16 +61,7 @@ export default function () {
 				rect.x = i * 150
 				rect.y = 0
 				rect.resize(100, 100)
-				rect.fills = [
-					{
-						type: 'SOLID',
-						color: {
-							r: Math.random(),
-							g: Math.random(),
-							b: Math.random(),
-						},
-					},
-				] // Random color
+				rect.fills = [{ type: 'SOLID', color: { r: Math.random(), g: Math.random(), b: Math.random() } }] // Random color
 				rectangles.push(rect)
 
 				i++
@@ -56,10 +74,7 @@ export default function () {
 	function postNodeCount() {
 		const nodeCount = figma.currentPage.selection.length
 
-		figma.ui.postMessage({
-			type: 'POST_NODE_COUNT',
-			count: nodeCount,
-		})
+		figma.ui.postMessage({ type: 'POST_NODE_COUNT', count: nodeCount })
 	}
 
 	figma.on('selectionchange', postNodeCount)
