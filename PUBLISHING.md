@@ -19,7 +19,7 @@ This repository uses Lerna for managing and publishing packages. Follow these st
 2. **Run the Publish Command**
 
     ```bash
-    pnpm publish
+    npx lerna publish
     ```
 
 3. **Version Selection**
