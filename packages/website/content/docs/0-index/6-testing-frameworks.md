@@ -38,28 +38,30 @@ Then select Vitest from the available integrations.
 
 2. Import the testing utilities from `plugma/vitest`:
 
-    ```typescript
-    import { test, expect } from 'plugma/vitest';
+**Example**
 
-    test('creates a rectangle with specific color', async () => {
-    	const rect = figma.createRectangle();
+```typescript
+import { test, expect } from 'plugma/vitest';
 
-    	rect.fills = [
-    		{
-    			type: 'SOLID',
-    			color: { r: 0.5, g: 0.5, b: 0.5 }
-    		}
-    	];
+test('creates a rectangle with specific color', async () => {
+	const rect = figma.createRectangle();
 
-    	expect(rect.type).toBe('RECTANGLE');
-    	expect(rect.fills[0].type).toBe('SOLID');
-    	expect((rect.fills[0] as SolidPaint).color).toEqual({
-    		r: 0.5,
-    		g: 0.5,
-    		b: 0.5
-    	});
-    });
-    ```
+	rect.fills = [
+		{
+			type: 'SOLID',
+			color: { r: 0.5, g: 0.5, b: 0.5 }
+		}
+	];
+
+	expect(rect.type).toBe('RECTANGLE');
+	expect(rect.fills[0].type).toBe('SOLID');
+	expect((rect.fills[0] as SolidPaint).color).toEqual({
+		r: 0.5,
+		g: 0.5,
+		b: 0.5
+	});
+});
+```
 
 ### Running Unit Tests
 
