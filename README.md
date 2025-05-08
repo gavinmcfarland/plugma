@@ -21,14 +21,23 @@ For full documentation see [plugma.dev](https://www.plugma.dev/).
 > [!WARNING]
 > This repository is in beta, and features may not work as expected or may undergo changes.
 
-For comprehensive documentation, visit [plugma.dev](https://www.plugma.dev/).
-
 ## Quick Start
 
 Create a new plugin from a template:
 
 ```bash
 npm create plugma@latest
+```
+
+For this beta you need to change the websocket in your manifest to use a wildcard:
+
+```jsonc
+{
+    // ...
+    "networkAccess": {
+        "devAllowedDomains": ["http://localhost:*", "ws://localhost:*"],
+    },
+}
 ```
 
 Supported frameworks:
