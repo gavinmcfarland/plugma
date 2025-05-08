@@ -1,79 +1,102 @@
 # Testing Frameworks
 
-Testing is crucial for plugin development, and Plugma provides built-in support for both unit testing and end-to-end testing. This guide covers how to set up and use testing in your Plugma projects.
+Plugma provides built-in support for both unit testing and end-to-end testing to help you ensure your plugin works correctly. This guide covers how to set up and use testing in your Plugma projects.
+
+<blockquote class="warning">
+The following testing frameworks are experimental and their implementation may change in future versions.
+</blockquote>
+
+## Overview
+
+Plugma supports two main testing approaches:
+
+1. **Unit Testing with Vitest**: Test individual components and functions of your plugin
+2. **End-to-End Testing with Playwright**: Test your plugin's UI and interactions as a whole
 
 ## Unit Testing with Vitest
 
-Vitest allows you to write and run unit tests for your plugin's logic.
+Vitest is ideal for testing individual components and functions of your plugin's logic.
 
-### Add Vitest to your project
+### Setup
 
-Add Vitest to your project:
+Add Vitest to your project by running:
 
 ```bash
-npx plugma add vitest
+npx plugma add
 ```
+
+Then select Vitest from the available integrations.
 
 ### Writing Unit Tests
 
-Create test files with extensions `.test.ts`, `.test.js`, `.spec.ts`, or `.spec.js`. Import the testing utilities from `plugma/vitest`:
+1. Create test files with any of these extensions:
 
-```typescript
-import { test, expect } from 'plugma/vitest';
+    - `.test.ts`
+    - `.test.js`
+    - `.spec.ts`
+    - `.spec.js`
 
-test('creates a rectangle with specific color', async () => {
-	const rect = figma.createRectangle();
+2. Import the testing utilities from `plugma/vitest`:
 
-	rect.fills = [
-		{
-			type: 'SOLID',
-			color: { r: 0.5, g: 0.5, b: 0.5 }
-		}
-	];
+    ```typescript
+    import { test, expect } from 'plugma/vitest';
 
-	expect(rect.type).toBe('RECTANGLE');
-	expect(rect.fills[0].type).toBe('SOLID');
-	expect((rect.fills[0] as SolidPaint).color).toEqual({
-		r: 0.5,
-		g: 0.5,
-		b: 0.5
-	});
-});
-```
+    test('creates a rectangle with specific color', async () => {
+    	const rect = figma.createRectangle();
+
+    	rect.fills = [
+    		{
+    			type: 'SOLID',
+    			color: { r: 0.5, g: 0.5, b: 0.5 }
+    		}
+    	];
+
+    	expect(rect.type).toBe('RECTANGLE');
+    	expect(rect.fills[0].type).toBe('SOLID');
+    	expect((rect.fills[0] as SolidPaint).color).toEqual({
+    		r: 0.5,
+    		g: 0.5,
+    		b: 0.5
+    	});
+    });
+    ```
 
 ### Running Unit Tests
 
-Start the Plugma dev server with WebSocket support:
-
-```bash
-npm run dev -- -ws
-```
-
-With your plugin open in Figma desktop app, run:
-
-```bash
-npx vitest
-```
-
-<blockquote class="info">
-The plugin must be running in the Figma desktop app for tests to execute.
-</blockquote>
+1. Open your plugin in the Figma desktop app
+2. Start the dev server with WebSockets enabled:
+    ```bash
+    npm run dev -- -ws
+    ```
+3. Run the tests:
+    ```bash
+    npx vitest
+    ```
 
 ## End-to-End Testing with Playwright
 
-Playwright enables testing your plugin's UI and interactions end-to-end.
+Playwright enables you to test your plugin's UI and interactions from a user's perspective.
 
-### Add Playwright to your project
+### Setup
 
-Add Playwright to your project:
+Add Playwright to your project by running:
 
 ```bash
-npx plugma add playwright
+npx plugma add
 ```
+
+Then select Playwright from the available integrations.
 
 ### Writing E2E Tests
 
-Create test files with extensions `.test.ts`, `.test.js`, `.spec.ts`, or `.spec.js`. Import the testing utilities from `plugma/playwright`:
+1. Create test files with any of these extensions:
+
+    - `.test.ts`
+    - `.test.js`
+    - `.spec.ts`
+    - `.spec.js`
+
+2. Import the testing utilities from `plugma/playwright`:
 
 ```typescript
 import { test, expect } from 'plugma/playwright';
@@ -95,9 +118,9 @@ test('creates multiple rectangles', async ({ page, ui, main }) => {
 
 ### Key Concepts
 
-##### The `main` Fixture
+#### The `main` Fixture
 
-Use the `main` fixture to execute code in Figma's main thread:
+The `main` fixture allows you to execute code in Figma's main thread. This is essential for testing Figma-specific functionality:
 
 ```typescript
 test('verify rectangle creation', async ({ main }) => {
@@ -109,44 +132,43 @@ test('verify rectangle creation', async ({ main }) => {
 ```
 
 <blockquote class="warning">
-Currently all code must be written in the main fixture, as the fixture is evaled in the main thread. This will be updated in a future release.
+Currently, all code must be written within the main fixture as it is evaluated in the main thread.
 </blockquote>
 
-#### Running E2E Tests
+### Running E2E Tests
 
-Start the Plugma dev server with WebSocket support and a fixed port:
-
-```bash
-npm run dev -- -ws -p 4000
-```
-
-With your plugin open in Figma desktop app, run:
-
-```bash
-npx playwright test
-```
+1. Start the Plugma dev server with WebSocket support and a fixed port:
+    ```bash
+    npm run dev -- -ws -p 4000
+    ```
+2. With your plugin open in the Figma desktop app, run:
+    ```bash
+    npx playwright test
+    ```
 
 ## Testing Utilities
 
 ### `launchPlugin()`
 
-Simulates opening your plugin programmatically during tests.
+The `launchPlugin()` utility helps you programmatically open your plugin during tests.
 
 ```typescript
 interface LaunchPluginOptions {
-	pluginName: string;
-	submenu?: string | null;
-	switchBack?: boolean;
+	name: string; // Name of your plugin
+	submenu?: string | null; // Optional submenu name
+	switchBack?: boolean; // Whether to switch back after launching
 }
 
 async function launchPlugin(options: LaunchPluginOptions): Promise<void>;
 ```
 
-##### Example Usage
+#### Example Usage
 
 ```typescript
-await launchPlugin({
-	pluginName: 'My Plugin',
+import { launchPlugin } from 'plugma/utils';
+
+launchPlugin({
+	name: 'My Plugin',
 	submenu: 'Create Rectangles',
 	switchBack: true
 });
