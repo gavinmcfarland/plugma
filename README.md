@@ -6,7 +6,7 @@
 
 [![npm version](https://img.shields.io/npm/v/plugma/next.svg)](https://www.npmjs.com/package/plugma)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Discord](https://img.shields.io/discord/1234567890?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/RvHH4ZnKXS)
+[![Discord](https://img.shields.io/discord/1369975781811425382?logo=discord&logoColor=white&label=discord)](https://discord.gg/RvHH4ZnKXS)
 
 <!-- [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com) -->
 
