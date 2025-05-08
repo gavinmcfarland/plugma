@@ -18,8 +18,8 @@ Plugma is a powerful command-line tool that simplifies your Figma plugin develop
 
 For full documentation see [plugma.dev](https://www.plugma.dev/).
 
-> [!NOTE]
-> This repo is in beta and things may not work as expected or their implementation may change.
+> [!WARNING]
+> This repository is in beta, and features may not work as expected or may undergo changes.
 
 For comprehensive documentation, visit [plugma.dev](https://www.plugma.dev/).
 
