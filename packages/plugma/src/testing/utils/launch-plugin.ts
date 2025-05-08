@@ -2,9 +2,19 @@
 const noop = async () => {
 	console.warn('launchPlugin is only available in Node.js environments')
 }
+
 export const launchPlugin =
-	typeof process !== 'undefined' && process.versions?.node
-		? async function launchPlugin(name: string, submenu: string | null = null, switchBack: boolean = false) {
+	// Don't run in figma
+	typeof figma === 'undefined'
+		? async function launchPlugin({
+				name,
+				submenu,
+				switchBack,
+			}: {
+				name: string
+				submenu: string | null
+				switchBack: boolean
+			}) {
 				// Dynamically import Node.js modules
 				const { exec } = await import('child_process')
 				const { promisify } = await import('util')

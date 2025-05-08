@@ -8,7 +8,7 @@ const TEST_COLOR = {
 	b: Math.random(),
 }
 
-// launchPlugin('Plugma Test Sandbox', null, true)
+await launchPlugin({ name: 'plugma-sandbox', switchBack: true })
 
 function clearCanvas() {
 	figma.currentPage.children.forEach((child) => {
