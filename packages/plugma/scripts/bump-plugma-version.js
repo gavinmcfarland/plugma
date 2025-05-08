@@ -15,6 +15,7 @@ const DIST_TAG = process.argv[2] || process.env.DIST_TAG || 'latest';
 
 async function getLatestVersion(packageName, tag) {
 	// First check if we have the version in environment variables
+	console.log("process.env.npm_package_version", process.env.npm_package_version);
 	if (process.env.npm_package_version) {
 		return process.env.npm_package_version;
 	}
