@@ -65,11 +65,13 @@
 		socket.on('RUN_TEST', handleRunTest)
 
 		addMessageListener('window', (message) => {
-			if (message.data.pluginMessage.type === 'TEST_ASSERTIONS') {
-				socket.emit('TEST_ASSERTIONS', message.data.pluginMessage.data)
-			}
-			if (message.data.pluginMessage.type === 'TEST_ERROR') {
-				socket.emit('TEST_ERROR', message.data.pluginMessage.data)
+			if (message.data.pluginMessage) {
+				if (message.data.pluginMessage.type === 'TEST_ASSERTIONS') {
+					socket.emit('TEST_ASSERTIONS', message.data.pluginMessage.data)
+				}
+				if (message.data.pluginMessage.type === 'TEST_ERROR') {
+					socket.emit('TEST_ERROR', message.data.pluginMessage.data)
+				}
 			}
 		})
 
