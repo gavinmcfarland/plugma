@@ -36,7 +36,8 @@
 		"test:coverage": "vitest --run --coverage",
 		"test:watch": "vitest",
 		"test": "vitest --run",
-		"start:websocket-server": "tsx src/tasks/server/websocket.ts"
+		"start:websocket-server": "tsx src/tasks/server/websocket.ts",
+		"postpublish": "node ../../repo/packages/create-plugma/scripts/bump-plugma-version.js"
 	},
 	"exports": {
 		"./utils": {
