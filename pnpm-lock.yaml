@@ -28,6 +28,10 @@ importers:
       slugify:
         specifier: ^1.6.6
         version: 1.6.6
+    devDependencies:
+      plugma:
+        specifier: workspace:*
+        version: link:../plugma
 
   packages/plugma:
     dependencies:
