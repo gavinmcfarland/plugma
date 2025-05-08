@@ -100,6 +100,8 @@ Then select Playwright from the available integrations.
 
 2. Import the testing utilities from `plugma/playwright`:
 
+**Example**
+
 ```typescript
 import { test, expect } from 'plugma/playwright';
 
@@ -134,7 +136,7 @@ test('verify rectangle creation', async ({ main }) => {
 ```
 
 <blockquote class="warning">
-Currently, all code must be written within the main fixture as it is evaluated in the main thread.
+Currently, all functions that are required for Figma must be included in the main fixture as it is evaluated in the main thread.
 </blockquote>
 
 ### Running E2E Tests
