@@ -37,7 +37,7 @@
 		"test:watch": "vitest",
 		"test": "vitest --run",
 		"start:websocket-server": "tsx src/tasks/server/websocket.ts",
-		"postpublish": "node scripts/bump-plugma-version.js"
+		"version": "node scripts/bump-plugma-version.js"
 	},
 	"exports": {
 		"./utils": {
