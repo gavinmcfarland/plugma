@@ -18,17 +18,19 @@ This repository uses Lerna for managing and publishing packages. Follow these st
 
 2. **Publish the Packages**
 
+    By default, Lerna will publish all packages with the `latest` tag.
+
     ```bash
     npx lerna publish
     ```
 
-3. **Publish a Next Release**
+    **Or Publish With a Tag**
 
     ```bash
     npx lerna publish --dist-tag=next
     ```
 
-4. **Version Selection**
+3. **Version Selection**
 
     - Lerna will prompt you to select a version bump type:
         - `patch`: For backwards-compatible bug fixes
@@ -37,7 +39,7 @@ This repository uses Lerna for managing and publishing packages. Follow these st
         - `custom`: To specify a custom version
     - You can also use `--yes` flag to skip prompts and use the default version bump
 
-5. **Additional Options**
+4. **Additional Options**
 
     - To publish only changed packages: `npx lerna publish --since`
     - To preview changes without publishing: `npx lerna publish --dry-run`
@@ -53,3 +55,4 @@ This repository uses Lerna for managing and publishing packages. Follow these st
 - The repository uses pnpm as the package manager
 - All packages are managed in the `packages/` directory
 - Version numbers are managed centrally through Lerna
+- The version of the `plugma` package used in `create-plugma` is automatically managed by package scripts
