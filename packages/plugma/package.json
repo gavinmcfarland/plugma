@@ -39,37 +39,10 @@
         "start:websocket-server": "tsx src/tasks/server/websocket.ts"
     },
     "exports": {
-        "./core": {
-            "import": "./dist/core/index.js",
-            "types": "./dist/core/index.d.ts"
-        },
-        "./commands": {
-            "import": "./dist/commands/index.js",
-            "types": "./dist/commands/index.d.ts"
-        },
-        "./commands/*": {
-            "import": "./dist/commands/*.js",
-            "types": "./dist/commands/*.d.ts"
-        },
+
         "./utils": {
-            "import": "./dist/utils/index.js",
-            "types": "./dist/utils/index.d.ts"
-        },
-        "./tasks": {
-            "import": "./dist/tasks/index.js",
-            "types": "./dist/tasks/index.d.ts"
-        },
-        "./vite-plugins": {
-            "import": "./dist/vite-plugins/index.js",
-            "types": "./dist/vite-plugins/index.d.ts"
-        },
-        "./testing": {
-            "import": "./dist/testing/index.js",
-            "types": "./dist/testing/index.d.ts"
-        },
-        "./testing/figma": {
-            "import": "./dist/testing/figma/index.js",
-            "types": "./dist/testing/figma/index.d.ts"
+            "import": "./dist/testing/utils/index.js",
+            "types": "./dist/testing/utils/index.d.ts"
         },
         ".": {
             "browser": "./dist/client.js",
@@ -79,7 +52,6 @@
         "./server": "./dist/core/websockets/server.js",
         "./client": "./dist/core/websockets/client.js",
         "./vitest": "./dist/testing/vitest/index.js",
-        "./utils2": "./dist/testing/utils/index.js",
         "./playwright": "./dist/testing/playwright/index.js"
     },
     "author": "",
