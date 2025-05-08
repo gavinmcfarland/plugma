@@ -1,7 +1,6 @@
 {
-    "name": "sandbox",
+    "name": "websockets",
     "private": true,
-    "version": "0.0.0",
     "type": "module",
     "scripts": {
         "dev": "concurrently \"tsx src/node/websocket-server.ts\" \"vite\"",
