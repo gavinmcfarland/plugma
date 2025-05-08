@@ -1,15 +1,17 @@
 import { readFile, writeFile } from 'fs/promises';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { resolve } from 'path';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 const execAsync = promisify(exec);
 
-const rootDirectory = process.cwd();
-const versionsFilePath = resolve(rootDirectory, 'versions.json');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const versionsFilePath = resolve(__dirname, '..', 'versions.json');
 
 // Read from CLI arg or fallback to 'latest'
-const DIST_TAG = process.argv[2] || process.env.PLUGMA_TAG || 'latest';
+const DIST_TAG = process.argv[2] || process.env.DIST_TAG || 'latest';
 
 async function getLatestVersion(packageName, tag) {
 	try {
