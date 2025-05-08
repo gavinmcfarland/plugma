@@ -16,10 +16,10 @@ export async function triggerDeveloperTools() {
 
 	// If user toggles toolbar from iframe, send message to parent
 	window.addEventListener('message', (event) => {
-		const message = event.data?.pluginMessage
-
-		if (message.event === 'PLUGMA_PLUGIN_WINDOW_TOGGLE_TOOLBAR') {
-			saveFigmaBridgeSettings(devToolsActive, true)
+		if (event.data?.pluginMessage) {
+			if (event.data?.pluginMessage.event === 'PLUGMA_PLUGIN_WINDOW_TOGGLE_TOOLBAR') {
+				saveFigmaBridgeSettings(devToolsActive, true)
+			}
 		}
 	})
 
