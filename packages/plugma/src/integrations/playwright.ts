@@ -14,7 +14,7 @@ export default defineIntegration({
 		// Update package.json
 		await helpers.updateJson('package.json', (json) => {
 			json.scripts = json.scripts || {}
-			json.scripts['test:e2e'] = 'npx playwright test'
+			json.scripts['playwright'] = 'npx playwright test'
 		})
 
 		await helpers.writeFile(
@@ -61,7 +61,7 @@ export default defineIntegration({
 	},
 
 	nextSteps: (answers) => dedent`
-		Run tests with ${chalk.cyan('npm run test:e2e')}
+		Run tests with ${chalk.cyan('npm run playwright')}
 		See Playwright docs for more information: ${chalk.cyan('https://playwright.dev/docs/intro')}
 	`,
 })

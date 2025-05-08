@@ -16,7 +16,7 @@ export default defineIntegration({
 		// Update package.json
 		await helpers.updateJson('package.json', (json) => {
 			json.scripts = json.scripts || {}
-			json.scripts['test'] = 'npx vitest'
+			json.scripts['vitest'] = 'npx vitest'
 		})
 
 		await helpers.writeFile(
@@ -61,7 +61,7 @@ export default defineIntegration({
 
 	nextSteps: (answers) => dedent`
 		Start the dev server with websockets enabled: ${chalk.cyan('npm run dev -- -ws')}
-		Run tests with ${chalk.cyan('npm run test')}
+		Run tests with ${chalk.cyan('npm run vitest')}
 		See Vitest docs for more information: ${chalk.cyan('https://vitest.dev/')}
 	`,
 })
