@@ -79,7 +79,7 @@
         "./server": "./dist/core/websockets/server.js",
         "./client": "./dist/core/websockets/client.js",
         "./vitest": "./dist/testing/vitest/index.js",
-        "./utils2": "./dist/utils/index.js",
+        "./utils2": "./dist/testing/utils/index.js",
         "./playwright": "./dist/testing/playwright/index.js"
     },
     "author": "",
