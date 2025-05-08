@@ -5,34 +5,39 @@ import { resolve } from 'path';
 
 const execAsync = promisify(exec);
 
-// Use process.cwd() to get the current working directory (the root of the project when you run the script)
 const rootDirectory = process.cwd();
-
-// Path to the versions.json file at the root
 const versionsFilePath = resolve(rootDirectory, 'versions.json');
 
-// Fetch the latest version of plugma from npm
-async function getLatestVersion(packageName) {
-	const { stdout } = await execAsync(`npm show ${packageName} version`);
-	return stdout.trim();
+// Read from CLI arg or fallback to 'latest'
+const DIST_TAG = process.argv[2] || process.env.PLUGMA_TAG || 'latest';
+
+async function getLatestVersion(packageName, tag) {
+	try {
+		const { stdout } = await execAsync(`npm show ${packageName}@${tag} version`);
+		return stdout.trim();
+	} catch (err) {
+		if (tag !== 'latest') {
+			console.warn(`No version found for ${packageName}@${tag}, falling back to latest.`);
+			return getLatestVersion(packageName, 'latest');
+		}
+		throw new Error(`Failed to fetch version for ${packageName}@${tag}: ${err}`);
+	}
 }
 
-// Update the versions.json file
 async function updateVersionFile() {
 	try {
 		const versions = JSON.parse(await readFile(versionsFilePath, 'utf8'));
-
-		const latestPlugmaVersion = await getLatestVersion('plugma');
+		const latestPlugmaVersion = await getLatestVersion('plugma', DIST_TAG);
 
 		if (versions.plugma !== latestPlugmaVersion) {
 			versions.plugma = latestPlugmaVersion;
 			await writeFile(versionsFilePath, JSON.stringify(versions, null, 2));
-			console.log(`Updated plugma version to ${latestPlugmaVersion}`);
+			console.log(`✅ Updated plugma version to ${latestPlugmaVersion} (tag: ${DIST_TAG})`);
 		} else {
-			console.log('Plugma is already up-to-date.');
+			console.log(`ℹ️ Plugma is already up-to-date with version ${latestPlugmaVersion} (tag: ${DIST_TAG})`);
 		}
 	} catch (error) {
-		console.error('Error updating version file:', error);
+		console.error('❌ Error updating version file:', error);
 	}
 }
 
