@@ -6,8 +6,7 @@
 	"type": "module",
 	"scripts": {
 		"test": "echo \"Error: no test specified\"",
-		"bump-versions": "node scripts/bump-plugma-version.js",
-		"postversion": "npm run bump-versions"
+		"bump-versions": "node scripts/bump-plugma-version.js"
 	},
 	"bin": {
 		"create-plugma": "./create-plugma.js"
