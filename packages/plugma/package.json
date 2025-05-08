@@ -1,6 +1,6 @@
 {
 	"name": "plugma",
-	"version": "2.0.0-31",
+	"version": "2.0.0-32",
 	"description": "",
 	"main": "index.js",
 	"type": "module",
