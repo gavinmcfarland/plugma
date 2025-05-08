@@ -39,7 +39,6 @@
         "start:websocket-server": "tsx src/tasks/server/websocket.ts"
     },
     "exports": {
-
         "./utils": {
             "import": "./dist/testing/utils/index.js",
             "types": "./dist/testing/utils/index.d.ts"
@@ -72,6 +71,7 @@
         "inquirer": "^12.0.0",
         "json5": "^2.2.3",
         "magic-string": "^0.30.17",
+        "nanoid": "^5.1.5",
         "package-manager-detector": "^1.1.0",
         "prettier": "^3.3.3",
         "rollup": "^4.39.0",
