@@ -93,7 +93,7 @@ export const test: TestFn = async (name, fn) => {
 
 		// Wait for plugin to rebuild and reload
 		// FIXME: We should listen for event from plugin UI
-		await new Promise((resolve) => setTimeout(resolve, 600))
+		await new Promise((resolve) => setTimeout(resolve, 1000))
 
 		await runTest(testRunId)
 
