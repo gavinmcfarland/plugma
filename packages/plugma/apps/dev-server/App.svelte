@@ -89,7 +89,7 @@
 
 	interceptPostMessage() // Only applies to browser preview context
 	overrideMessageEvent() // Only applies to browser preview context
-	interceptDragEnd()
+	// interceptDragEnd() // REVIEW: disabled for now because might not be very robust
 
 	$: monitorUrl(devServerUIUrl, (isDevServerActive: boolean) => {
 		isServerActive = isDevServerActive

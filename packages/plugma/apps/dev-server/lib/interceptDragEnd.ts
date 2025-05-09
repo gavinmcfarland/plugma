@@ -1,3 +1,8 @@
+/**
+ * Used to intercept dragend events that post to parent and inject a dragstart event with a dataTransfer object
+ * that can be intercepted by the dev server. This is a workaround for drop events not working in the same way as they do in production.
+ */
+
 export function interceptDragEnd() {
 	const originalAddEventListener = HTMLElement.prototype.addEventListener
 
