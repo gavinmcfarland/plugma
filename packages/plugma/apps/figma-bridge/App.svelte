@@ -75,7 +75,7 @@
 			}
 		})
 
-		redirectIframe(devServerUIUrl)
+		redirectIframe(devServerUIUrl, window.runtimeData.config?.runtimeData?.iframeMode || 'src')
 		setBodyStyles()
 		relayFigmaMessages()
 		postFigmaStyles()

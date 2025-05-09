@@ -40,17 +40,139 @@ export function sendMessageToIframe(message: any) {
 	}
 }
 
-export async function redirectIframe(url: string) {
+async function createBlobURLFromURL(url) {
+	const response = await fetch(url)
+	const contentType = response.headers.get('Content-Type') || 'text/html'
+	const blob = await response.blob()
+	return URL.createObjectURL(new Blob([blob], { type: contentType }))
+}
+
+function injectBaseTag(html, baseHref) {
+	return html.replace(
+		/<head([^>]*)>/i,
+		`<head$1>
+		 <base href="${baseHref}">
+		 <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' ws: http: data: blob:;">
+		`,
+	)
+}
+
+function watchViteReload({ url, iframe }) {
+	const wsUrl = url.replace(/^http/, 'ws') + '/@vite/client'
+	const socket = new WebSocket(wsUrl)
+
+	console.log('wsUrl', socket)
+	socket.addEventListener('open', () => {
+		console.log('[vite-watch] ✅ Connected to Vite HMR server')
+	})
+
+	socket.addEventListener('error', (e) => {
+		console.error('[vite-watch] ❌ WebSocket error:', e)
+	})
+
+	socket.addEventListener('message', async (event) => {
+		const data = JSON.parse(event.data)
+
+		if (data.type === 'full-reload' || data.type === 'update') {
+			console.log('[vite-watch] ⚡ Detected Vite update — reloading iframe')
+
+			try {
+				const rawHtml = await fetch(url, { cache: 'no-store' }).then((res) => res.text())
+				const htmlWithBase = injectBaseTag(rawHtml, url)
+				iframe.srcdoc = htmlWithBase
+			} catch (err) {
+				console.error('[vite-watch] ❌ Failed to reload iframe:', err)
+			}
+		}
+	})
+}
+
+function redirectUsingSrcDocWithPolling({ url, iframe, interval = 1000 }) {
+	let previousHash = null
+
+	async function hashString(str) {
+		let hash = 5381
+		for (let i = 0; i < str.length; i++) {
+			hash = (hash * 33) ^ str.charCodeAt(i)
+		}
+		return String(hash >>> 0)
+	}
+
+	async function poll() {
+		try {
+			const rawHtml = await (await fetch(url, { cache: 'no-store' })).text()
+			const hash = await hashString(rawHtml)
+
+			if (hash !== previousHash) {
+				console.log('⚡ UI updated — reloading iframe')
+				previousHash = hash
+
+				const htmlWithBase = injectBaseTag(rawHtml, url)
+				iframe.srcdoc = htmlWithBase
+			}
+		} catch (err) {
+			console.error('Failed to poll for updates:', err)
+		}
+
+		setTimeout(poll, interval)
+	}
+
+	poll() // start polling
+}
+
+// Simple hash function using Web Crypto
+function hashString(str) {
+	let hash = 5381
+	for (let i = 0; i < str.length; i++) {
+		hash = (hash * 33) ^ str.charCodeAt(i)
+	}
+	return String(hash >>> 0)
+}
+
+async function redirectUsingBlob({ url, iframe }) {
+	// Using a blob
+	const rawHtml = await (await fetch(url)).text()
+	const htmlWithBase = injectBaseTag(rawHtml, url)
+	const blob = new Blob([htmlWithBase], { type: 'text/html' })
+	iframe.src = URL.createObjectURL(blob)
+}
+
+async function redirectUsingDataURI({ url, iframe }) {
+	// Using a data URI
+	// Note: This method doesn't re-render when the source changes
+	const rawHtml = await (await fetch(url)).text()
+	const htmlWithBase = injectBaseTag(rawHtml, url)
+	const dataUrl = 'data:text/html;charset=utf-8,' + encodeURIComponent(htmlWithBase)
+	iframe.src = dataUrl
+}
+
+async function redirectUsingSrcDoc({ url, iframe }) {
+	// NOTE: Must have ws://localhost:<port> in devAllowedDomains, with port matching the dev server port
+	const rawHtml = await (await fetch(url)).text()
+	const htmlWithBase = injectBaseTag(rawHtml, url)
+	iframe.srcdoc = htmlWithBase
+}
+
+async function redirectUsingSrc({ url, iframe }) {
+	iframe.src = new URL(url).href
+}
+
+export async function redirectIframe(url: string, mode: 'src' | 'srcDoc' | 'blob' | 'dataURI') {
 	const iframe = document.getElementById('dev-server-ui') as HTMLIFrameElement
 	if (iframe) {
-		// Set the iframe source immediately
-		// iframe.src = new URL(url).href
-
 		// Verify server connection in the background and reload once available
 		waitForServer(url)
-			.then(() => {
-				// Server is available, reload the iframe
-				iframe.src = new URL(url).href
+			.then(async () => {
+				// Using current method
+				if (mode === 'src') {
+					redirectUsingSrc({ url, iframe })
+				} else if (mode === 'srcDoc') {
+					redirectUsingSrcDoc({ url, iframe })
+				} else if (mode === 'blob') {
+					redirectUsingBlob({ url, iframe })
+				} else if (mode === 'dataURI') {
+					redirectUsingDataURI({ url, iframe })
+				}
 
 				// Set up message listener for iframe ready state
 				const handleIframeLoad = () => {
