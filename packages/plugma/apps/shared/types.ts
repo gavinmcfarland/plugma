@@ -62,6 +62,7 @@ export interface RuntimeData {
 	manifest: Manifest
 	websockets: boolean
 	port: number
+	config?: any
 }
 
 declare global {

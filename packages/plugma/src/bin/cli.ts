@@ -62,6 +62,14 @@ program
 	.option('-o, --output <path>', 'Specify the output directory', 'dist')
 	.option('-ws, --websockets', 'Enable websockets', false)
 	.option('-d, --debug', 'Enable debug mode', false)
+	.option('-c, --config <json>', 'Specify a JSON configuration object for testing and debugging', (value) => {
+		try {
+			return JSON.parse(value)
+		} catch (e) {
+			console.error('Invalid JSON configuration:', e)
+			process.exit(1)
+		}
+	})
 	.action(function (this: Command, options: DevCommandOptions) {
 		handleDebug(this.name(), options)
 		suppressLogs(options)
@@ -73,6 +81,7 @@ program
     Examples:
       plugma dev --port 3000 --websockets
       plugma dev --mode test
+      plugma dev --config '{"testMode": true, "mockData": {"key": "value"}}'
   `,
 	)
 
@@ -88,6 +97,14 @@ program
 	.option('-m, --mode <mode>', 'Specify the mode', 'development')
 	.option('-o, --output <path>', 'Specify the output directory', 'dist')
 	.option('-d, --debug', 'Enable debug mode', false)
+	.option('-c, --config <json>', 'Specify a JSON configuration object for testing and debugging', (value) => {
+		try {
+			return JSON.parse(value)
+		} catch (e) {
+			console.error('Invalid JSON configuration:', e)
+			process.exit(1)
+		}
+	})
 	.action(function (this: Command, options: PreviewCommandOptions) {
 		handleDebug(this.name(), options)
 		suppressLogs(options)
@@ -98,6 +115,7 @@ program
 		`
     Examples:
       plugma preview --port 3000
+      plugma preview --config '{"testMode": true, "mockData": {"key": "value"}}'
   `,
 	)
 
@@ -110,6 +128,14 @@ program
 	.option('-m, --mode <mode>', 'Specify the mode', 'production')
 	.option('-o, --output <path>', 'Specify the output directory', 'dist')
 	.option('-d, --debug', 'Enable debug mode', false)
+	.option('-c, --config <json>', 'Specify a JSON configuration object for testing and debugging', (value) => {
+		try {
+			return JSON.parse(value)
+		} catch (e) {
+			console.error('Invalid JSON configuration:', e)
+			process.exit(1)
+		}
+	})
 	.action(function (this: Command, options: BuildCommandOptions) {
 		handleDebug(this.name(), options)
 		suppressLogs(options)
@@ -120,6 +146,7 @@ program
 		`
     Examples:
       plugma build --watch
+      plugma build --config '{"testMode": true, "mockData": {"key": "value"}}'
   `,
 	)
 
@@ -132,6 +159,14 @@ program
 	.option('-n, --notes <notes>', 'Specify release notes')
 	.option('-d, --debug', 'Enable debug mode', false)
 	.option('-o, --output <path>', 'Specify the output directory', 'dist')
+	.option('-c, --config <json>', 'Specify a JSON configuration object for testing and debugging', (value) => {
+		try {
+			return JSON.parse(value)
+		} catch (e) {
+			console.error('Invalid JSON configuration:', e)
+			process.exit(1)
+		}
+	})
 	.action(function (this: Command, type: string, options: ReleaseCommandOptions) {
 		handleDebug(this.name(), { ...options, type })
 
@@ -142,6 +177,7 @@ program
 			notes: options.notes,
 			output: options.output,
 			debug: options.debug,
+			config: options.config,
 		}
 
 		if (validReleaseTypes.includes(type as (typeof validReleaseTypes)[number])) {
@@ -161,6 +197,7 @@ program
     Examples:
       plugma release
       plugma release alpha --title "Alpha Release" --notes "Initial alpha release"
+      plugma release --config '{"testMode": true, "mockData": {"key": "value"}}'
   `,
 	)
 
@@ -168,7 +205,15 @@ program
 program
 	.command('add')
 	.argument('[integration]', 'Integration to add', 'playwright')
-	.action(async function (this: Command, integration: string) {
+	.option('-c, --config <json>', 'Specify a JSON configuration object for testing and debugging', (value) => {
+		try {
+			return JSON.parse(value)
+		} catch (e) {
+			console.error('Invalid JSON configuration:', e)
+			process.exit(1)
+		}
+	})
+	.action(async function (this: Command, integration: string, options: { config?: any }) {
 		await add({ integration })
 	})
 	.addHelpText(
@@ -176,6 +221,7 @@ program
 		`
     Examples:
       plugma add playwright
+      plugma add playwright --config '{"testMode": true, "mockData": {"key": "value"}}'
   `,
 	)
 

@@ -16,6 +16,7 @@ export interface BaseCommandOptions {
 	mode?: string
 	output?: string
 	cwd?: string
+	config?: Record<string, unknown>
 }
 
 /**
