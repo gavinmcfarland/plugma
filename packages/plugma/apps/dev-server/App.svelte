@@ -13,7 +13,7 @@
 	import { interceptPostMessage } from './lib/interceptPostMessage'
 	import { overrideMessageEvent } from './lib/overrideMessageEvent'
 	import { reimplementFigmaListeners } from './lib/reimplementFigmaListeners'
-
+	import { interceptDragEnd } from './lib/interceptDragEnd'
 	import ServerStatus from '../shared/components/ServerStatus.svelte'
 
 	const isInsideIframe = window.self !== window.top
@@ -89,6 +89,7 @@
 
 	interceptPostMessage() // Only applies to browser preview context
 	overrideMessageEvent() // Only applies to browser preview context
+	interceptDragEnd()
 
 	$: monitorUrl(devServerUIUrl, (isDevServerActive: boolean) => {
 		isServerActive = isDevServerActive
