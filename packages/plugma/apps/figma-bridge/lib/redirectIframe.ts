@@ -40,20 +40,33 @@ export function sendMessageToIframe(message: any) {
 	}
 }
 
-async function createBlobURLFromURL(url) {
+async function createBlobURLFromURL({ url, iframe }) {
 	const response = await fetch(url)
 	const contentType = response.headers.get('Content-Type') || 'text/html'
 	const blob = await response.blob()
-	return URL.createObjectURL(new Blob([blob], { type: contentType }))
+	const newBlobUrl = URL.createObjectURL(new Blob([blob], { type: contentType }))
+	iframe.src = newBlobUrl
 }
 
 function injectBaseTag(html, baseHref) {
+	// Ensure DOCTYPE is present
+	// if (!/^<!doctype html>/i.test(html.trim())) {
+	// 	html = '<!DOCTYPE html>\n' + html
+	// }
+
+	// Inject base tag and CSP meta
 	return html.replace(
 		/<head([^>]*)>/i,
 		`<head$1>
-		 <base href="${baseHref}">
-		 <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' ws: http: data: blob:;">
-		`,
+		<style>
+			/* Missing when loading via scrDoc */
+			table {
+				line-height: normal;
+			}
+		</style>
+		<base href="${baseHref}">
+		<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' ws: http: data: blob:;">
+	  `,
 	)
 }
 
