@@ -32,21 +32,24 @@ export function transformManifest(input: ManifestFile | undefined, options: Plug
 	const transformed = JSON.parse(JSON.stringify(input))
 
 	if (transformed?.networkAccess?.devAllowedDomains) {
-		transformed.networkAccess.devAllowedDomains = transformed.networkAccess.devAllowedDomains.map(
-			(domain: string) => {
-				if (
-					domain === 'http://localhost:*' ||
-					domain === 'https://localhost:*' ||
-					domain === 'ws://localhost:*'
-				) {
-					const port = domain.startsWith('ws')
-						? (Number(options.port) + 1).toString()
-						: options.port.toString()
-					return domain.replace('*', port)
+		const newDomains: string[] = []
+		transformed.networkAccess.devAllowedDomains.forEach((domain: string) => {
+			if (domain === 'http://localhost:*' || domain === 'https://localhost:*' || domain === 'ws://localhost:*') {
+				const port = domain.startsWith('ws') ? (Number(options.port) + 1).toString() : options.port.toString()
+				const transformedDomain = domain.replace('*', port)
+				newDomains.push(transformedDomain)
+
+				// Add WebSocket equivalent for HTTP/HTTPS domains
+				if (domain.startsWith('http://')) {
+					newDomains.push(`ws://localhost:${port}`)
+				} else if (domain.startsWith('https://')) {
+					newDomains.push(`wss://localhost:${port}`)
 				}
-				return domain
-			},
-		)
+			} else {
+				newDomains.push(domain)
+			}
+		})
+		transformed.networkAccess.devAllowedDomains = newDomains
 	}
 
 	return transformed
