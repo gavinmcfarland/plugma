@@ -8,9 +8,8 @@ export function interceptDragEnd() {
 				fnSource.includes('parent.postMessage') || fnSource.includes('window.parent.postMessage')
 
 			if (callsPostMessage) {
-				// console.warn('[Plugma] Intercepting dragend that posts to parent — injecting dragstart fallback')
-
 				const el = this
+				let useFiles = false
 
 				// Inject fallback dragstart with dataTransfer
 				el.addEventListener('dragstart', (startEvent) => {
@@ -18,14 +17,29 @@ export function interceptDragEnd() {
 						target: el,
 						innerHTML: el.innerHTML,
 						dataTransfer: startEvent.dataTransfer,
+						useFiles,
 					})
 
-					if (startEvent.dataTransfer) {
-						startEvent.dataTransfer.setData('image/svg+xml', el.innerHTML)
-					} else {
+					if (!startEvent.dataTransfer) {
 						console.warn(
 							'[Plugma] dataTransfer was null — drag may not be user-initiated or element not draggable',
 						)
+						return
+					}
+
+					if (useFiles) {
+						try {
+							const file = new File([el.innerHTML], 'icon.svg', {
+								type: 'image/svg+xml',
+							})
+							startEvent.dataTransfer.items.add(file)
+							console.log('[Plugma] Added file to dataTransfer.items')
+						} catch (err) {
+							console.warn('[Plugma] Failed to add file to dataTransfer.items', err)
+						}
+					} else {
+						startEvent.dataTransfer.setData('image/svg+xml', el.innerHTML)
+						console.log('[Plugma] Set dataTransfer string as image/svg+xml')
 					}
 				})
 
@@ -37,11 +51,14 @@ export function interceptDragEnd() {
 
 							if (message && typeof message === 'object' && 'pluginDrop' in message) {
 								console.warn('[Plugma] Suppressed pluginDrop postMessage:', message)
+
+								if ('files' in message.pluginDrop) {
+									useFiles = true
+								} else if ('items' in message.pluginDrop) {
+									useFiles = false
+								}
 							} else {
 								console.log('[Plugma] Forwarding non-pluginDrop postMessage')
-								// Call the real one if it's not pluginDrop
-								// You can't access parent.postMessage directly due to cross-origin,
-								// so instead send it to the real target using top.postMessage
 								window.top?.postMessage?.(...args)
 							}
 						},
@@ -52,9 +69,7 @@ export function interceptDragEnd() {
 					}
 
 					try {
-						// Wrap the listener function with `parent` and `window` shadowed
 						const sandboxedFn = new Function('e', 'parent', 'window', `(${fnSource})(e)`)
-
 						sandboxedFn.call(this, e, fakeParent, fakeWindow)
 					} catch (err) {
 						console.error('[Plugma] Failed to call original dragend listener:', err)
