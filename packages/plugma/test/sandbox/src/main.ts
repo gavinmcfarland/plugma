@@ -17,7 +17,6 @@ export default function () {
 	figma.ui.postMessage({ type: 'PLUGIN_OPENED' })
 
 	figma.on('drop', (event) => {
-		console.log('drop', event)
 		const { files, node, dropMetadata } = event
 
 		if (files.length > 0 && files[0].type === 'image/svg+xml') {
