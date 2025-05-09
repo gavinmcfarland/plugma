@@ -56,3 +56,4 @@ This repository uses Lerna for managing and publishing packages. Follow these st
 - All packages are managed in the `packages/` directory
 - Version numbers are managed centrally through Lerna
 - The version of the `plugma` package used in `create-plugma` is automatically managed by package scripts
+- Investigate if [Changesets](https://github.com/changesets/changesets) would suit this project better
