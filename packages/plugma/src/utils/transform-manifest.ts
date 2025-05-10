@@ -32,24 +32,26 @@ export function transformManifest(input: ManifestFile | undefined, options: Plug
 	const transformed = JSON.parse(JSON.stringify(input))
 
 	if (transformed?.networkAccess?.devAllowedDomains) {
-		const newDomains: string[] = []
-		transformed.networkAccess.devAllowedDomains.forEach((domain: string) => {
-			if (domain === 'http://localhost:*' || domain === 'https://localhost:*' || domain === 'ws://localhost:*') {
-				const port = domain.startsWith('ws') ? (Number(options.port) + 1).toString() : options.port.toString()
-				const transformedDomain = domain.replace('*', port)
-				newDomains.push(transformedDomain)
+		const wildcardDomains = transformed.networkAccess.devAllowedDomains.filter((domain: string) =>
+			domain.endsWith(':*'),
+		)
+		if (wildcardDomains.length > 0) {
+			console.warn(
+				'Warning: The following domains in your manifest use wildcard ports (*) which are no longer needed.',
+			)
+			wildcardDomains.forEach((domain: string) => console.warn(`  - ${domain}`))
+			console.warn('Please remove these from your manifest.')
+		}
 
-				// Add WebSocket equivalent for HTTP/HTTPS domains
-				if (domain.startsWith('http://')) {
-					newDomains.push(`ws://localhost:${port}`)
-				} else if (domain.startsWith('https://')) {
-					newDomains.push(`wss://localhost:${port}`)
-				}
-			} else {
-				newDomains.push(domain)
-			}
-		})
-		transformed.networkAccess.devAllowedDomains = newDomains
+		const filteredDomains = transformed.networkAccess.devAllowedDomains.filter(
+			(domain: string) => !domain.endsWith(':*'),
+		)
+		const newDomains = [
+			`https://localhost:${options.port}`,
+			`ws://localhost:${options.port}`,
+			`ws://localhost:${options.port + 1}`,
+		]
+		transformed.networkAccess.devAllowedDomains = [...newDomains, ...filteredDomains]
 	}
 
 	return transformed
