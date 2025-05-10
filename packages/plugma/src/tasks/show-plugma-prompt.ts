@@ -32,10 +32,11 @@ const showPlugmaPrompt = async (
 		})
 
 		const version = (await readPlugmaPackageJson()).version
+		const DEVELOPING_LOCALLY = process.env.PLUGMA_DEVELOPING_LOCALLY === 'true'
 
 		// Match original formatting with chalk
 		log.text(
-			`${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}`)} - A modern Figma plugin development toolkit`,
+			`${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}${DEVELOPING_LOCALLY ? ' [development]' : ''}`)}`,
 		)
 
 		return { shown: true }
