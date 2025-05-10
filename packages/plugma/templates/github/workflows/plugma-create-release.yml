@@ -28,8 +28,20 @@ jobs:
           TAG_NAME=${TAG_NAME#refs/tags/}
           git fetch origin "refs/tags/$TAG_NAME:refs/tags/$TAG_NAME" # Fetch only the specific tag
 
-      - name: Install dependencies
-        run: npm ci # Use 'npm ci' for clean installation of dependencies
+      - name: Detect package manager and install dependencies
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+          corepack enable
+          pnpm install --frozen-lockfile
+          elif [ -f yarn.lock ]; then
+          corepack enable
+          yarn install --frozen-lockfile
+          elif [ -f package-lock.json ]; then
+          npm ci
+          else
+          echo "❌ No lockfile found. Cannot determine package manager."
+          exit 1
+          fi
 
       - name: Determine release type and prerelease status
         id: determine_release_type
