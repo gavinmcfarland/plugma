@@ -159,8 +159,8 @@ program
 	.command('release')
 	.argument('[type]', 'Release type or version number', 'stable')
 	.description('Prepare a release for your plugin')
-	.option('-t, --title <title>', 'Specify a title for the release')
-	.option('-n, --notes <notes>', 'Specify release notes')
+	.option('--title <title>', 'Specify a title for the release')
+	.option('--notes <notes>', 'Specify release notes')
 	.option('-d, --debug', 'Enable debug mode', false)
 	.option('-o, --output <path>', 'Specify the output directory', 'dist')
 	.option('-c, --config <json>', 'Specify a JSON configuration object for testing and debugging', (value) => {

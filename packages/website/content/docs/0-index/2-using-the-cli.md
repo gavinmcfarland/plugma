@@ -119,7 +119,7 @@ plugma build -w
 Build the plugin and release to GitHub. This command automates creating a new GitHub release with your latest changes. If no version is specified, it will automatically update the `plugma.pluginVersion` field in `package.json`.
 
 ```bash
-plugma build [version] [options]
+plugma release [version] [options]
 ```
 
 ##### Version
@@ -128,8 +128,8 @@ plugma build [version] [options]
 
 ##### Options
 
-- `-t`, `--title`: Custom title for the release.
-- `-n`, `--notes`: Add release notes.
+- `--title`: Custom title for the release.
+- `--notes`: Add release notes.
 - `-o`, `--output`: Specify an output dir, default is `dist`.
 
 ##### Example
