@@ -1,5 +1,5 @@
 import { gitRelease, gitStatus, versionUpdate, workflowTemplates } from '../tasks/release/index.js'
-import type { ReleaseCommandOptions } from './types.js'
+import { ReleaseCommandOptions } from '../utils/create-options.js'
 
 /**
  * Main release command implementation

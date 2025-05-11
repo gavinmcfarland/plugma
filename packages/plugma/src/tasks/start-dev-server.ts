@@ -11,6 +11,7 @@ import { createServer, mergeConfig } from 'vite'
 import { GetFilesTask } from '../tasks/get-files.js'
 import { task } from '../tasks/runner.js'
 import type { LogLevel } from 'vite'
+import type { BaseOptions } from '../utils/create-options.js'
 
 import { createViteConfigs } from '../utils/config/create-vite-configs.js'
 import { loadConfig } from '../utils/config/load-config.js'
@@ -18,6 +19,7 @@ import { BuildWatcherWrapper } from './build-ui.js'
 import { viteState } from '../utils/vite-state-manager.js'
 import { getUserFiles } from '../utils/get-user-files.js'
 import { colorStringify } from '../utils/cli/colorStringify.js'
+import { DevCommandOptions, PreviewCommandOptions } from '../utils/create-options.js'
 
 /**
  * Result type for the start-vite-server task
@@ -56,7 +58,7 @@ export interface StartViteServerResult {
  * @returns Object containing server instance and port
  */
 const startViteServer = async (
-	options: PluginOptions,
+	options: (DevCommandOptions | PreviewCommandOptions) & Pick<BaseOptions, 'debug'>,
 	context: ResultsOfTask<GetFilesTask>,
 ): Promise<StartViteServerResult> => {
 	try {
@@ -208,7 +210,7 @@ const startViteServer = async (
 
 			return {
 				server,
-				port: resolvedPort,
+				port: resolvedPort as number,
 			}
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error)

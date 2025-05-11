@@ -13,7 +13,8 @@ import { BuildUiTask } from '../tasks/build-ui.js'
 import { GetFilesTask } from '../tasks/get-files.js'
 import { ShowPlugmaPromptTask } from '../tasks/show-plugma-prompt.js'
 import { serial } from '../tasks/runner.js'
-import type { BuildCommandOptions } from './types.js'
+import { BuildCommandOptions, createOptions } from '../utils/create-options.js'
+import { getRandomPort } from '../utils/get-random-port.js'
 
 /**
  * Main build command implementation
@@ -34,22 +35,12 @@ export async function build(options: BuildCommandOptions): Promise<void> {
 		log.info('Starting production build...')
 		log.debug(`Build options: ${JSON.stringify(options)}`)
 
-		const pluginOptions: PluginOptions = {
-			...options,
-			mode: options.mode || 'production',
-			instanceId: nanoid(),
-			port: 3000, // Build command doesn't need a port, but it's required by PluginOptions
-			output: options.output || 'dist',
-			command: 'build',
-			cwd: options.cwd || process.cwd(),
-		}
-
 		const results = await serial(
 			ShowPlugmaPromptTask,
 			BuildManifestTask, // creates a manifest
 			BuildUiTask, // copies and transforms UI
 			BuildMainTask, // builds the main script
-		)(pluginOptions)
+		)(options)
 
 		// log.debug(`Task execution results: ${JSON.stringify(results, null, 2)}`);
 

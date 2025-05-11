@@ -1,27 +1,23 @@
 //@index('./**/types.ts', f => `export * from '${f.path}.js';`)
 export * from './task-runner/types.js'
 import type { PackageJson } from 'type-fest'
+import type { BaseOptions } from '../utils/create-options.js'
 //@endindex
 
 import type { UserConfig } from 'vite'
 
-export type PlugmaCommand = 'preview' | 'dev' | 'build' | 'test'
+export type PlugmaCommand = 'build' | 'dev' | 'test' | 'preview'
 
-/**
- * Plugin options for configuring the build process
- */
-export interface PluginOptions {
-	mode: string
-	port: number
-	output: string
-	command?: PlugmaCommand
-	instanceId: string
+// TODO: Remove eventually
+export type PluginOptions = BaseOptions
+
+export interface UserPluginOptions {
+	mode?: string
+	port?: number
+	output?: string
 	debug?: boolean
 	watch?: boolean
-	manifest?: ManifestFile
-	/** The working directory for the plugin */
 	cwd: string
-	[key: string]: unknown
 }
 
 export type PlugmaRuntimeData = PluginOptions

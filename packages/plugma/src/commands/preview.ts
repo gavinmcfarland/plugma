@@ -13,12 +13,10 @@ import {
 	StartWebSocketsServerTask,
 	WrapPluginUiTask,
 } from '../tasks/index.js'
-import { getRandomPort } from '../utils/index.js'
 import { Logger } from '../utils/log/logger.js'
-import { nanoid } from 'nanoid'
 import { serial } from '../tasks/runner.js'
-import type { PreviewCommandOptions } from './types.js'
 import { setConfig } from '../utils/save-plugma-cli-options.js'
+import { createOptions, PreviewCommandOptions } from '../utils/create-options.js'
 
 /**
  * Main preview command implementation
@@ -38,21 +36,6 @@ export async function preview(options: PreviewCommandOptions): Promise<void> {
 	try {
 		log.info('Starting preview server...')
 
-		const port = options.port || getRandomPort()
-
-		const pluginOptions: PluginOptions = {
-			...options,
-			mode: options.mode || 'preview',
-			instanceId: nanoid(),
-			port: port,
-			output: options.output || 'dist',
-			command: 'preview' as const,
-			cwd: options.cwd || process.cwd(),
-			websockets: options.websockets ?? true,
-		}
-
-		options.port = port
-
 		setConfig(options)
 
 		// Execute tasks in sequence
@@ -65,7 +48,7 @@ export async function preview(options: PreviewCommandOptions): Promise<void> {
 			BuildMainTask,
 			StartWebSocketsServerTask,
 			StartViteServerTask,
-		)(pluginOptions)
+		)(options)
 
 		log.success('Preview server started successfully')
 	} catch (error) {

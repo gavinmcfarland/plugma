@@ -1,9 +1,9 @@
+import type { DevCommandOptions } from '../utils/create-options.js'
 /**
  * Development command implementation
  * Handles development server and file watching for plugin development
  */
 
-import type { DevCommandOptions } from '../commands/types.js'
 import {
 	BuildMainTask,
 	BuildManifestTask,
@@ -19,6 +19,7 @@ import { nanoid } from 'nanoid'
 import { getRandomPort } from '../utils/get-random-port.js'
 import { SaveOptionsTask } from '../tasks/save-cli-options.js'
 import { setConfig } from '../utils/save-plugma-cli-options.js'
+import { createOptions } from '../utils/create-options.js'
 
 /**
  * Main development command implementation
@@ -39,20 +40,6 @@ export async function dev(options: DevCommandOptions): Promise<void> {
 	try {
 		log.info('Starting development server...')
 
-		const port = options.port || getRandomPort()
-
-		const pluginOptions = {
-			...options,
-			mode: options.mode || 'development',
-			instanceId: nanoid(),
-			port: port,
-			output: options.output || 'dist',
-			command: 'dev' as const,
-			cwd: options.cwd || process.cwd(),
-		}
-
-		options.port = port
-
 		setConfig(options)
 
 		// Execute tasks in sequence
@@ -66,7 +53,7 @@ export async function dev(options: DevCommandOptions): Promise<void> {
 			BuildMainTask,
 			StartWebSocketsServerTask,
 			StartViteServerTask,
-		)(pluginOptions)
+		)(options)
 
 		log.success('Development server started successfully')
 	} catch (error) {

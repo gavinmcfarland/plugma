@@ -7,6 +7,7 @@ import { task } from '../tasks/runner.js'
 import { viteState } from '../utils/vite-state-manager.js'
 import { getUserFiles } from '../utils/get-user-files.js'
 import { createViteConfigs } from '../utils/config/create-vite-configs.js'
+import { DevCommandOptions } from '../utils/create-options.js'
 
 /**
  * Result type for the restart-vite-server task
@@ -43,7 +44,7 @@ export interface RestartViteServerResult {
  * @returns Object containing new server instance and port
  */
 export const restartViteServer = async (
-	options: PluginOptions,
+	options: DevCommandOptions,
 	context: ResultsOfTask<GetFilesTask>,
 ): Promise<RestartViteServerResult> => {
 	const log = new Logger({ debug: options.debug })

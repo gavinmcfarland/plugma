@@ -13,6 +13,7 @@ import chokidar, { FSWatcher } from 'chokidar'
 import { access, mkdir, writeFile, unlink } from 'node:fs/promises'
 import { join, relative, resolve } from 'node:path'
 import { task } from './runner.js'
+import { BuildCommandOptions, DevCommandOptions, PreviewCommandOptions } from '../utils/create-options.js'
 
 // Interfaces and Types
 export interface BuildManifestResult {
@@ -35,7 +36,7 @@ const DEFAULT_MANIFEST_VALUES = {
  * Sets up file watchers for development mode
  */
 async function setupWatchers(
-	options: PluginOptions,
+	options: DevCommandOptions | BuildCommandOptions | PreviewCommandOptions,
 	context: ResultsOfTask<GetFilesTask>,
 	files: Awaited<ReturnType<typeof getUserFiles>>,
 	initialManifest: ManifestFile,
@@ -59,7 +60,7 @@ async function setupWatchers(
  * Sets up watcher for manifest.json and package.json
  */
 function setupManifestWatcher(
-	options: PluginOptions,
+	options: DevCommandOptions | BuildCommandOptions | PreviewCommandOptions,
 	context: ResultsOfTask<GetFilesTask>,
 	files: Awaited<ReturnType<typeof getUserFiles>>,
 	state: WatcherState,
@@ -139,7 +140,7 @@ function setupManifestWatcher(
  * Sets up watcher for the src directory
  */
 function setupSourceWatcher(
-	options: PluginOptions,
+	options: any,
 	context: ResultsOfTask<GetFilesTask>,
 	files: Awaited<ReturnType<typeof getUserFiles>>,
 	state: WatcherState,
@@ -186,7 +187,7 @@ async function fileExists(filePath: string): Promise<boolean> {
  * Builds and writes the manifest file to disk
  */
 async function buildManifestFile(
-	options: PluginOptions,
+	options: DevCommandOptions | BuildCommandOptions | PreviewCommandOptions,
 	logger: Logger,
 ): Promise<{
 	files: Awaited<ReturnType<typeof getUserFiles>>
@@ -273,7 +274,10 @@ async function verifyManifestFile(manifestPath: string, logger: Logger): Promise
  */
 export const BuildManifestTask = task(
 	'build:manifest',
-	async (options: PluginOptions, context: ResultsOfTask<GetFilesTask>): Promise<BuildManifestResult> => {
+	async (
+		options: DevCommandOptions | BuildCommandOptions | PreviewCommandOptions,
+		context: ResultsOfTask<GetFilesTask>,
+	): Promise<BuildManifestResult> => {
 		const logger = new Logger({
 			debug: options.debug,
 			prefix: 'build:manifest',

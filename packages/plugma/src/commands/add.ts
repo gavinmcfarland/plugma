@@ -15,11 +15,7 @@ import chalk from 'chalk'
 import type { Integration } from '../integrations/define-integration.js'
 import vitestIntegration from '../integrations/vitest.js'
 import eslintIntegration from '../integrations/eslint.js'
-interface AddCommandOptions {
-	integration?: string
-	debug?: boolean
-}
-
+import { AddCommandOptions } from '../utils/create-options.js'
 // Define available integrations and their types
 const INTEGRATIONS = {
 	playwright: playwrightIntegration,

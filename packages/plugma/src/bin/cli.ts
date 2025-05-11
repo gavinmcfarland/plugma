@@ -2,24 +2,24 @@ import { loadEnvFiles } from '../utils/load-env-files.js'
 
 loadEnvFiles()
 
+import {
+	BuildCommandOptions,
+	createOptions,
+	DEFAULT_OPTIONS,
+	DevCommandOptions,
+	PreviewCommandOptions,
+	ReleaseCommandOptions,
+	ReleaseType,
+	AddCommandOptions,
+} from '../utils/create-options.js'
+
 import { readPlugmaPackageJson } from '../utils/fs/read-json.js'
 
 import { Command } from 'commander'
 
-import {
-	type BuildCommandOptions,
-	type DevCommandOptions,
-	type PreviewCommandOptions,
-	type ReleaseCommandOptions,
-	type TestCommandOptions,
-	build,
-	dev,
-	preview,
-	release,
-} from '../commands/index.js'
+import { build, dev, preview, release } from '../commands/index.js'
 import { colorStringify, debugLogger, defaultLogger } from '../utils/index.js'
 import chalk from 'chalk'
-import type { ReleaseType } from './types.js'
 import { add } from '../commands/add.js'
 import { suppressLogs } from '../utils/suppress-logs.js'
 
@@ -61,11 +61,11 @@ program
 		'after',
 		'\nStart a server to develop your plugin. This command builds the ui.html and points it to the dev server making it easier to develop and debug your plugin.',
 	)
-	.option('-p, --port <number>', 'Specify a port number for the plugin preview', parseInt)
-	.option('-m, --mode <mode>', 'Specify the mode', 'development')
-	.option('-o, --output <path>', 'Specify the output directory', 'dist')
-	.option('-ws, --websockets', 'Enable websockets', false)
-	.option('-d, --debug', 'Enable debug mode', false)
+	.option('-p, --port <number>', 'Specify a port number for the dev server (default: random)', parseInt)
+	.option('-m, --mode <mode>', `Specify the mode`, DEFAULT_OPTIONS.mode)
+	.option('-o, --output <path>', `Specify the output directory`, DEFAULT_OPTIONS.output)
+	.option('-ws, --websockets', `Enable websockets`, DEFAULT_OPTIONS.websockets)
+	.option('-d, --debug', `Enable debug mode`, DEFAULT_OPTIONS.debug)
 	.option('-c, --config <json>', 'Specify a JSON configuration object for testing and debugging', (value) => {
 		try {
 			return JSON.parse(value)
@@ -77,7 +77,12 @@ program
 	.action(function (this: Command, options: DevCommandOptions) {
 		handleDebug(this.name(), options)
 		suppressLogs(options)
-		dev(options)
+		dev(
+			createOptions<'dev'>(options, {
+				mode: 'development',
+				command: 'dev',
+			}),
+		)
 	})
 	.addHelpText(
 		'after',
@@ -97,10 +102,10 @@ program
 		'after',
 		'\nPreview your plugin in any browser to see how it looks and works. Make sure the plugin is open in the Figma desktop app for this to work.',
 	)
-	.option('-p, --port <number>', 'Specify a port number for the plugin preview', parseInt)
-	.option('-m, --mode <mode>', 'Specify the mode', 'development')
-	.option('-o, --output <path>', 'Specify the output directory', 'dist')
-	.option('-d, --debug', 'Enable debug mode', false)
+	.option('-p, --port <number>', 'Specify a port number for the dev server (default: random)', parseInt)
+	.option('-m, --mode <mode>', `Specify the mode`, DEFAULT_OPTIONS.mode)
+	.option('-o, --output <path>', `Specify the output directory`, DEFAULT_OPTIONS.output)
+	.option('-d, --debug', `Enable debug mode`, DEFAULT_OPTIONS.debug)
 	.option('-c, --config <json>', 'Specify a JSON configuration object for testing and debugging', (value) => {
 		try {
 			return JSON.parse(value)
@@ -112,7 +117,13 @@ program
 	.action(function (this: Command, options: PreviewCommandOptions) {
 		handleDebug(this.name(), options)
 		suppressLogs(options)
-		preview(options)
+		preview(
+			createOptions<'preview'>(options, {
+				mode: 'preview',
+				command: 'preview',
+				websockets: true,
+			}),
+		)
 	})
 	.addHelpText(
 		'after',
@@ -128,10 +139,10 @@ program
 	.command('build')
 	.description('Create a build ready for publishing')
 	.addHelpText('after', '\nThis command compiles and bundles your plugin, preparing it for distribution.')
-	.option('-w, --watch', 'Watch for changes and rebuild automatically')
-	.option('-m, --mode <mode>', 'Specify the mode', 'production')
-	.option('-o, --output <path>', 'Specify the output directory', 'dist')
-	.option('-d, --debug', 'Enable debug mode', false)
+	.option('-w, --watch', `Watch for changes and rebuild automatically`, DEFAULT_OPTIONS.watch)
+	.option('-m, --mode <mode>', `Specify the mode`, DEFAULT_OPTIONS.mode)
+	.option('-o, --output <path>', `Specify the output directory`, DEFAULT_OPTIONS.output)
+	.option('-d, --debug', `Enable debug mode`, DEFAULT_OPTIONS.debug)
 	.option('-c, --config <json>', 'Specify a JSON configuration object for testing and debugging', (value) => {
 		try {
 			return JSON.parse(value)
@@ -143,7 +154,12 @@ program
 	.action(function (this: Command, options: BuildCommandOptions) {
 		handleDebug(this.name(), options)
 		suppressLogs(options)
-		build(options)
+		build(
+			createOptions<'build'>(options, {
+				mode: 'production',
+				command: 'build',
+			}),
+		)
 	})
 	.addHelpText(
 		'after',
@@ -161,8 +177,8 @@ program
 	.description('Prepare a release for your plugin')
 	.option('--title <title>', 'Specify a title for the release')
 	.option('--notes <notes>', 'Specify release notes')
-	.option('-d, --debug', 'Enable debug mode', false)
-	.option('-o, --output <path>', 'Specify the output directory', 'dist')
+	.option('-d, --debug', `Enable debug mode`, DEFAULT_OPTIONS.debug)
+	.option('-o, --output <path>', `Specify the output directory`, DEFAULT_OPTIONS.output)
 	.option('-c, --config <json>', 'Specify a JSON configuration object for testing and debugging', (value) => {
 		try {
 			return JSON.parse(value)
@@ -177,6 +193,9 @@ program
 		const validReleaseTypes: ReleaseType[] = ['alpha', 'beta', 'stable'] as const
 		const releaseOptions: ReleaseCommandOptions = {
 			command: 'release',
+			mode: options.mode,
+			instanceId: options.instanceId,
+			cwd: options.cwd,
 			title: options.title,
 			notes: options.notes,
 			output: options.output,
@@ -217,8 +236,12 @@ program
 			process.exit(1)
 		}
 	})
-	.action(async function (this: Command, integration: string, options: { config?: any }) {
-		await add({ integration })
+	.action(async function (this: Command, options: Partial<AddCommandOptions>) {
+		await add(
+			createOptions<'add'>(options, {
+				command: 'add',
+			}),
+		)
 	})
 	.addHelpText(
 		'after',

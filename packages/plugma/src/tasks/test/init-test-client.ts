@@ -8,6 +8,7 @@ import { Logger } from '../../utils/log/logger.js'
 import { task } from '../runner.js'
 import { getTestSocket } from '../../testing/init-test-runner-socket.js'
 import { SocketClient } from '../../core/websockets/client.js'
+import { TestCommandOptions } from '../../utils/create-options.js'
 /**
  * Result type for the initTestClient task
  */
@@ -19,7 +20,7 @@ export interface InitTestClientResult {
 /**
  * Task that initializes and connects the test client
  */
-export const initTestClient = async (options: PluginOptions): Promise<InitTestClientResult> => {
+export const initTestClient = async (options: TestCommandOptions): Promise<InitTestClientResult> => {
 	const log = new Logger({ debug: options.debug })
 
 	console.log('Initializing test client')

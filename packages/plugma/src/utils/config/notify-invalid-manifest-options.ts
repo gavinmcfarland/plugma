@@ -110,11 +110,7 @@ async function validateManifestEntry(
  * @param files - User files configuration
  * @param type - Event that triggered the validation
  */
-export async function cleanPluginOutputFiles(
-	options: PluginOptions,
-	files: UserFiles,
-	type: ValidationEventType,
-): Promise<void> {
+export async function cleanPluginOutputFiles(options: any, files: UserFiles, type: ValidationEventType): Promise<void> {
 	// Get the latest manifest data using existing function
 	const currentFiles = await getUserFiles(options)
 

@@ -46,7 +46,7 @@ export type ViteConfigs = {
 /**
  * Creates Vite configurations for both development and build
  */
-export function createViteConfigs(options: PluginOptions, userFiles: UserFiles): ViteConfigs {
+export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfigs {
 	// Copy template to the current working directory
 	// Was ui.html, but now using index.html
 	const localUiHtmlPath = path.join(process.cwd(), 'index.html')

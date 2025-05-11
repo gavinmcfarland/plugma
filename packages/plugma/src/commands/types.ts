@@ -21,28 +21,7 @@ export interface BaseCommandOptions {
 
 /**
  * Options specific to development commands (dev and preview)
- */
-export interface DevCommandOptions extends BaseCommandOptions {
-	command: 'dev'
-	port?: number
-	toolbar?: boolean
-	websockets?: boolean
-}
 
-/**
- * Options specific to preview command
- */
-export interface PreviewCommandOptions extends Omit<DevCommandOptions, 'command'> {
-	command: 'preview'
-}
-
-/**
- * Options specific to the build command
- */
-export interface BuildCommandOptions extends BaseCommandOptions {
-	command: 'build'
-	watch?: boolean
-}
 
 /**
  * Options specific to the release command

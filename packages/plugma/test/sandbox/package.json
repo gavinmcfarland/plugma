@@ -47,10 +47,6 @@
 			"networkAccess": {
 				"allowedDomains": [
 					"none"
-				],
-				"devAllowedDomains": [
-					"http://localhost:*",
-					"ws://localhost:*"
 				]
 			}
 		}

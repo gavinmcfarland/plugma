@@ -9,7 +9,7 @@ interface CustomConfigEnv extends ConfigEnv {
 	context: 'main' | 'ui'
 }
 
-export async function loadConfig(configName: string, options: PluginOptions, context: 'main' | 'ui'): Promise<any> {
+export async function loadConfig(configName: string, options: any, context: 'main' | 'ui'): Promise<any> {
 	const log = new Logger({ debug: options.debug })
 
 	const configPaths = [

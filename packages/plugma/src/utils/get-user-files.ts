@@ -34,7 +34,7 @@ function validateManifest(manifest?: Partial<ManifestFile>) {
  *
  */
 
-export const getUserFiles = async (options: PluginOptions): Promise<UserFiles> => {
+export const getUserFiles = async (options: any): Promise<UserFiles> => {
 	const userPkgJson = await readJson<UserFiles['userPkgJson']>(path.resolve(options.cwd, 'package.json'))
 	const manifestFile = await readJson<ManifestFile>(path.resolve(options.cwd, 'manifest.json'), true)
 	const manifest = manifestFile || userPkgJson?.plugma?.manifest

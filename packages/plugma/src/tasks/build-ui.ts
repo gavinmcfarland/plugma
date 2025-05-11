@@ -137,7 +137,7 @@ async function logBuildSuccess(logger: Logger, duration: string, currentFiles: a
 
 export const BuildUiTask = task(
 	'build:ui',
-	async (options: PluginOptions, context: ResultsOfTask<GetFilesTask>): Promise<BuildUiResult> => {
+	async (options: any, context: ResultsOfTask<GetFilesTask>): Promise<BuildUiResult> => {
 		const logger = new Logger({
 			debug: options.debug,
 			prefix: 'build:ui',

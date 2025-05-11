@@ -1,4 +1,5 @@
 import type { ManifestFile, PluginOptions } from '../core/types.js'
+import { BuildCommandOptions, DevCommandOptions, PreviewCommandOptions } from './create-options.js'
 
 /**
  * Transforms network access configuration in the manifest
@@ -24,35 +25,41 @@ import type { ManifestFile, PluginOptions } from '../core/types.js'
  *   - Type safety
  */
 
-export function transformManifest(input: ManifestFile | undefined, options: PluginOptions): ManifestFile {
+export function transformManifest(
+	input: ManifestFile | undefined,
+	options: DevCommandOptions | BuildCommandOptions | PreviewCommandOptions,
+): ManifestFile {
 	if (!input) {
 		throw new Error('No manifest found in manifest.json or package.json')
 	}
 
-	const transformed = JSON.parse(JSON.stringify(input))
+	if (options.command === 'dev' || options.command === 'preview') {
+		const transformed = JSON.parse(JSON.stringify(input))
 
-	if (transformed?.networkAccess?.devAllowedDomains) {
-		const wildcardDomains = transformed.networkAccess.devAllowedDomains.filter((domain: string) =>
-			domain.endsWith(':*'),
-		)
-		if (wildcardDomains.length > 0) {
-			console.warn(
-				'Warning: The following domains in your manifest use wildcard ports (*) which are no longer needed.',
+		if (transformed?.networkAccess?.devAllowedDomains) {
+			const wildcardDomains = transformed.networkAccess.devAllowedDomains.filter((domain: string) =>
+				domain.endsWith(':*'),
 			)
-			wildcardDomains.forEach((domain: string) => console.warn(`  - ${domain}`))
-			console.warn('Please remove these from your manifest.')
+			if (wildcardDomains.length > 0) {
+				console.warn(
+					'Warning: The following domains in your manifest use wildcard ports (*) which are no longer needed.',
+				)
+				wildcardDomains.forEach((domain: string) => console.warn(`  - ${domain}`))
+				console.warn('Please remove these from your manifest.')
+			}
+
+			const filteredDomains = transformed.networkAccess.devAllowedDomains.filter(
+				(domain: string) => !domain.endsWith(':*'),
+			)
+			const newDomains = [
+				`https://localhost:${options.port}`,
+				`ws://localhost:${options.port}`,
+				`ws://localhost:${options.port + 1}`,
+			]
+			transformed.networkAccess.devAllowedDomains = [...newDomains, ...filteredDomains]
 		}
 
-		const filteredDomains = transformed.networkAccess.devAllowedDomains.filter(
-			(domain: string) => !domain.endsWith(':*'),
-		)
-		const newDomains = [
-			`https://localhost:${options.port}`,
-			`ws://localhost:${options.port}`,
-			`ws://localhost:${options.port + 1}`,
-		]
-		transformed.networkAccess.devAllowedDomains = [...newDomains, ...filteredDomains]
+		return transformed
 	}
-
-	return transformed
+	return input
 }
