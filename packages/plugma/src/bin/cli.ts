@@ -27,16 +27,6 @@ import { suppressLogs } from '../utils/suppress-logs.js'
 const packageJson = await readPlugmaPackageJson()
 const version = packageJson.version
 
-// Initialize Commander
-const program = new Command()
-
-// Set version for the program
-program
-	.name('plugma')
-	.description('A modern Figma plugin development toolkit')
-	.version(version, '-v, --version', 'Output the current version')
-	.addHelpText('beforeAll', `${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}`)}\n`)
-
 // Global Debug Option
 const handleDebug = async (command: string, options: Record<string, any> & { debug?: boolean }): Promise<void> => {
 	if (options.debug) {
@@ -53,27 +43,28 @@ const handleDebug = async (command: string, options: Record<string, any> & { deb
 	}
 }
 
-// Dev Command
+// Initialize Commander
+const program = new Command()
+
+program
+	.name('plugma')
+	.description('A modern Figma plugin development toolkit')
+	.version(version, '-v, --version', 'Output the current version')
+	.addHelpText('beforeAll', `${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}`)}\n`)
+
 program
 	.command('dev')
-	.description('Start a server to develop your plugin')
-	.addHelpText(
-		'after',
-		'\nStart a server to develop your plugin. This command builds the ui.html and points it to the dev server making it easier to develop and debug your plugin.',
-	)
+	.description('Start a dev server to develop your plugin')
 	.option('-p, --port <number>', 'Specify a port number for the dev server (default: random)', parseInt)
 	.option('-m, --mode <mode>', `Specify the mode`, DEFAULT_OPTIONS.mode)
 	.option('-o, --output <path>', `Specify the output directory`, DEFAULT_OPTIONS.output)
 	.option('-ws, --websockets', `Enable websockets`, DEFAULT_OPTIONS.websockets)
 	.option('-d, --debug', `Enable debug mode`, DEFAULT_OPTIONS.debug)
-	.option('-c, --config <json>', 'Specify a JSON configuration object for testing and debugging', (value) => {
-		try {
-			return JSON.parse(value)
-		} catch (e) {
-			console.error('Invalid JSON configuration:', e)
-			process.exit(1)
-		}
-	})
+	.option(
+		'-c, --config <json>',
+		'Specify a JSON configuration object for testing and debugging',
+		DEFAULT_OPTIONS.configParser,
+	)
 	.action(function (this: Command, options: DevCommandOptions) {
 		handleDebug(this.name(), options)
 		suppressLogs(options)
@@ -97,23 +88,16 @@ program
 // Preview Command
 program
 	.command('preview')
-	.description('Preview your plugin')
-	.addHelpText(
-		'after',
-		'\nPreview your plugin in any browser to see how it looks and works. Make sure the plugin is open in the Figma desktop app for this to work.',
-	)
+	.description('Preview your plugin in any browser')
 	.option('-p, --port <number>', 'Specify a port number for the dev server (default: random)', parseInt)
 	.option('-m, --mode <mode>', `Specify the mode`, DEFAULT_OPTIONS.mode)
 	.option('-o, --output <path>', `Specify the output directory`, DEFAULT_OPTIONS.output)
 	.option('-d, --debug', `Enable debug mode`, DEFAULT_OPTIONS.debug)
-	.option('-c, --config <json>', 'Specify a JSON configuration object for testing and debugging', (value) => {
-		try {
-			return JSON.parse(value)
-		} catch (e) {
-			console.error('Invalid JSON configuration:', e)
-			process.exit(1)
-		}
-	})
+	.option(
+		'-c, --config <json>',
+		'Specify a JSON configuration object for testing and debugging',
+		DEFAULT_OPTIONS.configParser,
+	)
 	.action(function (this: Command, options: PreviewCommandOptions) {
 		handleDebug(this.name(), options)
 		suppressLogs(options)
@@ -137,20 +121,16 @@ program
 // Build Command
 program
 	.command('build')
-	.description('Create a build ready for publishing')
-	.addHelpText('after', '\nThis command compiles and bundles your plugin, preparing it for distribution.')
+	.description('Bundle and minify your plugin, preparing it for distribution')
 	.option('-w, --watch', `Watch for changes and rebuild automatically`, DEFAULT_OPTIONS.watch)
 	.option('-m, --mode <mode>', `Specify the mode`, DEFAULT_OPTIONS.mode)
 	.option('-o, --output <path>', `Specify the output directory`, DEFAULT_OPTIONS.output)
 	.option('-d, --debug', `Enable debug mode`, DEFAULT_OPTIONS.debug)
-	.option('-c, --config <json>', 'Specify a JSON configuration object for testing and debugging', (value) => {
-		try {
-			return JSON.parse(value)
-		} catch (e) {
-			console.error('Invalid JSON configuration:', e)
-			process.exit(1)
-		}
-	})
+	.option(
+		'-c, --config <json>',
+		'Specify a JSON configuration object for testing and debugging',
+		DEFAULT_OPTIONS.configParser,
+	)
 	.action(function (this: Command, options: BuildCommandOptions) {
 		handleDebug(this.name(), options)
 		suppressLogs(options)
@@ -174,45 +154,24 @@ program
 program
 	.command('release')
 	.argument('[type]', 'Release type or version number', 'stable')
-	.description('Prepare a release for your plugin')
+	.description('Build and publish a release of your plugin to GitHub')
 	.option('--title <title>', 'Specify a title for the release')
 	.option('--notes <notes>', 'Specify release notes')
 	.option('-d, --debug', `Enable debug mode`, DEFAULT_OPTIONS.debug)
 	.option('-o, --output <path>', `Specify the output directory`, DEFAULT_OPTIONS.output)
-	.option('-c, --config <json>', 'Specify a JSON configuration object for testing and debugging', (value) => {
-		try {
-			return JSON.parse(value)
-		} catch (e) {
-			console.error('Invalid JSON configuration:', e)
-			process.exit(1)
-		}
-	})
+	.option(
+		'-c, --config <json>',
+		'Specify a JSON configuration object for testing and debugging',
+		DEFAULT_OPTIONS.configParser,
+	)
 	.action(function (this: Command, type: string, options: ReleaseCommandOptions) {
 		handleDebug(this.name(), { ...options, type })
 
-		const validReleaseTypes: ReleaseType[] = ['alpha', 'beta', 'stable'] as const
-		const releaseOptions: ReleaseCommandOptions = {
-			command: 'release',
-			mode: options.mode,
-			instanceId: options.instanceId,
-			cwd: options.cwd,
-			title: options.title,
-			notes: options.notes,
-			output: options.output,
-			debug: options.debug,
-			config: options.config,
-		}
-
-		if (validReleaseTypes.includes(type as (typeof validReleaseTypes)[number])) {
-			releaseOptions.type = type as (typeof validReleaseTypes)[number]
-		} else if (/^\d+$/.test(type)) {
-			releaseOptions.version = type
-		} else {
-			console.error('Invalid version: must be a whole integer or a release type (alpha, beta, stable)')
-			process.exit(1)
-		}
-
-		release(releaseOptions)
+		release(
+			createOptions<'release'>(options, {
+				command: 'release',
+			}),
+		)
 	})
 	.addHelpText(
 		'after',
@@ -228,14 +187,11 @@ program
 program
 	.command('add')
 	.argument('[integration]', 'Integration to add', 'playwright')
-	.option('-c, --config <json>', 'Specify a JSON configuration object for testing and debugging', (value) => {
-		try {
-			return JSON.parse(value)
-		} catch (e) {
-			console.error('Invalid JSON configuration:', e)
-			process.exit(1)
-		}
-	})
+	.option(
+		'-c, --config <json>',
+		'Specify a JSON configuration object for testing and debugging',
+		DEFAULT_OPTIONS.configParser,
+	)
 	.action(async function (this: Command, options: Partial<AddCommandOptions>) {
 		await add(
 			createOptions<'add'>(options, {

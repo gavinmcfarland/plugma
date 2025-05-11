@@ -1,11 +1,20 @@
 import { gitRelease, gitStatus, versionUpdate, workflowTemplates } from '../tasks/release/index.js'
-import { ReleaseCommandOptions } from '../utils/create-options.js'
+import { ReleaseCommandOptions, ReleaseType } from '../utils/create-options.js'
 
 /**
  * Main release command implementation
  * @param options - Release configuration options
  */
 export async function release(options: ReleaseCommandOptions): Promise<void> {
+	// Validate release type/version
+	if (options.type && ['alpha', 'beta', 'stable'].includes(options.type)) {
+		options.type = options.type as ReleaseType
+	} else if (options.version && /^\d+$/.test(options.version)) {
+		// Version is already validated in options
+	} else {
+		throw new Error('Invalid version: must be a whole integer or a release type (alpha, beta, stable)')
+	}
+
 	// Check Git repository status
 	const status = await gitStatus()
 

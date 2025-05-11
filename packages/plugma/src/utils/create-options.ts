@@ -9,6 +9,14 @@ export const DEFAULT_OPTIONS = {
 	websockets: false,
 	debug: false,
 	watch: false,
+	configParser: (value: string) => {
+		try {
+			return JSON.parse(value)
+		} catch (e) {
+			console.error('Invalid JSON configuration:', e)
+			process.exit(1)
+		}
+	},
 } as const
 
 export type ReleaseType = 'alpha' | 'beta' | 'stable'
@@ -52,8 +60,8 @@ export interface CommandOptions {
 	}
 	release: BaseOptions & {
 		command: 'release'
+		type: ReleaseType
 		version?: string
-		type?: ReleaseType
 		title?: string
 		notes?: string
 	}
