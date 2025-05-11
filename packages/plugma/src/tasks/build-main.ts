@@ -127,59 +127,56 @@ async function logBuildSuccess(logger: Logger, duration: string, files: any) {
  * @param context - Task context containing results from previous tasks
  * @returns Object containing the output file path
  */
-export const BuildMainTask = task(
-	'build:main',
-	async (options: any, context: ResultsOfTask<GetFilesTask>): Promise<BuildMainResult> => {
-		const logger = new Logger({
-			debug: options.debug,
-			prefix: 'build:main',
-		})
+export const BuildMainTask = task('build:main', async (options: any): Promise<BuildMainResult> => {
+	const logger = new Logger({
+		debug: options.debug,
+		prefix: 'build:main',
+	})
 
-		try {
-			const files = await getUserFiles(options)
-			const outputPath = join(options.output || 'main.js')
-			const timer = new Timer()
+	try {
+		const files = await getUserFiles(options)
+		const outputPath = join(options.output || 'main.js')
+		const timer = new Timer()
 
-			await viteState.viteMain.close()
+		await viteState.viteMain.close()
 
-			if (!files.manifest.main) {
-				logger.debug('No main script specified in manifest, build skipped')
-				return { outputPath }
-			}
-
-			const mainPath = resolve(files.manifest.main)
-			if (!(await fileExists(mainPath))) {
-				console.error(`Main script not found at ${mainPath}, skipping build`)
-				return { outputPath }
-			}
-
-			logger.debug(`Building main script from: ${mainPath}`)
-
-			const viteConfigs = createViteConfigs(options, files)
-
-			const userMainConfig = await loadConfig('vite.config.main', options, 'main')
-			const configOptions = { options, viteConfigs, userMainConfig }
-
-			if (options.watch || ['dev', 'preview'].includes(options.command ?? '')) {
-				logger.text(`${chalk.bgGreenBright('[build-main]')} Watching for changes`)
-				await runWatchMode(configOptions)
-			} else {
-				timer.start()
-				await runBuild(configOptions)
-				timer.stop()
-
-				if (timer.getDuration()) {
-					await logBuildSuccess(logger, timer.getDuration()!, files)
-				}
-			}
-
-			const duration = timer.getDuration()
-			return { outputPath, duration }
-		} catch (error) {
-			const err = error instanceof Error ? error : new Error(String(error))
-			err.message = `Failed to build main script: ${err.message}`
-			logger.debug(err)
-			throw err
+		if (!files.manifest.main) {
+			logger.debug('No main script specified in manifest, build skipped')
+			return { outputPath }
 		}
-	},
-)
+
+		const mainPath = resolve(files.manifest.main)
+		if (!(await fileExists(mainPath))) {
+			console.error(`Main script not found at ${mainPath}, skipping build`)
+			return { outputPath }
+		}
+
+		logger.debug(`Building main script from: ${mainPath}`)
+
+		const viteConfigs = createViteConfigs(options, files)
+
+		const userMainConfig = await loadConfig('vite.config.main', options, 'main')
+		const configOptions = { options, viteConfigs, userMainConfig }
+
+		if (options.watch || ['dev', 'preview'].includes(options.command ?? '')) {
+			logger.text(`${chalk.bgGreenBright('[build-main]')} Watching for changes`)
+			await runWatchMode(configOptions)
+		} else {
+			timer.start()
+			await runBuild(configOptions)
+			timer.stop()
+
+			// if (timer.getDuration()) {
+			// 	await logBuildSuccess(logger, timer.getDuration()!, files)
+			// }
+		}
+
+		const duration = timer.getDuration()
+		return { outputPath, duration }
+	} catch (error) {
+		const err = error instanceof Error ? error : new Error(String(error))
+		err.message = `Failed to build main script: ${err.message}`
+		logger.debug(err)
+		throw err
+	}
+})

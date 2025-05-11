@@ -17,6 +17,17 @@ import { BuildCommandOptions, createOptions } from '../utils/create-options.js'
 import { getRandomPort } from '../utils/get-random-port.js'
 
 /**
+ * Calculates the total build duration from an array of duration strings
+ * @param durations - Array of duration strings in milliseconds
+ * @returns The total build duration in milliseconds
+ */
+function calculateBuildDuration(durations: (string | undefined)[]): number {
+	return durations.reduce((total, duration) => {
+		return total + (duration ? parseInt(duration) : 0)
+	}, 0)
+}
+
+/**
  * Main build command implementation
  * Creates production-ready builds of the plugin
  *
@@ -35,17 +46,13 @@ export async function build(options: BuildCommandOptions): Promise<void> {
 		log.info('Starting production build...')
 		log.debug(`Build options: ${JSON.stringify(options)}`)
 
-		const results = await serial(
-			ShowPlugmaPromptTask,
-			BuildManifestTask, // creates a manifest
-			BuildUiTask, // copies and transforms UI
-			BuildMainTask, // builds the main script
-		)(options)
+		const results = await serial(ShowPlugmaPromptTask, BuildManifestTask, BuildMainTask, BuildUiTask)(options)
 
-		// log.debug(`Task execution results: ${JSON.stringify(results, null, 2)}`);
+		console.log(
+			`Built in ${calculateBuildDuration([results['build:ui']?.duration, results['build:main']?.duration])}ms`,
+		)
 
-		// log.success('Production build completed successfully')
-		// process.exit(0)
+		process.exit(0)
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : String(error)
 		log.error('Failed to build plugin:', errorMessage)

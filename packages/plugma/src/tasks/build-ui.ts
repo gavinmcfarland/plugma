@@ -135,59 +135,56 @@ async function logBuildSuccess(logger: Logger, duration: string, currentFiles: a
  * @returns Object containing the output file path and build duration
  */
 
-export const BuildUiTask = task(
-	'build:ui',
-	async (options: any, context: ResultsOfTask<GetFilesTask>): Promise<BuildUiResult> => {
-		const logger = new Logger({
-			debug: options.debug,
-			prefix: 'build:ui',
-		})
+export const BuildUiTask = task('build:ui', async (options: any): Promise<BuildUiResult> => {
+	const logger = new Logger({
+		debug: options.debug,
+		prefix: 'build:ui',
+	})
 
-		try {
-			const currentFiles = await getUserFiles(options)
-			const outputPath = join(options.output, 'ui.html')
+	try {
+		const currentFiles = await getUserFiles(options)
+		const outputPath = join(options.output, 'ui.html')
 
-			await viteState.viteUi.close()
+		await viteState.viteUi.close()
 
-			const timer = new Timer()
+		const timer = new Timer()
 
-			if (!currentFiles.manifest.ui) {
-				logger.debug('No UI specified in manifest, skipping build')
-				return { outputPath }
-			}
-
-			const uiPath = resolve(currentFiles.manifest.ui)
-			if (!(await fileExists(uiPath))) {
-				console.error(`UI file not found at ${uiPath}, skipping build`)
-				return { outputPath }
-			}
-
-			const viteConfigs = createViteConfigs(options, currentFiles)
-			const userUIConfig = await loadConfig('vite.config.ui', options, 'ui')
-			const configOptions = { options, viteConfigs, userUIConfig }
-
-			if (options.command === 'build' && options.watch) {
-				logger.text(`${chalk.bgGreenBright('[build-ui]')} Watching for changes`)
-				runWatchMode(configOptions)
-			} else {
-				timer.start()
-				await runBuild(configOptions)
-				timer.stop()
-
-				if (timer.getDuration()) {
-					await logBuildSuccess(logger, timer.getDuration()!, currentFiles)
-				}
-			}
-
-			await notifyInvalidManifestOptions(options, currentFiles, 'plugin-built')
-
-			const duration = timer.getDuration()
-			return { outputPath, duration }
-		} catch (err) {
-			const error = err instanceof Error ? err : new Error(String(err))
-			error.message = `Failed to build UI: ${error.message}`
-			logger.debug(error)
-			throw error
+		if (!currentFiles.manifest.ui) {
+			logger.debug('No UI specified in manifest, skipping build')
+			return { outputPath }
 		}
-	},
-)
+
+		const uiPath = resolve(currentFiles.manifest.ui)
+		if (!(await fileExists(uiPath))) {
+			console.error(`UI file not found at ${uiPath}, skipping build`)
+			return { outputPath }
+		}
+
+		const viteConfigs = createViteConfigs(options, currentFiles)
+		const userUIConfig = await loadConfig('vite.config.ui', options, 'ui')
+		const configOptions = { options, viteConfigs, userUIConfig }
+
+		if (options.command === 'build' && options.watch) {
+			logger.text(`${chalk.bgGreenBright('[build-ui]')} Watching for changes`)
+			runWatchMode(configOptions)
+		} else {
+			timer.start()
+			await runBuild(configOptions)
+			timer.stop()
+
+			// if (timer.getDuration()) {
+			// 	await logBuildSuccess(logger, timer.getDuration()!, currentFiles)
+			// }
+		}
+
+		await notifyInvalidManifestOptions(options, currentFiles, 'plugin-built')
+
+		const duration = timer.getDuration()
+		return { outputPath, duration }
+	} catch (err) {
+		const error = err instanceof Error ? err : new Error(String(err))
+		error.message = `Failed to build UI: ${error.message}`
+		logger.debug(error)
+		throw error
+	}
+})
