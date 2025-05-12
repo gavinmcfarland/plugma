@@ -69,6 +69,7 @@ export default defineConfig({
 
 	optimizeDeps: {
 		exclude: ['fsevents'],
+		include: ['child_process', 'util'],
 	},
 
 	root: app,

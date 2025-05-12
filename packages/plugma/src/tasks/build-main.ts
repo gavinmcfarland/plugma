@@ -49,13 +49,18 @@ async function runWatchMode({ options, viteConfigs, userMainConfig }: ViteConfig
 			build: {
 				...config.build,
 				watch: {},
+				ssr: {
+					noExternal: ['child_process', 'util'],
+				},
 			},
 		},
 		userMainConfig?.config ?? {},
 	)
 
 	logger.log(ListrLogLevels.OUTPUT, 'Logging config')
-	console.log(colorStringify(watchConfig, 2))
+	if (options.debug) {
+		console.log(colorStringify(watchConfig, 2))
+	}
 
 	const buildResult = await build(watchConfig)
 
@@ -125,7 +130,10 @@ export const createBuildMainTask = <T extends BuildMainContext>(
 
 							const mainPath = resolve(ctx.files.manifest.main)
 							if (!(await fileExists(mainPath))) {
-								console.error(`Main script not found at ${mainPath}, skipping build`)
+								logger.log(
+									ListrLogLevels.SKIPPED,
+									`Main script not found at ${mainPath}, skipping build`,
+								)
 								return task.skip('Main script not found')
 							}
 

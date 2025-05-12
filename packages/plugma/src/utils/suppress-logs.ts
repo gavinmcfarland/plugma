@@ -21,6 +21,10 @@ export function suppressLogs(options: any): void {
 		`^${escapedOutput}/node_modules/plugma/tmp/index\\.html\\s+\\d+(\\.\\d+)?\\s+kB\\s+│\\s+gzip:\\s+\\d+(\\.\\d+)?\\s+kB$`,
 	)
 
+	const SIMPLE_BUILD_REGEX = new RegExp(
+		`^${escapedOutput}/[^\\s]+\\.js\\s+\\d+(\\.\\d+)?\\s+kB\\s+│\\s+map:\\s+\\d+(\\.\\d+)?\\s+kB$`,
+	)
+
 	const patterns: Pattern[] = [
 		/^vite v\d+\.\d+\.\d+ building for \w+\.\.\.$/,
 		/^build started\.\.\.(\s+\(x\d+\))?$/,
@@ -31,6 +35,7 @@ export function suppressLogs(options: any): void {
 		TEMP_INDEX_PATH_REGEX,
 		MAIN_BUILT_REGEX,
 		INDEX_BUILT_REGEX,
+		SIMPLE_BUILD_REGEX,
 		'transforming',
 		'computing gzip size',
 

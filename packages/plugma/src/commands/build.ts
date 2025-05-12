@@ -48,8 +48,6 @@ function calculateBuildDuration(durations: (string | undefined)[]): number {
 export async function build(options: BuildCommandOptions): Promise<void> {
 	const logger = createDebugAwareLogger(options.debug)
 
-	logger.log(ListrLogLevels.STARTED, 'Starting build...')
-
 	const timer = new Timer()
 	timer.start()
 
@@ -67,9 +65,15 @@ export async function build(options: BuildCommandOptions): Promise<void> {
 
 	try {
 		await tasks.run()
-		timer.stop()
-		logger.log(ListrLogLevels.COMPLETED, `Build completed in ${timer.getDuration()} ms`)
-		process.exit(0)
+
+		if (options.watch) {
+			logger.log(ListrLogLevels.STARTED, 'Watching for changes...')
+		}
+		if (!options.watch) {
+			timer.stop()
+			logger.log(ListrLogLevels.COMPLETED, `Build completed in ${timer.getDuration()} ms`)
+			process.exit(0)
+		}
 	} catch (error) {
 		const err = error instanceof Error ? error : new Error(String(error))
 		logger.log(ListrLogLevels.FAILED, err.message)

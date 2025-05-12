@@ -2,7 +2,15 @@ import { loadEnvFiles } from '../utils/load-env-files.js'
 
 loadEnvFiles()
 
-import { BuildCommandOptions, createOptions, DEFAULT_OPTIONS, DevCommandOptions } from '../utils/create-options.js'
+import {
+	BuildCommandOptions,
+	createOptions,
+	DEFAULT_OPTIONS,
+	DevCommandOptions,
+	PreviewCommandOptions,
+	ReleaseCommandOptions,
+	AddCommandOptions,
+} from '../utils/create-options.js'
 
 import { readPlugmaPackageJson } from '../utils/fs/read-json.js'
 
@@ -11,11 +19,13 @@ import { Command } from 'commander'
 import { build, dev } from '../commands/index.js'
 import { colorStringify, debugLogger, defaultLogger } from '../utils/index.js'
 import chalk from 'chalk'
-// import { add } from '../commands/add.js'
+import { add } from '../commands/add.js'
 import { suppressLogs } from '../utils/suppress-logs.js'
 import { ListrLogLevels } from 'listr2'
 import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
 import { showPlugmaPrompt } from '../utils/show-plugma-prompt.js'
+import { preview } from '../commands/preview.js'
+import { release } from '../commands/release.js'
 
 const logger = createDebugAwareLogger()
 
@@ -55,7 +65,9 @@ program.hook('preAction', async (thisCommand, actionCommand) => {
 
 	// You can add your common functionality here
 	await handleDebug(commandName, options)
-	suppressLogs(options)
+	if (options.output) {
+		suppressLogs(options)
+	}
 	await showPlugmaPrompt()
 })
 
@@ -90,37 +102,36 @@ program
   `,
 	)
 
-// // Preview Command
-// program
-// 	.command('preview')
-// 	.description('Preview your plugin in any browser')
-// 	.option('-p, --port <number>', 'Specify a port number for the dev server (default: random)', parseInt)
-// 	.option('-m, --mode <mode>', `Specify the mode`, DEFAULT_OPTIONS.mode)
-// 	.option('-o, --output <path>', `Specify the output directory`, DEFAULT_OPTIONS.output)
-// 	.option('-d, --debug', `Enable debug mode`, DEFAULT_OPTIONS.debug)
-// 	.option(
-// 		'-c, --config <json>',
-// 		'Specify a JSON configuration object for testing and debugging',
-// 		DEFAULT_OPTIONS.configParser,
-// 	)
-// 	.action(function (this: Command, options: PreviewCommandOptions) {
-// 		suppressLogs(options)
-// 		preview(
-// 			createOptions<'preview'>(options, {
-// 				mode: 'preview',
-// 				command: 'preview',
-// 				websockets: true,
-// 			}),
-// 		)
-// 	})
-// 	.addHelpText(
-// 		'after',
-// 		`
-//     Examples:
-//       plugma preview --port 3000
-//       plugma preview --config '{"testMode": true, "mockData": {"key": "value"}}'
-//   `,
-// 	)
+// Preview Command
+program
+	.command('preview')
+	.description('Preview your plugin in any browser')
+	.option('-p, --port <number>', 'Specify a port number for the dev server (default: random)', parseInt)
+	.option('-m, --mode <mode>', `Specify the mode`, DEFAULT_OPTIONS.mode)
+	.option('-o, --output <path>', `Specify the output directory`, DEFAULT_OPTIONS.output)
+	.option('-d, --debug', `Enable debug mode`, DEFAULT_OPTIONS.debug)
+	.option(
+		'-c, --config <json>',
+		'Specify a JSON configuration object for testing and debugging',
+		DEFAULT_OPTIONS.configParser,
+	)
+	.action(function (this: Command, options: PreviewCommandOptions) {
+		preview(
+			createOptions<'preview'>(options, {
+				mode: 'preview',
+				command: 'preview',
+				websockets: true,
+			}),
+		)
+	})
+	.addHelpText(
+		'after',
+		`
+    Examples:
+      plugma preview --port 3000
+      plugma preview --config '{"testMode": true, "mockData": {"key": "value"}}'
+  `,
+	)
 
 // Build Command
 program
@@ -152,61 +163,61 @@ program
   `,
 	)
 
-// // Release Command
-// program
-// 	.command('release')
-// 	.argument('[type]', 'Release type or version number', 'stable')
-// 	.description('Build and publish a release of your plugin to GitHub')
-// 	.option('--title <title>', 'Specify a title for the release')
-// 	.option('--notes <notes>', 'Specify release notes')
-// 	.option('-d, --debug', `Enable debug mode`, DEFAULT_OPTIONS.debug)
-// 	.option('-o, --output <path>', `Specify the output directory`, DEFAULT_OPTIONS.output)
-// 	.option(
-// 		'-c, --config <json>',
-// 		'Specify a JSON configuration object for testing and debugging',
-// 		DEFAULT_OPTIONS.configParser,
-// 	)
-// 	.action(function (this: Command, type: string, options: ReleaseCommandOptions) {
-// 		release(
-// 			createOptions<'release'>(options, {
-// 				command: 'release',
-// 			}),
-// 		)
-// 	})
-// 	.addHelpText(
-// 		'after',
-// 		`
-//     Examples:
-//       plugma release
-//       plugma release alpha --title "Alpha Release" --notes "Initial alpha release"
-//       plugma release --config '{"testMode": true, "mockData": {"key": "value"}}'
-//   `,
-// 	)
+// Release Command
+program
+	.command('release')
+	.argument('[type]', 'Release type or version number', 'stable')
+	.description('Build and publish a release of your plugin to GitHub')
+	.option('--title <title>', 'Specify a title for the release')
+	.option('--notes <notes>', 'Specify release notes')
+	.option('-d, --debug', `Enable debug mode`, DEFAULT_OPTIONS.debug)
+	.option('-o, --output <path>', `Specify the output directory`, DEFAULT_OPTIONS.output)
+	.option(
+		'-c, --config <json>',
+		'Specify a JSON configuration object for testing and debugging',
+		DEFAULT_OPTIONS.configParser,
+	)
+	.action(function (this: Command, type: string, options: ReleaseCommandOptions) {
+		release(
+			createOptions<'release'>(options, {
+				command: 'release',
+			}),
+		)
+	})
+	.addHelpText(
+		'after',
+		`
+    Examples:
+      plugma release
+      plugma release alpha --title "Alpha Release" --notes "Initial alpha release"
+      plugma release --config '{"testMode": true, "mockData": {"key": "value"}}'
+  `,
+	)
 
-// // Add Command
-// program
-// 	.command('add')
-// 	.argument('[integration]', 'Integration to add', 'playwright')
-// 	.option(
-// 		'-c, --config <json>',
-// 		'Specify a JSON configuration object for testing and debugging',
-// 		DEFAULT_OPTIONS.configParser,
-// 	)
-// 	.action(async function (this: Command, options: Partial<AddCommandOptions>) {
-// 		await add(
-// 			createOptions<'add'>(options, {
-// 				command: 'add',
-// 			}),
-// 		)
-// 	})
-// 	.addHelpText(
-// 		'after',
-// 		`
-//     Examples:
-//       plugma add playwright
-//       plugma add playwright --config '{"testMode": true, "mockData": {"key": "value"}}'
-//   `,
-// 	)
+// Add Command
+program
+	.command('add')
+	.argument('[integration]', 'Integration to add', 'playwright')
+	.option(
+		'-c, --config <json>',
+		'Specify a JSON configuration object for testing and debugging',
+		DEFAULT_OPTIONS.configParser,
+	)
+	.action(async function (this: Command, options: Partial<AddCommandOptions>) {
+		await add(
+			createOptions<'add'>(options, {
+				command: 'add',
+			}),
+		)
+	})
+	.addHelpText(
+		'after',
+		`
+    Examples:
+      plugma add playwright
+      plugma add playwright --config '{"testMode": true, "mockData": {"key": "value"}}'
+  `,
+	)
 
 // Parse arguments
 program.parse(process.argv)

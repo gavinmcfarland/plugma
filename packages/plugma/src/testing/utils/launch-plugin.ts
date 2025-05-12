@@ -12,9 +12,20 @@ export const launchPlugin =
 	// Don't run in figma
 	typeof figma === 'undefined'
 		? async function launchPlugin(name: string, { submenu, returnToEditor }: LaunchPluginOptions) {
-				// Dynamically import Node.js modules
-				const { exec } = await import('child_process')
-				const { promisify } = await import('util')
+				let exec: any
+				let promisify: any
+
+				try {
+					// Only import Node.js modules when needed
+					const childProcess = await import('node:child_process')
+					const util = await import('node:util')
+					exec = childProcess.exec
+					promisify = util.promisify
+				} catch (error) {
+					console.warn('Node.js modules not available in this environment')
+					return
+				}
+
 				name = name ?? 'Plugma Test Sandbox'
 				const scriptLaunchPlugin = `
 -- Get the currently active app
@@ -64,7 +75,7 @@ ${
 
 				return new Promise((resolve, reject) => {
 					execPromise("osascript -e '" + scriptLaunchPlugin + "'")
-						.then(({ stdout, stderr }) => {
+						.then(({ stdout, stderr }: { stdout: string; stderr: string }) => {
 							if (stderr) {
 								console.error(`Stderr: ${stderr}`)
 								reject(new Error(stderr))
@@ -74,7 +85,7 @@ ${
 							console.log(stdout)
 							resolve(stdout)
 						})
-						.catch((error) => {
+						.catch((error: unknown) => {
 							console.error(`Error: ${error instanceof Error ? error.message : String(error)}`)
 							reject(error)
 						})

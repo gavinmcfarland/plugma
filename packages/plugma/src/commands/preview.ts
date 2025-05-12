@@ -5,18 +5,29 @@
 
 import type { PluginOptions } from '../core/types.js'
 import {
-	BuildMainTask,
-	BuildManifestTask,
-	GetFilesTask,
-	ShowPlugmaPromptTask,
-	StartViteServerTask,
-	StartWebSocketsServerTask,
-	WrapPluginUiTask,
+	createBuildMainTask,
+	createBuildManifestTask,
+	createStartViteServerTask,
+	createStartWebSocketsServerTask,
+	createWrapPluginUiTask,
 } from '../tasks/index.js'
 import { Logger } from '../utils/log/logger.js'
-import { serial } from '../tasks/runner.js'
 import { setConfig } from '../utils/save-plugma-cli-options.js'
 import { createOptions, PreviewCommandOptions } from '../utils/create-options.js'
+import { Listr, ListrLogger, ListrLogLevels } from 'listr2'
+import { DEFAULT_RENDERER_OPTIONS, SILENT_RENDERER_OPTIONS } from '../constants.js'
+import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
+
+interface BuildContext {
+	raw?: any
+	processed?: any
+	manifestDuration?: number
+	mainDuration?: number
+	uiDuration?: number
+	websocketServer?: any
+	viteServer?: any
+	vitePort?: number
+}
 
 /**
  * Main preview command implementation
@@ -31,29 +42,28 @@ import { createOptions, PreviewCommandOptions } from '../utils/create-options.js
  * - Enables testing plugin functionality
  */
 export async function preview(options: PreviewCommandOptions): Promise<void> {
-	const log = new Logger({ debug: options.debug })
+	const logger = createDebugAwareLogger(options.debug)
 
 	try {
-		log.info('Starting preview server...')
+		logger.log(ListrLogLevels.OUTPUT, 'Starting preview server...')
 
 		setConfig(options)
 
-		// Execute tasks in sequence
-		log.info('Executing tasks...')
-		await serial(
-			GetFilesTask,
-			ShowPlugmaPromptTask,
-			BuildManifestTask,
-			WrapPluginUiTask,
-			BuildMainTask,
-			StartWebSocketsServerTask,
-			StartViteServerTask,
-		)(options)
+		const tasks = new Listr(
+			[
+				createBuildManifestTask<BuildContext>(options),
+				createWrapPluginUiTask<BuildContext>(options),
+				createBuildMainTask<BuildContext>(options),
+				createStartWebSocketsServerTask<BuildContext>(options),
+				createStartViteServerTask<BuildContext>(options),
+			],
+			options.debug ? DEFAULT_RENDERER_OPTIONS : SILENT_RENDERER_OPTIONS,
+		)
 
-		log.success('Preview server started successfully')
+		await tasks.run()
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : String(error)
-		log.error('Failed to start preview server:', errorMessage)
+		logger.log(ListrLogLevels.FAILED, ['Failed to start preview server:', errorMessage])
 		throw error
 	}
 }
