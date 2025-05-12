@@ -23,17 +23,6 @@ interface BuildContext {
 }
 
 /**
- * Calculates the total build duration from an array of duration strings
- * @param durations - Array of duration strings in milliseconds
- * @returns The total build duration in milliseconds
- */
-function calculateBuildDuration(durations: (string | undefined)[]): number {
-	return durations.reduce((total, duration) => {
-		return total + (duration ? parseInt(duration) : 0)
-	}, 0)
-}
-
-/**
  * Main build command implementation
  * Creates production-ready builds of the plugin
  *

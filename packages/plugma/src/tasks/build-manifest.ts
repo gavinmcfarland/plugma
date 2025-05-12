@@ -11,10 +11,11 @@ import { BuildUiTask } from './build-ui.js'
 import chokidar, { FSWatcher } from 'chokidar'
 import { access, mkdir, writeFile, unlink } from 'node:fs/promises'
 import { join, relative, resolve } from 'node:path'
-import { ListrTask, Listr } from 'listr2'
+import { ListrTask, Listr, ListrLogLevels } from 'listr2'
 import { BuildCommandOptions, DevCommandOptions, PreviewCommandOptions } from '../utils/create-options.js'
+import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
+import { colorStringify } from '../utils/index.js'
 
-// Interfaces and Types
 export interface BuildManifestResult {
 	raw: ManifestFile
 	processed: ManifestFile
@@ -261,12 +262,15 @@ async function verifyManifestFile(manifestPath: string): Promise<void> {
 export const createBuildManifestTask = <T extends { raw?: ManifestFile; processed?: ManifestFile }>(
 	options: DevCommandOptions | BuildCommandOptions | PreviewCommandOptions,
 ): ListrTask<T> => {
+	const logger = createDebugAwareLogger(options.debug)
 	return {
 		title: 'Build Manifest',
 		task: async (ctx, task) => {
 			const files = await getUserFiles(options)
 			const outputDirPath = resolve(options.cwd || process.cwd(), options.output)
 			const manifestPath = join(outputDirPath, 'manifest.json')
+
+			console.log('files', colorStringify(files, 2))
 
 			// Create subtasks for the build process
 			return task.newListr(
@@ -289,6 +293,10 @@ export const createBuildManifestTask = <T extends { raw?: ManifestFile; processe
 							}
 							const finalManifest = filterNullProps(processedManifest)
 							await writeFile(manifestPath, JSON.stringify(finalManifest, null, 2))
+							logger.log(ListrLogLevels.OUTPUT, `manifestPath: ${manifestPath}`)
+							if (options.debug) {
+								console.log('processed manifest', colorStringify(finalManifest, 2))
+							}
 							return { raw: rawManifest, processed: finalManifest }
 						},
 					},

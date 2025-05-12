@@ -3,6 +3,7 @@ import { readJson } from './fs/read-json.js'
 
 import type { ManifestFile, PluginOptions, UserFiles } from '../core/types.js'
 import { transformManifest } from './transform-manifest.js'
+import { colorStringify } from './index.js'
 
 function validateManifest(manifest?: Partial<ManifestFile>) {
 	if (!manifest) {
@@ -43,6 +44,7 @@ export const getUserFiles = async (options: any): Promise<UserFiles> => {
 	if (!manifest) throw new Error('No manifest found in manifest.json or package.json')
 
 	const processedManifest = transformManifest(manifest, options)
+
 	validateManifest(processedManifest)
 
 	return { manifest: processedManifest, userPkgJson, rawManifest: manifest }
