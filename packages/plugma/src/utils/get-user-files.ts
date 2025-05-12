@@ -1,9 +1,6 @@
 import path from 'node:path'
 import { readJson } from './fs/read-json.js'
-
-import type { ManifestFile, PluginOptions, UserFiles } from '../core/types.js'
-import { transformManifest } from './transform-manifest.js'
-import { colorStringify } from './index.js'
+import type { ManifestFile, UserFiles } from '../core/types.js'
 
 /**
  * Gets the plugin's configuration files and settings

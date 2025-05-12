@@ -1,11 +1,63 @@
+import { ListrLogLevels } from 'listr2'
 import type { ManifestFile, PluginOptions } from '../core/types.js'
 import { BuildCommandOptions, DevCommandOptions, PreviewCommandOptions } from './create-options.js'
+import { createDebugAwareLogger } from './debug-aware-logger.js'
+import { filterNullProps } from './filter-null-props.js'
+import { join, resolve } from 'node:path'
+import { unlink } from 'node:fs/promises'
+
+// Constants
+const DEFAULT_MANIFEST_VALUES = {
+	api: '1.0.0',
+}
+
+async function setSourcePaths(
+	options: DevCommandOptions | BuildCommandOptions | PreviewCommandOptions,
+	manifest: ManifestFile,
+) {
+	const logger = createDebugAwareLogger(options.debug)
+	const outputDirPath = resolve(options.cwd || process.cwd(), options.output)
+	const overriddenValues: Partial<ManifestFile> = {}
+
+	// Handle ui.html file
+	if (manifest.ui) {
+		logger.log(ListrLogLevels.OUTPUT, 'Setting ui path to ui.html')
+		overriddenValues.ui = 'ui.html'
+	} else {
+		// Remove ui.html if not specified
+		const uiPath = join(outputDirPath, 'ui.html')
+		try {
+			await unlink(uiPath)
+			logger.log(ListrLogLevels.OUTPUT, 'Removed ui.html as it was not specified in manifest')
+		} catch (error) {
+			// Ignore if file doesn't exist
+		}
+	}
+
+	// Handle main.js file
+	if (manifest.main) {
+		logger.log(ListrLogLevels.OUTPUT, 'Setting main path to main.js')
+		overriddenValues.main = 'main.js'
+	} else {
+		// Remove main.js if not specified
+		const mainPath = join(outputDirPath, 'main.js')
+		try {
+			await unlink(mainPath)
+			logger.log(ListrLogLevels.OUTPUT, 'Removed main.js as it was not specified in manifest')
+		} catch (error) {
+			// Ignore if file doesn't exist
+		}
+	}
+
+	return overriddenValues
+}
 
 /**
- * Transforms network access configuration in the manifest
+ * Transforms and processes the manifest file
  * @param input - The manifest file to transform, can be undefined
  * @param options - Plugin configuration options
- * @returns Transformed manifest file
+ * @param overriddenValues - Optional values to override in the manifest
+ * @returns Transformed and processed manifest file
  *
  * Tracking:
  * - [x] Add network access handling
@@ -25,16 +77,29 @@ import { BuildCommandOptions, DevCommandOptions, PreviewCommandOptions } from '.
  *   - Type safety
  */
 
-export function transformManifest(
-	input: ManifestFile | undefined,
+export async function transformManifest(
+	manifest: ManifestFile | undefined,
 	options: DevCommandOptions | BuildCommandOptions | PreviewCommandOptions,
-): ManifestFile {
-	if (!input) {
+): Promise<ManifestFile> {
+	if (!manifest) {
 		throw new Error('No manifest found in manifest.json or package.json')
 	}
 
+	const overriddenValues = await setSourcePaths(options, manifest)
+
+	// Process the manifest with default values and overrides
+	const processedManifest = {
+		...DEFAULT_MANIFEST_VALUES,
+		...manifest,
+		...(overriddenValues || {}),
+	}
+
+	// Filter out null values
+	const finalManifest = filterNullProps(processedManifest)
+
+	// Transform network access configuration for dev/preview
 	if (options.command === 'dev' || options.command === 'preview') {
-		const transformed = JSON.parse(JSON.stringify(input))
+		const transformed = JSON.parse(JSON.stringify(finalManifest))
 
 		// Initialize networkAccess if it doesn't exist
 		if (!transformed.networkAccess) {
@@ -69,5 +134,5 @@ export function transformManifest(
 
 		return transformed
 	}
-	return input
+	return finalManifest
 }
