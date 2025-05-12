@@ -3,6 +3,8 @@ import { Logger } from '../utils/log/logger.js'
 import { mkdir, rm } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { task } from './runner.js'
+import { ListrLogLevels } from 'listr2'
+import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
 
 interface Result {
 	outputPath: string
@@ -18,14 +20,11 @@ interface Result {
  * @returns The path to the created output directory
  */
 const ensureDist = async (options: PluginOptions): Promise<Result> => {
-	const logger = new Logger({
-		debug: options.debug,
-		prefix: 'common:ensure-dist',
-	})
+	const logger = createDebugAwareLogger(options.debug)
 	const outputPath = resolve(process.cwd(), options.output || 'dist')
 
 	try {
-		logger.debug(`Ensuring clean dist directory at ${outputPath}`)
+		logger.log(ListrLogLevels.OUTPUT, `Ensuring clean dist directory at ${outputPath}`)
 
 		// Remove existing directory and its contents if it exists
 		// await rm(outputPath, { recursive: true, force: true })
@@ -33,7 +32,7 @@ const ensureDist = async (options: PluginOptions): Promise<Result> => {
 		// Create fresh directory with proper permissions
 		await mkdir(outputPath, { recursive: true, mode: 0o755 })
 
-		logger.debug('Dist directory prepared successfully')
+		logger.log(ListrLogLevels.OUTPUT, 'Dist directory prepared successfully')
 
 		return { outputPath }
 	} catch (error) {

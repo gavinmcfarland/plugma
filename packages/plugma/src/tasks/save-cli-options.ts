@@ -4,6 +4,8 @@ import { task } from './runner.js'
 import { writeFile, readFile, unlink } from 'fs/promises'
 import { join } from 'path'
 import { tmpdir } from 'os'
+import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
+import { ListrLogLevels } from 'listr2'
 
 /**
  * Custom error class for temporary options operations
@@ -26,16 +28,13 @@ const getTempFilePath = () => join(tmpdir(), 'plugma-options.json')
  * Task that saves plugin options to a temporary file
  */
 export const saveOptions = async (options: PluginOptions): Promise<void> => {
-	const logger = new Logger({
-		debug: options.debug,
-		prefix: 'common:save-options',
-	})
+	const logger = createDebugAwareLogger(options.debug)
 
 	try {
-		logger.debug('Saving options to temporary file...')
+		logger.log(ListrLogLevels.OUTPUT, 'Saving options to temporary file...')
 		const tempPath = getTempFilePath()
 		await writeFile(tempPath, JSON.stringify(options, null, 2), 'utf-8')
-		logger.debug('Options saved successfully to:', tempPath)
+		logger.log(ListrLogLevels.OUTPUT, `Options saved successfully to: ${tempPath}`)
 	} catch (err) {
 		throw new TempOptionsError('Failed to save options', 'WRITE_ERROR', err)
 	}
@@ -45,17 +44,14 @@ export const saveOptions = async (options: PluginOptions): Promise<void> => {
  * Task that retrieves plugin options from the temporary file
  */
 export const loadOptions = async (options: Pick<PluginOptions, 'debug'>, context?: unknown): Promise<PluginOptions> => {
-	const logger = new Logger({
-		debug: options.debug,
-		prefix: 'common:load-options',
-	})
+	const logger = createDebugAwareLogger(options.debug)
 
 	try {
-		logger.debug('Loading options from temporary file...')
+		logger.log(ListrLogLevels.OUTPUT, 'Loading options from temporary file...')
 		const tempPath = getTempFilePath()
 		const content = await readFile(tempPath, 'utf-8')
 		const loadedOptions = JSON.parse(content) as PluginOptions
-		logger.debug('Options loaded successfully')
+		logger.log(ListrLogLevels.OUTPUT, 'Options loaded successfully')
 		return loadedOptions
 	} catch (err) {
 		throw new TempOptionsError('Failed to load options', 'READ_ERROR', err)

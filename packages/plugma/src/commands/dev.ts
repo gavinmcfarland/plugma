@@ -1,25 +1,30 @@
 import type { DevCommandOptions } from '../utils/create-options.js'
-/**
- * Development command implementation
- * Handles development server and file watching for plugin development
- */
-
 import {
-	BuildMainTask,
-	BuildManifestTask,
-	GetFilesTask,
-	ShowPlugmaPromptTask,
-	StartViteServerTask,
-	StartWebSocketsServerTask,
-	WrapPluginUiTask,
+	createBuildMainTask,
+	createBuildManifestTask,
+	createStartViteServerTask,
+	createStartWebSocketsServerTask,
+	createWrapPluginUiTask,
 } from '../tasks/index.js'
-import { serial } from '../tasks/runner.js'
-import { Logger } from '../utils/log/logger.js'
-import { nanoid } from 'nanoid'
-import { getRandomPort } from '../utils/get-random-port.js'
-import { SaveOptionsTask } from '../tasks/save-cli-options.js'
 import { setConfig } from '../utils/save-plugma-cli-options.js'
-import { createOptions } from '../utils/create-options.js'
+import { showPlugmaPrompt } from '../utils/show-plugma-prompt.js'
+import { Listr, ListrLogger, ListrLogLevels, ListrRendererValue } from 'listr2'
+import { ManifestFile } from '../core/types.js'
+import type { ViteDevServer } from 'vite'
+import { DEFAULT_RENDERER_OPTIONS, SILENT_RENDERER_OPTIONS } from '../constants.js'
+import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
+
+interface BuildContext {
+	shown?: boolean
+	raw?: ManifestFile
+	processed?: ManifestFile
+	manifestDuration?: number
+	mainDuration?: number
+	uiDuration?: number
+	websocketServer?: any
+	viteServer?: ViteDevServer
+	vitePort?: number
+}
 
 /**
  * Main development command implementation
@@ -35,30 +40,40 @@ import { createOptions } from '../utils/create-options.js'
  * - Output file validation to ensure integrity
  */
 export async function dev(options: DevCommandOptions): Promise<void> {
-	const log = new Logger({ debug: options.debug })
+	const logger = createDebugAwareLogger(options.debug)
+
+	logger.log(ListrLogLevels.STARTED, 'Starting development server...')
+
+	setConfig(options)
+
+	await showPlugmaPrompt()
+
+	// await serial(
+	//  GetFilesTask, Not needed?
+	//  SaveOptionsTask, Not needed?
+	//  BuildManifestTask, done
+	//  BuildMainTask, done
+	//  WrapPluginUiTask, done
+	//  StartWebSocketsServerTask, done
+	//  StartViteServerTask, done
+	// )(options)
+
+	const tasks = new Listr(
+		[
+			createBuildManifestTask<BuildContext>(options),
+			createBuildMainTask<BuildContext>(options),
+			createWrapPluginUiTask<BuildContext>(options),
+			createStartWebSocketsServerTask<BuildContext>(options),
+			createStartViteServerTask<BuildContext>(options),
+		],
+		options.debug ? DEFAULT_RENDERER_OPTIONS : SILENT_RENDERER_OPTIONS,
+	)
 
 	try {
-		log.info('Starting development server...')
-
-		setConfig(options)
-
-		// Execute tasks in sequence
-		log.info('Executing tasks...')
-		await serial(
-			GetFilesTask,
-			ShowPlugmaPromptTask,
-			SaveOptionsTask,
-			BuildManifestTask,
-			WrapPluginUiTask,
-			BuildMainTask,
-			StartWebSocketsServerTask,
-			StartViteServerTask,
-		)(options)
-
-		log.success('Development server started successfully')
+		await tasks.run()
 	} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : String(error)
-		log.error('Failed to start development server:', errorMessage)
-		throw error
+		const err = error instanceof Error ? error : new Error(String(error))
+		logger.log(ListrLogLevels.FAILED, ['Failed to start development server:', err])
+		process.exit(1)
 	}
 }

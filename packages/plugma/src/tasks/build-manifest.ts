@@ -1,18 +1,17 @@
 import type { GetTaskTypeFor, ManifestFile, PluginOptions, ResultsOfTask } from '../core/types.js'
 import { GetFilesTask } from '../tasks/get-files.js'
-import RestartViteServerTask from '../tasks/start-dev-server.js'
+import { createStartViteServerTask } from '../tasks/start-dev-server.js'
 import { registerCleanup } from '../utils/cleanup.js'
 import { notifyInvalidManifestOptions } from '../utils/config/notify-invalid-manifest-options.js'
 import { filterNullProps } from '../utils/filter-null-props.js'
 import { getFilesRecursively } from '../utils/fs/get-files-recursively.js'
-import { Logger, defaultLogger as log } from '../utils/log/logger.js'
 import { getUserFiles } from '../utils/get-user-files.js'
-import { BuildMainTask } from './build-main.js'
+import { createBuildMainTask } from './build-main.js'
 import { BuildUiTask } from './build-ui.js'
 import chokidar, { FSWatcher } from 'chokidar'
 import { access, mkdir, writeFile, unlink } from 'node:fs/promises'
 import { join, relative, resolve } from 'node:path'
-import { task } from './runner.js'
+import { ListrTask, Listr } from 'listr2'
 import { BuildCommandOptions, DevCommandOptions, PreviewCommandOptions } from '../utils/create-options.js'
 
 // Interfaces and Types
@@ -40,7 +39,6 @@ async function setupWatchers(
 	context: ResultsOfTask<GetFilesTask>,
 	files: Awaited<ReturnType<typeof getUserFiles>>,
 	initialManifest: ManifestFile,
-	logger: Logger,
 ): Promise<void> {
 	const state: WatcherState = {
 		previousMainValue: initialManifest.main,
@@ -48,8 +46,8 @@ async function setupWatchers(
 		existingFiles: new Set(await getFilesRecursively(resolve('./src'))),
 	}
 
-	const manifestWatcher = setupManifestWatcher(options, context, files, state, logger)
-	const srcWatcher = setupSourceWatcher(options, context, files, state, logger)
+	const manifestWatcher = setupManifestWatcher(options, context, files, state)
+	const srcWatcher = setupSourceWatcher(options, files, state)
 
 	registerCleanup(async () => {
 		await Promise.all([manifestWatcher.close(), srcWatcher.close()])
@@ -64,7 +62,6 @@ function setupManifestWatcher(
 	context: ResultsOfTask<GetFilesTask>,
 	files: Awaited<ReturnType<typeof getUserFiles>>,
 	state: WatcherState,
-	logger: Logger,
 ): FSWatcher {
 	const manifestPath = resolve('./manifest.json')
 	const userPkgPath = resolve('./package.json')
@@ -81,7 +78,7 @@ function setupManifestWatcher(
 
 	watcher.on('change', async () => {
 		try {
-			const { files, result } = await buildManifestFile(options, logger)
+			const { files, result } = await buildManifestFile(options)
 			notifyInvalidManifestOptions(options, files, 'manifest-changed')
 
 			const outputMainPath = join(outputDirPath, 'main.js')
@@ -90,33 +87,39 @@ function setupManifestWatcher(
 			// Handle main.js file
 			if (result.raw.main !== state.previousMainValue) {
 				if (result.raw.main) {
-					await BuildMainTask.run(options, context)
+					const buildMainTask = createBuildMainTask(options)
+					const listr = new Listr([buildMainTask], { concurrent: false })
+					await listr.run({})
 				} else {
 					// Remove main.js if it was removed from manifest
 					try {
 						await unlink(outputMainPath)
-						logger.debug('Removed main.js as it was removed from manifest')
+						// logger.debug('Removed main.js as it was removed from manifest')
 					} catch (error) {
 						// Ignore if file doesn't exist
 					}
 				}
 				state.previousMainValue = result.raw.main
 			} else if (result.raw.main && !(await fileExists(outputMainPath))) {
-				await BuildMainTask.run(options, context)
+				const buildMainTask = createBuildMainTask(options)
+				const listr = new Listr([buildMainTask], { concurrent: false })
+				await listr.run({})
 			}
 
 			// Handle ui.html file
 			if (result.raw.ui !== state.previousUiValue) {
 				if (result.raw.ui) {
 					if (options.command !== 'build') {
-						await RestartViteServerTask.run(options, context)
+						const startViteTask = createStartViteServerTask(options)
+						const listr = new Listr([startViteTask], { concurrent: false })
+						await listr.run({})
 					}
 					await BuildUiTask.run(options, context)
 				} else {
 					// Remove ui.html if it was removed from manifest
 					try {
 						await unlink(outputUiPath)
-						logger.debug('Removed ui.html as it was removed from manifest')
+						// logger.debug('Removed ui.html as it was removed from manifest')
 					} catch (error) {
 						// Ignore if file doesn't exist
 					}
@@ -124,12 +127,14 @@ function setupManifestWatcher(
 				state.previousUiValue = result.raw.ui
 			} else if (result.raw.ui && !(await fileExists(outputUiPath))) {
 				if (options.command !== 'build') {
-					await RestartViteServerTask.run(options, context)
+					const startViteTask = createStartViteServerTask(options)
+					const listr = new Listr([startViteTask], { concurrent: false })
+					await listr.run({})
 				}
 				await BuildUiTask.run(options, context)
 			}
 		} catch (error) {
-			logger.debug('Error processing manifest change:', error)
+			// logger.debug('Error processing manifest change:', error)
 		}
 	})
 
@@ -141,10 +146,8 @@ function setupManifestWatcher(
  */
 function setupSourceWatcher(
 	options: any,
-	context: ResultsOfTask<GetFilesTask>,
 	files: Awaited<ReturnType<typeof getUserFiles>>,
 	state: WatcherState,
-	logger: Logger,
 ): FSWatcher {
 	const srcPath = resolve('./src')
 
@@ -158,13 +161,17 @@ function setupSourceWatcher(
 		state.existingFiles.add(filePath)
 
 		const relativePath = relative(process.cwd(), filePath)
-		const { result } = await buildManifestFile(options, logger)
+		const { result } = await buildManifestFile(options)
 
 		if (relativePath === result.raw.ui && options.command !== 'build') {
-			await RestartViteServerTask.run(options, context)
+			const startViteTask = createStartViteServerTask(options)
+			const listr = new Listr([startViteTask], { concurrent: false })
+			await listr.run({})
 		}
 		if (relativePath === result.raw.main) {
-			await BuildMainTask.run(options, context)
+			const buildMainTask = createBuildMainTask(options)
+			const listr = new Listr([buildMainTask], { concurrent: false })
+			await listr.run({})
 		}
 
 		notifyInvalidManifestOptions(options, files, 'file-added')
@@ -186,10 +193,7 @@ async function fileExists(filePath: string): Promise<boolean> {
 /**
  * Builds and writes the manifest file to disk
  */
-async function buildManifestFile(
-	options: DevCommandOptions | BuildCommandOptions | PreviewCommandOptions,
-	logger: Logger,
-): Promise<{
+async function buildManifestFile(options: DevCommandOptions | BuildCommandOptions | PreviewCommandOptions): Promise<{
 	files: Awaited<ReturnType<typeof getUserFiles>>
 	result: BuildManifestResult
 }> {
@@ -199,50 +203,33 @@ async function buildManifestFile(
 
 	const overriddenValues: Partial<ManifestFile> = {}
 
-	// Handle main.js file
-	if (files.manifest.main) {
-		logger.debug('Setting main path to main.js')
-		overriddenValues.main = 'main.js'
-	} else {
-		// Remove main.js if not specified
-		const mainPath = join(outputDirPath, 'main.js')
-		try {
-			await unlink(mainPath)
-			logger.debug('Removed main.js as it was not specified in manifest')
-		} catch (error) {
-			// Ignore if file doesn't exist
-		}
-	}
+	// Ensure output directory exists
+	await mkdir(outputDirPath, { recursive: true })
 
-	// Handle ui.html file
-	if (files.manifest.ui) {
-		logger.debug('Setting ui path to ui.html')
-		overriddenValues.ui = 'ui.html'
-	} else {
-		// Remove ui.html if not specified
-		const uiPath = join(outputDirPath, 'ui.html')
-		try {
-			await unlink(uiPath)
-			logger.debug('Removed ui.html as it was not specified in manifest')
-		} catch (error) {
-			// Ignore if file doesn't exist
-		}
-	}
+	// Get the raw manifest from the user's files
+	const rawManifest = files.manifest
 
-	const processed = filterNullProps({
+	// Process the manifest
+	const processedManifest = {
 		...DEFAULT_MANIFEST_VALUES,
-		...files.manifest,
+		...rawManifest,
 		...overriddenValues,
-	})
+	}
 
-	await writeFile(manifestPath, JSON.stringify(processed, null, 2), 'utf-8')
-	await verifyManifestFile(manifestPath, logger)
+	// Filter out null values
+	const finalManifest = filterNullProps(processedManifest)
+
+	// Write the manifest to disk
+	await writeFile(manifestPath, JSON.stringify(finalManifest, null, 2))
+
+	// Verify the manifest file
+	await verifyManifestFile(manifestPath)
 
 	return {
 		files,
 		result: {
-			raw: files.manifest,
-			processed,
+			raw: rawManifest,
+			processed: finalManifest,
 		},
 	}
 }
@@ -250,7 +237,7 @@ async function buildManifestFile(
 /**
  * Verifies the manifest file was created correctly when in debug mode
  */
-async function verifyManifestFile(manifestPath: string, logger: Logger): Promise<void> {
+async function verifyManifestFile(manifestPath: string): Promise<void> {
 	if (process.env.PLUGMA_DEBUG_TASK !== 'build:manifest') return
 
 	try {
@@ -259,54 +246,102 @@ async function verifyManifestFile(manifestPath: string, logger: Logger): Promise
 			.catch(() => false)
 
 		if (manifestExists) {
-			logger.debug('✓ Verified manifest.json exists at:', manifestPath)
+			// logger.debug('✓ Verified manifest.json exists at:', manifestPath)
 		} else {
-			logger.debug('✗ manifest.json was not created at:', manifestPath)
+			// logger.debug('✗ manifest.json was not created at:', manifestPath)
 		}
 	} catch (err) {
-		logger.debug('Error checking manifest file:', err)
+		// logger.debug('Error checking manifest file:', err)
 	}
 }
 
 /**
- * Main task function that generates and maintains the plugin manifest file.
- * Important: This task ensures the dist directory exists and maintains the files in it. You should not clean the dist dir in one go because it will cause issues when the plugin window is open in figma.
+ * Creates a listr2 task for building the manifest
  */
-export const BuildManifestTask = task(
-	'build:manifest',
-	async (
-		options: DevCommandOptions | BuildCommandOptions | PreviewCommandOptions,
-		context: ResultsOfTask<GetFilesTask>,
-	): Promise<BuildManifestResult> => {
-		const logger = new Logger({
-			debug: options.debug,
-			prefix: 'build:manifest',
-		})
-
-		try {
-			// Create output directory before building manifest
+export const createBuildManifestTask = <T extends { raw?: ManifestFile; processed?: ManifestFile }>(
+	options: DevCommandOptions | BuildCommandOptions | PreviewCommandOptions,
+): ListrTask<T> => {
+	return {
+		title: 'Build Manifest',
+		task: async (ctx, task) => {
+			const files = await getUserFiles(options)
 			const outputDirPath = resolve(options.cwd || process.cwd(), options.output)
-			await mkdir(outputDirPath, { recursive: true })
+			const manifestPath = join(outputDirPath, 'manifest.json')
 
-			const { files, result } = await buildManifestFile(options, logger)
+			// Create subtasks for the build process
+			return task.newListr(
+				[
+					{
+						title: 'Creating output directory',
+						task: async () => {
+							await mkdir(outputDirPath, { recursive: true })
+						},
+					},
+					{
+						title: 'Processing manifest',
+						task: async () => {
+							const overriddenValues: Partial<ManifestFile> = {}
+							const rawManifest = files.manifest
+							const processedManifest = {
+								...DEFAULT_MANIFEST_VALUES,
+								...rawManifest,
+								...overriddenValues,
+							}
+							const finalManifest = filterNullProps(processedManifest)
+							await writeFile(manifestPath, JSON.stringify(finalManifest, null, 2))
+							return { raw: rawManifest, processed: finalManifest }
+						},
+					},
+					{
+						title: 'Verifying manifest',
+						task: async () => {
+							await verifyManifestFile(manifestPath)
+						},
+					},
+					{
+						title: 'Setting up watchers',
+						skip: () => options.command !== 'dev',
+						task: async (_, subtask) => {
+							const getFilesResult = await GetFilesTask.run(options, {})
+							const manifestResult = await buildManifestFile(options)
 
-			const isWatchMode =
-				options.command === 'dev' ||
-				options.command === 'preview' ||
-				(options.command === 'build' && options.watch)
-
-			if (isWatchMode) {
-				await setupWatchers(options, context, files, result.raw, logger)
-			} else if (options.command === 'build') {
-				registerCleanup(async () => {
-					logger.debug('Skipping manifest cleanup in build mode')
-				})
-			}
-
-			return result
-		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : String(error)
-			throw new Error(`Failed to build manifest: ${errorMessage}`)
-		}
-	},
-)
+							return subtask.newListr(
+								[
+									{
+										title: 'Setting up manifest watcher',
+										task: async () => {
+											const manifestWatcher = setupManifestWatcher(
+												options,
+												{ 'common:get-files': getFilesResult },
+												files,
+												{
+													previousMainValue: manifestResult.result.raw.main,
+													previousUiValue: manifestResult.result.raw.ui,
+													existingFiles: new Set(await getFilesRecursively(resolve('./src'))),
+												},
+											)
+											registerCleanup(async () => await manifestWatcher.close())
+										},
+									},
+									{
+										title: 'Setting up source watcher',
+										task: async () => {
+											const srcWatcher = setupSourceWatcher(options, files, {
+												previousMainValue: manifestResult.result.raw.main,
+												previousUiValue: manifestResult.result.raw.ui,
+												existingFiles: new Set(await getFilesRecursively(resolve('./src'))),
+											})
+											registerCleanup(async () => await srcWatcher.close())
+										},
+									},
+								],
+								{ concurrent: true },
+							)
+						},
+					},
+				],
+				{ concurrent: false },
+			)
+		},
+	}
+}

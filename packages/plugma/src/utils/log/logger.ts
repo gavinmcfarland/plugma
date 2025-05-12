@@ -120,13 +120,13 @@ export class Logger {
 	): { formattedMessage: string; callSite: string } {
 		const indent = ' '.repeat(indentLevel * 2)
 		const prefix = this.getPrefix(type)
-		const logLevel = type ? `${type.toUpperCase()}: ` : ''
+		const logLevel = type ? chalk.bgGreen(`${type.toUpperCase()}:`) : ''
 		const tag = this.options.tag ? chalk.cyan(`[${this.options.tag}] `) : ''
 		let callSite = ''
 		if (type === 'debug') {
 			callSite = this.getCallSite()
 		}
-		const formattedMessage = `${indent}${prefix}${tag}${logLevel}${message}`
+		const formattedMessage = `${indent}${tag}${logLevel} ${message}`
 		return { formattedMessage, callSite }
 	}
 

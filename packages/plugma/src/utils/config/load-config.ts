@@ -1,16 +1,16 @@
 import { existsSync } from 'fs'
-import { Logger } from '../../utils/log/logger.js'
 import { join } from 'node:path'
 import { loadConfigFromFile, type ConfigEnv } from 'vite'
-import { PluginOptions } from '../../core/types'
-import { colorStringify } from '../cli/colorStringify.js'
+import { ListrLogger, ListrLogLevels } from 'listr2'
+import { LISTR_LOGGER_STYLES } from '../../constants.js'
+import { createDebugAwareLogger } from '../debug-aware-logger.js'
 
 interface CustomConfigEnv extends ConfigEnv {
 	context: 'main' | 'ui'
 }
 
 export async function loadConfig(configName: string, options: any, context: 'main' | 'ui'): Promise<any> {
-	const log = new Logger({ debug: options.debug })
+	const logger = createDebugAwareLogger(options.debug)
 
 	const configPaths = [
 		`${configName}.ts`,
@@ -25,7 +25,7 @@ export async function loadConfig(configName: string, options: any, context: 'mai
 	const existingConfigPath = configPaths.find((path) => existsSync(join(process.cwd(), path)))
 
 	if (!existingConfigPath) {
-		log.debug(`No Vite config found for ${configName}`)
+		logger.log(ListrLogLevels.OUTPUT, `No Vite config found for ${configName}`)
 		return null
 	}
 
@@ -40,7 +40,7 @@ export async function loadConfig(configName: string, options: any, context: 'mai
 
 		return userConfig
 	} catch (error) {
-		// console.warn(`Warning: No Vite config found for ${context}`, configName, error)
+		logger.log(ListrLogLevels.FAILED, ['Warning: No Vite config found for', context, configName, error])
 
 		return null
 	}

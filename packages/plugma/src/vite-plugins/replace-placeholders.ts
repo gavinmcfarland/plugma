@@ -1,10 +1,8 @@
-import { Logger } from '../utils/log/logger.js'
+import { ListrLogLevels } from 'listr2'
 import type { IndexHtmlTransformContext, Plugin } from 'vite'
+import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
 
-const logger = new Logger({
-	prefix: 'vite-plugin:placeholders',
-	debug: !!process.env.PLUGMA_DEBUG,
-})
+const logger = createDebugAwareLogger()
 
 /**
  * Options for configuring placeholder replacement in HTML templates.
@@ -59,10 +57,10 @@ function toUpperSnakeCase(key: string): string {
  */
 function _replacePlaceholders(html: string, options: ReplacePlaceholdersOptions): string {
 	let result = html
-	logger.debug('replacePlaceholders: Starting replacements')
+	logger.log(ListrLogLevels.OUTPUT, 'replacePlaceholders: Starting replacements')
 	for (const key in options) {
 		const placeholder = toUpperSnakeCase(key)
-		logger.debug(`Replacing "${placeholder}" with "${options[key]}"`)
+		logger.log(ListrLogLevels.OUTPUT, `Replacing "${placeholder}" with "${options[key]}"`)
 		result = result.replace(
 			new RegExp(`(/\\*|<!)--\\[\\s*${placeholder}\\s*\\]--(>|\\*/)`, 'g'),
 			String(options[key]),
@@ -109,7 +107,7 @@ export function replacePlaceholders(options: ReplacePlaceholdersOptions = {}): P
 		transformIndexHtml: {
 			order: 'pre',
 			handler(html: string, ctx: IndexHtmlTransformContext): string {
-				logger.debug('replacePlaceholders: transformIndexHtml called')
+				logger.log(ListrLogLevels.OUTPUT, 'replacePlaceholders: transformIndexHtml called')
 				return _replacePlaceholders(html, options)
 			},
 		},
@@ -117,7 +115,7 @@ export function replacePlaceholders(options: ReplacePlaceholdersOptions = {}): P
 		// Transform hook to handle HTML files beyond index.html (e.g. ui.html in build mode)
 		transform(code: string, id: string) {
 			if (id.endsWith('.html')) {
-				logger.debug(`replacePlaceholders: transform called for ${id}`)
+				logger.log(ListrLogLevels.OUTPUT, `replacePlaceholders: transform called for ${id}`)
 				return _replacePlaceholders(code, options)
 			}
 			return null

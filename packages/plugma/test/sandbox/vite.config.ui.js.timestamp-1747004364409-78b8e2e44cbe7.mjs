@@ -1,0 +1,15 @@
+// vite.config.ui.js
+import { defineConfig } from "file:///Users/gavinmcfarland/Developer/repos/plugma/node_modules/.pnpm/vite@5.4.12_@types+node@22.15.3_terser@5.39.0/node_modules/vite/dist/node/index.js";
+import { svelte } from "file:///Users/gavinmcfarland/Developer/repos/plugma/node_modules/.pnpm/@sveltejs+vite-plugin-svelte@4.0.4_svelte@5.28.2_vite@5.4.12_@types+node@22.15.3_terser@5.39.0_/node_modules/@sveltejs/vite-plugin-svelte/src/index.js";
+var vite_config_ui_default = defineConfig(({ mode, command, context }) => {
+  if (context === "ui") {
+    return {
+      mode: "build",
+      plugins: [svelte()]
+    };
+  }
+});
+export {
+  vite_config_ui_default as default
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsidml0ZS5jb25maWcudWkuanMiXSwKICAic291cmNlc0NvbnRlbnQiOiBbImNvbnN0IF9fdml0ZV9pbmplY3RlZF9vcmlnaW5hbF9kaXJuYW1lID0gXCIvVXNlcnMvZ2F2aW5tY2ZhcmxhbmQvRGV2ZWxvcGVyL3JlcG9zL3BsdWdtYS9wYWNrYWdlcy9wbHVnbWEvdGVzdC9zYW5kYm94XCI7Y29uc3QgX192aXRlX2luamVjdGVkX29yaWdpbmFsX2ZpbGVuYW1lID0gXCIvVXNlcnMvZ2F2aW5tY2ZhcmxhbmQvRGV2ZWxvcGVyL3JlcG9zL3BsdWdtYS9wYWNrYWdlcy9wbHVnbWEvdGVzdC9zYW5kYm94L3ZpdGUuY29uZmlnLnVpLmpzXCI7Y29uc3QgX192aXRlX2luamVjdGVkX29yaWdpbmFsX2ltcG9ydF9tZXRhX3VybCA9IFwiZmlsZTovLy9Vc2Vycy9nYXZpbm1jZmFybGFuZC9EZXZlbG9wZXIvcmVwb3MvcGx1Z21hL3BhY2thZ2VzL3BsdWdtYS90ZXN0L3NhbmRib3gvdml0ZS5jb25maWcudWkuanNcIjtpbXBvcnQgeyBkZWZpbmVDb25maWcgfSBmcm9tIFwidml0ZVwiO1xuaW1wb3J0IHsgc3ZlbHRlIH0gZnJvbSBcIkBzdmVsdGVqcy92aXRlLXBsdWdpbi1zdmVsdGVcIjtcblxuLy8gaHR0cHM6Ly92aXRlLmRldi9jb25maWcvXG5leHBvcnQgZGVmYXVsdCBkZWZpbmVDb25maWcoKHsgbW9kZSwgY29tbWFuZCwgY29udGV4dCB9KSA9PiB7XG5cdGlmIChjb250ZXh0ID09PSAndWknKSB7XG5cdFx0cmV0dXJuIHtcblx0XHRcdG1vZGU6ICdidWlsZCcsXG5cdFx0XHRwbHVnaW5zOiBbc3ZlbHRlKCldXG5cdFx0fVxuXHR9XG59KTtcbiJdLAogICJtYXBwaW5ncyI6ICI7QUFBbVosU0FBUyxvQkFBb0I7QUFDaGIsU0FBUyxjQUFjO0FBR3ZCLElBQU8seUJBQVEsYUFBYSxDQUFDLEVBQUUsTUFBTSxTQUFTLFFBQVEsTUFBTTtBQUMzRCxNQUFJLFlBQVksTUFBTTtBQUNyQixXQUFPO0FBQUEsTUFDTixNQUFNO0FBQUEsTUFDTixTQUFTLENBQUMsT0FBTyxDQUFDO0FBQUEsSUFDbkI7QUFBQSxFQUNEO0FBQ0QsQ0FBQzsiLAogICJuYW1lcyI6IFtdCn0K

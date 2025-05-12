@@ -1,9 +1,10 @@
+import { ListrLogLevels } from 'listr2'
 import { createClient, SocketClient } from '../core/websockets/client.js'
-import { Logger } from '../utils/log/logger.js'
+import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
 
 let socket: SocketClient | null = null
 let isSocketConnected = false
-const logger = new Logger({ debug: false })
+const logger = createDebugAwareLogger()
 
 export function getTestSocket(port: number): SocketClient {
 	if (socket) {
@@ -18,17 +19,17 @@ export function getTestSocket(port: number): SocketClient {
 	})
 
 	socket.on('connect', () => {
-		logger.debug('[socket] connected:', socket!.id)
+		logger.log(ListrLogLevels.OUTPUT, ['Socket connected:', socket!.id])
 		isSocketConnected = true
 	})
 
 	socket.on('disconnect', () => {
-		logger.debug('[socket] disconnected')
+		logger.log(ListrLogLevels.OUTPUT, 'Socket disconnected')
 		isSocketConnected = false
 	})
 
 	socket.on('error', (error) => {
-		logger.error('[socket] error:', error)
+		logger.log(ListrLogLevels.FAILED, ['Socket error:', error])
 		isSocketConnected = false
 	})
 

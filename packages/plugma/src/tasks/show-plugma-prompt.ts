@@ -5,9 +5,9 @@
 import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '../core/types.js'
 import { Logger } from '../utils/log/logger.js'
 import chalk from 'chalk'
-import { task } from '../tasks/runner.js'
-import getFiles, { GetFilesTask } from '../tasks/get-files.js'
+import { GetFilesTask } from '../tasks/get-files.js'
 import { readPlugmaPackageJson } from '../utils/fs/read-json.js'
+import { ListrTask } from 'listr2'
 
 /**
  * Result type for the show-plugma-prompt task
@@ -21,33 +21,27 @@ export interface ShowPlugmaPromptResult {
  * Task that displays the Plugma startup prompt
  * Used by all commands to show version and status
  */
-const showPlugmaPrompt = async (
-	options: PluginOptions,
-	context: ResultsOfTask<GetFilesTask>,
-): Promise<ShowPlugmaPromptResult> => {
-	try {
-		const log = new Logger({
-			debug: options.debug,
-			prefix: 'show-plugma-prompt',
-		})
+export const createShowPlugmaPromptTask = <T extends { shown?: boolean }>(options: PluginOptions): ListrTask<T> => {
+	return {
+		title: 'Show Plugma Prompt',
+		task: async (ctx, task) => {
+			const log = new Logger({
+				debug: options.debug,
+				prefix: 'show-plugma-prompt',
+			})
 
-		const version = (await readPlugmaPackageJson()).version
-		const DEVELOPING_LOCALLY = process.env.PLUGMA_DEVELOPING_LOCALLY === 'true'
+			const version = (await readPlugmaPackageJson()).version
+			const DEVELOPING_LOCALLY = process.env.PLUGMA_DEVELOPING_LOCALLY === 'true'
 
-		// Match original formatting with chalk
-		log.text(
-			`${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}${DEVELOPING_LOCALLY ? ' [development]' : ''}`)}`,
-		)
+			// Match original formatting with chalk
+			log.text(
+				`${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}${DEVELOPING_LOCALLY ? ' [development]' : ''}`)}`,
+			)
 
-		return { shown: true }
-	} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : String(error)
-		throw new Error(`Failed to show Plugma prompt: ${errorMessage}`)
+			ctx.shown = true
+			return ctx
+		},
 	}
 }
 
-export const ShowPlugmaPromptTask = task('common:show-plugma-prompt', showPlugmaPrompt)
-
-export type ShowPlugmaPromptTask = GetTaskTypeFor<typeof ShowPlugmaPromptTask>
-
-export default ShowPlugmaPromptTask
+export default createShowPlugmaPromptTask

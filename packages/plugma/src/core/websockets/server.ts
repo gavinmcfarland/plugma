@@ -1,10 +1,10 @@
 import { Server, ServerOptions } from 'socket.io'
-import chalk from 'chalk'
 import type { Server as HttpServer } from 'node:http'
 import { WebSocketServer } from 'ws'
-import { Logger } from '../../utils/log/logger.js'
+import { createDebugAwareLogger } from '../../utils/debug-aware-logger.js'
+import { ListrLogLevels } from 'listr2'
 
-const logger = new Logger()
+const logger = createDebugAwareLogger()
 
 /**
  * Interface defining the methods available on the server
@@ -97,7 +97,7 @@ export function createSocketServer(config: ServerConfig): SocketServer {
 		}
 		socket.join(room)
 
-		logger.debug('Room joined socket', socket.id, room)
+		logger.log(ListrLogLevels.OUTPUT, [`Room joined socket ${socket.id}`, room])
 		emitRoomStats()
 
 		next()

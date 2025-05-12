@@ -4,6 +4,9 @@ import { getUserFiles } from '../utils/get-user-files.js'
 import { readPlugmaPackageJson } from '../utils/fs/read-json.js'
 import { Logger } from '../utils/log/logger.js'
 import { task } from './runner.js'
+import { ListrLogger, ListrLogLevels, ListrLoggerOptions } from 'listr2'
+import { LISTR_LOGGER_STYLES } from '../constants.js'
+import { DebugAwareLogger, createDebugAwareLogger } from '../utils/debug-aware-logger.js'
 
 /**
  * Custom error class for file loading operations
@@ -36,24 +39,24 @@ export interface GetFilesTaskResult {
  * Task that loads and prepares necessary files and configurations
  */
 export const getFiles = async (options: PluginOptions): Promise<GetFilesTaskResult> => {
-	const logger = new Logger({
-		debug: options.debug,
-		prefix: 'common:get-files',
-	})
+	const logger = createDebugAwareLogger(options.debug)
 	let plugmaPkg: PlugmaPackageJson
 	let files: UserFiles
 	let config: ReturnType<typeof createViteConfigs>
 
 	try {
-		logger.debug('Starting get-files task...')
+		logger.log(ListrLogLevels.OUTPUT, 'Starting get-files task...')
 
 		try {
-			logger.debug('Getting user files...')
+			logger.log(ListrLogLevels.OUTPUT, 'Getting user files...')
 			files = await getUserFiles(options)
-			logger.debug('User files loaded:', {
-				manifest: files.manifest,
-				userPkgJson: files.userPkgJson,
-			})
+			logger.log(ListrLogLevels.OUTPUT, [
+				'User files loaded:',
+				{
+					manifest: files.manifest,
+					userPkgJson: files.userPkgJson,
+				},
+			])
 		} catch (err) {
 			if (err instanceof Error && err.message.includes('manifest configuration')) {
 				throw new GetFilesError('Invalid package.json structure', 'INVALID_PACKAGE_JSON')
@@ -62,18 +65,18 @@ export const getFiles = async (options: PluginOptions): Promise<GetFilesTaskResu
 		}
 
 		try {
-			logger.debug('Creating Vite configs...')
+			logger.log(ListrLogLevels.OUTPUT, 'Creating Vite configs...')
 			config = createViteConfigs(options, files)
-			logger.debug('Vite configs created successfully')
+			logger.log(ListrLogLevels.OUTPUT, 'Vite configs created successfully')
 		} catch (err) {
 			throw new GetFilesError('Failed to create configs', 'CONFIG_ERROR', err)
 		}
 
-		logger.debug('Reading Plugma package.json...')
+		logger.log(ListrLogLevels.OUTPUT, 'Reading Plugma package.json...')
 		plugmaPkg = await readPlugmaPackageJson()
-		logger.debug('Plugma package.json loaded successfully')
+		logger.log(ListrLogLevels.OUTPUT, 'Plugma package.json loaded successfully')
 
-		logger.debug('Get-files task completed successfully')
+		logger.log(ListrLogLevels.OUTPUT, 'Get-files task completed successfully')
 		return {
 			plugmaPkg,
 			files,

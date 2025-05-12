@@ -4,6 +4,8 @@ import { writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { EnsureDistTask } from '../create-ouput-dir.js'
 import { task } from '../runner.js'
+import { ListrLogLevels } from 'listr2'
+import { createDebugAwareLogger } from '../../utils/debug-aware-logger.js'
 
 interface Result {
 	ymlPath: string
@@ -18,7 +20,7 @@ interface Result {
  * @returns The path to the created yml file
  */
 const createReleaseYml = async (options: PluginOptions, context: ResultsOfTask<EnsureDistTask>): Promise<Result> => {
-	const logger = new Logger({ debug: options.debug })
+	const logger = createDebugAwareLogger(options.debug)
 
 	try {
 		const distResult = context[EnsureDistTask.name]
@@ -58,7 +60,7 @@ jobs:
     `
 
 		await writeFile(ymlPath, ymlContent.trim())
-		logger.debug(`Created release yml at ${ymlPath}`)
+		logger.log(ListrLogLevels.OUTPUT, `Created release yml at ${ymlPath}`)
 
 		return { ymlPath }
 	} catch (error) {

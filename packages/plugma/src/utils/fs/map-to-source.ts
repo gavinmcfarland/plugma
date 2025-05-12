@@ -2,6 +2,10 @@ import { type RawSourceMap, SourceMapConsumer } from 'source-map'
 
 import { getDirName } from '../../utils/get-dir-name.js'
 import { isNode } from '../../utils/is-node.js'
+import { ListrLogLevels } from 'listr2'
+import { createDebugAwareLogger } from '../debug-aware-logger.js'
+
+const logger = createDebugAwareLogger()
 
 /** Tracks if source map preloading has completed */
 let preloadCompleted = false
@@ -45,7 +49,7 @@ export async function mapToSource(filePath: string): Promise<string> {
 
 			consumer.destroy()
 		} catch (error) {
-			console.error('Error mapping source:', error)
+			logger.log(ListrLogLevels.FAILED, ['Error mapping source:', error])
 		}
 
 		return result
@@ -134,8 +138,8 @@ export async function preloadSourceMaps(): Promise<void> {
 	try {
 		await walkDir(packageDistPath)
 		preloadCompleted = true
-		console.log('✔ Plugma source maps loaded')
+		logger.log(ListrLogLevels.COMPLETED, 'Plugma source maps loaded')
 	} catch (error) {
-		console.error('Failed to preload source maps:', error)
+		logger.log(ListrLogLevels.FAILED, ['Failed to preload source maps:', error])
 	}
 }

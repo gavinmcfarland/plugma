@@ -57,11 +57,11 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 	}
 
 	// TODO: Change so that input is dynamically referenced. Checking if exists in project root and if not, use one from templates. Also should it be called ui.html?
-	defaultLogger.debug('Creating Vite configs with:', {
-		browserIndexPath: indexInputPath,
-		outputDir: options.output,
-		cwd: process.cwd(),
-	})
+	// defaultLogger.debug('Creating Vite configs with:', {
+	// 	browserIndexPath: indexInputPath,
+	// 	outputDir: options.output,
+	// 	cwd: process.cwd(),
+	// })
 
 	const commonVitePlugins: Plugin[] = [
 		viteSingleFile(),
@@ -129,7 +129,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 	}
 
 	const configKey = options.command === 'build' ? 'build' : 'dev'
-	defaultLogger.debug('Vite config UI (configKey):', viteConfigUI[configKey])
+	// defaultLogger.debug('Vite config UI (configKey):', viteConfigUI[configKey])
 
 	const tempFilePath = writeTempFile(`temp_${Date.now()}.js`, userFiles, options)
 
@@ -225,7 +225,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 		},
 	} satisfies UserConfig
 
-	defaultLogger.debug(`Vite config Main (configKey):`, configKey === 'dev' ? viteConfigMainDev : viteConfigMainBuild)
+	// defaultLogger.debug(`Vite config Main (configKey):`, configKey === 'dev' ? viteConfigMainDev : viteConfigMainBuild)
 	return {
 		ui: viteConfigUI,
 		main: {
