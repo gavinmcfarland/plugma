@@ -28,6 +28,10 @@ export function monitorUrl(url: string, onStatusChange: (isDevServerActive: bool
 	 * Checks if the URL is reachable
 	 */
 	async function checkUrl() {
+		if (document.visibilityState === 'hidden' || !navigator.onLine) {
+			console.log('checkUrl hidden')
+			return
+		}
 		const controller = new AbortController()
 		const timeoutId = setTimeout(() => controller.abort(), 1000)
 
