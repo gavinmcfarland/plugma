@@ -5,20 +5,6 @@ import type { ManifestFile, PluginOptions, UserFiles } from '../core/types.js'
 import { transformManifest } from './transform-manifest.js'
 import { colorStringify } from './index.js'
 
-function validateManifest(manifest?: Partial<ManifestFile>) {
-	if (!manifest) {
-		throw new Error('No manifest found in manifest.json or package.json')
-	}
-
-	if (!manifest.main && !manifest.ui) {
-		throw new Error('No main or UI file specified')
-	}
-
-	if (!manifest.name) {
-		console.warn('Plugma: Please specify the name in the manifest. Example: `{ name: "My Plugin" }`')
-	}
-}
-
 /**
  * Gets the plugin's configuration files and settings
  *
@@ -43,9 +29,5 @@ export const getUserFiles = async (options: any): Promise<UserFiles> => {
 	if (!userPkgJson) throw new Error('package.json not found')
 	if (!manifest) throw new Error('No manifest found in manifest.json or package.json')
 
-	const processedManifest = transformManifest(manifest, options)
-
-	validateManifest(processedManifest)
-
-	return { manifest: processedManifest, userPkgJson, rawManifest: manifest }
+	return { manifest, userPkgJson, rawManifest: manifest }
 }

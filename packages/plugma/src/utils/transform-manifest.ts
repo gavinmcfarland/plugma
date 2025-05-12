@@ -33,8 +33,6 @@ export function transformManifest(
 		throw new Error('No manifest found in manifest.json or package.json')
 	}
 
-	console.log('command', options.command)
-
 	if (options.command === 'dev' || options.command === 'preview') {
 		const transformed = JSON.parse(JSON.stringify(input))
 

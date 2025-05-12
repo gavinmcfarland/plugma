@@ -27,10 +27,12 @@ export function suppressLogs(options: any): void {
 
 	const patterns: Pattern[] = [
 		/^vite v\d+\.\d+\.\d+ building for \w+\.\.\.$/,
+		/^vite v\d+\.\d+\.\d+ building SSR bundle for \w+\.\.\.$/,
 		/^build started\.\.\.(\s+\(x\d+\))?$/,
 		/^✓ \d+ module(s)? transformed\.$/,
 		/^✓?\s*built in \d+(\.\d+)?ms\.?$/,
 		/^✓?\s*built in \d+(\.\d+)?s\.?$/,
+		/^watching for file changes...$/,
 		/^watching for file changes...$/,
 		TEMP_INDEX_PATH_REGEX,
 		MAIN_BUILT_REGEX,

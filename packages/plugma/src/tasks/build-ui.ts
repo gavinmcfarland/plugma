@@ -153,7 +153,7 @@ export const createBuildUiTask = <T extends { uiDuration?: number }>(
 
 // Keep the old task for backward compatibility
 export const BuildUiTask = {
-	run: async (options: any, context: any): Promise<BuildUiResult> => {
+	run: async (options: any): Promise<BuildUiResult> => {
 		const currentFiles = await getUserFiles(options)
 		const outputPath = join(options.output, 'ui.html')
 
