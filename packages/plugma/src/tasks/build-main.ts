@@ -119,9 +119,6 @@ export const createBuildMainTask = <T extends { mainDuration?: number }>(
 				const configOptions = { options, viteConfigs, userMainConfig }
 
 				if (options.watch || ['dev', 'preview'].includes(options.command ?? '')) {
-					if (options.debug) {
-						logger.log(ListrLogLevels.OUTPUT, `Watching for changes`)
-					}
 					await runWatchMode(configOptions)
 				} else {
 					timer.start()

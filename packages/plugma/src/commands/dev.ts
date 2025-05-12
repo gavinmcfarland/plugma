@@ -42,8 +42,6 @@ interface BuildContext {
 export async function dev(options: DevCommandOptions): Promise<void> {
 	const logger = createDebugAwareLogger(options.debug)
 
-	logger.log(ListrLogLevels.STARTED, 'Starting development server...')
-
 	setConfig(options)
 
 	await showPlugmaPrompt()

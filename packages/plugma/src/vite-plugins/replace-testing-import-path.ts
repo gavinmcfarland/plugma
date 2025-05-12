@@ -8,11 +8,14 @@ import path from 'node:path'
 import type { Plugin } from 'vite'
 
 import { getDirName } from '../utils/get-dir-name.js'
+import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
+import { ListrLogLevels } from 'listr2'
 
 /**
  * Creates a Vite plugin that injects our test framework
  */
-export function replacePlugmaTesting(): Plugin {
+export function replacePlugmaTesting(options: any): Plugin {
+	const logger = createDebugAwareLogger(options.debug)
 	return {
 		name: 'plugma:replace-testing-import-path',
 		enforce: 'pre',
@@ -20,7 +23,11 @@ export function replacePlugmaTesting(): Plugin {
 		resolveId(id: string) {
 			// Intercept plugma/vitest imports
 			if (id === 'plugma/vitest') {
-				console.log('intercepting plugma/vitest import', getDirName(), '../testing/figma/index.js')
+				logger.log(ListrLogLevels.OUTPUT, [
+					'intercepting plugma/vitest import',
+					getDirName(),
+					'../testing/figma/index.js',
+				])
 				return path.resolve(getDirName(), '../testing/figma/vitest/index.js')
 			}
 			// // Intercept plugma/playwright imports

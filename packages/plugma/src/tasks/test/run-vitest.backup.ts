@@ -33,7 +33,7 @@ export const runVitest = async (options: PluginOptions): Promise<RunVitestResult
 		// Add our test plugin to the Vite config
 		const testConfig = {
 			...configs.main,
-			plugins: [...(configs.main.dev.plugins || []), replacePlugmaTesting()],
+			plugins: [...(configs.main.dev.plugins || []), replacePlugmaTesting(options)],
 			test: {
 				globals: true,
 				environment: 'node',

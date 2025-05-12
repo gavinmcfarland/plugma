@@ -4,6 +4,8 @@ import type { Plugin } from 'vite'
 import fs from 'fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { createDebugAwareLogger } from '../../utils/debug-aware-logger.js'
+import { ListrLogLevels } from 'listr2'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -41,6 +43,8 @@ export function injectTests(options: any = {}): Plugin {
 		name: 'plugma:inject-tests',
 		enforce: 'post',
 		async transform(code: string, id: string) {
+			const logger = createDebugAwareLogger(options.debug)
+
 			const mainFile = options.pluginOptions?.manifest?.main ?? ''
 
 			if (!id.endsWith(mainFile)) {
@@ -83,7 +87,10 @@ export function injectTests(options: any = {}): Plugin {
 					}),
 				).then((files) => files.filter((file): file is string => file !== null))
 
-				console.log(`Found ${filteredTestFiles.length} test files to inject:`, filteredTestFiles)
+				logger.log(ListrLogLevels.OUTPUT, [
+					`Found ${filteredTestFiles.length} test files to inject:`,
+					filteredTestFiles,
+				])
 
 				if (filteredTestFiles.length === 0) {
 					return null

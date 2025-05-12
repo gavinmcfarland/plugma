@@ -15,7 +15,7 @@ export class DebugAwareLogger extends ListrLogger {
 	}
 
 	log(level: ListrLogLevels, message: any): void {
-		if (!this.debug && (level === ListrLogLevels.OUTPUT || level === ListrLogLevels.STARTED)) {
+		if (!this.debug && level === ListrLogLevels.OUTPUT) {
 			return // Skip these levels when debug is false
 		}
 		super.log(level, message)

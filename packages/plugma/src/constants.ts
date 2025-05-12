@@ -9,6 +9,7 @@ export const LISTR_LOGGER_STYLES = {
 		[ListrLogLevels.SKIPPED]: (message: string | undefined): string => chalk.bgGray(message ?? ''),
 		[ListrLogLevels.FAILED]: (message: string | undefined): string => chalk.bgRed(color.white(message ?? '')),
 		[ListrLogLevels.STARTED]: (message: string | undefined): string => chalk.bgBlue(color.white(message ?? '')),
+		[ListrLogLevels.PAUSED]: (message: string | undefined): string => chalk.bgGray(color.white(message ?? '')),
 	},
 }
 

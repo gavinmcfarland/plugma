@@ -72,6 +72,7 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 										await viteState.viteServer.close()
 										viteState.viteServer = null
 										task.output = 'Vite server closed'
+										logger.log(ListrLogLevels.PAUSED, 'UI server closed')
 									} catch (error) {
 										logger.log(ListrLogLevels.FAILED, [
 											'Failed to close Vite server:',
@@ -84,6 +85,7 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 									try {
 										await viteState.viteMain.close()
 										task.output = 'Vite main watcher closed'
+										logger.log(ListrLogLevels.PAUSED, 'Main watcher closed')
 									} catch (error) {
 										logger.log(ListrLogLevels.FAILED, [
 											'Failed to close Vite main watcher:',
@@ -95,6 +97,7 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 								try {
 									await viteState.viteUi.close()
 									task.output = 'Vite UI server closed'
+									logger.log(ListrLogLevels.PAUSED, 'UI server closed')
 								} catch (error) {
 									logger.log(ListrLogLevels.FAILED, [
 										'Failed to close Vite UI server:',
@@ -175,7 +178,13 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 							})
 
 							const resolvedPort = server.config.server.port || options.port
+
 							await server.listen()
+
+							logger.log(
+								ListrLogLevels.STARTED,
+								`Starting dev server at http://localhost:${resolvedPort}`,
+							)
 
 							server.watcher.on('change', async (file) => {
 								if (viteState.isBuilding) {
@@ -194,11 +203,6 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 									viteState.messageQueue = []
 								}
 							})
-
-							logger.log(
-								ListrLogLevels.COMPLETED,
-								`Vite server running at http://localhost:${resolvedPort}`,
-							)
 
 							viteState.viteServer = server
 							ctx.viteServer = server

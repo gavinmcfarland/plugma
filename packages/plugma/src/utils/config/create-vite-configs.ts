@@ -140,7 +140,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 		define: {
 			'process.env.NODE_ENV': JSON.stringify(options.mode),
 		},
-		plugins: [dotEnvLoader(options), replacePlugmaTesting()],
+		plugins: [dotEnvLoader(options), replacePlugmaTesting(options)],
 		build: {
 			lib: {
 				entry: tempFilePath,
@@ -184,7 +184,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 		},
 		plugins: [
 			dotEnvLoader(options),
-			replacePlugmaTesting(),
+			replacePlugmaTesting(options),
 			injectTests({
 				testDir: '',
 				pluginOptions: options,

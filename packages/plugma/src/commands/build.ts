@@ -50,6 +50,8 @@ export async function build(options: BuildCommandOptions): Promise<void> {
 
 	await showPlugmaPrompt()
 
+	logger.log(ListrLogLevels.STARTED, 'Starting build...')
+
 	const timer = new Timer()
 	timer.start()
 
