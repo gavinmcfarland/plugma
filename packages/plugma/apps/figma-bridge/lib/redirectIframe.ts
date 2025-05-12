@@ -48,28 +48,6 @@ async function createBlobURLFromURL({ url, iframe }) {
 	iframe.src = newBlobUrl
 }
 
-function injectBaseTag(html, baseHref) {
-	// Ensure DOCTYPE is present
-	// if (!/^<!doctype html>/i.test(html.trim())) {
-	// 	html = '<!DOCTYPE html>\n' + html
-	// }
-
-	// Inject base tag and CSP meta
-	return html.replace(
-		/<head([^>]*)>/i,
-		`<head$1>
-		<style>
-			/* Missing when loading via scrDoc */
-			table {
-				line-height: normal;
-			}
-		</style>
-		<base href="${baseHref}">
-		<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' ws: http: data: blob:;">
-	  `,
-	)
-}
-
 function watchViteReload({ url, iframe }) {
 	const wsUrl = url.replace(/^http/, 'ws') + '/@vite/client'
 	const socket = new WebSocket(wsUrl)
@@ -148,6 +126,28 @@ async function redirectUsingBlob({ url, iframe }) {
 	const htmlWithBase = injectBaseTag(rawHtml, url)
 	const blob = new Blob([htmlWithBase], { type: 'text/html' })
 	iframe.src = URL.createObjectURL(blob)
+}
+
+function injectBaseTag(html, baseHref) {
+	// Ensure DOCTYPE is present
+	if (!/^<!doctype html>/i.test(html.trim())) {
+		html = '<!DOCTYPE html>\n' + html
+	}
+
+	// Inject base tag and CSP meta
+	return html.replace(
+		/<head([^>]*)>/i,
+		`<head$1>
+		<style>
+			/* Missing when loading via scrDoc */
+			table {
+				line-height: normal;
+			}
+		</style>
+		<base href="${baseHref}">
+		<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' ws: http: data: blob:;">
+	  `,
+	)
 }
 
 async function redirectUsingDataURI({ url, iframe }) {

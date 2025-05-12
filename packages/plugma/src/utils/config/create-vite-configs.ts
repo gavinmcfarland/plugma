@@ -98,6 +98,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 					'Access-Control-Allow-Origin': '*',
 					'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
 					'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization',
+					'Access-Control-Allow-Private-Network': 'true',
 				},
 			},
 			logLevel: options.debug ? 'info' : 'error',
