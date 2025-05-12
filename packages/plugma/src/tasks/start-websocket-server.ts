@@ -4,6 +4,7 @@ import { getConfig } from '../utils/save-plugma-cli-options.js'
 import { ListrLogger, ListrLogLevels, ListrTask } from 'listr2'
 import { BuildCommandOptions, DevCommandOptions, PreviewCommandOptions } from '../utils/create-options.js'
 import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
+import chalk from 'chalk'
 
 /**
  * Gets the WebSocket server port from options or environment
@@ -69,7 +70,10 @@ export const createStartWebSocketsServerTask = <T extends { websocketServer?: an
 							})
 
 							wss.listen(port, () => {
-								logger.log(ListrLogLevels.OUTPUT, ['WebSocket server listening on port', port])
+								logger.log(
+									ListrLogLevels.STARTED,
+									`WebSocket server listening on port ${chalk.blue(port)}`,
+								)
 							})
 
 							io.on('connection', (socket) => {

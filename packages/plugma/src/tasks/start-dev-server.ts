@@ -10,6 +10,7 @@ import { loadConfig } from '../utils/config/load-config.js'
 import { viteState } from '../utils/vite-state-manager.js'
 import { getUserFiles } from '../utils/get-user-files.js'
 import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
+import chalk from 'chalk'
 
 /**
  * Result type for the start-vite-server task
@@ -37,6 +38,11 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 		title: 'Start Vite Server',
 		task: async (ctx, task) => {
 			const logger = createDebugAwareLogger(options.debug)
+
+			logger.log(
+				ListrLogLevels.STARTED,
+				`Starting dev server at ${chalk.blue(`http://localhost:${options.port}`)}`,
+			)
 
 			return task.newListr(
 				[
@@ -69,7 +75,7 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 									try {
 										await viteState.viteServer.close()
 										viteState.viteServer = null
-										logger.log(ListrLogLevels.PAUSED, 'UI server closed')
+										logger.log(ListrLogLevels.OUTPUT, 'UI server closed')
 									} catch (error) {
 										logger.log(ListrLogLevels.FAILED, [
 											'Failed to close Vite server:',
@@ -81,7 +87,7 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 								if (viteState.viteMain) {
 									try {
 										await viteState.viteMain.close()
-										logger.log(ListrLogLevels.PAUSED, 'Main watcher closed')
+										logger.log(ListrLogLevels.OUTPUT, 'Main watcher closed')
 									} catch (error) {
 										logger.log(ListrLogLevels.FAILED, [
 											'Failed to close Vite main watcher:',
@@ -92,7 +98,7 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 
 								try {
 									await viteState.viteUi.close()
-									logger.log(ListrLogLevels.PAUSED, 'UI server closed')
+									logger.log(ListrLogLevels.OUTPUT, 'UI server closed')
 								} catch (error) {
 									logger.log(ListrLogLevels.FAILED, [
 										'Failed to close Vite UI server:',
@@ -176,10 +182,7 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 
 							await server.listen()
 
-							logger.log(
-								ListrLogLevels.STARTED,
-								`Starting dev server at http://localhost:${resolvedPort}`,
-							)
+							logger.log(ListrLogLevels.OUTPUT, `Starting dev server`)
 
 							server.watcher.on('change', async (file) => {
 								if (viteState.isBuilding) {

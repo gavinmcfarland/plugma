@@ -15,6 +15,7 @@ import chalk from 'chalk'
 import { suppressLogs } from '../utils/suppress-logs.js'
 import { ListrLogLevels } from 'listr2'
 import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
+import { showPlugmaPrompt } from '../utils/show-plugma-prompt.js'
 
 const logger = createDebugAwareLogger()
 
@@ -46,6 +47,18 @@ program
 	.version(version, '-v, --version', 'Output the current version')
 	.addHelpText('beforeAll', `${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}`)}\n`)
 
+// Add a hook that runs before every command
+program.hook('preAction', async (thisCommand, actionCommand) => {
+	// This will run before any command execution
+	const commandName = actionCommand.name()
+	const options = actionCommand.opts()
+
+	// You can add your common functionality here
+	await handleDebug(commandName, options)
+	suppressLogs(options)
+	await showPlugmaPrompt()
+})
+
 program
 	.command('dev')
 	.description('Start a dev server to develop your plugin')
@@ -60,8 +73,6 @@ program
 		DEFAULT_OPTIONS.configParser,
 	)
 	.action(function (this: Command, options: DevCommandOptions) {
-		handleDebug(this.name(), options)
-		suppressLogs(options)
 		dev(
 			createOptions<'dev'>(options, {
 				mode: 'development',
@@ -93,7 +104,6 @@ program
 // 		DEFAULT_OPTIONS.configParser,
 // 	)
 // 	.action(function (this: Command, options: PreviewCommandOptions) {
-// 		handleDebug(this.name(), options)
 // 		suppressLogs(options)
 // 		preview(
 // 			createOptions<'preview'>(options, {
@@ -126,8 +136,6 @@ program
 		DEFAULT_OPTIONS.configParser,
 	)
 	.action(function (this: Command, options: BuildCommandOptions) {
-		handleDebug(this.name(), options)
-		suppressLogs(options)
 		build(
 			createOptions<'build'>(options, {
 				mode: 'production',
@@ -159,8 +167,6 @@ program
 // 		DEFAULT_OPTIONS.configParser,
 // 	)
 // 	.action(function (this: Command, type: string, options: ReleaseCommandOptions) {
-// 		handleDebug(this.name(), { ...options, type })
-
 // 		release(
 // 			createOptions<'release'>(options, {
 // 				command: 'release',

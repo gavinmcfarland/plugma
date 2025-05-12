@@ -44,8 +44,6 @@ export async function dev(options: DevCommandOptions): Promise<void> {
 
 	setConfig(options)
 
-	await showPlugmaPrompt()
-
 	// await serial(
 	//  GetFilesTask, Not needed?
 	//  SaveOptionsTask, Not needed?

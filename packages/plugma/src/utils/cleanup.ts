@@ -48,13 +48,13 @@ export async function runCleanup(): Promise<void> {
 
 // Handle process termination signals
 process.on('SIGINT', async () => {
-	logger.log(ListrLogLevels.PAUSED, 'Received SIGINT. Cleaning up...')
+	logger.log(ListrLogLevels.OUTPUT, 'Received SIGINT. Cleaning up...')
 	await runCleanup()
 	process.exit(0)
 })
 
 process.on('SIGTERM', async () => {
-	logger.log(ListrLogLevels.PAUSED, 'Received SIGTERM. Cleaning up...')
+	logger.log(ListrLogLevels.OUTPUT, 'Received SIGTERM. Cleaning up...')
 	await runCleanup()
 	process.exit(0)
 })
