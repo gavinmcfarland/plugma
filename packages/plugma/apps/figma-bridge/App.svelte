@@ -75,7 +75,7 @@
 			}
 		})
 
-		redirectIframe(devServerUIUrl, window.runtimeData.config?.runtimeData?.iframeMode || 'src')
+		redirectIframe(devServerUIUrl, window.runtimeData.config?.runtimeData?.iframeMode || 'data-uri')
 		setBodyStyles()
 		relayFigmaMessages()
 		postFigmaStyles()
@@ -101,9 +101,7 @@
 <iframe title="" id="dev-server-ui" bind:this={iframe}></iframe>
 
 <!-- needs to be in both FigmaBridge and DevServer, because if DevServer hasn't loaded, then no way to report error-->
-{#if $isLocalhostWithoutPort}
-	<ServerStatus message="Check dev console"></ServerStatus>
-{:else if !isServerActive}
+{#if !isServerActive}
 	<ServerStatus></ServerStatus>
 {/if}
 

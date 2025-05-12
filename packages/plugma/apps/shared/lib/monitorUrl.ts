@@ -45,6 +45,8 @@ export function monitorUrl(url: string, onStatusChange: (isDevServerActive: bool
 	function hasValidLocalhostConfig(): boolean {
 		const { runtimeData } = window
 
+		console.log('runtimeData', runtimeData)
+
 		if (!runtimeData?.manifest?.networkAccess?.devAllowedDomains) {
 			console.warn('networkAccess.devAllowedDomains is not defined or is not an array')
 			return false
@@ -80,13 +82,8 @@ export function monitorUrl(url: string, onStatusChange: (isDevServerActive: bool
 
 	// Initialize monitoring
 	function initializeMonitoring() {
-		if (hasValidLocalhostConfig()) {
-			isLocalhostWithoutPort.set(false)
-			checkUrl()
-			setInterval(checkUrl, POLLING_INTERVAL)
-		} else {
-			isLocalhostWithoutPort.set(true)
-		}
+		checkUrl()
+		setInterval(checkUrl, POLLING_INTERVAL)
 	}
 
 	// Start monitoring

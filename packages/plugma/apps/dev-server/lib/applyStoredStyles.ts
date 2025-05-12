@@ -4,6 +4,23 @@
  */
 export function applyStoredStyles() {
 	const html = document.querySelector('html')
+
+	// Check if localStorage is available
+	const isLocalStorageAvailable = (() => {
+		try {
+			const test = '__storage_test__'
+			localStorage.setItem(test, test)
+			localStorage.removeItem(test)
+			return true
+		} catch (e) {
+			return false
+		}
+	})()
+
+	if (!isLocalStorageAvailable) {
+		return
+	}
+
 	const storedClasses = localStorage.getItem('figmaHtmlClasses')
 
 	if (storedClasses && html) {

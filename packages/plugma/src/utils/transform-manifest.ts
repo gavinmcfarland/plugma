@@ -126,7 +126,7 @@ export async function transformManifest(
 			(domain: string) => !domain.endsWith(':*'),
 		)
 		const newDomains = [
-			`https://localhost:${options.port}`,
+			`http://localhost:${options.port}`,
 			`ws://localhost:${options.port}`,
 			`ws://localhost:${options.port + 1}`,
 		]

@@ -170,20 +170,20 @@ async function redirectUsingSrc({ url, iframe }) {
 	iframe.src = new URL(url).href
 }
 
-export async function redirectIframe(url: string, mode: 'src' | 'srcDoc' | 'blob' | 'dataURI') {
+export async function redirectIframe(url: string, mode: 'href' | 'srcdoc' | 'blob' | 'data-uri') {
 	const iframe = document.getElementById('dev-server-ui') as HTMLIFrameElement
 	if (iframe) {
 		// Verify server connection in the background and reload once available
 		waitForServer(url)
 			.then(async () => {
 				// Using current method
-				if (mode === 'src') {
+				if (mode === 'href') {
 					redirectUsingSrc({ url, iframe })
-				} else if (mode === 'srcDoc') {
+				} else if (mode === 'srcdoc') {
 					redirectUsingSrcDoc({ url, iframe })
 				} else if (mode === 'blob') {
 					redirectUsingBlob({ url, iframe })
-				} else if (mode === 'dataURI') {
+				} else if (mode === 'data-uri') {
 					redirectUsingDataURI({ url, iframe })
 				}
 

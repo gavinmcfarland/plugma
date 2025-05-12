@@ -49,9 +49,9 @@ async function runWatchMode({ options, viteConfigs, userMainConfig }: ViteConfig
 			build: {
 				...config.build,
 				watch: {},
-				ssr: {
-					noExternal: ['child_process', 'util'],
-				},
+				// ssr: {
+				// 	noExternal: ['child_process', 'util'],
+				// },
 			},
 		},
 		userMainConfig?.config ?? {},

@@ -1,5 +1,16 @@
 import { addMessageListener } from '../../shared/lib/addMessageListener'
 
+const isLocalStorageAvailable = (() => {
+	try {
+		const test = '__storage_test__'
+		localStorage.setItem(test, test)
+		localStorage.removeItem(test)
+		return true
+	} catch (e) {
+		return false
+	}
+})()
+
 /**
  * Receives Figma styles and classes sent by figma-bridge and applies them to the iframe.
  * This is necessary because Figma's styles aren't automatically inherited from the parent window.
@@ -16,7 +27,9 @@ export function listenForFigmaStyles() {
 			html.className = message.data
 
 			// Save styles because they are lost when VITE server resets
-			localStorage.setItem('figmaHtmlClasses', message.data)
+			if (isLocalStorageAvailable) {
+				localStorage.setItem('figmaHtmlClasses', message.data)
+			}
 		}
 		if (message.type === 'FIGMA_STYLES') {
 			const styleSheet = document.createElement('style')
@@ -27,7 +40,9 @@ export function listenForFigmaStyles() {
 			document.head.appendChild(styleSheet)
 
 			// Save styles because they are lost when VITE server resets
-			localStorage.setItem('figmaStyles', message.data)
+			if (isLocalStorageAvailable) {
+				localStorage.setItem('figmaStyles', message.data)
+			}
 
 			// Optionally remove the listener once the style is applied
 			// window.removeEventListener('message', handleMessage)
