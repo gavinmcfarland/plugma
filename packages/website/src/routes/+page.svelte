@@ -42,7 +42,7 @@
 					class_="max-w-fit mx-auto"
 					persistCopyButton
 					lang="bash"
-					text="npm create plugma@latest"
+					text="npm create plugma@next"
 				/>
 				<Button class="mt-4 mx-auto" href="docs/getting-started">Get started</Button>
 			</div>
