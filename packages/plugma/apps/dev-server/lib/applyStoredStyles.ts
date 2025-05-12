@@ -1,5 +1,5 @@
 /**
- * Applies stored styles to the iframe.
+ * Applies stored styles to the iframe from localStorage.
  * Re-applies styles when the VITE server is restarted.
  */
 export function applyStoredStyles() {
