@@ -65,13 +65,10 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 						title: 'Setting up cleanup handlers',
 						task: async () => {
 							registerCleanup(async () => {
-								task.output = 'Cleaning up Vite server...'
-
 								if (viteState.viteServer) {
 									try {
 										await viteState.viteServer.close()
 										viteState.viteServer = null
-										task.output = 'Vite server closed'
 										logger.log(ListrLogLevels.PAUSED, 'UI server closed')
 									} catch (error) {
 										logger.log(ListrLogLevels.FAILED, [
@@ -84,7 +81,6 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 								if (viteState.viteMain) {
 									try {
 										await viteState.viteMain.close()
-										task.output = 'Vite main watcher closed'
 										logger.log(ListrLogLevels.PAUSED, 'Main watcher closed')
 									} catch (error) {
 										logger.log(ListrLogLevels.FAILED, [
@@ -96,7 +92,6 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 
 								try {
 									await viteState.viteUi.close()
-									task.output = 'Vite UI server closed'
 									logger.log(ListrLogLevels.PAUSED, 'UI server closed')
 								} catch (error) {
 									logger.log(ListrLogLevels.FAILED, [

@@ -34,7 +34,7 @@ export function unregisterCleanup(fn: () => Promise<void>): void {
  * Executes all registered cleanup functions and clears the list
  */
 export async function runCleanup(): Promise<void> {
-	logger.log(ListrLogLevels.OUTPUT, 'Executing cleanup functions...')
+	logger.log(ListrLogLevels.PAUSED, 'Executing cleanup functions...')
 	for (const fn of cleanupFunctions) {
 		try {
 			await fn()
@@ -43,18 +43,18 @@ export async function runCleanup(): Promise<void> {
 		}
 	}
 	cleanupFunctions.length = 0 // Clear the array
-	logger.log(ListrLogLevels.OUTPUT, 'Cleanup complete')
+	logger.log(ListrLogLevels.PAUSED, 'Cleanup complete')
 }
 
 // Handle process termination signals
 process.on('SIGINT', async () => {
-	logger.log(ListrLogLevels.OUTPUT, 'Received SIGINT. Cleaning up...')
+	logger.log(ListrLogLevels.PAUSED, 'Received SIGINT. Cleaning up...')
 	await runCleanup()
 	process.exit(0)
 })
 
 process.on('SIGTERM', async () => {
-	logger.log(ListrLogLevels.OUTPUT, 'Received SIGTERM. Cleaning up...')
+	logger.log(ListrLogLevels.PAUSED, 'Received SIGTERM. Cleaning up...')
 	await runCleanup()
 	process.exit(0)
 })
