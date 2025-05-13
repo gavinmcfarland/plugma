@@ -14,7 +14,7 @@ function clearCanvas() {
 	})
 }
 
-launchPlugin({ name: 'plugma-sandbox', switchBack: true })
+launchPlugin('plugma-sandbox', { returnToEditor: true })
 
 test('creates a rectangle', async () => {
 	clearCanvas()
