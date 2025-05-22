@@ -3,6 +3,7 @@ import { getRandomPort } from '../utils/get-random-port.js'
 import { ManifestFile } from '../core/types.js'
 
 export const DEFAULT_OPTIONS = {
+	dockPlugin: false,
 	mode: 'production',
 	port: getRandomPort(),
 	output: 'dist',

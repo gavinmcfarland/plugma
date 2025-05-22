@@ -29,7 +29,8 @@ plugma dev [options]
 - `-p`, `--port`: Specify a port number for the plugin preview.
 - `-o`, `--output`: Specify an output dir, default is `dist`.
 - `-m`, `--mode`: Specify a mode.
-- `-ws`, `--websockets`: Enable WebSockets to preview in browser.
+- `--no-websockets`: Disable WebSockets.
+- `--dock-plugin`: Minimise and dock the plugin in the Figma UI.
 
 ##### Example
 
@@ -45,7 +46,7 @@ plugma dev -ws
 
 <details>
 
-<summary>
+<!-- <summary>
 
 ### preview
 
@@ -74,7 +75,7 @@ plugma preview -p 8080
 
 </details>
 
-<details>
+<details> -->
 
 <summary>
 

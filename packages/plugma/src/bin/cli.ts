@@ -78,6 +78,7 @@ program
 	.option('-m, --mode <mode>', `Specify the mode`, DEFAULT_OPTIONS.mode)
 	.option('-o, --output <path>', `Specify the output directory`, DEFAULT_OPTIONS.output)
 	.option('--no-websockets', `Disable websockets`, !DEFAULT_OPTIONS.websockets)
+	.option('--dock-plugin', `Dock the plugin in the Figma UI`, DEFAULT_OPTIONS.dockPlugin)
 	.option('-d, --debug', `Enable debug mode`, DEFAULT_OPTIONS.debug)
 	.option(
 		'-c, --config <json>',
