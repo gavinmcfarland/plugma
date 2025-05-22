@@ -58,7 +58,7 @@
 	})
 </script>
 
-<div class="icons-grid">
+<!-- <div class="icons-grid">
 	<span class="icon" draggable="true">
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -219,7 +219,7 @@
 	<div>
 		<input type="radio" name="parentingStrategy" value="immediate" checked="checked" />In parentable node
 	</div>
-</form>
+</form> -->
 
 <div class="container">
 	<div class="banner">

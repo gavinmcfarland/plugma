@@ -129,10 +129,10 @@ async function redirectUsingBlob({ url, iframe }) {
 }
 
 function injectBaseTag(html, baseHref) {
-	// Ensure DOCTYPE is present
-	if (!/^<!doctype html>/i.test(html.trim())) {
-		html = '<!DOCTYPE html>\n' + html
-	}
+	// NOTE: Adding DOCTYPE breaks causes odd layout behaviour
+	// if (!/^<!doctype html>/i.test(html.trim())) {
+	// 	html = '<!DOCTYPE html>\n' + html
+	// }
 
 	// Inject base tag and CSP meta
 	return html.replace(
