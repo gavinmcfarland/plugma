@@ -17,30 +17,31 @@ export function addMessageListener(via: string, callback: (event: MessageEvent) 
 			}
 		})
 	} else if (via === 'ws') {
-		// if (enableWebSocket) {
-		// Should this be onAny? or on('message')?
-		socket.on('message', (data: any) => {
-			try {
-				// const newEvent = { ...event, data: data.message }
-				const newEvent = { data }
+		if (enableWebSocket) {
+			// Should this be onAny? or on('message')?
+			socket.on('message', (data: any) => {
+				try {
+					// const newEvent = { ...event, data: data.message }
+					const newEvent = { data }
 
-				// // Only show if not in iframe (ie in browser)
-				// if (!isInsideIframe) {
-				// 	console.log(
-				// 		'%c[ui:browser] %c→→→ %c[ui:figma  ]',
-				// 		'color: initial;',
-				// 		'color: green;',
-				// 		'color: initial;',
-				// 		data,
-				// 	)
-				// }
+					// // Only show if not in iframe (ie in browser)
+					// if (!isInsideIframe) {
+					// 	console.log(
+					// 		'%c[ui:browser] %c→→→ %c[ui:figma  ]',
+					// 		'color: initial;',
+					// 		'color: green;',
+					// 		'color: initial;',
+					// 		data,
+					// 	)
+					// }
 
-				callback(newEvent)
-			} catch (error) {
-				console.error('Failed to parse WebSocket message data:', error)
-				callback(data)
-			}
-		})
+					callback(newEvent)
+				} catch (error) {
+					console.error('Failed to parse WebSocket message data:', error)
+					callback(data)
+				}
+			})
+		}
 		// }
 	} else {
 		// console.warn(`Cannot add message listener via ${via}.`)

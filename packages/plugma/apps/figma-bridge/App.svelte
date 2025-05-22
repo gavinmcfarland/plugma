@@ -59,21 +59,23 @@
 
 		// NOTE: Messaging must be setup first so that it's ready to receive messages from iframe
 		// NOTE: Because source is not passed through it will appear as "unknown" in the client list
-		const socket = initializeWsClient('figma', window.runtimeData.port)
+		if (window.runtimeData.websockets) {
+			const socket = initializeWsClient('figma', window.runtimeData.port)
 
-		socket.on('ROOM_STATS', handleRoomStats)
-		socket.on('RUN_TEST', handleRunTest)
+			socket.on('ROOM_STATS', handleRoomStats)
+			socket.on('RUN_TEST', handleRunTest)
 
-		addMessageListener('window', (message) => {
-			if (message.data.pluginMessage) {
-				if (message.data.pluginMessage.type === 'TEST_ASSERTIONS') {
-					socket.emit('TEST_ASSERTIONS', message.data.pluginMessage.data)
+			addMessageListener('window', (message) => {
+				if (message.data.pluginMessage) {
+					if (message.data.pluginMessage.type === 'TEST_ASSERTIONS') {
+						socket.emit('TEST_ASSERTIONS', message.data.pluginMessage.data)
+					}
+					if (message.data.pluginMessage.type === 'TEST_ERROR') {
+						socket.emit('TEST_ERROR', message.data.pluginMessage.data)
+					}
 				}
-				if (message.data.pluginMessage.type === 'TEST_ERROR') {
-					socket.emit('TEST_ERROR', message.data.pluginMessage.data)
-				}
-			}
-		})
+			})
+		}
 
 		redirectIframe(devServerUIUrl, window.runtimeData.config?.runtimeData?.iframeMode || 'data-uri')
 		setBodyStyles()
