@@ -13,6 +13,8 @@ import { Timer } from '../utils/timer.js'
 import { showPlugmaPrompt } from '../utils/show-plugma-prompt.js'
 import { DEFAULT_RENDERER_OPTIONS, SILENT_RENDERER_OPTIONS } from '../constants.js'
 import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
+import chalk from 'chalk'
+
 interface BuildContext {
 	shown?: boolean
 	raw?: ManifestFile
@@ -56,11 +58,11 @@ export async function build(options: BuildCommandOptions): Promise<void> {
 		await tasks.run()
 
 		if (options.watch) {
-			logger.log(ListrLogLevels.STARTED, 'Watching for changes...')
+			console.log(`${chalk.green('✔')} Watching for changes...\n`)
 		}
 		if (!options.watch) {
 			timer.stop()
-			logger.log(ListrLogLevels.COMPLETED, `Build completed in ${timer.getDuration()} ms`)
+			console.log(`\n${chalk.green('✔')} Plugin built in ${chalk.green(timer.getDuration() + 'ms')}\n`)
 			process.exit(0)
 		}
 	} catch (error) {

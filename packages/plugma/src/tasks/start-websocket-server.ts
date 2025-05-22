@@ -71,7 +71,7 @@ export const createStartWebSocketsServerTask = <T extends { websocketServer?: an
 
 							wss.listen(port, () => {
 								logger.log(
-									ListrLogLevels.STARTED,
+									ListrLogLevels.OUTPUT,
 									`WebSocket server listening on port ${chalk.blue(port)}`,
 								)
 							})

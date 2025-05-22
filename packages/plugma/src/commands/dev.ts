@@ -13,6 +13,7 @@ import { ManifestFile } from '../core/types.js'
 import type { ViteDevServer } from 'vite'
 import { DEFAULT_RENDERER_OPTIONS, SILENT_RENDERER_OPTIONS } from '../constants.js'
 import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
+import chalk from 'chalk'
 
 interface BuildContext {
 	shown?: boolean
@@ -67,6 +68,7 @@ export async function dev(options: DevCommandOptions): Promise<void> {
 
 	try {
 		await tasks.run()
+		console.log(`\n${chalk.green('✔')} Whatching for changes...`)
 	} catch (error) {
 		const err = error instanceof Error ? error : new Error(String(error))
 		logger.log(ListrLogLevels.FAILED, ['Failed to start development server:', err])
