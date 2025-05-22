@@ -5,7 +5,7 @@
 	"scripts": {
 		"build-plugma": "cd ../../ && nr build",
 		"list-dist": "command ls -la dist",
-		"dev": "nr build-plugma && plugma dev -ws -p 4000",
+		"dev": "nr build-plugma && plugma dev -p 4000",
 		"dev:plugma": "pnpm --filter plugma build:watch",
 		"build": "nr build-plugma && plugma build",
 		"preview": "nr build-plugma && plugma preview",

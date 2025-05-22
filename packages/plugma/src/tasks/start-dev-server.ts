@@ -39,7 +39,7 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 		task: async (ctx, task) => {
 			const logger = createDebugAwareLogger(options.debug)
 
-			console.log(`${chalk.blue(`http://localhost:${options.port}`)}\n`)
+			console.log(`${chalk.blue(`➔ http://localhost:${options.port}`)}\n`)
 
 			return task.newListr(
 				[

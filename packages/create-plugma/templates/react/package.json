@@ -27,7 +27,7 @@
 	},
 	"plugma": {
 		"manifest": {
-			"id": "<%- name %>-replace",
+			"id": "<%- name %>",
 			"name": "<%- name %>",
 			"main": "src/main.js",
 			"ui": "src/ui.jsx",
@@ -38,10 +38,6 @@
 			"networkAccess": {
 				"allowedDomains": [
 					"none"
-				],
-				"devAllowedDomains": [
-					"http://localhost:*",
-					"ws://localhost:*"
 				]
 			}
 		}

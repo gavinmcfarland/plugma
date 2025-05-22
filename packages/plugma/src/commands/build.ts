@@ -58,11 +58,11 @@ export async function build(options: BuildCommandOptions): Promise<void> {
 		await tasks.run()
 
 		if (options.watch) {
-			console.log(`${chalk.green('✔')} Watching for changes...\n`)
+			console.log(`${chalk.green('✔ Watching for changes...')}\n`)
 		}
 		if (!options.watch) {
 			timer.stop()
-			console.log(`\n${chalk.green('✔')} Plugin built in ${chalk.green(timer.getDuration() + 'ms')}\n`)
+			console.log(`\n${chalk.green('✔ Plugin built in ' + timer.getDuration() + 'ms')}\n`)
 			process.exit(0)
 		}
 	} catch (error) {

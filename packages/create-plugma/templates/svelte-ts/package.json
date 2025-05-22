@@ -20,7 +20,7 @@
 	},
 	"plugma": {
 		"manifest": {
-			"id": "<%- name %>-replace",
+			"id": "<%- name %>",
 			"name": "<%- name %>",
 			"main": "src/main.ts",
 			"ui": "src/ui.ts",
@@ -31,10 +31,6 @@
 			"networkAccess": {
 				"allowedDomains": [
 					"none"
-				],
-				"devAllowedDomains": [
-					"http://localhost:*",
-					"ws://localhost:*"
 				]
 			}
 		}

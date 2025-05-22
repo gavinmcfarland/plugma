@@ -6,7 +6,7 @@ export const DEFAULT_OPTIONS = {
 	mode: 'production',
 	port: getRandomPort(),
 	output: 'dist',
-	websockets: false,
+	websockets: true,
 	debug: false,
 	watch: false,
 	configParser: (value: string) => {

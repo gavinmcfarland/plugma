@@ -77,7 +77,7 @@ program
 	.option('-p, --port <number>', 'Specify a port number for the dev server (default: random)', parseInt)
 	.option('-m, --mode <mode>', `Specify the mode`, DEFAULT_OPTIONS.mode)
 	.option('-o, --output <path>', `Specify the output directory`, DEFAULT_OPTIONS.output)
-	.option('-ws, --websockets', `Enable websockets`, DEFAULT_OPTIONS.websockets)
+	.option('--no-websockets', `Disable websockets`, !DEFAULT_OPTIONS.websockets)
 	.option('-d, --debug', `Enable debug mode`, DEFAULT_OPTIONS.debug)
 	.option(
 		'-c, --config <json>',

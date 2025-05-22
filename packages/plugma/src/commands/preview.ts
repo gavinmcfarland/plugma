@@ -17,6 +17,7 @@ import { createOptions, PreviewCommandOptions } from '../utils/create-options.js
 import { Listr, ListrLogger, ListrLogLevels } from 'listr2'
 import { DEFAULT_RENDERER_OPTIONS, SILENT_RENDERER_OPTIONS } from '../constants.js'
 import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
+import chalk from 'chalk'
 
 interface BuildContext {
 	raw?: any
@@ -44,23 +45,24 @@ interface BuildContext {
 export async function preview(options: PreviewCommandOptions): Promise<void> {
 	const logger = createDebugAwareLogger(options.debug)
 
+	logger.log(ListrLogLevels.OUTPUT, 'Starting preview server...')
+
+	setConfig(options)
+
+	const tasks = new Listr(
+		[
+			createBuildManifestTask<BuildContext>(options),
+			createWrapPluginUiTask<BuildContext>(options),
+			createBuildMainTask<BuildContext>(options),
+			createStartWebSocketsServerTask<BuildContext>(options),
+			createStartViteServerTask<BuildContext>(options),
+		],
+		options.debug ? DEFAULT_RENDERER_OPTIONS : SILENT_RENDERER_OPTIONS,
+	)
+
 	try {
-		logger.log(ListrLogLevels.OUTPUT, 'Starting preview server...')
-
-		setConfig(options)
-
-		const tasks = new Listr(
-			[
-				createBuildManifestTask<BuildContext>(options),
-				createWrapPluginUiTask<BuildContext>(options),
-				createBuildMainTask<BuildContext>(options),
-				createStartWebSocketsServerTask<BuildContext>(options),
-				createStartViteServerTask<BuildContext>(options),
-			],
-			options.debug ? DEFAULT_RENDERER_OPTIONS : SILENT_RENDERER_OPTIONS,
-		)
-
 		await tasks.run()
+		console.log(`\n${chalk.green('✔ Watching for changes...')}`)
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : String(error)
 		logger.log(ListrLogLevels.FAILED, ['Failed to start preview server:', errorMessage])
