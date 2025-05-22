@@ -68,7 +68,7 @@ export async function dev(options: DevCommandOptions): Promise<void> {
 
 	try {
 		await tasks.run()
-		console.log(`\n${chalk.green('✔ Watching for changes...')}`)
+		console.log(`${chalk.green('✔ Watching for changes...')}`)
 	} catch (error) {
 		const err = error instanceof Error ? error : new Error(String(error))
 		logger.log(ListrLogLevels.FAILED, ['Failed to start development server:', err])

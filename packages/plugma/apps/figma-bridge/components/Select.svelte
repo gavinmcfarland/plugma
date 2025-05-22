@@ -11,7 +11,6 @@
 		selected = event.target.value
 
 		if (selected === 'MINIMIZE_WINDOW') {
-			console.log('MINIMIZE_WINDOW')
 			parent.postMessage(
 				{
 					pluginMessage: {
