@@ -1,7 +1,7 @@
 import { createSocketServer } from '../core/websockets/server.js'
 import http from 'http'
 import { getConfig } from '../utils/save-plugma-cli-options.js'
-import { ListrLogger, ListrLogLevels, ListrTask } from 'listr2'
+import { ListrLogger, ListrLogLevels, ListrTask, ListrError } from 'listr2'
 import { BuildCommandOptions, DevCommandOptions, PreviewCommandOptions } from '../utils/create-options.js'
 import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
 import chalk from 'chalk'
@@ -57,6 +57,7 @@ export const createStartWebSocketsServerTask = <T extends { websocketServer?: an
 					},
 					{
 						title: 'Initialize WebSocket Server',
+						skip: () => !options.websockets,
 						task: async () => {
 							const port = getWebSocketPort(options)
 							const wss = http.createServer()
