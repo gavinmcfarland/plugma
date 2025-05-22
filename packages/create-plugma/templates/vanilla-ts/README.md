@@ -6,8 +6,8 @@ This plugin was created with [Plugma](https://github.com/gavinmcfarland/plugma) 
 
 ### Requirements
 
--   [Node.js](https://nodejs.org/en)
--   [Figma desktop app](https://www.figma.com/downloads/)
+- [Node.js](https://nodejs.org/en)
+- [Figma desktop app](https://www.figma.com/downloads/)
 
 ### Install and Import
 
@@ -25,16 +25,6 @@ This plugin was created with [Plugma](https://github.com/gavinmcfarland/plugma) 
     - Choose the `manifest.json` file from the `dist` folder.
 
 3. Manage `manifest` details from inside `package.json`.
-
-### Browser Preview
-
-Run this command to preview your plugin in the browser during development.
-
-```bash
-npm run preview
-```
-
-_Make sure the plugin is open in the Figma desktop app._
 
 ### Before Publishing
 
