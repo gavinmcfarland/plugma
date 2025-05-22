@@ -22,7 +22,7 @@ export function customShowUI(htmlString: string, initialOptions?: ShowUIOptions)
 			const hasCommandChanged = commandHistory.previousCommand !== runtimeData.command
 			const hasInstanceChanged = commandHistory.previousInstanceId !== runtimeData.instanceId
 
-			if (runtimeData.command === 'preview') {
+			if (runtimeData.command === 'preview' || runtimeData.dockPlugin) {
 				pluginWindowSettings.minimized = true
 				pluginWindowSettings.toolbarEnabled = true
 
@@ -44,7 +44,7 @@ export function customShowUI(htmlString: string, initialOptions?: ShowUIOptions)
 				}
 			}
 
-			if (hasInstanceChanged && runtimeData.command === 'preview') {
+			if (hasInstanceChanged && (runtimeData.command === 'preview' || runtimeData.dockPlugin)) {
 				pluginWindowSettings.toolbarEnabled = true
 				pluginWindowSettings.minimized = true
 			}

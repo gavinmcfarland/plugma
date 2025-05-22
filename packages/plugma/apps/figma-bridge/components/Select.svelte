@@ -1,115 +1,104 @@
 <script>
-	import {
-		isDeveloperToolsActive,
-		pluginWindowSettings,
-	} from "../../shared/stores";
-	import Icon from "./Icon.svelte";
+	import { isDeveloperToolsActive, pluginWindowSettings } from '../../shared/stores'
+	import Icon from './Icon.svelte'
 
 	// export let label = "Choose an option"; // Default label
-	export let options = []; // Array of options passed into the component
-	export let selected = ""; // Bound value for selected option
+	export let options = [] // Array of options passed into the component
+	export let selected = '' // Bound value for selected option
 
 	// Event handlers
 	function handleChange(event) {
-		selected = event.target.value;
+		selected = event.target.value
 
-		if (selected === "MINIMIZE_WINDOW") {
-			console.log("MINIMIZE_WINDOW");
+		if (selected === 'MINIMIZE_WINDOW') {
+			console.log('MINIMIZE_WINDOW')
 			parent.postMessage(
 				{
 					pluginMessage: {
-						event: "PLUGMA_MINIMIZE_WINDOW",
+						event: 'PLUGMA_MINIMIZE_WINDOW',
 						toolbarHeight: 40,
 					},
-					pluginId: "*",
+					pluginId: '*',
 				},
-				"*",
-			);
+				'*',
+			)
 			pluginWindowSettings.set({
 				...$pluginWindowSettings,
 				minimized: true,
-			});
+			})
 		}
 
-		if (selected === "MAXIMIZE_WINDOW") {
-			console.log("MAXIMIZE_WINDOW");
+		if (selected === 'MAXIMIZE_WINDOW') {
 			parent.postMessage(
 				{
 					pluginMessage: {
-						event: "PLUGMA_MAXIMIZE_WINDOW",
+						event: 'PLUGMA_MAXIMIZE_WINDOW',
 						toolbarHeight: 40,
 					},
-					pluginId: "*",
+					pluginId: '*',
 				},
-				"*",
-			);
+				'*',
+			)
 			pluginWindowSettings.set({
 				...$pluginWindowSettings,
 				minimized: false,
-			});
+			})
 		}
 
-		if (selected === "DELETE_CLIENT_STORAGE") {
+		if (selected === 'DELETE_CLIENT_STORAGE') {
 			parent.postMessage(
 				{
-					pluginMessage: { event: "PLUGMA_DELETE_CLIENT_STORAGE" },
-					pluginId: "*",
+					pluginMessage: { event: 'PLUGMA_DELETE_CLIENT_STORAGE' },
+					pluginId: '*',
 				},
-				"*",
-			);
+				'*',
+			)
 			// Reset back to default
-			selected = "select-an-option";
+			selected = 'select-an-option'
 		}
 
-		if (selected === "DELETE_ROOT_PLUGIN_DATA") {
+		if (selected === 'DELETE_ROOT_PLUGIN_DATA') {
 			parent.postMessage(
 				{
-					pluginMessage: { event: "PLUGMA_DELETE_ROOT_PLUGIN_DATA" },
-					pluginId: "*",
+					pluginMessage: { event: 'PLUGMA_DELETE_ROOT_PLUGIN_DATA' },
+					pluginId: '*',
 				},
-				"*",
-			);
+				'*',
+			)
 			// Reset back to default
-			selected = "select-an-option";
+			selected = 'select-an-option'
 		}
 
-		if (selected === "HIDE_TOOLBAR") {
+		if (selected === 'HIDE_TOOLBAR') {
 			parent.postMessage(
 				{
-					pluginMessage: { event: "PLUGMA_HIDE_TOOLBAR" },
-					pluginId: "*",
+					pluginMessage: { event: 'PLUGMA_HIDE_TOOLBAR' },
+					pluginId: '*',
 				},
-				"*",
-			);
+				'*',
+			)
 			pluginWindowSettings.set({
 				...$pluginWindowSettings,
 				toolbarEnabled: false,
-			});
-			isDeveloperToolsActive.set(false);
+			})
+			isDeveloperToolsActive.set(false)
 			// Reset back to default
-			selected = "select-an-option";
+			selected = 'select-an-option'
 		}
 	}
 
 	function handleFocus() {
-		console.log("Dropdown is focused (clicked)");
+		console.log('Dropdown is focused (clicked)')
 	}
 
 	function handleBlur() {
-		console.log("Dropdown lost focus");
+		console.log('Dropdown lost focus')
 	}
 </script>
 
 <div class="Select">
-	<select
-		class="Select"
-		bind:value={selected}
-		on:change={handleChange}
-		on:change
-	>
-		<option value="select-an-option" disabled selected
-			>Select an option</option
-		>
+	<select class="Select" bind:value={selected} on:change={handleChange} on:change>
+		<option value="select-an-option" disabled selected>Select an option</option>
 		{#each options as option (option.value)}
 			{#if option.isDivider}
 				<option disabled>────────</option> <!-- Divider style -->
@@ -168,7 +157,7 @@
 
 	.Select::after {
 		display: block;
-		content: "";
+		content: '';
 		width: 100%;
 		height: 100%;
 		position: absolute;

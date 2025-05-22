@@ -156,5 +156,11 @@ export function createOptions<T extends keyof CommandOptions>(
 		...defaults,
 	} as unknown as CommandOptions[T]
 
+	// Handle noWebsockets option
+	if (userOptions.noWebsockets) {
+		userOptions.websockets = false
+		delete userOptions.noWebsockets
+	}
+
 	return new Options(userOptions, requiredDefaults) as CommandOptions[T] & OptionsWithMeta
 }

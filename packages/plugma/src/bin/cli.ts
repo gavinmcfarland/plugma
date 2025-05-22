@@ -77,14 +77,14 @@ program
 	.option('-p, --port <number>', 'Specify a port number for the dev server (default: random)', parseInt)
 	.option('-m, --mode <mode>', `Specify the mode`, DEFAULT_OPTIONS.mode)
 	.option('-o, --output <path>', `Specify the output directory`, DEFAULT_OPTIONS.output)
-	.option('--no-websockets', `Disable websockets`, !DEFAULT_OPTIONS.websockets)
-	.option('--dock-plugin', `Dock the plugin in the Figma UI`, DEFAULT_OPTIONS.dockPlugin)
 	.option('-d, --debug', `Enable debug mode`, DEFAULT_OPTIONS.debug)
 	.option(
 		'-c, --config <json>',
 		'Specify a JSON configuration object for testing and debugging',
 		DEFAULT_OPTIONS.configParser,
 	)
+	.option('--no-websockets', `Disable websockets (default: false)`)
+	.option('--dock-plugin', `Minimise and dock the plugin`, DEFAULT_OPTIONS.dockPlugin)
 	.action(function (this: Command, options: DevCommandOptions) {
 		dev(
 			createOptions<'dev'>(options, {
@@ -96,10 +96,11 @@ program
 	.addHelpText(
 		'after',
 		`
-    Examples:
-      plugma dev --port 3000 --websockets
-      plugma dev --mode test
-      plugma dev --config '{"testMode": true, "mockData": {"key": "value"}}'
+Examples:
+  plugma dev --port 3000
+  plugma dev --mode test
+  plugma dev --no-websockets --dock-plugin
+  plugma dev --config '{"testMode": true, "mockData": {"key": "value"}}'
   `,
 	)
 
@@ -128,9 +129,9 @@ program
 	.addHelpText(
 		'after',
 		`
-    Examples:
-      plugma preview --port 3000
-      plugma preview --config '{"testMode": true, "mockData": {"key": "value"}}'
+Examples:
+  plugma preview --port 3000
+  plugma preview --config '{"testMode": true, "mockData": {"key": "value"}}'
   `,
 	)
 
@@ -158,9 +159,8 @@ program
 	.addHelpText(
 		'after',
 		`
-    Examples:
-      plugma build --watch
-      plugma build --config '{"testMode": true, "mockData": {"key": "value"}}'
+Examples:
+  plugma build --watch
   `,
 	)
 
@@ -188,10 +188,9 @@ program
 	.addHelpText(
 		'after',
 		`
-    Examples:
-      plugma release
-      plugma release alpha --title "Alpha Release" --notes "Initial alpha release"
-      plugma release --config '{"testMode": true, "mockData": {"key": "value"}}'
+Examples:
+  plugma release
+  plugma release alpha --title "Alpha Release" --notes "Initial alpha release"
   `,
 	)
 
@@ -214,9 +213,9 @@ program
 	.addHelpText(
 		'after',
 		`
-    Examples:
-      plugma add playwright
-      plugma add playwright --config '{"testMode": true, "mockData": {"key": "value"}}'
+Examples:
+  plugma add
+  plugma add playwright
   `,
 	)
 
