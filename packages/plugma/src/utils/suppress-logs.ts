@@ -11,11 +11,11 @@ export function suppressLogs(options: any): void {
 	const output = options.output.replace(/\/+$/, '') // Removes trailing slash(es)
 	const escapedOutput = output.replace(/\//g, '\\/')
 
-	const MAIN_BUILT_REGEX = new RegExp(
+	const INDEX_BUILT_REGEX = new RegExp(
 		`^${escapedOutput}/index\\.html\\s+\\d+(\\.\\d+)?\\s+kB\\s+│\\s+gzip:\\s+\\d+(\\.\\d+)?\\s+kB(\\s+│\\s+map:\\s+\\d+(\\.\\d+)?\\s+kB)?$`,
 	)
-	const INDEX_BUILT_REGEX = new RegExp(
-		`^${escapedOutput}/main\\.js\\s+\\d+(\\.\\d+)?\\s+kB\\s+│\\s+gzip:\\s+\\d+(\\.\\d+)?\\s+kB(\\s+│\\s+map:\\s+\\d+(\\.\\d+)?\\s+kB)?$`,
+	const MAIN_BUILT_REGEX = new RegExp(
+		`^${escapedOutput}/main\\.js\\s+\\d{1,3}(,\\d{3})*(\\.\\d+)?\\s+kB\\s+│\\s+gzip:\\s+\\d{1,3}(,\\d{3})*(\\.\\d+)?\\s+kB(\\s+│\\s+map:\\s+\\d{1,3}(,\\d{3})*(\\.\\d+)?\\s+kB)?$`,
 	)
 	const TEMP_INDEX_PATH_REGEX = new RegExp(
 		`^${escapedOutput}/node_modules/plugma/tmp/index\\.html\\s+\\d+(\\.\\d+)?\\s+kB\\s+│\\s+gzip:\\s+\\d+(\\.\\d+)?\\s+kB$`,
