@@ -10,6 +10,7 @@ import { Listr } from 'listr2'
 import { fileExists } from './utils.js'
 import { notifyInvalidManifestOptions } from '../../utils/config/notify-invalid-manifest-options.js'
 import { buildManifestFile } from './manifest-builder.js'
+import { getManifestPaths } from '../../core/manifest-paths.js'
 
 export interface WatcherState {
 	previousMainValue: string | undefined
@@ -21,22 +22,28 @@ export function setupManifestWatcher(
 	options: DevCommandOptions | BuildCommandOptions | PreviewCommandOptions,
 	state: WatcherState,
 ): FSWatcher {
-	const manifestPath = resolve('./manifest.json')
-	const userPkgPath = resolve('./package.json')
-	const outputDirPath = resolve(options.cwd || process.cwd(), options.output)
+	const cwd = options.cwd || process.cwd()
+	const manifestPaths = getManifestPaths(cwd)
+	const outputDirPath = resolve(cwd, options.output)
 
-	const watcher = chokidar.watch([manifestPath, userPkgPath], {
+	console.log('Setting up manifest watcher for paths:', manifestPaths)
+
+	const watcher = chokidar.watch(manifestPaths, {
 		persistent: true,
 		ignoreInitial: false,
 		awaitWriteFinish: {
-			stabilityThreshold: 100,
-			pollInterval: 100,
+			stabilityThreshold: 50,
+			pollInterval: 50,
 		},
+		usePolling: true,
+		interval: 100,
 	})
 
-	watcher.on('change', async () => {
+	watcher.on('change', async (path) => {
+		console.log('Manifest file changed:', path)
 		try {
 			const { files, result } = await buildManifestFile(options)
+			console.log('Manifest rebuilt:', result.raw)
 			notifyInvalidManifestOptions(options, files, 'manifest-changed')
 
 			const outputMainPath = join(outputDirPath, 'main.js')
@@ -45,6 +52,7 @@ export function setupManifestWatcher(
 			await handleMainFileChanges(options, result, state, outputMainPath)
 			await handleUiFileChanges(options, result, state, outputUiPath)
 		} catch (error) {
+			console.error('Error rebuilding manifest:', error)
 			// Error handling is done in the manifest builder
 		}
 	})
