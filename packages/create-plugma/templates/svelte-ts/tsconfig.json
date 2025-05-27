@@ -1,19 +1,9 @@
 {
+	"extends": "./tsconfig.base.json",
 	"compilerOptions": {
-		"target": "ESNext",
-		"useDefineForClassFields": true,
-		"module": "ESNext",
-		"allowJs": true,
-		"checkJs": true,
-		"isolatedModules": true,
-		"moduleDetection": "force",
-		"strict": true,
-		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"typeRoots": ["node_modules/@figma", "node_modules/@types"],
 		"lib": ["ESNext", "DOM"],
-		"outDir": "dist/main"
+		"outDir": "dist/main",
+		"typeRoots": ["node_modules/@figma", "node_modules/@types"]
 	},
 	"include": ["src/main/**/*.ts", "src/main/**/*.js"]
 }
