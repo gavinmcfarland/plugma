@@ -18,8 +18,8 @@
 		"manifest": {
 			"id": "<%- name %>",
 			"name": "<%- name %>",
-			"main": "src/main.js",
-			"ui": "src/ui.js",
+			"main": "src/main/index.js",
+			"ui": "src/ui/index.js",
 			"editorType": [
 				"figma",
 				"figjam"
