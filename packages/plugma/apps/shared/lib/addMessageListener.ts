@@ -1,10 +1,9 @@
 import { decodeMessage } from './decodeMessage'
-import { wsEnabled, wsClientStore } from '../stores'
+import { wsClientStore } from '../stores'
 import { get } from 'svelte/store'
 
 // FIXME: Use of addMessageListener needs refactoring so that duplicate listeners are not added.
 export function addMessageListener(via: string, callback: (event: MessageEvent) => void) {
-	const enableWebSocket = get(wsEnabled)
 	const socket = get(wsClientStore)
 	const isInsideIframe = window.self !== window.top
 
@@ -17,8 +16,8 @@ export function addMessageListener(via: string, callback: (event: MessageEvent) 
 			}
 		})
 	} else if (via === 'ws') {
-		if (enableWebSocket) {
-			// Should this be onAny? or on('message')?
+		// Should this be onAny? or on('message')?
+		if (window.runtimeData.websockets) {
 			socket.on('message', (data: any) => {
 				try {
 					// const newEvent = { ...event, data: data.message }
@@ -42,7 +41,6 @@ export function addMessageListener(via: string, callback: (event: MessageEvent) 
 				}
 			})
 		}
-		// }
 	} else {
 		// console.warn(`Cannot add message listener via ${via}.`)
 	}

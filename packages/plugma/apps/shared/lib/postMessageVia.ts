@@ -1,12 +1,11 @@
 import { encodeMessage } from './encodeMessage'
 import { get } from 'svelte/store'
-import { wsClientStore, wsEnabled } from '../../shared/stores'
+import { wsClientStore } from '../../shared/stores'
 
 export function postMessageVia(via: string | string[], message: any | any[]) {
 	const iframeTarget = document.getElementById('dev-server-ui') as HTMLIFrameElement
 	const client = get(wsClientStore)
 	const isInsideIframe = window.self !== window.top
-	const enableWebSocket = get(wsEnabled)
 
 	// Convert single string to array for consistent handling
 	const viaMethods = Array.isArray(via) ? via : [via]
