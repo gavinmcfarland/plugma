@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { readJson } from './fs/read-json.js'
+import { readJson, readModule } from './fs/read-json.js'
 import type { ManifestFile, UserFiles } from '../core/types.js'
 
 /**
@@ -7,24 +7,40 @@ import type { ManifestFile, UserFiles } from '../core/types.js'
  *
  * @param options - Plugin configuration options
  * @returns Object containing:
- *   - manifest: The plugin manifest data, either from manifest.json or package.json
+ *   - manifest: The plugin manifest data from manifest.ts, manifest.js, manifest.json, or package.json
  *   - userPkg: The contents of package.json if it exists
  *
- * The function first attempts to read from manifest.json. If not found,
- * it falls back to reading the manifest from package.json's plugma.manifest field.
- * The manifest object is transformed to handle special cases like networkAccess.
+ * The function checks for manifest files in the following order:
+ * 1. manifest.ts
+ * 2. manifest.js
+ * 3. manifest.json
+ * 4. package.json's plugma.manifest field
  *
- * @throws Error if no manifest is found in either location
- *
+ * @throws Error if no manifest is found in any location
  */
-
 export const getUserFiles = async (options: any): Promise<UserFiles> => {
 	const userPkgJson = await readJson<UserFiles['userPkgJson']>(path.resolve(options.cwd, 'package.json'))
-	const manifestFile = await readJson<ManifestFile>(path.resolve(options.cwd, 'manifest.json'), true)
-	const manifest = manifestFile || userPkgJson?.plugma?.manifest
-
 	if (!userPkgJson) throw new Error('package.json not found')
-	if (!manifest) throw new Error('No manifest found in manifest.json or package.json')
+
+	// Try manifest.ts first
+	let manifest = await readModule<ManifestFile>(path.resolve(options.cwd, 'manifest.ts'), true)
+
+	// If not found, try manifest.js
+	if (!manifest) {
+		manifest = await readModule<ManifestFile>(path.resolve(options.cwd, 'manifest.js'), true)
+	}
+
+	// If not found, try manifest.json
+	if (!manifest) {
+		manifest = await readJson<ManifestFile>(path.resolve(options.cwd, 'manifest.json'), true)
+	}
+
+	// If still not found, try package.json
+	if (!manifest) {
+		manifest = userPkgJson?.plugma?.manifest || null
+	}
+
+	if (!manifest) throw new Error('No manifest found in manifest.ts, manifest.js, manifest.json, or package.json')
 
 	return { manifest, userPkgJson, rawManifest: manifest }
 }

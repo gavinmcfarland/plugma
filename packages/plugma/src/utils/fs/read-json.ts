@@ -2,6 +2,7 @@ import type { PlugmaPackageJson, UserPackageJson } from '../../core/types.js'
 import { getDirName } from '../../utils/get-dir-name.js'
 import { promises as fsPromises } from 'node:fs'
 import { join } from 'node:path'
+import { createRequire } from 'node:module'
 
 /**
  * Reads and parses a JSON file asynchronously.
@@ -79,4 +80,41 @@ export async function readUserPackageJson(cwd?: string): Promise<UserPackageJson
 	const searchPath = cwd || process.cwd()
 	const userPkgPath = join(searchPath, 'package.json')
 	return readJson<UserPackageJson>(userPkgPath)
+}
+
+/**
+ * Reads and parses a TypeScript or JavaScript file asynchronously.
+ * This function provides type-safe parsing of TypeScript/JavaScript files that export a default object.
+ *
+ * @template T - The expected type of the parsed data
+ * @param filePath - Absolute or relative path to the TypeScript/JavaScript file
+ * @param dontThrow - Whether to throw an error if the file doesn't exist
+ * @returns Promise that resolves to the parsed object of type T or null if the file doesn't exist
+ * @throws {Error} 'Invalid module format' if the file doesn't export a default object
+ * @throws {Error} Original error for other file system errors
+ * @throws {Error} 'Unknown error reading file' for unexpected errors
+ */
+export async function readModule<T>(filePath: string, dontThrow = false): Promise<T | null> {
+	try {
+		const require = createRequire(import.meta.url)
+		const module = require(filePath)
+		if (!module.default || typeof module.default !== 'object') {
+			throw new Error('Invalid module format - must export a default object')
+		}
+		return module.default as T
+	} catch (err) {
+		if (err instanceof Error) {
+			// Handle both ENOENT and ERR_MODULE_NOT_FOUND errors
+			if (
+				('code' in err && (err as any).code === 'ENOENT') ||
+				err.message.includes('Cannot find module') ||
+				err.message.includes('Unknown file extension')
+			) {
+				if (dontThrow) return null
+				throw new Error('File not found')
+			}
+			throw err
+		}
+		throw new Error('Unknown error reading file')
+	}
 }
