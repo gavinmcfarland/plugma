@@ -1,8 +1,10 @@
 {
+	"extends": "@tsconfig/svelte/tsconfig.json",
 	"compilerOptions": {
 		"target": "ESNext",
 		"useDefineForClassFields": true,
 		"module": "ESNext",
+		"resolveJsonModule": true,
 		"allowJs": true,
 		"checkJs": true,
 		"isolatedModules": true,
@@ -11,9 +13,11 @@
 		"esModuleInterop": true,
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
-		"typeRoots": ["node_modules/@figma", "node_modules/@types"],
-		"lib": ["ESNext", "DOM"],
-		"outDir": "dist/main"
+		"outDir": "dist/ui",
+		"paths": {
+			"$lib": ["./src/ui/lib"],
+			"$lib/*": ["./src/ui/lib/*"]
+		}
 	},
-	"include": ["src/main/**/*.ts", "src/main/**/*.js"]
+	"include": ["src/ui/**/*.ts", "src/ui/**/*.js", "src/ui/**/*.svelte"]
 }
