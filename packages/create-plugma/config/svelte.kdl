@@ -1,16 +1,26 @@
-framework name="svelte" enabled=true {
-  dependencies "vite" "@sveltejs/vite-plugin-svelte"
-
+framework name="svelte" {
   vite {
     imports "import { svelte } from '@sveltejs/vite-plugin-svelte';"
 
     plugins {
-      plugin name="svelte" condition='context == "ui"'
+      plugin name="svelte" condition="context === 'ui'"
     }
   }
 
   readme {
     install "pnpm install"
     dev "pnpm dev"
+    snippet name="Getting Started" language="bash" code="pnpm install\npnpm dev"
+  }
+
+  example name="vite.config.ts" language="ts" {
+    code """
+import { defineConfig } from 'vite';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
+
+export default defineConfig({
+  plugins: [svelte()],
+});
+    """
   }
 }
