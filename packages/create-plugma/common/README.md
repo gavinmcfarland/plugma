@@ -9,17 +9,6 @@ This plugin was created with [Plugma](https://github.com/gavinmcfarland/plugma) 
 -   [Node.js](https://nodejs.org/en)
 -   [Figma desktop app](https://www.figma.com/downloads/)
 
-### In# <%- plugin.name %>
-
-## Quickstart
-
-This plugin was created with [Plugma](https://github.com/gavinmcfarland/plugma) using the [<%- framework.name %>](<%- framework.website %>) framework.
-
-### Requirements
-
--   [Node.js](https://nodejs.org/en)
--   [Figma desktop app](https://www.figma.com/downloads/)
-
 ### Install and Import
 
 1. Install the dependencies and watch for changes while developing:
