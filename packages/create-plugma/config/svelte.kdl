@@ -7,10 +7,10 @@ framework name="svelte" {
     }
   }
 
-  readme {
-    install "pnpm install"
-    dev "pnpm dev"
-    snippet name="Getting Started" language="bash" code="pnpm install\npnpm dev"
+  package {
+    dependencies {
+      svelte "1.1.2"
+    }
   }
 
   example name="vite.config.ts" language="ts" {
