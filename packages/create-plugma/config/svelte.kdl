@@ -1,0 +1,16 @@
+framework name="svelte" enabled=true {
+  dependencies "vite" "@sveltejs/vite-plugin-svelte"
+
+  vite {
+    imports "import { svelte } from '@sveltejs/vite-plugin-svelte';"
+
+    plugins {
+      plugin name="svelte" condition='context == "ui"'
+    }
+  }
+
+  readme {
+    install "pnpm install"
+    dev "pnpm dev"
+  }
+}
