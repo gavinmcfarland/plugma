@@ -1,4 +1,3 @@
-[framework]
 name = "svelte"
 imports = 'import { svelte } from "@sveltejs/vite-plugin-svelte";'
 plugins = 'context === "ui" ? [svelte()] : []'
@@ -7,3 +6,9 @@ dependencies = ["@sveltejs/vite-plugin-svelte"]
 [pm]
 install = "pnpm install"
 script.dev = "pnpm dev"
+
+[package]
+dependencies = [
+  svelte,
+  svelte-plugin
+]
