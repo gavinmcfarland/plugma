@@ -1,9 +1,9 @@
 framework name="svelte" {
   vite {
-    imports "import { svelte } from '@sveltejs/vite-plugin-svelte';"
-
     plugins {
-      plugin name="svelte" condition="context === 'ui'"
+      plugin name="svelte" condition="context === 'ui'" {
+        import "import { svelte } from '@sveltejs/vite-plugin-svelte';"
+      }
     }
   }
 
