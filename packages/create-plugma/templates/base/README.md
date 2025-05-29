@@ -14,8 +14,8 @@ This plugin was created with [Plugma](https://github.com/gavinmcfarland/plugma) 
 1. Install the dependencies and watch for changes while developing:
 
     ```bash
-    <%- pm.install %>
-    <%- pm.script.dev %>
+    npm install
+    npm run dev
     ```
 
 2. Open the Figma desktop app and import the plugin:
@@ -31,7 +31,7 @@ This plugin was created with [Plugma](https://github.com/gavinmcfarland/plugma) 
 Run this command to preview your plugin in the browser during development.
 
 ```bash
-<%- pm.script.dev %><- pm.pipe %> --dock-plugin
+npm run dev -- --dock-plugin
 ```
 
 _Make sure the plugin is open in the Figma desktop app._
@@ -41,7 +41,7 @@ _Make sure the plugin is open in the Figma desktop app._
 Before publishing your plugin, make sure to create a build. If not, it will still point to the dev server and won't work properly for users.
 
 ```bash
-<%- pm.script.build %>
+npm run build
 ```
 
 Now you can publish the plugin from the Figma desktop app.

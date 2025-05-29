@@ -1,0 +1,9 @@
+import { defineConfig } from "vite";
+<%- framework.vite.ui.plugins.plugin.map(plugin => `import { ${plugin.name} } from "${plugin.import}";`).join('\n') %>
+
+// https://vite.dev/config/
+export default defineConfig(({ context }) => {
+	return {
+		plugins: context === 'ui' ? [ <%- framework.vite.ui.plugins.plugin.map(plugin => `${plugin.name}()`).join(', ') %> ] : []
+	};
+});

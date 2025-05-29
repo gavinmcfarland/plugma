@@ -1,0 +1,34 @@
+framework name="Svelte" website="https://svelte.dev" {
+	vite {
+		ui {
+			plugins {
+				plugin name="svelte" {
+					import "@sveltejs/vite-plugin-svelte"
+				}
+				plugin name="sveltePreprocess" {
+					import "svelte-preprocess"
+				}
+				plugin name="vitePluginSvelte" {
+					import "vite-plugin-svelte"
+				}
+			}
+		}
+	}
+
+	package {
+		devDependencies {
+			"svelte" "1.1.2"
+			"svelte-preprocess" "5.0.4"
+			"vite-plugin-svelte" "3.0.0"
+			"@tsconfig/svelte" "5.0.2"
+		}
+	}
+
+	tsconfig {
+		references {
+			reference path="./tsconfig.ui.json" {
+				extends "@tsconfig/svelte/tsconfig.json"
+			}
+		}
+	}
+}

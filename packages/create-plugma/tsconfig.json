@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"esModuleInterop": true,
+		"isolatedModules": true,
+		"skipLibCheck": true,
+		"lib": ["DOM", "esnext"],
+		"module": "esnext",
+		"target": "esnext",
+		"moduleResolution": "node",
+		"outDir": "./dist",
+		"rootDir": "./",
+		"strict": true,
+		"resolveJsonModule": true,
+		"baseUrl": ".",
+		"allowJs": true
+	},
+	"include": ["scripts/**/*.js"],
+	"exclude": ["templates", "dist", "node_modules"]
+}

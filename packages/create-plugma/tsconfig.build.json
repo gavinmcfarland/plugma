@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "rootDir": "./src",
+    "baseUrl": "src",
+    "declaration": true,
+    // FIXME: Disabled because of warning about missing source maps in testing dir
+    "sourceMap": true,
+    "sourceRoot": "src"
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": [
+    "archive",
+    "dist",
+    "node_modules",
+    "test",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/__tests__/**"
+  ]
+}
