@@ -1,3 +1,10 @@
+---
+merge:
+  rules:
+    references:
+      key: "path"
+---
+
 {
   "references": [
     {
