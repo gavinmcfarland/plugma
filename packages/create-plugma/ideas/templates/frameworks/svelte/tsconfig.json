@@ -1,0 +1,8 @@
+{
+  "references": [
+    {
+      "path": "./tsconfig.ui.json",
+      "extends": "@tsconfig/svelte/tsconfig.json"
+    }
+  ]
+}
