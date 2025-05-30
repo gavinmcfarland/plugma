@@ -1,6 +1,11 @@
 {
-  "plugma": {
-    "manifest": {
+    "scripts": {
+        "dev": "plugma dev",
+        "build": "plugma build"
     }
-  }
+        
+    "plugma": {
+        "manifest": {
+        }
+    }
 }
