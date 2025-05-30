@@ -1,3 +1,9 @@
+---
+merge:
+    rules:
+        scripts: replace 
+---
+
 {
     "scripts": {
         "dev": "plugma dev",
