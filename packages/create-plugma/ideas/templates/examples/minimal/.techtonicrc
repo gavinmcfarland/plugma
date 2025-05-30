@@ -1,0 +1,7 @@
+[block]
+package.json
+../templates/base
+
+[inherit]
+../templates/base
+  
