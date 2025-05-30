@@ -37,7 +37,7 @@ merge:
   strategy: deep | shallow | append | prepend | replace
 ```
 
-## blocking files
+## blocking/ignore files/folders
 
 Maybe there is a way to say that you want certain files to be ignored, blocked or orevented from being created.
 
@@ -48,13 +48,14 @@ Perhaps this is included in a config file or a meta file.
 package.json
 ```
 
+## apply/include folders to merge
+
 Perhaps instead of assuming the folder should merge with a base, we should specify what it should merge with?
 
 ```toml
-# examples/basic/meta.conf
 
 [apply]
-"templates/base"
+../templates/base
 ```
 
 
