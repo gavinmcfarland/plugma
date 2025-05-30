@@ -1,7 +1,8 @@
 ---
+---
 merge:
-    rules:
-        scripts: replace 
+  rules:
+    scripts: replace
 ---
 
 {
