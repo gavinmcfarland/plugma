@@ -47,3 +47,17 @@ Perhaps this is included in a config file or a meta file.
 [ignore]
 package.json
 ```
+
+Perhaps instead of assuming the folder should merge with a base, we should specify what it should merge with?
+
+```toml
+# examples/basic/meta.conf
+
+[apply]
+templates/base
+```
+
+
+
+
+
