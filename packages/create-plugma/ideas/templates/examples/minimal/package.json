@@ -1,5 +1,4 @@
 ---
----
 merge:
   rules:
     scripts: replace
