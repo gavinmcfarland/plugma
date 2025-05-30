@@ -1,11 +1,5 @@
----
-merge:
-  rules:
-    scripts: replace
----
-
 {
-    "scripts": {
+    "!scripts": {
         "dev": "plugma dev",
         "build": "plugma build"
     }
