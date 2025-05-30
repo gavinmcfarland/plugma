@@ -1,7 +1,6 @@
-[block]
-package.json
+[include]
 ../templates/base
 
-[inherit]
-../templates/base
-  
+[exclude]
+package.json
+README.md
