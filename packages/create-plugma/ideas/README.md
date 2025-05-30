@@ -54,7 +54,7 @@ Perhaps instead of assuming the folder should merge with a base, we should speci
 # examples/basic/meta.conf
 
 [apply]
-templates/base
+"templates/base"
 ```
 
 
