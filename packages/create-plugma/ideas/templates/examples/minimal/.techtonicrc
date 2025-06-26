@@ -1,6 +1,0 @@
-[include]
-../templates/base
-
-[exclude]
-package.json
-README.md

@@ -1,0 +1,20 @@
+{
+    "name": "sticky-notes-widget",
+    "version": "1.0.0",
+    "description": "A sticky notes widget for Figma",
+    "main": "dist/code.js",
+    "scripts": {
+        "build": "tsc -p tsconfig.json",
+        "watch": "tsc -p tsconfig.json --watch"
+    },
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+        "@figma/widget-sdk": "^1.0.0",
+        "@types/react": "^18.0.0",
+        "typescript": "^4.9.0"
+    },
+    "dependencies": {
+        "react": "^18.0.0"
+    }
+}

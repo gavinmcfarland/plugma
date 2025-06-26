@@ -20,6 +20,9 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"combino": "^0.1.0",
+		"ejs": "^3.1.9",
+		"enquirer": "^2.4.1",
 		"inquirer": "^10.1.0",
 		"kdljs": "^0.3.0",
 		"lodash": "^4.17.21",

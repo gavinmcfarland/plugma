@@ -1,207 +1,146 @@
 #!/usr/bin/env node
 
-import inquirer from 'inquirer';
+import { Combino } from 'combino';
+import pkg from 'enquirer';
+const { Select, Confirm, Input } = pkg;
 import * as fs from 'fs';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import createDirectoryContents from './scripts/create-directory-contents.js';
 import path from 'path';
-import { parse } from 'kdljs';
-import _ from 'lodash';
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Load framework configurations
-const loadFrameworkConfig = (framework) => {
-	const configPath = path.join(__dirname, 'config', 'frameworks', `${framework}.kdl`);
-	const configContent = fs.readFileSync(configPath, 'utf-8');
-	// console.log('KDL content:', configContent);
-	const parsed = parse(configContent);
-	// console.log('Parsed KDL:', JSON.stringify(parsed, null, 2));
-	return parsed;
-};
-
-// Merge framework config with template data
-const mergeFrameworkConfig = (frameworkConfig, templateData) => {
-	// Create a deep copy of the template data
-	const mergedData = JSON.parse(JSON.stringify(templateData));
-
-	// If we have framework config, merge it into the template data
-	if (frameworkConfig && frameworkConfig.output && frameworkConfig.output.length > 0) {
-		const frameworkData = frameworkConfig.output[0];
-
-		// Merge framework data into the template data
-		if (frameworkData.children) {
-			frameworkData.children.forEach(node => {
-				// For each node in the framework config, merge it into the template data
-				// if there's a matching property in the template
-				if (node.name === 'vite') {
-					mergedData.framework = mergedData.framework || {};
-					mergedData.framework.vite = node;
-				} else if (node.name === 'package') {
-					mergedData.framework = mergedData.framework || {};
-					mergedData.framework.package = node;
-				} else if (node.name === 'tsconfig') {
-					mergedData.framework = mergedData.framework || {};
-					mergedData.framework.tsconfig = node;
-				}
-			});
-		}
+// Helper function to clear directory if it exists
+const clearDirectory = (dirPath) => {
+	if (fs.existsSync(dirPath)) {
+		fs.rmSync(dirPath, { recursive: true, force: true });
+		console.log(`Cleared existing directory: ${dirPath}`);
 	}
-
-	return mergedData;
 };
 
-// Process template files with framework config
-export const processTemplate = (contents, templateData) => {
-	// Configure lodash template settings
-	_.templateSettings.interpolate = /<%-([\s\S]+?)%>/g;  // Unescaped output
-	_.templateSettings.escape = /<%=([\s\S]+?)%>/g;      // Escaped output
-	_.templateSettings.evaluate = /<%([\s\S]+?)%>/g;
-
-	// Create template
-	const template = _.template(contents);
-
-	// Process template with merged data
-	let processed = template(templateData);
-
-	// If this is a JSON file, parse and merge framework config
-	if (contents.trim().startsWith('{')) {
-		try {
-			const json = JSON.parse(processed);
-
-			// Merge framework config if it exists
-			if (templateData.framework) {
-				if (templateData.framework.package && json.devDependencies) {
-					json.devDependencies = {
-						...json.devDependencies,
-						...templateData.framework.package.devDependencies
-					};
-				}
-				if (templateData.framework.tsconfig) {
-					// Handle tsconfig references
-					if (templateData.framework.tsconfig.references && json.references) {
-						json.references = json.references.map(ref => {
-							if (ref.path === './tsconfig.ui.json' &&
-								templateData.framework.tsconfig.references.reference &&
-								templateData.framework.tsconfig.references.reference.extends) {
-								return {
-									...ref,
-									extends: templateData.framework.tsconfig.references.reference.extends
-								};
-							}
-							return ref;
-						});
-					}
-					// Handle compiler options
-					if (json.compilerOptions) {
-						json.compilerOptions = {
-							...json.compilerOptions,
-							...templateData.framework.tsconfig.compilerOptions
-						};
-					}
-				}
-			}
-
-			// Convert back to string with proper formatting
-			processed = JSON.stringify(json, null, '\t');
-		} catch (e) {
-			console.warn('Failed to parse JSON template:', e);
-		}
+// Helper function to validate project name
+const validateProjectName = (input) => {
+	const valid = /^[a-zA-Z0-9_-]+$/.test(input);
+	if (!valid) {
+		return 'Project name can only include letters, numbers, underscores, and hyphens.';
 	}
-
-	return processed;
+	const destDir = path.join(process.cwd(), input);
+	if (fs.existsSync(destDir)) {
+		return `Directory "${input}" already exists. Please choose a different name.`;
+	}
+	return true;
 };
 
-const questions = [
-	{
-		type: 'list',
-		name: 'type',
-		message: 'What type of project do you want to create?',
-		choices: ['plugin', 'widget']
-	},
-	{
-		type: 'list',
-		name: 'language',
-		message: 'Select a language:',
-		choices: ['JavaScript', 'TypeScript']
-	},
-	{
-		type: 'list',
+async function main() {
+	const frameworkPrompt = new Select({
 		name: 'framework',
-		message: 'Select a framework:',
-		choices: ['Svelte', 'Vue', 'React', 'Vanilla']
-	},
-	{
-		type: 'list',
+		message: 'Choose your framework:',
+		choices: ['React', 'Svelte', 'Vue', 'Vanilla']
+	});
+	const typePrompt = new Select({
+		name: 'type',
+		message: 'Create plugin or widget?',
+		choices: ['Plugin', 'Widget']
+	});
+	const examplePrompt = new Select({
 		name: 'example',
 		message: 'Select an example template:',
-		choices: ['basic', 'minimal']
-	},
-	{
-		type: 'input',
+		choices: ['Basic', 'Minimal']
+	});
+	const languagePrompt = new Confirm({
+		name: 'typescript',
+		message: 'Include TypeScript?',
+		initial: true
+	});
+
+	const framework = await frameworkPrompt.run();
+	const type = await typePrompt.run();
+	const example = await examplePrompt.run();
+	const typescript = await languagePrompt.run();
+
+	const namePrompt = new Input({
 		name: 'name',
 		message: 'Project name:',
-		validate: input => {
-			const valid = /^[a-zA-Z0-9_-]+$/.test(input);
-			if (!valid) {
-				return 'Project name can only include letters, numbers, underscores, and hyphens.';
-			}
-			const destDir = path.join(process.cwd(), input);
-			if (fs.existsSync(destDir)) {
-				return `Directory "${input}" already exists. Please choose a different name.`;
-			}
-			return true;
-		}
-	}
-];
-
-inquirer.prompt(questions).then(async answers => {
-	const { name, type, language, framework, example } = answers;
+		initial: `${example.toLowerCase()}-${framework.toLowerCase()}-${type.toLowerCase()}`,
+		validate: validateProjectName
+	});
+	const name = await namePrompt.run();
 
 	// Convert framework name to lowercase for file operations
 	const frameworkLower = framework.toLowerCase();
+	const languageLower = typescript ? 'typescript' : 'javascript';
 
-	// Load framework configuration
-	const frameworkConfig = loadFrameworkConfig(frameworkLower);
-
-	// Define the source directories
-	const baseTemplateDir = path.join(__dirname, 'templates', 'base');
-	const frameworkTemplateDir = path.join(__dirname, 'templates', 'base', frameworkLower);
-	const exampleTemplateDir = path.join(__dirname, 'templates', 'examples', frameworkLower, example);
+	// Define the output directory
 	const destDir = path.join(CURR_DIR, name);
 
-	// Create project directory
-	fs.mkdirSync(destDir);
+	// Clear directory if it exists
+	clearDirectory(destDir);
+
+	// Prepare template paths based on user choices
+	const templates = [];
+
+	// Add base template first (lowest priority)
+	templates.push(path.join(__dirname, 'templates', 'base'));
+
+	// Add framework-specific template
+	const frameworkTemplateDir = path.join(__dirname, 'templates', 'frameworks', frameworkLower);
+	if (fs.existsSync(frameworkTemplateDir)) {
+		templates.push(frameworkTemplateDir);
+	}
+
+	// Add example template (highest priority)
+	const exampleTemplateDir = path.join(__dirname, 'templates', 'examples', type.toLowerCase(), example.toLowerCase());
+	if (fs.existsSync(exampleTemplateDir)) {
+		templates.push(exampleTemplateDir);
+	}
+
+	// Add TypeScript template if selected
+	if (typescript) {
+		const typescriptTemplateDir = path.join(__dirname, 'templates', 'typescript');
+		if (fs.existsSync(typescriptTemplateDir)) {
+			templates.push(typescriptTemplateDir);
+		}
+	}
 
 	// Create context object for template processing
-	const context = {
+	const templateData = {
 		name,
-		type,
-		language: language.toLowerCase(),
+		type: type.toLowerCase(),
+		language: languageLower,
 		framework: frameworkLower,
-		example,
-		config: frameworkConfig
+		example: example.toLowerCase(),
+		typescript,
+		description: `A Figma ${type.toLowerCase()} with ${framework} and ${typescript ? 'TypeScript' : 'JavaScript'}`
 	};
 
-	// Copy base template first (common files)
-	await createDirectoryContents(baseTemplateDir, name, context);
+	// Initialize Combino
+	const combino = new Combino();
 
-	// Then copy framework-specific files
-	if (fs.existsSync(frameworkTemplateDir)) {
-		await createDirectoryContents(frameworkTemplateDir, name, context);
+	try {
+		// Generate the project using Combino
+		await combino.combine({
+			outputDir: destDir,
+			include: templates,
+			templateEngine: 'ejs',
+			data: templateData
+		});
+
+		console.log(`\n✅ Successfully created ${framework} ${type} project: ${name}`);
+		console.log(`\nNext steps:\n    cd ${name}\n    npm install\n    npm run dev`);
+	} catch (error) {
+		console.error('Error generating project:', error);
+		process.exit(1);
 	}
+}
 
-	// Finally copy example template if it exists
-	if (fs.existsSync(exampleTemplateDir)) {
-		await createDirectoryContents(exampleTemplateDir, name, context);
+main().catch((err) => {
+	if (err === '' || (err && err.isTtyError)) {
+		// User exited the prompt (e.g., Ctrl+C or Esc)
+		process.exit(0);
 	}
-
-	console.log(`Next:
-    cd ${name}
-    npm install
-    npm run dev`);
+	console.error(err);
+	process.exit(1);
 });
 
 

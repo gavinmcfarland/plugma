@@ -1,0 +1,8 @@
+[include]
+../../../base
+../../../frameworks/<%= framework %>/components = src/ui/components
+../../../frameworks/<%= framework %>/assets = src/ui/assets
+
+[data]
+uiDir = src/ui
+mainDir = src/main

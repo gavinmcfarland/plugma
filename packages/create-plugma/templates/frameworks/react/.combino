@@ -1,0 +1,2 @@
+[data]
+vite.plugins[] = {"name":"react","import":"@vitejs/plugin-react"}
