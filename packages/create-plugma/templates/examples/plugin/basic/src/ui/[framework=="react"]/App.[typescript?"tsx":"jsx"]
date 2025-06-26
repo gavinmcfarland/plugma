@@ -3,7 +3,6 @@ import reactLogo from './assets/react.svg'
 import Icon from './components/Icon'
 import Input from './components/Input'
 import Button from './components/Button'
-import './App.css' // Import CSS for styles
 
 const App = () => {
 	const [rectCount, setRectCount] = useState<number>(5)

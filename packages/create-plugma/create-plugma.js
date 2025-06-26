@@ -11,6 +11,10 @@ import path from 'path';
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+// Parse command line arguments
+const args = process.argv.slice(2);
+const debugFlag = args.includes('-d') || args.includes('--debug');
+
 // Helper function to clear directory if it exists
 const clearDirectory = (dirPath) => {
 	if (fs.existsSync(dirPath)) {
@@ -59,10 +63,17 @@ async function main() {
 	const example = await examplePrompt.run();
 	const typescript = await languagePrompt.run();
 
+	// Generate base name
+	const baseName = `${example.toLowerCase()}-${framework.toLowerCase()}-${type.toLowerCase()}`;
+
+	// Add debug suffix if debug flag is enabled
+	const nameSuffix = debugFlag ? (typescript ? '-ts' : '-js') : '';
+	const initialName = baseName + nameSuffix;
+
 	const namePrompt = new Input({
 		name: 'name',
 		message: 'Project name:',
-		initial: `${example.toLowerCase()}-${framework.toLowerCase()}-${type.toLowerCase()}`,
+		initial: initialName,
 		validate: validateProjectName
 	});
 	const name = await namePrompt.run();
