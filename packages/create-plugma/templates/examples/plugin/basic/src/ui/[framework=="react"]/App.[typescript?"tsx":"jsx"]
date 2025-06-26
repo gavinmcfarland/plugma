@@ -5,8 +5,8 @@ import Input from './components/Input'
 import Button from './components/Button'
 
 const App = () => {
-	const [rectCount, setRectCount] = useState<number>(5)
-	const [nodeCount, setNodeCount] = useState<number>(0)
+	const [rectCount, setRectCount] = useState<%= typescript ? "<number>" : "" %>(5)
+	const [nodeCount, setNodeCount] = useState<%= typescript ? "<number>" : "" %>(0)
 
 	const styles = {
 		container: {

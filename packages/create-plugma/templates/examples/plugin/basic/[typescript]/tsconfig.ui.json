@@ -1,3 +1,5 @@
 {
-    "include": ["src/**/*.js", "src/**/*.ts"]
+    "compilerOptions": {
+        "composite": true
+    }
 }
