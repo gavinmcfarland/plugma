@@ -20,7 +20,9 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"combino": "^0.1.0",
+		"@babel/traverse": "^7.27.7",
+		"chalk": "^5.4.1",
+		"combino": "^0.1.4",
 		"ejs": "^3.1.9",
 		"enquirer": "^2.4.1",
 		"inquirer": "^10.1.0",
