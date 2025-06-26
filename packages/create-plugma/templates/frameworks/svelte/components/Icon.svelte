@@ -6,7 +6,7 @@
 	}
 	<% } %>
 
-	let { size = 16, svg }: <% if (typescript) { %>Props<% } %> = $props();
+	let { size = 16, svg }<% if (typescript) { %>: Props<% } %> = $props();
 </script>
 
 {#if svg === "plugma"}

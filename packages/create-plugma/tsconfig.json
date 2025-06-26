@@ -12,7 +12,8 @@
 		"strict": true,
 		"resolveJsonModule": true,
 		"baseUrl": ".",
-		"allowJs": true
+		"allowJs": true,
+		"verbatimModuleSyntax": true
 	},
 	"include": ["scripts/**/*.js"],
 	"exclude": ["templates", "dist", "node_modules"]

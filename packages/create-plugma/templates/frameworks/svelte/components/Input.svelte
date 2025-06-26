@@ -7,7 +7,7 @@
 	}
 	<% } %>
 
-	let { value = $bindable(''), type = 'text', showIcon }: <% if (typescript) { %>Props<% } %> = $props();
+	let { value = $bindable(''), type = 'text', showIcon }<% if (typescript) { %>: Props<% } %> = $props();
 </script>
 
 <div class="Input" data-non-interactive="true">

@@ -9,7 +9,7 @@
 	}
 	<% } %>
 
-	let { children, href, target, style, onclick }: <% if (typescript) { %>Props<% } %> = $props();
+	let { children, href, target, style, onclick }<% if (typescript) { %>: Props<% } %> = $props();
 </script>
 
 {#if href}
