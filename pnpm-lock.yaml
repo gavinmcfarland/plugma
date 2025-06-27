@@ -27,8 +27,8 @@ importers:
         specifier: ^5.4.1
         version: 5.4.1
       combino:
-        specifier: ^0.1.4
-        version: 0.1.4(svelte@5.34.8)
+        specifier: ^0.1.5
+        version: 0.1.5(svelte@5.34.8)
       ejs:
         specifier: ^3.1.9
         version: 3.1.10
@@ -2220,8 +2220,8 @@ packages:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
     engines: {node: '>= 0.8'}
 
-  combino@0.1.4:
-    resolution: {integrity: sha512-nF7JbbYtXcbjX/5x6mGSouzPhCL+rVpyh2vhosBKCQy3cS3YpCL+gbT7itVdVMsfXBUUxgOwD4bDuV2taJaOHQ==}
+  combino@0.1.5:
+    resolution: {integrity: sha512-Po+L6uA2QouUgVf/hhsK5oA7DxakVzHfrT0z4Hm+d6Jp3TJvWvworYb+I6B7Zpe4lWFbe2yA7iMNzmHZeLTMeA==}
     hasBin: true
 
   comma-separated-tokens@2.0.3:
@@ -6980,7 +6980,7 @@ snapshots:
     dependencies:
       delayed-stream: 1.0.0
 
-  combino@0.1.4(svelte@5.34.8):
+  combino@0.1.5(svelte@5.34.8):
     dependencies:
       chalk: 5.4.1
       commander: 11.1.0
