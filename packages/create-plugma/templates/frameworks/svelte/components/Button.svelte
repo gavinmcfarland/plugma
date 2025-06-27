@@ -1,5 +1,5 @@
-<script lang="<% if (typescript) { %>ts<% } %>">
-	<% if (typescript) { %>
+<script lang="ts">
+
 	interface Props {
         children: () => any;
         href?: string;
@@ -7,9 +7,8 @@
         style?: string;
         onclick?: () => void;
 	}
-	<% } %>
 
-	let { children, href, target, style, onclick }<% if (typescript) { %>: Props<% } %> = $props();
+	let { children, href, target, style, onclick }: Props = $props();
 </script>
 
 {#if href}

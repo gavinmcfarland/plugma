@@ -1,12 +1,11 @@
-<script lang="<% if (typescript) { %>ts<% } %>">
-	<% if (typescript) { %>
+<script lang="ts">
+
 	interface Props {
 		size?: number
 		svg?: string
 	}
-	<% } %>
 
-	let { size = 16, svg }<% if (typescript) { %>: Props<% } %> = $props();
+	let { size = 16, svg }: Props = $props();
 </script>
 
 {#if svg === "plugma"}
