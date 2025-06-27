@@ -2,7 +2,7 @@
 
 You can contribute to Plugma's list of templates by creating your own templates.
 
-## Create Your Own Example Template
+## Creating an Example Template
 
 Plugma uses a powerful template system built on [Combino](https://github.com/gavinmcfarland/combino) that allows you to create reusable, composable templates for Figma plugins and widgets. This guide will walk you through creating your own templates.
 
