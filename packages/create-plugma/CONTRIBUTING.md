@@ -2,13 +2,11 @@
 
 You can contribute to Plugma's list of templates by creating your own templates.
 
-## Creating Custom Templates
+## Create Your Own Example Template
 
 Plugma uses a powerful template system built on [Combino](https://github.com/gavinmcfarland/combino) that allows you to create reusable, composable templates for Figma plugins and widgets. This guide will walk you through creating your own templates.
 
-### Creating Your Own Template
-
-#### Create your directory
+### Create your directory
 
 Create your template directory in the `templates/examples/` directory.
 
@@ -17,7 +15,7 @@ cd templates/examples/
 mkdir my-custom-example
 ```
 
-#### Add your template files
+### Add your template files
 
 Create the files that will be part of your template. If you're plugin or widget includes a UI be sure to make the files for the UI conditional for one or more frontend frameworks.
 
@@ -35,7 +33,7 @@ my-awesome-template/
 │           └── App.tsx
 ```
 
-#### Using data in your templates
+### Using data in your templates
 
 You can add data used by your template inside a `.combino` file at the root of your template.
 
