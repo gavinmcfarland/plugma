@@ -1,13 +1,11 @@
 import React from 'react';
 
-<% if (typescript) { %>
 interface IconProps {
   size?: number;
   svg: 'plugma' | 'plus';
 }
-<% } %>
 
-const Icon<% if (typescript) { %>: React.FC<IconProps><% } %> = ({ size = 16, svg }) => {
+const Icon: React.FC<IconProps> = ({ size = 16, svg }) => {
   if (svg === 'plugma') {
     return (
       <svg

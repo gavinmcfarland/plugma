@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './styles.css'
 import App from './App.<%= typescript ? "tsx" : "jsx" %>'
 
-createRoot(document.getElementById('app')<%= typescript ? "!" : "" %>).render(
+createRoot(document.getElementById('app')!).render(
   <StrictMode>
     <App />
   </StrictMode>,
