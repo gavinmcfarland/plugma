@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import { stripTSFromString } from 'strip-ts';
 import chalk from 'chalk';
+import ini from 'ini';
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -38,35 +39,219 @@ const validateProjectName = (input) => {
 	return true;
 };
 
-async function main() {
-	const frameworkPrompt = new Select({
-		name: 'framework',
-		message: 'Choose your framework:',
-		choices: ['React', 'Svelte', 'Vue', 'Vanilla']
+// Helper function to parse .combino metadata using INI parser
+const parseCombinoMetadata = (filePath) => {
+	try {
+		const content = fs.readFileSync(filePath, 'utf8');
+
+		// Parse the entire file as INI
+		const parsed = ini.parse(content);
+
+		// Extract the meta section
+		const metadata = parsed.meta || {};
+
+		// Convert string values to appropriate types
+		const processedMetadata = {};
+
+		Object.entries(metadata).forEach(([key, value]) => {
+			// Handle boolean values
+			if (value === 'true') {
+				processedMetadata[key] = true;
+			} else if (value === 'false') {
+				processedMetadata[key] = false;
+			}
+			// Handle array values (INI parser might return them as strings)
+			else if (typeof value === 'string' && value.startsWith('[') && value.endsWith(']')) {
+				processedMetadata[key] = value.slice(1, -1).split(',').map(item => item.trim());
+			}
+			// Handle quoted strings
+			else if (typeof value === 'string' && ((value.startsWith('"') && value.endsWith('"')) ||
+				(value.startsWith("'") && value.endsWith("'")))) {
+				processedMetadata[key] = value.slice(1, -1);
+			}
+			// Keep other values as-is
+			else {
+				processedMetadata[key] = value;
+			}
+		});
+
+		return processedMetadata;
+	} catch (error) {
+		console.log(chalk.yellow(`Warning: Could not parse metadata from ${filePath}: ${error.message}`));
+		return null;
+	}
+};
+
+// Helper function to get available examples based on metadata
+const getAvailableExamples = () => {
+	const examplesDir = path.join(__dirname, 'templates', 'examples');
+	const examples = [];
+
+	if (!fs.existsSync(examplesDir)) {
+		return examples;
+	}
+
+	const exampleDirs = fs.readdirSync(examplesDir, { withFileTypes: true })
+		.filter(dirent => dirent.isDirectory())
+		.map(dirent => dirent.name);
+
+	exampleDirs.forEach(exampleName => {
+		const combinoPath = path.join(examplesDir, exampleName, '.combino');
+		if (fs.existsSync(combinoPath)) {
+			// Read the raw .combino file directly from filesystem
+			// This avoids any template processing that might affect the metadata
+			const metadata = parseCombinoMetadata(combinoPath);
+			if (metadata) {
+				examples.push({
+					name: exampleName,
+					metadata
+				});
+			}
+		}
 	});
+
+	return examples;
+};
+
+// Helper function to filter examples based on user choices
+const filterExamples = (examples, needsUI, framework) => {
+	return examples.filter(example => {
+		const { metadata } = example;
+
+		// Check if UI requirement matches
+		// If metadata.ui is defined, it must match the user's choice
+		if (metadata.ui !== undefined && metadata.ui !== needsUI) {
+			return false;
+		}
+
+		// Only check framework compatibility for examples with UI
+		// Examples without UI (ui = false) don't need framework filtering
+		if (metadata.ui === true && metadata.frameworks) {
+			// Handle both array and string cases
+			let frameworksArray = metadata.frameworks;
+			if (typeof metadata.frameworks === 'string') {
+				// If it's an empty string, treat as no frameworks supported
+				if (metadata.frameworks.trim() === '') {
+					return false;
+				}
+				// Try to parse as array if it looks like one
+				if (metadata.frameworks.startsWith('[') && metadata.frameworks.endsWith(']')) {
+					frameworksArray = metadata.frameworks.slice(1, -1).split(',').map(item => item.trim());
+				} else {
+					// Single framework as string
+					frameworksArray = [metadata.frameworks.trim()];
+				}
+			}
+
+			if (Array.isArray(frameworksArray)) {
+				// If frameworks array is empty, it means no frameworks are supported
+				if (frameworksArray.length === 0) {
+					return false;
+				}
+				// Check if the selected framework is in the supported list
+				if (!frameworksArray.includes(framework.toLowerCase())) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	});
+};
+
+// Helper function to get available types from examples
+const getAvailableTypes = (examples, needsUI, framework) => {
+	const types = new Set();
+	examples.forEach(example => {
+		const { metadata } = example;
+		// Only add the type if the example supports the selected framework and UI requirement
+		if (
+			(metadata.ui === undefined || metadata.ui === needsUI) &&
+			(!metadata.frameworks || metadata.frameworks.length === 0 || metadata.frameworks.includes(framework.toLowerCase()))
+		) {
+			if (metadata.type) {
+				types.add(metadata.type);
+			}
+		}
+	});
+	return Array.from(types);
+};
+
+async function main() {
+	const uiPrompt = new Confirm({
+		name: 'needsUI',
+		message: 'Do you need a UI?',
+		initial: true
+	});
+
+	const needsUI = await uiPrompt.run();
+
+	let framework = 'Vanilla'; // Default framework
+	if (needsUI) {
+		const frameworkPrompt = new Select({
+			name: 'framework',
+			message: 'Choose your framework:',
+			choices: ['React', 'Svelte', 'Vue', 'Vanilla']
+		});
+		framework = await frameworkPrompt.run();
+	}
+
+	// Get available examples and filter them
+	const allExamples = getAvailableExamples();
+	const availableExamples = filterExamples(allExamples, needsUI, framework);
+
+	if (availableExamples.length === 0) {
+		console.log(chalk.red('No examples available for the selected configuration.'));
+		process.exit(1);
+	}
+
+	// Get available types from filtered examples (with stricter filtering)
+	const availableTypes = getAvailableTypes(availableExamples, needsUI, framework);
+
+	if (availableTypes.length === 0) {
+		console.log(chalk.red('No valid types found in available examples.'));
+		process.exit(1);
+	}
+
 	const typePrompt = new Select({
 		name: 'type',
 		message: 'Create plugin or widget?',
-		choices: ['Plugin', 'Widget']
+		choices: availableTypes.map(type => type.charAt(0).toUpperCase() + type.slice(1))
 	});
+
+	const type = await typePrompt.run();
+
+	// Filter examples by selected type
+	const typeFilteredExamples = availableExamples.filter(example =>
+		example.metadata.type === type.toLowerCase()
+	);
+
+	if (typeFilteredExamples.length === 0) {
+		console.log(chalk.red(`No examples available for ${type} with the selected configuration.`));
+		process.exit(1);
+	}
+
 	const examplePrompt = new Select({
 		name: 'example',
 		message: 'Select an example template:',
-		choices: ['Basic', 'Minimal']
+		choices: typeFilteredExamples.map(example => example.name.charAt(0).toUpperCase() + example.name.slice(1))
 	});
+
+	const example = await examplePrompt.run();
+	const selectedExample = typeFilteredExamples.find(ex =>
+		ex.name.toLowerCase() === example.toLowerCase()
+	);
+
 	const languagePrompt = new Confirm({
 		name: 'typescript',
 		message: 'Include TypeScript?',
 		initial: true
 	});
 
-	const framework = await frameworkPrompt.run();
-	const type = await typePrompt.run();
-	const example = await examplePrompt.run();
 	const typescript = await languagePrompt.run();
 
 	// Generate base name
-	const baseName = `${example.toLowerCase()}-${framework.toLowerCase()}-${type.toLowerCase()}`;
+	const baseName = `${selectedExample.name.toLowerCase()}-${framework.toLowerCase()}-${type.toLowerCase()}`;
 
 	// Add debug suffix if debug flag is enabled
 	const nameSuffix = debugFlag ? (typescript ? '-ts' : '-js') : '';
@@ -96,14 +281,16 @@ async function main() {
 	// Add base template first (lowest priority)
 	templates.push(path.join(__dirname, 'templates', 'base'));
 
-	// Add framework-specific template
-	const frameworkTemplateDir = path.join(__dirname, 'templates', 'frameworks', frameworkLower);
-	if (fs.existsSync(frameworkTemplateDir)) {
-		templates.push(frameworkTemplateDir);
+	// Add framework-specific template only if UI is needed
+	if (needsUI) {
+		const frameworkTemplateDir = path.join(__dirname, 'templates', 'frameworks', frameworkLower);
+		if (fs.existsSync(frameworkTemplateDir)) {
+			templates.push(frameworkTemplateDir);
+		}
 	}
 
 	// Add example template (highest priority)
-	const exampleTemplateDir = path.join(__dirname, 'templates', 'examples', type.toLowerCase(), example.toLowerCase());
+	const exampleTemplateDir = path.join(__dirname, 'templates', 'examples', selectedExample.name);
 	if (fs.existsSync(exampleTemplateDir)) {
 		templates.push(exampleTemplateDir);
 	}
@@ -122,9 +309,10 @@ async function main() {
 		type: type.toLowerCase(),
 		language: languageLower,
 		framework: frameworkLower,
-		example: example.toLowerCase(),
+		example: selectedExample.name.toLowerCase(),
 		typescript,
-		description: `A Figma ${type.toLowerCase()} with ${framework} and ${typescript ? 'TypeScript' : 'JavaScript'}`
+		needsUI,
+		description: `A Figma ${type.toLowerCase()} with ${needsUI ? framework : 'no UI'} and ${typescript ? 'TypeScript' : 'JavaScript'}`
 	};
 
 	// Initialize Combino

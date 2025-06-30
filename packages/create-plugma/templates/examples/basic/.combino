@@ -1,3 +1,8 @@
+[meta]
+ui = true
+type = plugin
+frameworks = [svelte, vue, react]
+
 [include]
 ../../../base
 ../../../frameworks/<%= framework %>/components = src/ui/components

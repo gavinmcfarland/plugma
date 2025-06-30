@@ -35,6 +35,9 @@ importers:
       enquirer:
         specifier: ^2.4.1
         version: 2.4.1
+      ini:
+        specifier: ^4.1.1
+        version: 4.1.3
       inquirer:
         specifier: ^10.1.0
         version: 10.2.2

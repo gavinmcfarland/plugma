@@ -1,0 +1,9 @@
+[meta]
+ui = false
+type = plugin
+
+[include]
+../../../base
+
+[data]
+description = "A plugin without UI"
