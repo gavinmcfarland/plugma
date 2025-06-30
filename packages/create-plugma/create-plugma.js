@@ -192,7 +192,7 @@ async function main() {
 	if (needsUI) {
 		const frameworkPrompt = new Select({
 			name: 'framework',
-			message: 'Choose your framework:',
+			message: 'Choose a framework:',
 			choices: ['React', 'Svelte', 'Vue', 'Vanilla']
 		});
 		framework = await frameworkPrompt.run();
@@ -235,7 +235,7 @@ async function main() {
 
 	const examplePrompt = new Select({
 		name: 'example',
-		message: 'Select an example template:',
+		message: 'Select an example:',
 		choices: typeFilteredExamples.map(example => {
 			const description = example.metadata.description || '';
 			const displayName = example.name.charAt(0).toUpperCase() + example.name.slice(1);
@@ -270,7 +270,7 @@ async function main() {
 
 	const namePrompt = new Input({
 		name: 'name',
-		message: 'Project name:',
+		message: `${type.charAt(0).toUpperCase() + type.slice(1)} name:`,
 		initial: initialName,
 		validate: validateProjectName
 	});
@@ -403,7 +403,6 @@ async function main() {
 			},
 		});
 
-		console.log(`\n✅ Successfully created ${framework} ${type} project: ${name}`);
 		console.log(`\nNext steps:\n    cd ${name}\n    npm install\n    npm run dev`);
 	} catch (error) {
 		console.error('Error generating project:', error);
