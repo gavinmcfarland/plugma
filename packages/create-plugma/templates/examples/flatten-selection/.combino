@@ -1,9 +1,10 @@
 [meta]
 ui = false
 type = plugin
+description = A plugin that flattens a selection
 
 [include]
-../../../base
+../../base
 
 [data]
 description = "A plugin without UI"

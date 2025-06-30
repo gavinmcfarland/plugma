@@ -2,7 +2,7 @@
 
 import { Combino } from 'combino';
 import pkg from 'enquirer';
-const { Select, Confirm, Input } = pkg;
+const { Select, Confirm, Input, Toggle } = pkg;
 import * as fs from 'fs';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -178,9 +178,11 @@ const getAvailableTypes = (examples, needsUI, framework) => {
 };
 
 async function main() {
-	const uiPrompt = new Confirm({
+	const uiPrompt = new Toggle({
 		name: 'needsUI',
 		message: 'Do you need a UI?',
+		enabled: 'Yes',
+		disabled: 'No',
 		initial: true
 	});
 
@@ -234,7 +236,16 @@ async function main() {
 	const examplePrompt = new Select({
 		name: 'example',
 		message: 'Select an example template:',
-		choices: typeFilteredExamples.map(example => example.name.charAt(0).toUpperCase() + example.name.slice(1))
+		choices: typeFilteredExamples.map(example => {
+			const description = example.metadata.description || '';
+			const displayName = example.name.charAt(0).toUpperCase() + example.name.slice(1);
+			const choiceText = displayName;
+			return {
+				name: choiceText,
+				value: displayName,
+				hint: description
+			};
+		})
 	});
 
 	const example = await examplePrompt.run();

@@ -2,11 +2,12 @@
 ui = true
 type = widget
 frameworks = [react]
+description = A sticky notes widget for Figjam
 
 [include]
-../../../base
-../../../frameworks/react/components = src/ui/components
-../../../frameworks/react/assets = src/ui/assets
+../../base
+../../frameworks/react/components = src/ui/components
+../../frameworks/react/assets = src/ui/assets
 
 [data]
 uiDir = src/ui

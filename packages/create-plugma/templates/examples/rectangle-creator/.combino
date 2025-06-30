@@ -1,0 +1,14 @@
+[meta]
+ui = true
+type = plugin
+frameworks = [svelte, vue, react]
+description = A plugin that creates a rectangle
+
+[include]
+../../base
+../../frameworks/<%= framework %>/components = src/ui/components
+../../frameworks/<%= framework %>/assets = src/ui/assets
+
+[data]
+uiDir = src/ui
+mainDir = src/main

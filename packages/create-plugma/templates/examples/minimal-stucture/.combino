@@ -2,6 +2,7 @@
 ui = true
 type = plugin
 frameworks = [svelte, vue, react]
+description = An example of a minimalistic plugin structure
 
 [include]
 ../../../base
