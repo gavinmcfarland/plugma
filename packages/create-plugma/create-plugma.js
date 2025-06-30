@@ -238,7 +238,7 @@ async function main() {
 		message: 'Select an example:',
 		choices: typeFilteredExamples.map(example => {
 			const description = example.metadata.description || '';
-			const displayName = example.name.charAt(0).toUpperCase() + example.name.slice(1);
+			const displayName = example.name.charAt(0).toUpperCase() + example.name.slice(1).replace(/-/g, ' ');
 			const choiceText = displayName;
 			return {
 				name: choiceText,
