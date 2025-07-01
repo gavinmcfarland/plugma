@@ -4,6 +4,7 @@
 	"description": "",
 	"main": "create-plugma.js",
 	"type": "module",
+	"private": true,
 	"scripts": {
 		"test": "echo \"Error: no test specified\"",
 		"bump-versions": "node scripts/bump-plugma-version.js"
