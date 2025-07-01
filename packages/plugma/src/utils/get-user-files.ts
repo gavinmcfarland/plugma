@@ -26,7 +26,6 @@ export const getUserFiles = async (options: any): Promise<UserFiles> => {
 	// Try each manifest file in order
 	let manifest: ManifestFile | null = null
 	for (const fileName of MANIFEST_FILE_NAMES) {
-		console.log('fileName', fileName)
 		if (fileName === 'package.json') {
 			manifest = userPkgJson?.plugma?.manifest || null
 		} else if (fileName.endsWith('.ts')) {
@@ -38,8 +37,6 @@ export const getUserFiles = async (options: any): Promise<UserFiles> => {
 		}
 		if (manifest) break
 	}
-
-	console.log('manifest', manifest)
 
 	if (!manifest) throw new Error('No manifest found in manifest.ts, manifest.js, manifest.json, or package.json')
 
