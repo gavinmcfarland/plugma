@@ -1,7 +1,7 @@
 import type { ManifestFile } from '../core/types.js'
 import { registerCleanup } from '../utils/cleanup.js'
 import { getFilesRecursively } from '../utils/fs/get-files-recursively.js'
-import { resolve } from 'node:path'
+import { resolve, dirname } from 'node:path'
 import { ListrTask } from 'listr2'
 import { BuildCommandOptions, DevCommandOptions, PreviewCommandOptions } from '../utils/create-options.js'
 import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
@@ -27,6 +27,36 @@ export const createBuildManifestTask = <T extends { raw?: ManifestFile; processe
 		task: async (ctx, task) => {
 			const manifestResult = await buildManifestFile(options)
 			const outputDirPath = resolve(options.cwd || process.cwd(), options.output)
+			const cwd = options.cwd || process.cwd()
+
+			// Get existing files from manifest paths
+			const getExistingFiles = async () => {
+				const existingFiles = new Set<string>()
+
+				// Add files from main directory if it exists
+				if (manifestResult.result.raw.main) {
+					const mainDir = dirname(resolve(cwd, manifestResult.result.raw.main))
+					try {
+						const mainFiles = await getFilesRecursively(mainDir)
+						mainFiles.forEach((file) => existingFiles.add(file))
+					} catch (error) {
+						// Directory might not exist yet, which is fine
+					}
+				}
+
+				// Add files from ui directory if it exists
+				if (manifestResult.result.raw.ui) {
+					const uiDir = dirname(resolve(cwd, manifestResult.result.raw.ui))
+					try {
+						const uiFiles = await getFilesRecursively(uiDir)
+						uiFiles.forEach((file) => existingFiles.add(file))
+					} catch (error) {
+						// Directory might not exist yet, which is fine
+					}
+				}
+
+				return existingFiles
+			}
 
 			// Create subtasks for the build process
 			return task.newListr(
@@ -45,10 +75,11 @@ export const createBuildManifestTask = <T extends { raw?: ManifestFile; processe
 									{
 										title: 'Setting up manifest watcher',
 										task: async () => {
+											const existingFiles = await getExistingFiles()
 											const manifestWatcher = setupManifestWatcher(options, {
 												previousMainValue: manifestResult.result.raw.main,
 												previousUiValue: manifestResult.result.raw.ui,
-												existingFiles: new Set(await getFilesRecursively(resolve('./src'))),
+												existingFiles,
 											})
 											registerCleanup(async () => await manifestWatcher.close())
 										},
@@ -56,10 +87,11 @@ export const createBuildManifestTask = <T extends { raw?: ManifestFile; processe
 									{
 										title: 'Setting up source watcher',
 										task: async () => {
+											const existingFiles = await getExistingFiles()
 											const srcWatcher = setupSourceWatcher(options, {
 												previousMainValue: manifestResult.result.raw.main,
 												previousUiValue: manifestResult.result.raw.ui,
-												existingFiles: new Set(await getFilesRecursively(resolve('./src'))),
+												existingFiles,
 											})
 											registerCleanup(async () => await srcWatcher.close())
 										},

@@ -108,13 +108,13 @@ export async function readModule<T>(filePath: string, dontThrow = false): Promis
 			}
 		})
 
-		console.log('Reading module from:', resolvedPath)
+		// console.log('Reading module from:', resolvedPath)
 		const module = require(filePath)
 		if (!module.default || typeof module.default !== 'object') {
 			throw new Error('Invalid module format - must export a default object')
 		}
 
-		console.log('Module loaded:', module.default)
+		// console.log('Module loaded:', module.default)
 		return module.default as T
 	} catch (err) {
 		if (err instanceof Error) {

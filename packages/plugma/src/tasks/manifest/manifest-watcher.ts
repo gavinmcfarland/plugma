@@ -26,7 +26,7 @@ export function setupManifestWatcher(
 	const manifestPaths = getManifestPaths(cwd)
 	const outputDirPath = resolve(cwd, options.output)
 
-	console.log('Setting up manifest watcher for paths:', manifestPaths)
+	// console.log('Setting up manifest watcher for paths:', manifestPaths)
 
 	const watcher = chokidar.watch(manifestPaths, {
 		persistent: true,
@@ -40,10 +40,10 @@ export function setupManifestWatcher(
 	})
 
 	watcher.on('change', async (path) => {
-		console.log('Manifest file changed:', path)
+		// console.log('Manifest file changed:', path)
 		try {
 			const { files, result } = await buildManifestFile(options)
-			console.log('Manifest rebuilt:', result.raw)
+			// console.log('Manifest rebuilt:', result.raw)
 			notifyInvalidManifestOptions(options, files, 'manifest-changed')
 
 			const outputMainPath = join(outputDirPath, 'main.js')
