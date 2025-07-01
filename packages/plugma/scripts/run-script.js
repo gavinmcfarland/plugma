@@ -126,7 +126,6 @@ export async function runScript(command, options) {
 
 			const manifestPath = resolve('./manifest.json');
 			const userPkgPath = resolve('./package.json');
-			const srcPath = resolve('./src');
 
 			// If manifest changes, restart or rebuild
 			chokidar.watch([manifestPath, userPkgPath]).on('change', async (path) => {
@@ -163,25 +162,47 @@ export async function runScript(command, options) {
 			// Utility function to recursively gather files in the directory
 			async function getFilesRecursively(directory) {
 				const files = [];
-				const entries = await fse.readdir(directory, { withFileTypes: true });
-				for (const entry of entries) {
-					const entryPath = path.join(directory, entry.name);
-					if (entry.isDirectory()) {
-						files.push(...await getFilesRecursively(entryPath));
-					} else if (entry.isFile()) {
-						files.push(entryPath);
+				try {
+					const entries = await fse.readdir(directory, { withFileTypes: true });
+					for (const entry of entries) {
+						const entryPath = path.join(directory, entry.name);
+						if (entry.isDirectory()) {
+							files.push(...await getFilesRecursively(entryPath));
+						} else if (entry.isFile()) {
+							files.push(entryPath);
+						}
 					}
+				} catch (error) {
+					// Directory doesn't exist, return empty array
+					return [];
 				}
 				return files;
 			}
 
-			// Get initial list of files in srcPath to track already existing files
-			const existingFiles = new Set();
-			const srcFiles = await getFilesRecursively(srcPath);
-			srcFiles.forEach((file) => existingFiles.add(file));
+			// Get directories to watch based on manifest entries
+			const userFiles = await getUserFiles(options);
+			const watchDirectories = new Set();
 
-			// Watch the srcPath directory, including subdirectories
-			const watcher = chokidar.watch([srcPath], { persistent: true, ignoreInitial: false });
+			// Add directories for main and ui files
+			if (userFiles.manifest.main) {
+				const mainDir = path.dirname(resolve(userFiles.manifest.main));
+				watchDirectories.add(mainDir);
+			}
+
+			if (userFiles.manifest.ui) {
+				const uiDir = path.dirname(resolve(userFiles.manifest.ui));
+				watchDirectories.add(uiDir);
+			}
+
+			// Get initial list of files in all watched directories to track already existing files
+			const existingFiles = new Set();
+			for (const dir of watchDirectories) {
+				const dirFiles = await getFilesRecursively(dir);
+				dirFiles.forEach((file) => existingFiles.add(file));
+			}
+
+			// Watch all relevant directories, including subdirectories
+			const watcher = chokidar.watch([...watchDirectories], { persistent: true, ignoreInitial: false });
 
 			// Handle the "add" event
 			watcher.on('add', async (filePath) => {

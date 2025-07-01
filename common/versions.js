@@ -1,3 +1,3 @@
 export default {
-	plugma: "0.0.29"
+	plugma: "0.0.30"
 }
