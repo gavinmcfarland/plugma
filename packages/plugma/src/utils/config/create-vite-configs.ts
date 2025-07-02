@@ -102,6 +102,9 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 				},
 			},
 			logLevel: options.debug ? 'info' : 'error',
+			build: {
+				sourcemap: true,
+			},
 		} satisfies UserConfig,
 		build: {
 			root: process.cwd(),
@@ -111,6 +114,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 				outDir: path.resolve(process.cwd(), options.output),
 				emptyOutDir: false,
 				write: true,
+				sourcemap: true,
 				rollupOptions: {
 					input: indexInputPath,
 					output: {
@@ -163,7 +167,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 				external: ['figma'],
 			},
 			target: 'es6',
-			sourcemap: 'inline',
+			sourcemap: true,
 			minify: options.command === 'build',
 			emptyOutDir: false,
 			write: true,
@@ -210,7 +214,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 				},
 			},
 			target: 'es6',
-			sourcemap: 'inline',
+			sourcemap: true,
 			emptyOutDir: false,
 			write: true,
 			watch:
