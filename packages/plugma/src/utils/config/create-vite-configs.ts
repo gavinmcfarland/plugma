@@ -20,6 +20,7 @@ import {
 import { createBuildNotifierPlugin } from '../../vite-plugins/build-notifier.js'
 import { injectEventListeners } from '../../vite-plugins/main/inject-test-event-listeners.js'
 import viteCopyDirectoryPlugin from '../../vite-plugins/move-dir.js'
+import devtoolsJson from '../../vite-plugins/devtools-json.js'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -87,6 +88,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 				rewritePostMessageTargetOrigin(),
 				serveUi(options),
 				...commonVitePlugins,
+				devtoolsJson(),
 			],
 			server: {
 				port: options.port,
@@ -102,9 +104,6 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 				},
 			},
 			logLevel: options.debug ? 'info' : 'error',
-			build: {
-				sourcemap: true,
-			},
 		} satisfies UserConfig,
 		build: {
 			root: process.cwd(),
@@ -114,7 +113,6 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 				outDir: path.resolve(process.cwd(), options.output),
 				emptyOutDir: false,
 				write: true,
-				sourcemap: true,
 				rollupOptions: {
 					input: indexInputPath,
 					output: {
@@ -167,7 +165,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 				external: ['figma'],
 			},
 			target: 'es6',
-			sourcemap: true,
+			sourcemap: 'inline',
 			minify: options.command === 'build',
 			emptyOutDir: false,
 			write: true,
@@ -214,7 +212,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 				},
 			},
 			target: 'es6',
-			sourcemap: true,
+			sourcemap: 'inline',
 			emptyOutDir: false,
 			write: true,
 			watch:
