@@ -20,9 +20,7 @@ Add Plugma commands in the scripts section to handle development, building, prev
 "scripts": {
     "dev": "plugma dev",
     "build": "plugma build",
-    "preview": "plugma preview",
-    "release": "plugma release",
-    "test": "plugma test"
+    "release": "plugma release"
 }
 ```
 
@@ -38,21 +36,7 @@ Make sure the `main` and `ui` fields point to the source files and not the dist 
 }
 ```
 
-### 4: Allow development network access
-
-To allow local development with live reloading, previewing in the browser and testing, add the following domains to the `devAllowedDomains` field in your manifest.
-
-```jsonc
-"networkAccess": {
-    // ...
-    "devAllowedDomains": [
-        "http://localhost:*",
-        "ws://localhost:*"
-    ]
-}
-```
-
-### 5: Wrap your `main` code in a default function
+### 4: Wrap your `main` code in a default function
 
 Plugma requires that your `main` code is wrapped in and exported as a default function, so that it can enable certain features during development.
 
@@ -62,7 +46,7 @@ export default function () {
 }
 ```
 
-### 6: Update or remove the `index.html` template file
+### 5: Update or remove the `index.html` template file
 
 If you have an `index.html` file either remove it or update it to include the `<!--[ PLUGIN_UI ]-->` placeholder where the Plugma generated UI code will be injected.
 
@@ -78,7 +62,7 @@ If you have an `index.html` file either remove it or update it to include the `<
 </html>
 ```
 
-### 7: Add TypeScript definitions for Figma
+### 6: Add TypeScript definitions for Figma
 
 If your project uses TypeScript, install the necessary type definitions for Figma
 
@@ -97,7 +81,43 @@ And add the following to your `tsconfig.json` file.
 }
 ```
 
-### 8: Build and import the plugin in Figma
+### 7: Make sure your ui framework mounts to correct div
+
+Each framework will have it's own file for mounting the UI to the DOM. Make sure the id of the element that this is mounted to is called `app`.
+
+```js
+// ui.ts
+import { mount } from 'svelte'
+import './styles.css'
+import App from './App.svelte'
+
+const app = mount(App, {
+	target: document.getElementById('app')!,
+})
+
+export default app
+```
+
+### 8: Add a `vite.config.js` to your plugin
+
+Plugma uses vite. If you need to make any changes to your bundling process you can define them here.
+
+```js
+// vite.config.js
+
+/// <reference path="./src/ui/vite-env.d.ts" />
+
+import { defineConfig } from "vite";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
+
+export default defineConfig((context) => {
+	return {
+		plugins: context ? [svelte()] : [];
+	}
+});
+```
+
+### 9: Build and import the plugin in Figma
 
 Run the `build` command to create a `dist` folder with it's own `manifest.json` file, and import it using the Figma desktop app.
 
