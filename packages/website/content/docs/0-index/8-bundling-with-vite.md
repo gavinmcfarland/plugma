@@ -11,11 +11,9 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode, context }) => (
-    if (context === 'ui') {
-		return {
-			plugins: [react()]
-		};
-	}
+    return {
+        plugins: context == "ui" ? [react()] : []
+    };
 }));
 ```
 
@@ -35,7 +33,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode, context }) => (
     // ...
     return {
-        minify: mode === 'testing' ? true : false
+        minify: mode == 'testing' ? true : false
     }
 }));
 ```

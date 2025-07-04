@@ -112,7 +112,7 @@ import { svelte } from "@sveltejs/vite-plugin-svelte";
 
 export default defineConfig((context) => {
 	return {
-		plugins: context ? [svelte()] : [];
+		plugins: context == "ui" ? [svelte()] : [];
 	}
 });
 ```

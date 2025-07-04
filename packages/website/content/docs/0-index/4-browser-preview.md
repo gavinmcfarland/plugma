@@ -1,30 +1,10 @@
 # Browser preview
 
-Plugma enables your plugin to run in the browser during development by using WebSockets for two-way communication between Figma and the plugin UI. For the browser preview to work, WebSockets must be enabled.
+Plugma enables your plugin to run in the browser during development by using WebSockets for two-way communication between Figma and the plugin UI. Developing Figma plugins traditionally requires testing within the Figma desktop app, which has several limitations. Browser preview changes this by allowing you to develop and test your plugin in any browser while maintaining full communication with Figma.
 
 <blockquote class="warning">
-If the plugin runs before the browser preview is open, any messages sent from the main thread at that time might be missed. To prevent this, wait for a “ready” message from the UI before sending messages.
+If the plugin runs before the browser preview is open, any messages sent from the main thread at that time might be missed. To prevent this, wait for a "ready" message from the UI before sending messages.
 </blockquote>
-
-## Enabling WebSockets
-
-WebSockets must be enabled to preview in the browser. To enable WebSockets run the `dev` command with the `--websockets` option.
-
-```bash
-npm run dev -- --websockets
-```
-
-## Preview command
-
-Using the `preview` command will automatically enable WebSockets and open the plugin in Figma in a minimised state with a preview URL.
-
-```bash
-npm run preview
-
-# Example output
-Plugma v2.0.0
-Preview: http://localhost:<port>
-```
 
 ## Testing
 
