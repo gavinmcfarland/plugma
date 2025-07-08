@@ -1,23 +1,19 @@
 {
 	"meta": {
-		"ui": true,
+		"name": "Rectangle Creator",
+		"description": "A plugin that creates a rectangle",
 		"type": "plugin",
-		"frameworks": ["svelte", "vue", "react"],
-		"description": "A plugin that creates a rectangle"
+		"uiFrameworks": ["svelte", "vue", "react"]
 	},
 	"include": [
 		"../../base",
-        {
-            "source": "../../frameworks/<%= framework %>/components",
-            "target": "src/ui/components"
-        },
-        {
-            "source": "../../frameworks/<%= framework %>/assets",
-            "target": "src/ui/assets"
-        }
-	],
-	"data": {
-		"uiDir": "src/ui",
-		"mainDir": "src/main"
-	}
+		{
+			"source": "../../frameworks/<%= framework %>/components",
+			"target": "src/ui/components"
+		},
+		{
+			"source": "../../frameworks/<%= framework %>/assets",
+			"target": "src/ui/assets"
+		}
+	]
 }

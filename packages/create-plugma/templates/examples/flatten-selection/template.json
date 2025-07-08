@@ -1,17 +1,16 @@
 {
-    "meta": {
-		"private": true,
-		"ui": false,
-		"type": "plugin",
-		"description": "A plugin that flattens a selection"
+	"meta": {
+		"hidden": true,
+		"name": "Flatten Selection",
+		"description": "A plugin that flattens a selection",
+		"type": "plugin"
 	},
 	"merge": {
 		"*.json": "deep",
 		"*.md": "shallow"
 	},
-	"include": [
-		"../../base"
-	],
+	"include": ["../../base"],
+	"exclude": ["../../base/src/ui/vite-env.d.ts", "../../base/tsconfig.ui.json"],
 	"data": {
 		"description": "A plugin without UI"
 	}

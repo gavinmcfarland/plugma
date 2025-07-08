@@ -21,11 +21,11 @@ const args: string[] = process.argv.slice(2)
 const debugFlag: boolean = args.includes('-d') || args.includes('--debug')
 
 interface ExampleMetadata {
-	ui?: boolean
-	frameworks?: string[] | string
+	name?: string
+	uiFrameworks?: string[] | string
 	type?: string
 	description?: string
-	private?: boolean
+	hidden?: boolean
 }
 
 interface Example {
@@ -74,6 +74,23 @@ const validateProjectName = (input: string): string | boolean => {
 		return `Directory "${input}" already exists. Please choose a different name.`
 	}
 	return true
+}
+
+// Helper function to determine if an example has a UI based on uiFrameworks
+const exampleHasUI = (metadata: ExampleMetadata): boolean => {
+	if (!metadata.uiFrameworks) {
+		return false
+	}
+
+	if (Array.isArray(metadata.uiFrameworks)) {
+		return metadata.uiFrameworks.length > 0
+	}
+
+	if (typeof metadata.uiFrameworks === 'string') {
+		return metadata.uiFrameworks.trim() !== ''
+	}
+
+	return false
 }
 
 // Helper function to parse combino.json metadata
@@ -129,36 +146,36 @@ const filterExamples = (examples: Example[], needsUI: boolean, framework: string
 	return examples.filter((example) => {
 		const { metadata } = example
 
-		// Skip private examples
-		if (metadata.private === true) {
+		// Skip hidden examples
+		if (metadata.hidden === true) {
 			return false
 		}
 
 		// Check if UI requirement matches
-		// If metadata.ui is defined, it must match the user's choice
-		if (metadata.ui !== undefined && metadata.ui !== needsUI) {
+		const hasUI = exampleHasUI(metadata)
+		if (hasUI !== needsUI) {
 			return false
 		}
 
 		// Only check framework compatibility for examples with UI
-		// Examples without UI (ui = false) don't need framework filtering
-		if (metadata.ui === true && metadata.frameworks) {
+		// Examples without UI don't need framework filtering
+		if (hasUI && metadata.uiFrameworks) {
 			// Handle both array and string cases
-			let frameworksArray = metadata.frameworks
-			if (typeof metadata.frameworks === 'string') {
+			let frameworksArray = metadata.uiFrameworks
+			if (typeof metadata.uiFrameworks === 'string') {
 				// If it's an empty string, treat as no frameworks supported
-				if (metadata.frameworks.trim() === '') {
+				if (metadata.uiFrameworks.trim() === '') {
 					return false
 				}
 				// Try to parse as array if it looks like one
-				if (metadata.frameworks.startsWith('[') && metadata.frameworks.endsWith(']')) {
-					frameworksArray = metadata.frameworks
+				if (metadata.uiFrameworks.startsWith('[') && metadata.uiFrameworks.endsWith(']')) {
+					frameworksArray = metadata.uiFrameworks
 						.slice(1, -1)
 						.split(',')
 						.map((item) => item.trim())
 				} else {
 					// Single framework as string
-					frameworksArray = [metadata.frameworks.trim()]
+					frameworksArray = [metadata.uiFrameworks.trim()]
 				}
 			}
 
@@ -178,22 +195,76 @@ const filterExamples = (examples: Example[], needsUI: boolean, framework: string
 	})
 }
 
+// Helper function to get all available frameworks from examples
+const getAvailableFrameworks = (examples: Example[]): string[] => {
+	const frameworks = new Set<string>()
+
+	examples.forEach((example) => {
+		const { metadata } = example
+		// Skip hidden examples
+		if (metadata.hidden === true) {
+			return
+		}
+
+		// Only process examples that have UI frameworks
+		if (metadata.uiFrameworks) {
+			if (Array.isArray(metadata.uiFrameworks)) {
+				metadata.uiFrameworks.forEach((framework) => {
+					if (framework.trim()) {
+						frameworks.add(framework.trim().toLowerCase())
+					}
+				})
+			} else if (typeof metadata.uiFrameworks === 'string') {
+				const frameworkStr = metadata.uiFrameworks.trim()
+				if (frameworkStr) {
+					// Handle comma-separated frameworks in string format
+					if (frameworkStr.includes(',')) {
+						frameworkStr.split(',').forEach((framework) => {
+							const trimmed = framework.trim()
+							if (trimmed) {
+								frameworks.add(trimmed.toLowerCase())
+							}
+						})
+					} else {
+						frameworks.add(frameworkStr.toLowerCase())
+					}
+				}
+			}
+		}
+	})
+
+	// Convert to array and capitalize first letter
+	return Array.from(frameworks)
+		.map((framework) => framework.charAt(0).toUpperCase() + framework.slice(1))
+		.sort()
+}
+
 // Helper function to get available types from examples
 const getAvailableTypes = (examples: Example[], needsUI: boolean, framework: string): string[] => {
 	const types = new Set<string>()
 	examples.forEach((example) => {
 		const { metadata } = example
-		// Skip private examples
-		if (metadata.private === true) {
+		// Skip hidden examples
+		if (metadata.hidden === true) {
 			return
 		}
 		// Only add the type if the example supports the selected framework and UI requirement
-		if (
-			(metadata.ui === undefined || metadata.ui === needsUI) &&
-			(!metadata.frameworks ||
-				(Array.isArray(metadata.frameworks) && metadata.frameworks.length === 0) ||
-				(Array.isArray(metadata.frameworks) && metadata.frameworks.includes(framework.toLowerCase())))
-		) {
+		const hasUI = exampleHasUI(metadata)
+		if (hasUI === needsUI) {
+			// For examples with UI, check framework compatibility
+			if (hasUI && metadata.uiFrameworks) {
+				// Handle both array and string cases
+				let frameworksArray = metadata.uiFrameworks
+				if (typeof metadata.uiFrameworks === 'string') {
+					frameworksArray = [metadata.uiFrameworks.trim()]
+				}
+
+				if (Array.isArray(frameworksArray) && !frameworksArray.includes(framework.toLowerCase())) {
+					return
+				}
+			}
+
+			// Add the type if all conditions are met
 			if (metadata.type) {
 				types.add(metadata.type)
 			}
@@ -213,18 +284,27 @@ async function main(): Promise<void> {
 
 	const needsUI: boolean = await uiPrompt.run()
 
+	// Get all available examples to determine available frameworks and filter later
+	const allExamples = getAvailableExamples()
+
 	let framework = 'Vanilla' // Default framework
 	if (needsUI) {
+		const availableFrameworks = getAvailableFrameworks(allExamples)
+
+		if (availableFrameworks.length === 0) {
+			console.log(chalk.red('No UI frameworks available in examples.'))
+			process.exit(1)
+		}
+
 		const frameworkPrompt = new Select({
 			name: 'framework',
 			message: 'Choose a framework:',
-			choices: ['React', 'Svelte', 'Vue', 'Vanilla'],
+			choices: availableFrameworks,
 		})
 		framework = await frameworkPrompt.run()
 	}
 
-	// Get available examples and filter them
-	const allExamples = getAvailableExamples()
+	// Filter examples based on user choices (allExamples was already loaded above)
 	const availableExamples = filterExamples(allExamples, needsUI, framework)
 
 	if (availableExamples.length === 0) {
@@ -261,7 +341,9 @@ async function main(): Promise<void> {
 		message: 'Select an example:',
 		choices: typeFilteredExamples.map((example) => {
 			const description = example.metadata.description || ''
-			const displayName = example.name.charAt(0).toUpperCase() + example.name.slice(1).replace(/-/g, ' ')
+			// Use metadata name if available, otherwise fallback to formatted folder name
+			const displayName =
+				example.metadata.name || example.name.charAt(0).toUpperCase() + example.name.slice(1).replace(/-/g, ' ')
 			return {
 				message: displayName,
 				value: example.name,

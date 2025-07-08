@@ -1,9 +1,10 @@
 {
     "meta": {
-        "ui": true,
+        "hidden": true,
+        "name": "Sticky Note",
+        "description": "A sticky notes widget",
         "type": "widget",
-        "frameworks": ["react"],
-        "description": "A sticky notes widget for Figjam"
+        "uiFrameworks": ["react"]
     },
     "include": [
         "../../base",
