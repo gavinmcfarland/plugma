@@ -8,13 +8,16 @@
 		"target": "esnext",
 		"moduleResolution": "node",
 		"outDir": "./dist",
-		"rootDir": "./",
-		"strict": true,
+		"rootDir": "./src",
+		"strict": false,
 		"resolveJsonModule": true,
-		"baseUrl": ".",
+		"baseUrl": "src",
 		"allowJs": true,
-		"verbatimModuleSyntax": true
+		"verbatimModuleSyntax": false,
+		"noImplicitAny": false,
+		"noImplicitReturns": false,
+		"noImplicitThis": false
 	},
-	"include": ["scripts/**/*.js"],
+	"include": ["src/**/*.ts", "src/**/*.js"],
 	"exclude": ["templates", "dist", "node_modules"]
 }

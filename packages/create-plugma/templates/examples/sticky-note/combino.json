@@ -1,0 +1,24 @@
+{
+    "meta": {
+        "ui": true,
+        "type": "widget",
+        "frameworks": ["react"],
+        "description": "A sticky notes widget for Figjam"
+    },
+    "include": [
+        "../../base",
+        {
+            "source": "../../frameworks/react/components",
+            "target": "src/ui/components"
+        },
+        {
+            "source": "../../frameworks/react/assets",
+            "target": "src/ui/assets"
+        }
+    ],
+    "data": {
+        "uiDir": "src/ui",
+        "mainDir": "src/main",
+        "description": "A sticky notes widget for Figma"
+    }
+}

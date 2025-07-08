@@ -33,17 +33,14 @@ importers:
         specifier: ^5.4.1
         version: 5.4.1
       combino:
-        specifier: ^0.1.5
-        version: 0.1.5(svelte@5.34.8)
+        specifier: ^0.1.8
+        version: 0.1.8(svelte@5.34.8)
       ejs:
         specifier: ^3.1.9
         version: 3.1.10
       enquirer:
         specifier: ^2.4.1
         version: 2.4.1
-      ini:
-        specifier: ^4.1.1
-        version: 4.1.3
       kdljs:
         specifier: ^0.3.0
         version: 0.3.0
@@ -57,9 +54,21 @@ importers:
         specifier: 0.0.0-alpha.4
         version: 0.0.0-alpha.4(postcss-load-config@4.0.2(postcss@8.5.6))(postcss@8.5.6)
     devDependencies:
+      '@types/ejs':
+        specifier: ^3.1.0
+        version: 3.1.5
+      '@types/lodash':
+        specifier: ^4.14.0
+        version: 4.17.20
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.4
       plugma:
         specifier: workspace:*
         version: link:../plugma
+      typescript:
+        specifier: ^5.0.0
+        version: 5.8.3
 
   packages/plugma:
     dependencies:
@@ -1586,6 +1595,9 @@ packages:
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
 
+  '@types/ejs@3.1.5':
+    resolution: {integrity: sha512-nv+GSx77ZtXiJzwKdsASqi+YQ5Z7vwHsTP0JY2SiQgjGckkBRKZnk8nIM+7oUZ1VCtuTz0+By4qVR7fqzp/Dfg==}
+
   '@types/estree@1.0.7':
     resolution: {integrity: sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==}
 
@@ -1594,6 +1606,9 @@ packages:
 
   '@types/linkify-it@5.0.0':
     resolution: {integrity: sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==}
+
+  '@types/lodash@4.17.20':
+    resolution: {integrity: sha512-H3MHACvFUEiujabxhaI/ImO6gUrd8oOurg7LQtS7mbwIXA/cUqWrvBsaeJ23aZEPk1TAYkurjfMbSELfoCXlGA==}
 
   '@types/markdown-it@14.1.2':
     resolution: {integrity: sha512-promo4eFwuiW+TfGxhi+0x3czqTYJkG8qB17ZUJiVF10Xm7NLVRSLUsfRTU/6h1e24VvRnXCx+hG7li58lkzog==}
@@ -1612,6 +1627,9 @@ packages:
 
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
+
+  '@types/node@20.19.4':
+    resolution: {integrity: sha512-OP+We5WV8Xnbuvw0zC2m4qfB/BJvjyCwtNjhHdJxV1639SGSKrLmJkc3fMnp2Qy8nJyHp8RO6umxELN/dS1/EA==}
 
   '@types/node@22.15.3':
     resolution: {integrity: sha512-lX7HFZeHf4QG/J7tBZqrCAXwz9J5RD56Y6MpP0eJkka8p+K0RY/yBTW7CYFJ4VGCclxqOLKmiGP5juQc6MKgcw==}
@@ -2173,8 +2191,8 @@ packages:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
     engines: {node: '>= 0.8'}
 
-  combino@0.1.5:
-    resolution: {integrity: sha512-Po+L6uA2QouUgVf/hhsK5oA7DxakVzHfrT0z4Hm+d6Jp3TJvWvworYb+I6B7Zpe4lWFbe2yA7iMNzmHZeLTMeA==}
+  combino@0.1.8:
+    resolution: {integrity: sha512-b/4JMV+89jdRjtdAuiXPP+6fDiMR5yzf5VYUxrFhLI94CJCLyIagqqSZGvVgVMC98lND29aH2SbRnaFDfn20rw==}
     hasBin: true
 
   comma-separated-tokens@2.0.3:
@@ -3530,6 +3548,10 @@ packages:
   multimatch@5.0.0:
     resolution: {integrity: sha512-ypMKuglUrZUD99Tk2bUQ+xNQj43lPEfAeX2o9cTteAmShXy2VHDJpuwu1o0xqoKCt9jLVAvwyFKdLTPXKAfJyA==}
     engines: {node: '>=10'}
+
+  mustache@4.2.0:
+    resolution: {integrity: sha512-71ippSywq5Yb7/tVYyGbkBggbU8H3u5Rz56fH60jGFgr8uHwxs+aSKeqmluIVzM0m0kB7xQjKS6qPfd0b2ZoqQ==}
+    hasBin: true
 
   mute-stream@0.0.5:
     resolution: {integrity: sha512-EbrziT4s8cWPmzr47eYVW3wimS4HsvlnV5ri1xw1aR6JQo/OrJX5rkl32K/QQHdxeabJETtfeaROGhd8W7uBgg==}
@@ -6281,6 +6303,8 @@ snapshots:
 
   '@types/deep-eql@4.0.2': {}
 
+  '@types/ejs@3.1.5': {}
+
   '@types/estree@1.0.7': {}
 
   '@types/hast@3.0.4':
@@ -6288,6 +6312,8 @@ snapshots:
       '@types/unist': 3.0.3
 
   '@types/linkify-it@5.0.0': {}
+
+  '@types/lodash@4.17.20': {}
 
   '@types/markdown-it@14.1.2':
     dependencies:
@@ -6305,6 +6331,10 @@ snapshots:
   '@types/minimist@1.2.5': {}
 
   '@types/ms@2.1.0': {}
+
+  '@types/node@20.19.4':
+    dependencies:
+      undici-types: 6.21.0
 
   '@types/node@22.15.3':
     dependencies:
@@ -6855,7 +6885,7 @@ snapshots:
     dependencies:
       delayed-stream: 1.0.0
 
-  combino@0.1.5(svelte@5.34.8):
+  combino@0.1.8(svelte@5.34.8):
     dependencies:
       chalk: 5.4.1
       commander: 11.1.0
@@ -6863,8 +6893,9 @@ snapshots:
       expr-eval: 2.0.2
       glob: 10.4.5
       gray-matter: 4.0.3
-      ini: 4.1.3
+      handlebars: 4.7.8
       jsonc-parser: 3.3.1
+      mustache: 4.2.0
       prettier: 3.5.3
       prettier-plugin-svelte: 3.4.0(prettier@3.5.3)(svelte@5.34.8)
     transitivePeerDependencies:
@@ -8401,6 +8432,8 @@ snapshots:
       array-union: 2.1.0
       arrify: 2.0.1
       minimatch: 3.1.2
+
+  mustache@4.2.0: {}
 
   mute-stream@0.0.5: {}
 

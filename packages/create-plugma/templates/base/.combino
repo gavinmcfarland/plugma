@@ -1,8 +1,0 @@
-[merge:*.json]
-strategy = deep
-
-[merge:*.md]
-strategy = shallow
-
-[data]
-versions.plugma = 2.0.0-40

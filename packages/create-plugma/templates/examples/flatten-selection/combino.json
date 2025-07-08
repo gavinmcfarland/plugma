@@ -1,0 +1,17 @@
+{
+    "meta": {
+		"ui": false,
+		"type": "plugin",
+		"description": "A plugin that flattens a selection"
+	},
+	"merge": {
+		"*.json": "deep",
+		"*.md": "shallow"
+	},
+	"include": [
+		"../../base"
+	],
+	"data": {
+		"description": "A plugin without UI"
+	}
+}

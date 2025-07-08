@@ -1,0 +1,14 @@
+{
+	"meta": {
+		"ui": true,
+		"type": "plugin",
+		"frameworks": ["svelte", "vue", "react"],
+		"description": "An example of a minimalistic plugin structure"
+	},
+	"include": [
+		"../../base"
+	],
+	"data": {
+		"description": "An example of a minimalistic plugin structure"
+	}
+}
