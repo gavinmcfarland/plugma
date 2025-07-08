@@ -1,5 +1,6 @@
 {
     "meta": {
+		"private": true,
 		"ui": false,
 		"type": "plugin",
 		"description": "A plugin that flattens a selection"

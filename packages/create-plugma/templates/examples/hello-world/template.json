@@ -1,5 +1,6 @@
 {
 	"meta": {
+		"private": true,
 		"ui": true,
 		"type": "plugin",
 		"frameworks": ["svelte", "vue", "react"],

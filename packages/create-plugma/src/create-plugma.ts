@@ -25,6 +25,7 @@ interface ExampleMetadata {
 	frameworks?: string[] | string
 	type?: string
 	description?: string
+	private?: boolean
 }
 
 interface Example {
@@ -106,7 +107,7 @@ const getAvailableExamples = (): Example[] => {
 		.map((dirent) => dirent.name)
 
 	exampleDirs.forEach((exampleName) => {
-		const combinoPath = path.join(examplesDir, exampleName, 'combino.json')
+		const combinoPath = path.join(examplesDir, exampleName, 'template.json')
 		if (fs.existsSync(combinoPath)) {
 			// Read the raw combino.json file directly from filesystem
 			// This avoids any template processing that might affect the metadata
@@ -127,6 +128,11 @@ const getAvailableExamples = (): Example[] => {
 const filterExamples = (examples: Example[], needsUI: boolean, framework: string): Example[] => {
 	return examples.filter((example) => {
 		const { metadata } = example
+
+		// Skip private examples
+		if (metadata.private === true) {
+			return false
+		}
 
 		// Check if UI requirement matches
 		// If metadata.ui is defined, it must match the user's choice
@@ -177,6 +183,10 @@ const getAvailableTypes = (examples: Example[], needsUI: boolean, framework: str
 	const types = new Set<string>()
 	examples.forEach((example) => {
 		const { metadata } = example
+		// Skip private examples
+		if (metadata.private === true) {
+			return
+		}
 		// Only add the type if the example supports the selected framework and UI requirement
 		if (
 			(metadata.ui === undefined || metadata.ui === needsUI) &&

@@ -1,3 +1,0 @@
-[data]
-vite.plugins[] = {"name":["svelte"],"import":"@sveltejs/vite-plugin-svelte"}
-
