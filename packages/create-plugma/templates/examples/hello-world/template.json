@@ -1,5 +1,6 @@
 {
 	"meta": {
+		"hidden": true,
 		"name": "Hello World",
 		"description": "A blank plugin for you to start from scratch",
 		"type": "plugin",

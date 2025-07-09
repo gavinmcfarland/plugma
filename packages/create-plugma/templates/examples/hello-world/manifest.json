@@ -1,10 +1,9 @@
 {
 	"id": "com.<%- name %>",
 	"name": "<%- name %>",
-	"main": "src/main/main.<%- typescript ? 'ts' : 'js' %>",
-	"ui": "src/ui/ui.<%- framework === 'react' ? (typescript ? 'tsx' : 'jsx') : (typescript ? 'ts' : 'js') %>",
+	"main": "<%- mainDir %>/main.<%- typescript ? 'ts' : 'js' %>",
+	"ui": "<%- uiDir %>/ui.<%- framework === 'react' ? (typescript ? 'tsx' : 'jsx') : (typescript ? 'ts' : 'js') %>",
 	"editorType": ["figma", "figjam"],
-	"test": "<%- mainDir %>",
 	"networkAccess": {
 		"allowedDomains": ["none"]
 	}
