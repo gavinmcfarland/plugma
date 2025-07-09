@@ -33,8 +33,8 @@ importers:
         specifier: ^5.4.1
         version: 5.4.1
       combino:
-        specifier: ^0.1.12
-        version: 0.1.12(svelte@5.34.8)
+        specifier: ^0.1.14
+        version: 0.1.14(svelte@5.34.8)
       ejs:
         specifier: ^3.1.9
         version: 3.1.10
@@ -1012,6 +1012,14 @@ packages:
     peerDependenciesMeta:
       '@types/node':
         optional: true
+
+  '@isaacs/balanced-match@4.0.1':
+    resolution: {integrity: sha512-yzMTt9lEb8Gv7zRioUilSglI0c0smZ9k5D65677DLWLtWJaXIS3CqcGyUFByYKlnUj6TkjLVs54fBl6+TiGQDQ==}
+    engines: {node: 20 || >=22}
+
+  '@isaacs/brace-expansion@5.0.0':
+    resolution: {integrity: sha512-ZT55BDLV0yv0RBm2czMiZ+SqCGO7AvmOM3G/w2xhVPH+te0aKgFjmBvGlL1dH+ql2tgGO3MVrbb3jCKyvpgnxA==}
+    engines: {node: 20 || >=22}
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -2191,8 +2199,8 @@ packages:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
     engines: {node: '>= 0.8'}
 
-  combino@0.1.12:
-    resolution: {integrity: sha512-35OFr4EplW2vd057v7C4ul4jziY/4w2pEzjQEwBwT6k0bfLwq5seuAnDWZu8h0thO3iTHZQSzDH+eYjuGuS5ig==}
+  combino@0.1.14:
+    resolution: {integrity: sha512-RLKkN+6z/NDUnaMMixPvC1iTO6T9VHzZqekBiMZAa0Yhjfl9Tmb1oE+heP8Zpog/ysSK5wE8VlY0TiqfQKrCNQ==}
     hasBin: true
 
   comma-separated-tokens@2.0.3:
@@ -3445,6 +3453,10 @@ packages:
 
   minimatch@10.0.1:
     resolution: {integrity: sha512-ethXTt3SGGR+95gudmqJ1eNhRO7eGEGIgYA9vnPatK4/etz2MEVDno5GMCibdMTuBMyElzIlgxMna3K94XDIDQ==}
+    engines: {node: 20 || >=22}
+
+  minimatch@10.0.3:
+    resolution: {integrity: sha512-IPZ167aShDZZUMdRk66cyQAW3qr0WzbHkPdMYa8bzZhlHhO3jALbKdxcaak7W9FfT2rZNpQuUu4Od7ILEpXSaw==}
     engines: {node: 20 || >=22}
 
   minimatch@3.0.5:
@@ -5528,6 +5540,12 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.15.3
 
+  '@isaacs/balanced-match@4.0.1': {}
+
+  '@isaacs/brace-expansion@5.0.0':
+    dependencies:
+      '@isaacs/balanced-match': 4.0.1
+
   '@isaacs/cliui@8.0.2':
     dependencies:
       string-width: 5.1.2
@@ -6885,7 +6903,7 @@ snapshots:
     dependencies:
       delayed-stream: 1.0.0
 
-  combino@0.1.12(svelte@5.34.8):
+  combino@0.1.14(svelte@5.34.8):
     dependencies:
       chalk: 5.4.1
       commander: 11.1.0
@@ -6895,6 +6913,7 @@ snapshots:
       gray-matter: 4.0.3
       handlebars: 4.7.8
       jsonc-parser: 3.3.1
+      minimatch: 10.0.3
       mustache: 4.2.0
       prettier: 3.5.3
       prettier-plugin-svelte: 3.4.0(prettier@3.5.3)(svelte@5.34.8)
@@ -8337,6 +8356,10 @@ snapshots:
   minimatch@10.0.1:
     dependencies:
       brace-expansion: 2.0.1
+
+  minimatch@10.0.3:
+    dependencies:
+      '@isaacs/brace-expansion': 5.0.0
 
   minimatch@3.0.5:
     dependencies:

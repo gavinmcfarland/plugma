@@ -25,7 +25,7 @@
 	"dependencies": {
 		"@babel/traverse": "^7.27.7",
 		"chalk": "^5.4.1",
-		"combino": "^0.1.12",
+		"combino": "^0.1.14",
 		"ejs": "^3.1.9",
 		"enquirer": "^2.4.1",
 		"kdljs": "^0.3.0",

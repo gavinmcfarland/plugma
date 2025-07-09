@@ -436,8 +436,6 @@ async function main(): Promise<void> {
 	// Initialize Combino
 	const combino = new Combino()
 
-	console.log('templates', templates)
-
 	try {
 		// Generate the project using Combino
 		await combino.combine({
