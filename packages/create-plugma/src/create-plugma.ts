@@ -442,7 +442,7 @@ async function main(): Promise<void> {
 			outputDir: destDir,
 			include: templates,
 			data: { ...templateData, versions },
-			plugins: [ejsMate(), stripTS()],
+			plugins: [ejsMate(), stripTS({ skip: typescript })],
 			configFileName: 'template.json',
 		})
 
