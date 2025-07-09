@@ -10,5 +10,6 @@
 	"data": {
 		"mainDir": "src/main",
 		"uiDir": "src/ui"
-	}
+	},
+	"layout": ["./"]
 }
