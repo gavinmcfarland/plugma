@@ -6,7 +6,7 @@
 		"lib": ["DOM", "esnext"],
 		"module": "esnext",
 		"target": "esnext",
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"outDir": "./dist",
 		"rootDir": "./src",
 		"strict": false,

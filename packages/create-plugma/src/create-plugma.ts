@@ -9,8 +9,8 @@ import { fileURLToPath } from 'url'
 import path from 'path'
 
 import chalk from 'chalk'
-import stripTS from './combino-plugins/strip-ts.js'
-import ejsMate from './combino-plugins/ejs-mate.js'
+import stripTS from 'combino/plugins/strip-ts'
+import ejsMate from 'combino/plugins/ejs-mate'
 import versions from '../versions.json' with { type: 'json' }
 
 const CURR_DIR = process.cwd()
