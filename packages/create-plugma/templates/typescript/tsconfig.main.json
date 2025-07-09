@@ -3,5 +3,5 @@
 		"composite": true,
 		"typeRoots": ["node_modules/@figma", "node_modules/@types"]
 	},
-	"include": ["<%= mainDir %>/**/*.js", "<%= mainDir %>/**/*.ts"]
+	"include": ["src/main/**/*.js", "src/main/**/*.ts"]
 }

@@ -2,9 +2,5 @@
 	"merge": {
 		"*.json": "deep",
 		"*.md": "shallow"
-	},
-	"data": {
-		"uiDir": "src/ui",
-		"mainDir": "src/main"
 	}
 }

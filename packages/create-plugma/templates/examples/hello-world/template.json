@@ -15,9 +15,5 @@
 			"source": "../../frameworks/<%= framework %>/assets",
 			"target": "src/ui/assets"
 		}
-	],
-	"data": {
-		"uiDir": "src/ui",
-		"mainDir": "src/main"
-	}
+	]
 }
