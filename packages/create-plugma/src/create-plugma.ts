@@ -399,7 +399,13 @@ async function main(): Promise<void> {
 	// Add base template first (lowest priority)
 	// templates.push(path.join(__dirname, '..', 'templates', 'base'))
 
-	// Add framework-specific template only if UI is needed
+	// Add example template first (base priority)
+	const exampleTemplateDir = path.join(__dirname, '..', 'templates', 'examples', selectedExample.name)
+	if (fs.existsSync(exampleTemplateDir)) {
+		templates.push(exampleTemplateDir)
+	}
+
+	// Add framework-specific template after example (higher priority)
 	if (needsUI) {
 		const frameworkTemplateDir = path.join(__dirname, '..', 'templates', 'frameworks', frameworkLower)
 		if (fs.existsSync(frameworkTemplateDir)) {
@@ -407,13 +413,7 @@ async function main(): Promise<void> {
 		}
 	}
 
-	// Add example template (highest priority)
-	const exampleTemplateDir = path.join(__dirname, '..', 'templates', 'examples', selectedExample.name)
-	if (fs.existsSync(exampleTemplateDir)) {
-		templates.push(exampleTemplateDir)
-	}
-
-	// Add TypeScript template if selected
+	// Add TypeScript template last (highest priority)
 	if (typescript) {
 		const typescriptTemplateDir = path.join(__dirname, '..', 'templates', 'typescript')
 		if (fs.existsSync(typescriptTemplateDir)) {
