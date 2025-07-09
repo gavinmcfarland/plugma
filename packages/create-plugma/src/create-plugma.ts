@@ -443,6 +443,7 @@ async function main(): Promise<void> {
 			include: templates,
 			data: { ...templateData, versions },
 			plugins: [ejsMate(), stripTS()],
+			configFileName: 'template.json',
 		})
 
 		console.log(`\nNext steps:\n    cd ${name}\n    npm install\n    npm run dev`)
