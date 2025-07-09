@@ -397,7 +397,7 @@ async function main(): Promise<void> {
 	const templates: string[] = []
 
 	// Add base template first (lowest priority)
-	templates.push(path.join(__dirname, '..', 'templates', 'base'))
+	// templates.push(path.join(__dirname, '..', 'templates', 'base'))
 
 	// Add framework-specific template only if UI is needed
 	if (needsUI) {
@@ -435,6 +435,8 @@ async function main(): Promise<void> {
 
 	// Initialize Combino
 	const combino = new Combino()
+
+	console.log('templates', templates)
 
 	try {
 		// Generate the project using Combino

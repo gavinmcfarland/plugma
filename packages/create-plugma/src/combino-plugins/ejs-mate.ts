@@ -430,8 +430,6 @@ export default function plugin(options: { patterns?: string[]; [key: string]: an
 					return { content: context.content, id: context.id }
 				}
 
-				console.log('Processing template:', context)
-
 				return await processTemplate(context)
 			} catch (error) {
 				throw new Error(`Error processing EJS-Mate template: ${error}`)

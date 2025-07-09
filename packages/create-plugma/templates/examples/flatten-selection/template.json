@@ -5,10 +5,6 @@
 		"description": "A plugin that flattens a selection",
 		"type": "plugin"
 	},
-	"merge": {
-		"*.json": "deep",
-		"*.md": "shallow"
-	},
 	"include": ["../../base"],
 	"exclude": ["../../base/src/ui/vite-env.d.ts", "../../base/tsconfig.ui.json"],
 	"data": {

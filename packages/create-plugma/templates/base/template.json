@@ -1,6 +1,14 @@
 {
 	"merge": {
-		"*.json": "deep",
-		"*.md": "shallow"
+		".json": {
+			"strategy": "deep"
+		},
+		".md": {
+			"strategy": "shallow"
+		}
+	},
+	"data": {
+		"mainDir": "src/main",
+		"uiDir": "src/ui"
 	}
 }
