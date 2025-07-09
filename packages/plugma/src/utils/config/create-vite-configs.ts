@@ -26,7 +26,11 @@ import { fileURLToPath } from 'node:url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const projectRoot = path.join(__dirname, '../../..')
-const templateUiHtmlPath = path.join('node_modules', 'plugma', 'templates', 'vite', 'ui.html')
+
+// Use require.resolve so that it works in Yarn PnP
+const plugmaRoot = path.dirname(require.resolve('plugma/package.json'))
+
+const templateUiHtmlPath = path.join(plugmaRoot, 'templates', 'vite', 'ui.html')
 
 // Before using the runtime code, bundle it
 const runtimeBundlePath = path.join(projectRoot, 'dist/apps/plugma-runtime.js')
