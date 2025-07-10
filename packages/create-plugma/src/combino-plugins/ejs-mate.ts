@@ -389,9 +389,11 @@ export default function plugin(options: { patterns?: string[]; [key: string]: an
 
 	// Helper function to check if file matches patterns
 	function matchesPatterns(filePath: string): boolean {
+		// Extract just the filename from the path
+		const fileName = path.basename(filePath)
 		return patterns.some((pattern) => {
 			const regex = new RegExp(pattern.replace(/\./g, '\\.').replace(/\*/g, '.*').replace(/\?/g, '.'))
-			return regex.test(filePath)
+			return regex.test(fileName)
 		})
 	}
 
@@ -422,12 +424,12 @@ export default function plugin(options: { patterns?: string[]; [key: string]: an
 		compile: async (context: FileHookContext) => {
 			// Only compile files that match our patterns
 			if (!matchesPatterns(context.id)) {
-				return { content: context.content, id: context.id }
+				return
 			}
 
 			try {
 				if (shouldSkipProcessing(context)) {
-					return { content: context.content, id: context.id }
+					return
 				}
 
 				return await processTemplate(context)
