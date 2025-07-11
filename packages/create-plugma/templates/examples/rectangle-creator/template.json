@@ -1,7 +1,7 @@
 {
 	"meta": {
 		"name": "Rectangle Creator",
-		"description": "A plugin that creates a rectangle",
+		"description": "A plugin that creates rectangles",
 		"type": "plugin",
 		"uiFrameworks": ["svelte", "vue", "react"]
 	},
