@@ -2,7 +2,7 @@
     "data": {
         "vite.plugins": [
             {
-                "name": ["react"],
+                "name": "react",
                 "import": "@vitejs/plugin-react"
             }
         ]
