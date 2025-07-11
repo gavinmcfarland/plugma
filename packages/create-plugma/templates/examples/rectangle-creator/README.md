@@ -1,5 +1,5 @@
-{% extend '../../base/README.md' %}
+<% layout('../../base/README.md') %>
 
-{% block 'description' %}
+<% block('description') %>
 A simple Figma plugin that demonstrates how to send messages between the plugin’s UI and the main thread, using a basic rectangle creation example.
-{% endblock %}
+<% end %>
