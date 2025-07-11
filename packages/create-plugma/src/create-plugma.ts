@@ -360,9 +360,11 @@ async function main(): Promise<void> {
 		process.exit(1)
 	}
 
-	const languagePrompt = new Confirm({
+	const languagePrompt = new Toggle({
 		name: 'typescript',
 		message: 'Include TypeScript?',
+		enabled: 'Yes',
+		disabled: 'No',
 		initial: true,
 	})
 

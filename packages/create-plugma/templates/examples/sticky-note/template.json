@@ -1,25 +1,14 @@
 {
     "meta": {
-        "hidden": true,
         "name": "Sticky Note",
         "description": "A sticky notes widget",
-        "type": "widget",
-        "uiFrameworks": ["react"]
+        "type": "widget"
     },
     "include": [
-        "../../base",
-        {
-            "source": "../../frameworks/react/components",
-            "target": "src/ui/components"
-        },
-        {
-            "source": "../../frameworks/react/assets",
-            "target": "src/ui/assets"
-        }
+        "../../base"
     ],
+    "exclude": ["../../base/src/ui/vite-env.d.ts", "../../base/tsconfig.ui.json"],
     "data": {
-        "uiDir": "src/ui",
-        "mainDir": "src/main",
         "description": "A sticky notes widget for Figma"
     }
 }

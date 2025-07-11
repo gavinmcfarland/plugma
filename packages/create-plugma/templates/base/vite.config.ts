@@ -11,10 +11,14 @@ import { defineConfig } from "vite";
 
 // https://vite.dev/config/
 export default defineConfig(({ context }) => {
+	<% if (type === 'widget') { %>
+	return {};
+	<% } else { %>
 	return {
 		plugins: context === 'ui' ? [<% if (typeof vite !== 'undefined') { %><%- vite.plugins.map(plugin => {
 		const pluginName = Array.isArray(plugin.name) ? plugin.name[0] : plugin.name;
 		return `${pluginName}()`;
 	}).join(', ') %><% } %>] : []
 	};
+	<% } %>
 });

@@ -109,55 +109,16 @@ export default function plugin(options: StripTSOptions = {}): Plugin {
 				content.includes('??') ||
 				content.includes('!')
 
-			if (hasTypeScriptSyntax) {
-				try {
-					// Initialize the plugin to get strip-ts functionality
-					const plugin = new CombinoStripTSPlugin()
-					await plugin.initialize()
+			// if (hasTypeScriptSyntax) {
+			try {
+				// Initialize the plugin to get strip-ts functionality
+				const plugin = new CombinoStripTSPlugin()
+				await plugin.initialize()
 
-					if (!plugin.stripTSFromString) {
-						console.log(
-							chalk.yellow(
-								`     ⚠️  strip-ts not available, skipping TypeScript stripping for ${path.basename(targetPath)}`,
-							),
-						)
-						return {
-							content: content,
-							id: context.id,
-						}
-					}
-
-					// Map file extension to file type for strip-ts
-					let fileType
-					if (ext === '.ts') fileType = 'ts'
-					else if (ext === '.tsx') fileType = 'tsx'
-					else if (ext === '.vue') fileType = 'vue'
-					else if (ext === '.svelte') fileType = 'svelte'
-
-					// Process content directly with strip-ts
-					const processedContent = await plugin.stripTSFromString(content, fileType)
-
-					if (processedContent && processedContent !== content) {
-						// Update the target path to use .js extension for .ts files
-						let newTargetPath = context.id
-						if (ext === '.ts') {
-							newTargetPath = targetPath.replace('.ts', '.js')
-						} else if (ext === '.tsx') {
-							newTargetPath = targetPath.replace('.tsx', '.jsx')
-						}
-
-						// console.log(chalk.gray(`     🔄 Stripped TypeScript from ${path.basename(targetPath)}`))
-
-						return {
-							content: processedContent,
-							id: newTargetPath,
-						}
-					}
-				} catch (error) {
-					const errorMessage = error instanceof Error ? error.message : String(error)
+				if (!plugin.stripTSFromString) {
 					console.log(
 						chalk.yellow(
-							`     ⚠️  Failed to strip TypeScript from ${path.basename(targetPath)}: ${errorMessage}`,
+							`     ⚠️  strip-ts not available, skipping TypeScript stripping for ${path.basename(targetPath)}`,
 						),
 					)
 					return {
@@ -165,7 +126,46 @@ export default function plugin(options: StripTSOptions = {}): Plugin {
 						id: context.id,
 					}
 				}
+
+				// Map file extension to file type for strip-ts
+				let fileType
+				if (ext === '.ts') fileType = 'ts'
+				else if (ext === '.tsx') fileType = 'tsx'
+				else if (ext === '.vue') fileType = 'vue'
+				else if (ext === '.svelte') fileType = 'svelte'
+
+				// Process content directly with strip-ts
+				const processedContent = await plugin.stripTSFromString(content, fileType)
+
+				if (processedContent && processedContent !== content) {
+					// Update the target path to use .js extension for .ts files
+					let newTargetPath = context.id
+					if (ext === '.ts') {
+						newTargetPath = targetPath.replace('.ts', '.js')
+					} else if (ext === '.tsx') {
+						newTargetPath = targetPath.replace('.tsx', '.jsx')
+					}
+
+					// console.log(chalk.gray(`     🔄 Stripped TypeScript from ${path.basename(targetPath)}`))
+
+					return {
+						content: processedContent,
+						id: newTargetPath,
+					}
+				}
+			} catch (error) {
+				const errorMessage = error instanceof Error ? error.message : String(error)
+				console.log(
+					chalk.yellow(
+						`     ⚠️  Failed to strip TypeScript from ${path.basename(targetPath)}: ${errorMessage}`,
+					),
+				)
+				return {
+					content: content,
+					id: context.id,
+				}
 			}
+			// }
 		}
 
 		return {

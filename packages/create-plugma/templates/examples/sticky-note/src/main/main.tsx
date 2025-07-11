@@ -7,7 +7,7 @@ import {
 	usePropertyMenu,
 	PropertyMenu,
 	useWidgetId,
-} from "@figma/widget-sdk";
+} from "figma";
 
 interface StickyNote {
 	id: string;

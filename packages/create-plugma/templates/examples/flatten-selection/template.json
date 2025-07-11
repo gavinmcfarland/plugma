@@ -1,6 +1,5 @@
 {
 	"meta": {
-		"hidden": true,
 		"name": "Flatten Selection",
 		"description": "A plugin that flattens a selection",
 		"type": "plugin"
