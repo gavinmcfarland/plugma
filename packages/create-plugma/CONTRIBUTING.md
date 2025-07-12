@@ -42,3 +42,11 @@ You can add data used by your template inside the `combino.json` file at the roo
     }
 }
 ```
+
+## Adding Support New Frameworks
+
+If you're using a framework that `create-plugma` doesnt currently support, you can propose one which can then be used by other examples.
+
+You can duplicate the `react` framework to get an idea of what they look like.
+
+Frameworks must contain the dependencies needed, tsconfigs and any other necessary framework specific files.
