@@ -10,10 +10,16 @@ For full documentation see [plugma.dev](https://www.plugma.dev/).
 
 ## Start from a template
 
-Initialize a new project with Plugma:
+Create a new plugin
 
 ```bash
-npm create plugma@latest
+npx plugma init --plugin
+```
+
+Or create a new widget
+
+```bash
+npx plugma init --widget
 ```
 
 This command creates a new Figma plugin project with your chosen framework, including all the necessary setup and configuration files.
