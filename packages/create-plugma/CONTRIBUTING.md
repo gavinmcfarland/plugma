@@ -2,7 +2,7 @@
 
 You can contribute to Plugma's list of templates by creating your own plugin and widget examples.
 
-Plugma uses a powerful template system built on [Combino](https://github.com/gavinmcfarland/combino). This allows you to create reusable, composable templates for multiple frameworks and languages.
+Plugma uses a powerful template system built on [Combino](https://github.com/gavinmcfarland/combino). This allows you to create composable templates that work for multiple frameworks and languages.
 
 ## Creating an Plugin or Widget Example
 
