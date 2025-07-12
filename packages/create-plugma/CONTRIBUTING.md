@@ -14,7 +14,7 @@ Most examples use the base template as a foundation which is referenced in the `
 
 ### Write In TypeScript
 
-Write all your files in TypeScript and `create-plugma` will do the heavy lifting for you to create a JavaScript only version for users at runtime. This aaves you having to manage two versions of your files.
+Write all your files in TypeScript and `create-plugma` will do the heavy lifting for you to create a JavaScript only version for users at runtime. This saves you having to manage two versions of your files.
 
 ### Adding Meta Data
 
