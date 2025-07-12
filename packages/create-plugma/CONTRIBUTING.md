@@ -1,33 +1,24 @@
 # Contributing
 
-You can contribute to Plugma's list of templates by creating your own templates.
+You can contribute to Plugma's list of templates by creating your own plugin and widget examples.
 
-Plugma uses a powerful template system built on [Combino](https://github.com/gavinmcfarland/combino) that allows you to create reusable, composable templates for Figma plugins and widgets. This guide will walk you through creating your own templates.
+Plugma uses a powerful template system built on [Combino](https://github.com/gavinmcfarland/combino). This allows you to create reusable, composable templates for multiple frameworks and languages.
 
-## Create an Example Template
+## Creating an Plugin or Widget Example
 
 Get started by copying the `hello-world-plugin` example.
 
-Create the files that will be part of your template. If your plugin or widget includes a UI be sure to make the files for the UI conditional for one or more frontend frameworks.
+### Only Include Source Files
 
-```
-my-example-plugin/
-├── combino.json
-├── manifest.json
-├── README.md
-├── src/
-│   ├── main/
-│   │   └── main.ts
-│   └── ui/
-│       └── [framework="react"]/
-│           └── App.tsx
-```
+Most examples include the base template. The files from the base template are merged with the files in your example. This simplifies the files you need to include and manage in your template. If the user selects a frontend framework or typescript the revelant files and dependencies are also merged. This allows examples to support multiple frameworks.
 
-You don’t need to include any dependencies for the Figma API, common frameworks (e.g. Svelte, React), or tsconfig files, these are automatically handled by the CLI.
+### Write In TypeScript
+
+Write all your files in TypeScript and `create-plugma` will do the heavy lifting for you to create a JavaScript only version for users at runtime. This aaves you having to manage two versions of your files.
 
 ### Adding Meta Data
 
-You can add meta data to your example by updating the `combino.json` file.
+Add the  relevant meta data to your example so `create-plugma` CLI can surface this to the user. You can add meta data to by updating the `combino.json` file. Include the `name` and `description` you want to appear in the CLI, whether its a `plugin` or `widget` and if it has a ui and the frameworks it uses.
 
 ```json
 {
