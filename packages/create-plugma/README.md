@@ -16,7 +16,7 @@ Create a new plugin
 npx plugma init --plugin
 ```
 
-Or create a new widget
+Create a new widget
 
 ```bash
 npx plugma init --widget
