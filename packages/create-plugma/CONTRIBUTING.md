@@ -18,7 +18,7 @@ Write all your files in TypeScript and `create-plugma` will do the heavy lifting
 
 ### Adding Meta Data
 
-Add the  relevant meta data to your example so `create-plugma` CLI can surface this to the user. You can add meta data to by updating the `combino.json` file. Include the `name` and `description` you want to appear in the CLI, whether its a `plugin` or `widget` and if it has a ui and the frameworks it uses.
+Add the  relevant meta data to your example so `create-plugma` CLI can surface this to the user. You can add meta data by updating the `combino.json` file. Include the `name` and `description` you want to appear in the CLI, whether its a `plugin` or `widget` and if it has a ui and the frameworks it uses.
 
 ```json
 {
