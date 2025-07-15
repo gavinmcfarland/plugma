@@ -26,47 +26,6 @@ declare module 'strip-ts' {
 	export function stripTSFromString(content: string, fileType: string): Promise<string>
 }
 
-declare module 'combino' {
-	export class Combino {
-		combine(options: any): Promise<void>
-	}
-
-	export interface Plugin {
-		name?: string
-		hooks?: any
-		compile?: (context: any) => any
-		filePattern?: string[]
-		assemble?: any
-		[key: string]: any
-	}
-
-	export interface FileHookContext {
-		filePath: string
-		content: string
-		data: any
-		targetPath: string
-		id: string
-		sourcePath: string
-		allTemplates?: any[]
-		[key: string]: any
-	}
-
-	export interface FileHookResult {
-		content: string
-		targetPath?: string
-		id?: string
-		[key: string]: any
-	}
-
-	export interface TemplateInfo {
-		path: string
-		content: string
-		[key: string]: any
-	}
-
-	export type FileHook = (context: FileHookContext) => FileHookResult | Promise<FileHookResult>
-}
-
 declare module 'lodash' {
 	const _: any
 	export default _

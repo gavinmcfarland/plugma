@@ -9,8 +9,8 @@ import { fileURLToPath } from 'url'
 import path from 'path'
 
 import chalk from 'chalk'
-import stripTS from 'combino/plugins/strip-ts'
-import ejsMate from 'combino/plugins/ejs-mate'
+import stripTS from '@combino/plugin-strip-ts'
+import ejsMate from '@combino/plugin-ejs-mate'
 import versions from '../versions.json' with { type: 'json' }
 
 const CURR_DIR = process.cwd()
@@ -440,7 +440,7 @@ async function main(): Promise<void> {
 
 	try {
 		// Generate the project using Combino
-		await combino.combine({
+		await combino.build({
 			outputDir: destDir,
 			include: templates,
 			data: { ...templateData, versions },
