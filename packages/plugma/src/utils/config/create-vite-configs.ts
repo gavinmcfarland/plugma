@@ -6,7 +6,6 @@ import { viteSingleFile } from 'vite-plugin-singlefile'
 
 import type { PluginOptions, UserFiles } from '../../core/types.js'
 import { defaultLogger, writeTempFile } from '../../utils/index.js'
-import { getDirName } from '../../utils/get-dir-name.js'
 import {
 	dotEnvLoader,
 	htmlTransform,
@@ -27,9 +26,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const projectRoot = path.join(__dirname, '../../..')
 
-// Use require.resolve so that it works in Yarn PnP
-const plugmaRoot = path.dirname(require.resolve('plugma/package.json'))
-
+// Use relative path to find templates directory
+const plugmaRoot = path.join(__dirname, '../../..')
 const templateUiHtmlPath = path.join(plugmaRoot, 'templates', 'vite', 'ui.html')
 
 // Before using the runtime code, bundle it
