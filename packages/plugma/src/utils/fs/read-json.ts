@@ -97,32 +97,39 @@ export async function readUserPackageJson(cwd?: string): Promise<UserPackageJson
 export async function readModule<T>(filePath: string, dontThrow = false): Promise<T | null> {
 	try {
 		const require = createRequire(import.meta.url)
-		// Clear the module cache more thoroughly
-		const resolvedPath = require.resolve(filePath)
+		let resolvedPath: string
+
+		// Check if the path is absolute or relative
+		if (filePath.startsWith('/') || filePath.startsWith('./') || filePath.startsWith('../')) {
+			resolvedPath = require.resolve(filePath, { paths: [process.cwd()] })
+		} else {
+			resolvedPath = require.resolve(filePath)
+		}
+
 		delete require.cache[resolvedPath]
 
-		// Clear any parent module caches that might be holding onto this module
 		Object.keys(require.cache).forEach((key) => {
 			if (require.cache[key]?.children?.some((child) => child.id === resolvedPath)) {
 				delete require.cache[key]
 			}
 		})
 
-		// console.log('Reading module from:', resolvedPath)
-		const module = require(filePath)
+		const module = require(resolvedPath)
 		if (!module.default || typeof module.default !== 'object') {
 			throw new Error('Invalid module format - must export a default object')
 		}
 
-		// console.log('Module loaded:', module.default)
 		return module.default as T
 	} catch (err) {
 		if (err instanceof Error) {
-			// Handle both ENOENT and ERR_MODULE_NOT_FOUND errors
+			const msg = err.message || ''
+			// Robustly catch all 'not found' errors
 			if (
 				('code' in err && (err as any).code === 'ENOENT') ||
-				err.message.includes('Cannot find module') ||
-				err.message.includes('Unknown file extension')
+				('code' in err && (err as any).code === 'ERR_MODULE_NOT_FOUND') ||
+				msg.includes('Cannot find module') ||
+				msg.includes('Unknown file extension') ||
+				msg.includes('Qualified path resolution failed')
 			) {
 				if (dontThrow) return null
 				throw new Error('File not found')
