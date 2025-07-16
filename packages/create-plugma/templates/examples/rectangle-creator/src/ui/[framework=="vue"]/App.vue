@@ -16,7 +16,7 @@ export default {
 		const nodeCount = ref(0)
 
 		// Function to create rectangles
-		function createRectangles(count) {
+		function createRectangles(count: number) {
 			parent.postMessage(
 				{
 					pluginMessage: {
@@ -29,7 +29,7 @@ export default {
 		}
 
 		// Message listener to update node count
-		window.onmessage = (event) => {
+		window.onmessage = (event: MessageEvent) => {
 			const message = event.data.pluginMessage
 			if (message.type === 'POST_NODE_COUNT') {
 				nodeCount.value = message.count
@@ -56,7 +56,7 @@ export default {
 
 		<div class="field create-rectangles">
 			<Input v-model="rectCount" type="number" />
-			<Button @click="createRectangles(rectCount)">Create Rectangles</Button>
+			<Button @click="() => createRectangles(rectCount)">Create Rectangles</Button>
 		</div>
 
 		<div class="field node-count">
