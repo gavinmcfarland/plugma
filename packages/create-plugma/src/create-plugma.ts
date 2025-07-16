@@ -16,6 +16,11 @@ import versions from '../versions.json' with { type: 'json' }
 const CURR_DIR = process.cwd()
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
+// Constants
+const NO_UI_OPTION = 'None'
+const NO_UI_DESCRIPTION = 'no UI'
+const NO_UI_HINT = 'No UI included'
+
 // Parse command line arguments
 const args: string[] = process.argv.slice(2)
 const debugFlag: boolean = args.includes('-d') || args.includes('--debug')
@@ -40,19 +45,8 @@ interface TemplateData {
 	framework: string
 	example: string
 	typescript: boolean
-	needsUI: boolean
+	hasUI: boolean
 	description: string
-}
-
-interface FileProcessContext {
-	targetPath: string
-	content: string
-	data: TemplateData
-}
-
-interface ProcessedFile {
-	content: string
-	targetPath: string
 }
 
 // Helper function to clear directory if it exists
@@ -274,35 +268,40 @@ const getAvailableTypes = (examples: Example[], needsUI: boolean, framework: str
 }
 
 async function main(): Promise<void> {
-	const uiPrompt = new Toggle({
-		name: 'needsUI',
-		message: 'Do you need a UI?',
-		enabled: 'Yes',
-		disabled: 'No',
-		initial: true,
-	})
-
-	const needsUI: boolean = await uiPrompt.run()
-
 	// Get all available examples to determine available frameworks and filter later
 	const allExamples = getAvailableExamples()
 
-	let framework = 'Vanilla' // Default framework
-	if (needsUI) {
-		const availableFrameworks = getAvailableFrameworks(allExamples)
+	// Get available frameworks and add "No UI" option
+	const availableFrameworks = getAvailableFrameworks(allExamples)
 
-		if (availableFrameworks.length === 0) {
-			console.log(chalk.red('No UI frameworks available in examples.'))
-			process.exit(1)
-		}
+	// Define colors for framework options (using available chalk colors)
+	const colors = [chalk.green, chalk.yellow, chalk.red, chalk.gray, chalk.blue, chalk.magenta]
 
-		const frameworkPrompt = new Select({
-			name: 'framework',
-			message: 'Choose a framework:',
-			choices: availableFrameworks,
-		})
-		framework = await frameworkPrompt.run()
+	const frameworkChoices = [
+		{
+			message: chalk.gray(NO_UI_OPTION),
+			value: NO_UI_OPTION,
+		},
+		...availableFrameworks.map((framework, index) => ({
+			message: colors[index % colors.length](framework),
+			value: framework,
+		})),
+	]
+
+	if (frameworkChoices.length === 1) {
+		console.log(chalk.red('No frameworks or examples available.'))
+		process.exit(1)
 	}
+
+	const frameworkPrompt = new Select({
+		name: 'framework',
+		message: 'Choose a UI framework:',
+		choices: frameworkChoices,
+	})
+	const framework: string = await frameworkPrompt.run()
+
+	// Determine if UI is needed based on framework selection
+	const needsUI = framework !== NO_UI_OPTION
 
 	// Filter examples based on user choices (allExamples was already loaded above)
 	const availableExamples = filterExamples(allExamples, needsUI, framework)
@@ -323,7 +322,15 @@ async function main(): Promise<void> {
 	const typePrompt = new Select({
 		name: 'type',
 		message: 'Create plugin or widget?',
-		choices: availableTypes.map((type) => type.charAt(0).toUpperCase() + type.slice(1)),
+		choices: availableTypes.map((type) => {
+			const displayName = type.charAt(0).toUpperCase() + type.slice(1)
+			// Use specific colors for Plugin and Widget
+			const color = displayName === 'Plugin' ? chalk.blue : chalk.magenta
+			return {
+				message: color(displayName),
+				value: displayName,
+			}
+		}),
 	})
 
 	const type: string = await typePrompt.run()
@@ -370,8 +377,9 @@ async function main(): Promise<void> {
 
 	const typescript: boolean = await languagePrompt.run()
 
-	// Generate base name
-	const baseName = `${selectedExample.name.toLowerCase()}-${framework.toLowerCase()}-${type.toLowerCase()}`
+	// Generate base name (exclude framework if "None" is selected)
+	const frameworkPart = framework === NO_UI_OPTION ? '' : `-${framework.toLowerCase()}`
+	const baseName = `${selectedExample.name.toLowerCase()}${frameworkPart}-${type.toLowerCase()}`
 
 	// Add debug suffix if debug flag is enabled
 	const nameSuffix = debugFlag ? (typescript ? '-ts' : '-js') : ''
@@ -431,8 +439,8 @@ async function main(): Promise<void> {
 		framework: frameworkLower,
 		example: selectedExample.name.toLowerCase(),
 		typescript,
-		needsUI,
-		description: `A Figma ${type.toLowerCase()} with ${needsUI ? framework : 'no UI'} and ${typescript ? 'TypeScript' : 'JavaScript'}`,
+		hasUI: needsUI,
+		description: `A Figma ${type.toLowerCase()} with ${needsUI ? framework : NO_UI_DESCRIPTION} and ${typescript ? 'TypeScript' : 'JavaScript'}`,
 	}
 
 	// Initialize Combino

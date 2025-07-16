@@ -43,6 +43,8 @@ declare module 'chalk' {
 		yellow: (text: string) => string
 		gray: (text: string) => string
 		green: (text: string) => string
+		blue: (text: string) => string
+		magenta: (text: string) => string
 	}
 	export default chalk
 }
