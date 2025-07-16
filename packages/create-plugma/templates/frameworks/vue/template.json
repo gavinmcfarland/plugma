@@ -1,0 +1,11 @@
+{
+    "data": {
+        "vite.plugins": [
+            {
+                "name": "vue",
+                "import": "@vitejs/plugin-vue"
+            }
+        ]
+    }
+}
+
