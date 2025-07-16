@@ -76,17 +76,17 @@ const App: React.FC = () => {
 					type="number"
 					value={rectCount.toString()}
 					onChange={(value: string) => setRectCount(Number(value))}
+					style={styles.createRectanglesInput}
 				/>
 				<Button
 					onClick={() => createRectangles(rectCount)}
 					href={undefined}
 					target={undefined}
-					style={styles.createRectanglesInput}
 				>
 					Create Rectangles
 				</Button>
 			</div>
-			<div style={styles.nodeCount}>
+			<div style={{ ...styles.nodeCount, ...styles.field }}>
 				<span>{nodeCount} nodes selected</span>
 			</div>
 		</div>
