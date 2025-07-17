@@ -8,7 +8,6 @@ const {
 	useSyncedState,
 	usePropertyMenu,
 	PropertyMenu,
-	useWidgetId,
 	useState,
 } = widget;
 
@@ -28,8 +27,10 @@ const COLORS = [
 
 function StickyNoteWidget() {
 	const [notes, setNotes] = useSyncedState<StickyNote[]>("notes", []);
-	const [editingId, setEditingId] = useState<string | null>(null);
-	const widgetId = useWidgetId();
+	const [editingId, setEditingId] = useSyncedState<string | null>(
+		"editingId",
+		null,
+	);
 
 	const addNote = () => {
 		const newNote: StickyNote = {
@@ -42,7 +43,7 @@ function StickyNoteWidget() {
 
 	const updateNote = (id: string, text: string) => {
 		setNotes(
-			notes.map((note) => (note.id === id ? { ...note, text } : note))
+			notes.map((note) => (note.id === id ? { ...note, text } : note)),
 		);
 	};
 
@@ -56,14 +57,13 @@ function StickyNoteWidget() {
 				itemType: "action",
 				propertyName: "add",
 				tooltip: "Add Note",
-				text: "Add Note",
 			},
 		],
 		({ propertyName }) => {
 			if (propertyName === "add") {
 				addNote();
 			}
-		}
+		},
 	);
 
 	return (
