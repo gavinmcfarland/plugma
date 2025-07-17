@@ -1,15 +1,7 @@
 /** @jsx figma.widget.h */
 
 const { widget } = figma;
-const {
-	AutoLayout,
-	Text,
-	Input,
-	useSyncedState,
-	usePropertyMenu,
-	PropertyMenu,
-	useState,
-} = widget;
+const { AutoLayout, Text, Input, useSyncedState, usePropertyMenu } = widget;
 
 interface StickyNote {
 	id: string;

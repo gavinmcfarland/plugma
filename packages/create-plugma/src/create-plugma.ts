@@ -296,10 +296,17 @@ async function main(): Promise<void> {
 		process.exit(1)
 	}
 
+	// Sort types to ensure Plugin is always first
+	const sortedTypes = allAvailableTypes.sort((a, b) => {
+		if (a === 'plugin') return -1
+		if (b === 'plugin') return 1
+		return a.localeCompare(b)
+	})
+
 	const typePrompt = new Select({
 		name: 'type',
 		message: 'Choose a type:',
-		choices: allAvailableTypes.map((type) => {
+		choices: sortedTypes.map((type) => {
 			const displayName = type.charAt(0).toUpperCase() + type.slice(1)
 			// Use specific colors for Plugin and Widget
 			const color = displayName === 'Plugin' ? chalk.blue : chalk.magenta
@@ -420,9 +427,13 @@ async function main(): Promise<void> {
 
 	const typescript: boolean = await languagePrompt.run()
 
+	// Generate base name using metadata name if available, otherwise use folder name
+	const exampleName = selectedExample.metadata.name || selectedExample.name
+	const normalizedExampleName = exampleName.toLowerCase().replace(/\s+/g, '-')
+
 	// Generate base name (exclude framework if "None" is selected)
 	const frameworkPart = framework === NO_UI_OPTION ? '' : `-${framework.toLowerCase()}`
-	const baseName = `${selectedExample.name.toLowerCase()}${frameworkPart}-${type.toLowerCase()}`
+	const baseName = `${normalizedExampleName}${frameworkPart}-${type.toLowerCase()}`
 
 	// Add debug suffix if debug flag is enabled
 	const nameSuffix = debugFlag ? (typescript ? '-ts' : '-js') : ''
