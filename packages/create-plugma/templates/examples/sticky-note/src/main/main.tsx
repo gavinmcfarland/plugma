@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
-import {
+/** @jsx figma.widget.h */
+
+const { widget } = figma;
+const {
 	AutoLayout,
 	Text,
 	Input,
@@ -7,7 +9,8 @@ import {
 	usePropertyMenu,
 	PropertyMenu,
 	useWidgetId,
-} from "figma";
+	useState,
+} = widget;
 
 interface StickyNote {
 	id: string;
@@ -122,4 +125,6 @@ function StickyNoteWidget() {
 	);
 }
 
-widget.register(StickyNoteWidget);
+export default function () {
+	widget.register(StickyNoteWidget);
+}

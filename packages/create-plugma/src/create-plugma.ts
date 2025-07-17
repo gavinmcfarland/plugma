@@ -17,7 +17,7 @@ const CURR_DIR = process.cwd()
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // Constants
-const NO_UI_OPTION = 'None'
+const NO_UI_OPTION = 'No UI'
 const NO_UI_DESCRIPTION = 'no UI'
 const NO_UI_HINT = 'No UI included'
 
@@ -189,7 +189,24 @@ const filterExamples = (examples: Example[], needsUI: boolean, framework: string
 	})
 }
 
-// Helper function to get all available frameworks from examples
+// Helper function to get all available types from examples (without filtering by framework/UI)
+const getAllAvailableTypes = (examples: Example[]): string[] => {
+	const types = new Set<string>()
+	examples.forEach((example) => {
+		const { metadata } = example
+		// Skip hidden examples
+		if (metadata.hidden === true) {
+			return
+		}
+		// Add the type if it exists
+		if (metadata.type) {
+			types.add(metadata.type)
+		}
+	})
+	return Array.from(types)
+}
+
+// Helper function to get available frameworks from examples
 const getAvailableFrameworks = (examples: Example[]): string[] => {
 	const frameworks = new Set<string>()
 
@@ -268,61 +285,21 @@ const getAvailableTypes = (examples: Example[], needsUI: boolean, framework: str
 }
 
 async function main(): Promise<void> {
-	// Get all available examples to determine available frameworks and filter later
+	// Get all available examples to determine available types and frameworks
 	const allExamples = getAvailableExamples()
 
-	// Get available frameworks and add "No UI" option
-	const availableFrameworks = getAvailableFrameworks(allExamples)
+	// Get all available types first (without filtering by framework/UI)
+	const allAvailableTypes = getAllAvailableTypes(allExamples)
 
-	// Define colors for framework options (using available chalk colors)
-	const colors = [chalk.green, chalk.yellow, chalk.red, chalk.gray, chalk.blue, chalk.magenta]
-
-	const frameworkChoices = [
-		{
-			message: chalk.gray(NO_UI_OPTION),
-			value: NO_UI_OPTION,
-		},
-		...availableFrameworks.map((framework, index) => ({
-			message: colors[index % colors.length](framework),
-			value: framework,
-		})),
-	]
-
-	if (frameworkChoices.length === 1) {
-		console.log(chalk.red('No frameworks or examples available.'))
-		process.exit(1)
-	}
-
-	const frameworkPrompt = new Select({
-		name: 'framework',
-		message: 'Choose a UI framework:',
-		choices: frameworkChoices,
-	})
-	const framework: string = await frameworkPrompt.run()
-
-	// Determine if UI is needed based on framework selection
-	const needsUI = framework !== NO_UI_OPTION
-
-	// Filter examples based on user choices (allExamples was already loaded above)
-	const availableExamples = filterExamples(allExamples, needsUI, framework)
-
-	if (availableExamples.length === 0) {
-		console.log(chalk.red('No examples available for the selected configuration.'))
-		process.exit(1)
-	}
-
-	// Get available types from filtered examples (with stricter filtering)
-	const availableTypes = getAvailableTypes(availableExamples, needsUI, framework)
-
-	if (availableTypes.length === 0) {
+	if (allAvailableTypes.length === 0) {
 		console.log(chalk.red('No valid types found in available examples.'))
 		process.exit(1)
 	}
 
 	const typePrompt = new Select({
 		name: 'type',
-		message: 'Create plugin or widget?',
-		choices: availableTypes.map((type) => {
+		message: 'Choose a type:',
+		choices: allAvailableTypes.map((type) => {
 			const displayName = type.charAt(0).toUpperCase() + type.slice(1)
 			// Use specific colors for Plugin and Widget
 			const color = displayName === 'Plugin' ? chalk.blue : chalk.magenta
@@ -335,18 +312,69 @@ async function main(): Promise<void> {
 
 	const type: string = await typePrompt.run()
 
-	// Filter examples by selected type
-	const typeFilteredExamples = availableExamples.filter((example) => example.metadata.type === type.toLowerCase())
+	// Filter examples by selected type first
+	const typeFilteredExamples = allExamples.filter((example) => example.metadata.type === type.toLowerCase())
 
 	if (typeFilteredExamples.length === 0) {
-		console.log(chalk.red(`No examples available for ${type} with the selected configuration.`))
+		console.log(chalk.red(`No examples available for ${type}.`))
+		process.exit(1)
+	}
+
+	// Get available frameworks from type-filtered examples
+	const availableFrameworks = getAvailableFrameworks(typeFilteredExamples)
+
+	// Check if any examples in this type don't have UI (support "No UI" option)
+	const hasNoUIExamples = typeFilteredExamples.some((example) => {
+		const { metadata } = example
+		if (metadata.hidden === true) return false
+		return !exampleHasUI(metadata)
+	})
+
+	// Define colors for framework options (using available chalk colors)
+	const colors = [chalk.green, chalk.yellow, chalk.red, chalk.gray, chalk.blue, chalk.magenta]
+
+	const frameworkChoices = [
+		...(hasNoUIExamples
+			? [
+					{
+						message: chalk.gray(NO_UI_OPTION),
+						value: NO_UI_OPTION,
+					},
+				]
+			: []),
+		...availableFrameworks.map((framework, index) => ({
+			message: colors[index % colors.length](framework),
+			value: framework,
+		})),
+	]
+
+	if (frameworkChoices.length === 0) {
+		console.log(chalk.red('No frameworks available for the selected type.'))
+		process.exit(1)
+	}
+
+	const frameworkPrompt = new Select({
+		name: 'framework',
+		message: 'Choose a framework:',
+		choices: frameworkChoices,
+	})
+	const framework: string = await frameworkPrompt.run()
+
+	// Determine if UI is needed based on framework selection
+	const needsUI = framework !== NO_UI_OPTION
+
+	// Filter examples based on user choices (type was already filtered above)
+	const availableExamples = filterExamples(typeFilteredExamples, needsUI, framework)
+
+	if (availableExamples.length === 0) {
+		console.log(chalk.red('No examples available for the selected configuration.'))
 		process.exit(1)
 	}
 
 	const examplePrompt = new Select({
 		name: 'example',
-		message: 'Select an example:',
-		choices: typeFilteredExamples.map((example) => {
+		message: 'Choose a starter:',
+		choices: availableExamples.map((example) => {
 			const description = example.metadata.description || ''
 			// Use metadata name if available, otherwise fallback to formatted folder name
 			const displayName =
@@ -360,7 +388,7 @@ async function main(): Promise<void> {
 	})
 
 	const example: string = await examplePrompt.run()
-	const selectedExample = typeFilteredExamples.find((ex) => ex.name === example)
+	const selectedExample = availableExamples.find((ex) => ex.name === example)
 
 	if (!selectedExample) {
 		console.log(chalk.red('Selected example not found.'))
@@ -369,7 +397,7 @@ async function main(): Promise<void> {
 
 	const languagePrompt = new Toggle({
 		name: 'typescript',
-		message: 'Include TypeScript?',
+		message: 'Use TypeScript?',
 		enabled: 'Yes',
 		disabled: 'No',
 		initial: true,
