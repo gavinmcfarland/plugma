@@ -378,17 +378,32 @@ async function main(): Promise<void> {
 			const description = example.metadata.description || ''
 			// Use metadata name if available, otherwise fallback to formatted folder name
 			const displayName =
-				example.metadata.name || example.name.charAt(0).toUpperCase() + example.name.slice(1).replace(/-/g, ' ')
+				example.metadata.name ||
+				example.name
+					.split('-')
+					.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+					.join(' ')
+
 			return {
 				message: displayName,
-				value: example.name,
+				value: displayName,
 				hint: description,
 			}
 		}),
 	})
 
 	const example: string = await examplePrompt.run()
-	const selectedExample = availableExamples.find((ex) => ex.name === example)
+
+	// Find the original example by matching the display name
+	const selectedExample = availableExamples.find((ex) => {
+		const displayName =
+			ex.metadata.name ||
+			ex.name
+				.split('-')
+				.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+				.join(' ')
+		return displayName === example
+	})
 
 	if (!selectedExample) {
 		console.log(chalk.red('Selected example not found.'))
