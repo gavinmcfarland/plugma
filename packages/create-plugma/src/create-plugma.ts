@@ -21,10 +21,25 @@ const NO_UI_OPTION = 'No UI'
 const NO_UI_DESCRIPTION = 'no UI'
 const NO_UI_HINT = 'No UI included'
 const ANY_FRAMEWORK_OPTION = 'Any'
+const BROWSE_MORE_OPTION = '[Browse more starter examples]'
+const DEFAULT_EXAMPLE_THRESHOLD = 1
 
 // Parse command line arguments
 const args: string[] = process.argv.slice(2)
 const debugFlag: boolean = args.includes('-d') || args.includes('--debug')
+
+// Parse threshold argument (--threshold or -t)
+const thresholdIndex = args.findIndex((arg) => arg === '--threshold' || arg === '-t')
+let exampleThreshold = DEFAULT_EXAMPLE_THRESHOLD
+
+if (thresholdIndex !== -1 && args[thresholdIndex + 1]) {
+	const thresholdValue = parseInt(args[thresholdIndex + 1], 10)
+	if (isNaN(thresholdValue) || thresholdValue < 0) {
+		console.log(chalk.red('Error: Threshold must be a valid non-negative number.'))
+		process.exit(1)
+	}
+	exampleThreshold = thresholdValue
+}
 
 interface ExampleMetadata {
 	name?: string
@@ -286,6 +301,110 @@ const getAvailableTypes = (examples: Example[], needsUI: boolean, framework: str
 	return Array.from(types)
 }
 
+// Helper function to get display name for an example
+const getDisplayName = (example: Example): string => {
+	return (
+		example.metadata.name ||
+		example.name
+			.split('-')
+			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+			.join(' ')
+	)
+}
+
+// Helper function to select an example with browse more option
+const selectExample = async (examples: Example[], threshold: number = DEFAULT_EXAMPLE_THRESHOLD): Promise<Example> => {
+	// If we have more examples than the threshold, show the browse more option
+	if (examples.length > threshold) {
+		// Take the first example and add browse more option
+		const firstExample = examples[0]
+		const remainingExamples = examples.slice(1)
+
+		const choices = [
+			{
+				message: getDisplayName(firstExample),
+				value: getDisplayName(firstExample),
+				hint: firstExample.metadata.description || '',
+			},
+			{
+				message: chalk.gray(BROWSE_MORE_OPTION),
+				value: BROWSE_MORE_OPTION,
+			},
+		]
+
+		const examplePrompt = new Select({
+			name: 'example',
+			message: 'Choose a starter:',
+			choices,
+		})
+
+		const selectedValue: string = await examplePrompt.run()
+
+		// If user selected browse more, show all examples
+		if (selectedValue === BROWSE_MORE_OPTION) {
+			const allChoices = examples.map((example) => {
+				const description = example.metadata.description || ''
+				const displayName = getDisplayName(example)
+
+				return {
+					message: displayName,
+					value: displayName,
+					hint: description,
+				}
+			})
+
+			const browsePrompt = new Select({
+				name: 'example',
+				message: 'Choose a starter:',
+				choices: allChoices,
+			})
+
+			const browseSelectedValue: string = await browsePrompt.run()
+
+			// Find the selected example
+			const selectedExample = examples.find((ex) => getDisplayName(ex) === browseSelectedValue)
+			if (!selectedExample) {
+				console.log(chalk.red('Selected example not found.'))
+				process.exit(1)
+			}
+
+			return selectedExample
+		} else {
+			// User selected the first example
+			return firstExample
+		}
+	} else {
+		// Show all examples directly if we're under the threshold
+		const choices = examples.map((example) => {
+			const description = example.metadata.description || ''
+			const displayName = getDisplayName(example)
+
+			return {
+				message: displayName,
+				value: displayName,
+				hint: description,
+			}
+		})
+
+		const examplePrompt = new Select({
+			name: 'example',
+			message: 'Choose a starter:',
+			choices,
+		})
+
+		const selectedValue: string = await examplePrompt.run()
+
+		// Find the selected example
+		const selectedExample = examples.find((ex) => getDisplayName(ex) === selectedValue)
+		if (!selectedExample) {
+			console.log(chalk.red('Selected example not found.'))
+			process.exit(1)
+		}
+
+		return selectedExample
+	}
+}
+
 async function main(): Promise<void> {
 	// Get all available examples to determine available types and frameworks
 	const allExamples = getAvailableExamples()
@@ -386,16 +505,6 @@ async function main(): Promise<void> {
 
 	// Sort examples to prioritize "Widget Starter" or "Plugin Starter"
 	const sortedExamples = availableExamples.sort((a, b) => {
-		const getDisplayName = (example: Example) => {
-			return (
-				example.metadata.name ||
-				example.name
-					.split('-')
-					.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-					.join(' ')
-			)
-		}
-
 		const aDisplayName = getDisplayName(a)
 		const bDisplayName = getDisplayName(b)
 
@@ -411,44 +520,8 @@ async function main(): Promise<void> {
 		return 0
 	})
 
-	const examplePrompt = new Select({
-		name: 'example',
-		message: 'Choose a starter:',
-		choices: sortedExamples.map((example) => {
-			const description = example.metadata.description || ''
-			// Use metadata name if available, otherwise fallback to formatted folder name
-			const displayName =
-				example.metadata.name ||
-				example.name
-					.split('-')
-					.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-					.join(' ')
-
-			return {
-				message: displayName,
-				value: displayName,
-				hint: description,
-			}
-		}),
-	})
-
-	const example: string = await examplePrompt.run()
-
-	// Find the original example by matching the display name
-	const selectedExample = availableExamples.find((ex) => {
-		const displayName =
-			ex.metadata.name ||
-			ex.name
-				.split('-')
-				.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-				.join(' ')
-		return displayName === example
-	})
-
-	if (!selectedExample) {
-		console.log(chalk.red('Selected example not found.'))
-		process.exit(1)
-	}
+	// Select example using the new helper function
+	const selectedExample = await selectExample(sortedExamples, exampleThreshold)
 
 	const languagePrompt = new Toggle({
 		name: 'typescript',
