@@ -21,7 +21,7 @@ const NO_UI_OPTION = 'No UI'
 const NO_UI_DESCRIPTION = 'no UI'
 const NO_UI_HINT = 'No UI included'
 const ANY_FRAMEWORK_OPTION = 'Any'
-const BROWSE_MORE_OPTION = '[Browse more starter examples]'
+const BROWSE_MORE_OPTION = 'More...'
 const DEFAULT_EXAMPLE_THRESHOLD = 1
 
 // Parse command line arguments
@@ -355,7 +355,7 @@ const selectExample = async (examples: Example[], threshold: number = DEFAULT_EX
 
 			const browsePrompt = new Select({
 				name: 'example',
-				message: 'Choose a starter:',
+				message: 'Browse more:',
 				choices: allChoices,
 			})
 
