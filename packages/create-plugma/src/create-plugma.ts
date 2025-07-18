@@ -20,6 +20,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const NO_UI_OPTION = 'No UI'
 const NO_UI_DESCRIPTION = 'no UI'
 const NO_UI_HINT = 'No UI included'
+const ANY_FRAMEWORK_OPTION = 'Any'
 
 // Parse command line arguments
 const args: string[] = process.argv.slice(2)
@@ -153,7 +154,8 @@ const filterExamples = (examples: Example[], needsUI: boolean, framework: string
 
 		// Only check framework compatibility for examples with UI
 		// Examples without UI don't need framework filtering
-		if (hasUI && metadata.uiFrameworks) {
+		// Skip framework filtering if "Any" is selected
+		if (hasUI && metadata.uiFrameworks && framework !== ANY_FRAMEWORK_OPTION) {
 			// Handle both array and string cases
 			let frameworksArray = metadata.uiFrameworks
 			if (typeof metadata.uiFrameworks === 'string') {
@@ -353,6 +355,10 @@ async function main(): Promise<void> {
 			message: colors[index % colors.length](framework),
 			value: framework,
 		})),
+		{
+			message: chalk.blue(ANY_FRAMEWORK_OPTION),
+			value: ANY_FRAMEWORK_OPTION,
+		},
 	]
 
 	if (frameworkChoices.length === 0) {
@@ -431,7 +437,7 @@ async function main(): Promise<void> {
 	const exampleName = selectedExample.metadata.name || selectedExample.name
 	const normalizedExampleName = exampleName.toLowerCase().replace(/\s+/g, '-')
 
-	// Generate base name (exclude framework if "None" is selected)
+	// Generate base name (exclude framework if "No UI" is selected)
 	const frameworkPart = framework === NO_UI_OPTION ? '' : `-${framework.toLowerCase()}`
 	const baseName = `${normalizedExampleName}${frameworkPart}-${type.toLowerCase()}`
 
@@ -470,7 +476,7 @@ async function main(): Promise<void> {
 	}
 
 	// Add framework-specific template after example (higher priority)
-	if (needsUI) {
+	if (needsUI && framework !== ANY_FRAMEWORK_OPTION) {
 		const frameworkTemplateDir = path.join(__dirname, '..', 'templates', 'frameworks', frameworkLower)
 		if (fs.existsSync(frameworkTemplateDir)) {
 			templates.push(frameworkTemplateDir)
