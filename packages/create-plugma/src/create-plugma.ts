@@ -22,7 +22,7 @@ const NO_UI_DESCRIPTION = 'no UI'
 const NO_UI_HINT = 'No UI included'
 const ANY_FRAMEWORK_OPTION = 'Any'
 const BROWSE_MORE_OPTION = 'More...'
-const DEFAULT_EXAMPLE_THRESHOLD = 1
+const DEFAULT_EXAMPLE_THRESHOLD = 10
 
 // Parse command line arguments
 const args: string[] = process.argv.slice(2)
