@@ -1,0 +1,18 @@
+{
+	"meta": {
+		"name": "Plugin Starter",
+		"description": "A blank plugin for you to start from scratch",
+		"type": "plugin"
+	},
+	"include": [
+		"../../base",
+		{
+			"source": "../../frameworks/<%= framework %>/components",
+			"target": "src/ui/components"
+		},
+		{
+			"source": "../../frameworks/<%= framework %>/assets",
+			"target": "src/ui/assets"
+		}
+	]
+}

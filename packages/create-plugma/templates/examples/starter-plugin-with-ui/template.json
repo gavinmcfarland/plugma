@@ -1,6 +1,6 @@
 {
 	"meta": {
-		"name": "Hello World",
+		"name": "Plugin Starter",
 		"description": "A blank plugin for you to start from scratch",
 		"type": "plugin",
 		"uiFrameworks": ["svelte", "vue", "react", "vanilla"]

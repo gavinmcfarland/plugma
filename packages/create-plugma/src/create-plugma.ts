@@ -384,10 +384,37 @@ async function main(): Promise<void> {
 		process.exit(1)
 	}
 
+	// Sort examples to prioritize "Widget Starter" or "Plugin Starter"
+	const sortedExamples = availableExamples.sort((a, b) => {
+		const getDisplayName = (example: Example) => {
+			return (
+				example.metadata.name ||
+				example.name
+					.split('-')
+					.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+					.join(' ')
+			)
+		}
+
+		const aDisplayName = getDisplayName(a)
+		const bDisplayName = getDisplayName(b)
+
+		// Check if either is "Widget Starter" or "Plugin Starter"
+		const aIsPriority = aDisplayName === 'Widget Starter' || aDisplayName === 'Plugin Starter'
+		const bIsPriority = bDisplayName === 'Widget Starter' || bDisplayName === 'Plugin Starter'
+
+		// If only one is priority, prioritize it
+		if (aIsPriority && !bIsPriority) return -1
+		if (!aIsPriority && bIsPriority) return 1
+
+		// If both are priority or both are not priority, maintain original order
+		return 0
+	})
+
 	const examplePrompt = new Select({
 		name: 'example',
 		message: 'Choose a starter:',
-		choices: availableExamples.map((example) => {
+		choices: sortedExamples.map((example) => {
 			const description = example.metadata.description || ''
 			// Use metadata name if available, otherwise fallback to formatted folder name
 			const displayName =
