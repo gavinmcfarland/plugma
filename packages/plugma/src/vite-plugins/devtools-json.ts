@@ -59,7 +59,6 @@ const plugin = (options?: { uuid: string }): Plugin => ({
 		}
 
 		server.middlewares.use(ENDPOINT, async (req, res) => {
-			console.log('devtools-json', req, res)
 			// Per https://vite.dev/config/shared-options.html#root the
 			// `config.root` can either be an absolute path, or a path
 			// relative to the current working directory.

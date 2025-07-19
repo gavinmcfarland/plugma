@@ -1,6 +1,6 @@
-import fs from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import path from 'node:path'
-
+import fs from 'node:fs'
 import type { Plugin, UserConfig } from 'vite'
 import { viteSingleFile } from 'vite-plugin-singlefile'
 
@@ -20,7 +20,6 @@ import { createBuildNotifierPlugin } from '../../vite-plugins/build-notifier.js'
 import { injectEventListeners } from '../../vite-plugins/main/inject-test-event-listeners.js'
 import viteCopyDirectoryPlugin from '../../vite-plugins/move-dir.js'
 import devtoolsJson from '../../vite-plugins/devtools-json.js'
-import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -64,18 +63,27 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 		load(id) {
 			// Return the HTML content for our virtual module
 			if (id === 'virtual:plugma-ui.html') {
-				return `<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><!--[ PLUGIN_NAME ]--></title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <!--[ PLUGIN_UI ]-->
-  </body>
-</html>`
+				// Check for user-provided index.html first (same logic as serveUi plugin)
+				const localTemplatePath = path.join(process.cwd(), 'index.html')
+
+				// Find the plugma package root more reliably
+				// Look for the templates directory relative to the current file location
+				const currentDir = path.dirname(fileURLToPath(import.meta.url))
+				const defaultTemplatePath = path.resolve(currentDir, '../../../templates/vite/ui.html')
+
+				let templatePath = defaultTemplatePath
+
+				// Use local template if it exists
+				if (fs.existsSync(localTemplatePath)) {
+					templatePath = localTemplatePath
+				}
+
+				try {
+					return fs.readFileSync(templatePath, 'utf-8')
+				} catch (error) {
+					// Provide a more helpful error message
+					throw new Error(`Failed to read HTML template file at ${templatePath}: ${error}`)
+				}
 			}
 			return null
 		},
@@ -83,8 +91,6 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 
 	// Use the virtual module as input
 	const resolvedInputPath = 'virtual:plugma-ui.html'
-
-	console.log('resolvedInputPath', resolvedInputPath)
 
 	// TODO: Change so that input is dynamically referenced. Checking if exists in project root and if not, use one from templates. Also should it be called ui.html?
 	// defaultLogger.debug('Creating Vite configs with:', {
