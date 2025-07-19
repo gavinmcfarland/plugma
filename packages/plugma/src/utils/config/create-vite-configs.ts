@@ -59,6 +59,14 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 		// fs.copyFileSync(indexInputPath, localUiHtmlPath);
 	}
 
+	// Ensure the input path is properly resolved relative to the current working directory
+	// This prevents Vite from using absolute paths as asset names
+	const resolvedInputPath = path.isAbsolute(indexInputPath)
+		? path.relative(process.cwd(), indexInputPath)
+		: indexInputPath
+
+	console.log('resolvedInputPath', resolvedInputPath)
+
 	// TODO: Change so that input is dynamically referenced. Checking if exists in project root and if not, use one from templates. Also should it be called ui.html?
 	// defaultLogger.debug('Creating Vite configs with:', {
 	// 	browserIndexPath: indexInputPath,
@@ -116,15 +124,26 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 				emptyOutDir: false,
 				write: true,
 				rollupOptions: {
-					input: indexInputPath,
+					input: resolvedInputPath,
 					output: {
 						entryFileNames: '[name].js',
 						chunkFileNames: '[name].js',
 						assetFileNames: (assetInfo: { name?: string }) => {
 							defaultLogger.debug('assetFileNames called with:', assetInfo)
 							if (!assetInfo.name) return '[name].[ext]'
+
+							// Extract just the filename, not the path
 							const basename = path.basename(assetInfo.name)
-							return basename === 'ui.html' ? 'ui.html' : basename
+
+							// Handle the case where the name is a full path
+							if (basename === 'ui.html') {
+								return 'ui.html'
+							}
+
+							// For other files, ensure we only use the filename
+							// and sanitize it to remove any path separators
+							const sanitizedName = basename.replace(/[\/\\]/g, '_')
+							return sanitizedName || '[name].[ext]'
 						},
 					},
 				},
