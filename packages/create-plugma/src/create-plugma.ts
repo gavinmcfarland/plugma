@@ -133,6 +133,11 @@ const getAvailableExamples = (): Example[] => {
 		.filter((dirent) => dirent.isDirectory())
 		.map((dirent) => dirent.name)
 
+	if (debugFlag) {
+		console.log(chalk.blue(`Debug: Found ${exampleDirs.length} example directories:`))
+		exampleDirs.forEach((dir) => console.log(chalk.gray(`  - ${dir}`)))
+	}
+
 	exampleDirs.forEach((exampleName) => {
 		const combinoPath = path.join(examplesDir, exampleName, 'template.json')
 		if (fs.existsSync(combinoPath)) {
@@ -144,9 +149,24 @@ const getAvailableExamples = (): Example[] => {
 					name: exampleName,
 					metadata,
 				})
+				if (debugFlag) {
+					console.log(chalk.green(`  ✓ Loaded ${exampleName}: ${metadata.name || exampleName}`))
+				}
+			} else {
+				if (debugFlag) {
+					console.log(chalk.red(`  ✗ Failed to parse metadata for ${exampleName}`))
+				}
+			}
+		} else {
+			if (debugFlag) {
+				console.log(chalk.yellow(`  ⚠ No template.json found in ${exampleName}`))
 			}
 		}
 	})
+
+	if (debugFlag) {
+		console.log(chalk.blue(`Debug: Successfully loaded ${examples.length} examples`))
+	}
 
 	return examples
 }
@@ -442,6 +462,16 @@ async function main(): Promise<void> {
 	// Filter examples by selected type first
 	const typeFilteredExamples = allExamples.filter((example) => example.metadata.type === type.toLowerCase())
 
+	if (debugFlag) {
+		console.log(chalk.blue(`Debug: Found ${typeFilteredExamples.length} examples for type "${type}":`))
+		typeFilteredExamples.forEach((example) => {
+			const displayName = getDisplayName(example)
+			const hasUI = exampleHasUI(example.metadata)
+			const hidden = example.metadata.hidden || false
+			console.log(chalk.gray(`  - ${displayName} (hasUI: ${hasUI}, hidden: ${hidden})`))
+		})
+	}
+
 	if (typeFilteredExamples.length === 0) {
 		console.log(chalk.red(`No examples available for ${type}.`))
 		process.exit(1)
@@ -493,19 +523,45 @@ async function main(): Promise<void> {
 	// Filter examples based on user choices (type was already filtered above)
 	const availableExamples = filterExamples(typeFilteredExamples, needsUI, framework)
 
+	if (debugFlag) {
+		console.log(chalk.blue(`Debug: Found ${availableExamples.length} examples after filtering:`))
+		availableExamples.forEach((example) => {
+			const displayName = getDisplayName(example)
+			const rank = example.metadata.rank ?? 0
+			const hasUI = exampleHasUI(example.metadata)
+			console.log(chalk.gray(`  - ${displayName} (rank: ${rank}, hasUI: ${hasUI})`))
+		})
+	}
+
 	if (availableExamples.length === 0) {
 		console.log(chalk.red('No examples available for the selected configuration.'))
 		process.exit(1)
 	}
 
-	// Sort examples by rank (highest rank first)
+	// Sort examples by rank (highest rank first), then by name for stable sorting
 	const sortedExamples = availableExamples.sort((a, b) => {
 		const aRank = a.metadata.rank ?? 0
 		const bRank = b.metadata.rank ?? 0
 
 		// Sort by rank in descending order (highest rank first)
-		return bRank - aRank
+		if (aRank !== bRank) {
+			return bRank - aRank
+		}
+
+		// If ranks are equal, sort by name for stable ordering
+		const aName = getDisplayName(a)
+		const bName = getDisplayName(b)
+		return aName.localeCompare(bName)
 	})
+
+	if (debugFlag) {
+		console.log(chalk.blue(`Debug: Sorted examples:`))
+		sortedExamples.forEach((example) => {
+			const displayName = getDisplayName(example)
+			const rank = example.metadata.rank ?? 0
+			console.log(chalk.gray(`  - ${displayName} (rank: ${rank})`))
+		})
+	}
 
 	// Select example using the new helper function
 	const selectedExample = await selectExample(sortedExamples, exampleThreshold)
