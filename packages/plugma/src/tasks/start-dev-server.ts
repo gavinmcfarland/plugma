@@ -11,6 +11,8 @@ import { viteState } from '../utils/vite-state-manager.js'
 import { getUserFiles } from '../utils/get-user-files.js'
 import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
 import chalk from 'chalk'
+import { resolve } from 'node:path'
+import { access } from 'node:fs/promises'
 
 /**
  * Result type for the start-vite-server task
@@ -39,21 +41,29 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 		task: async (ctx, task) => {
 			const logger = createDebugAwareLogger(options.debug)
 
+			// Check if UI is specified in manifest first
+			const files = await getUserFiles(options)
+			if (!files.manifest.ui) {
+				logger.log(ListrLogLevels.SKIPPED, 'No UI specified in manifest, start-dev-server')
+				return ctx
+			}
+
+			// Check if UI file exists
+			const uiPath = resolve(files.manifest.ui)
+			const fileExists = await access(uiPath)
+				.then(() => true)
+				.catch(() => false)
+
+			if (!fileExists) {
+				const error = new Error(`UI file not found at ${uiPath}`)
+				logger.log(ListrLogLevels.FAILED, error.message)
+				throw error
+			}
+
 			console.log(`${chalk.blue(`➔ http://localhost:${options.port}`)}\n`)
 
 			return task.newListr(
 				[
-					{
-						title: 'Checking UI configuration',
-						task: async () => {
-							const files = await getUserFiles(options)
-							if (!files.manifest.ui) {
-								logger.log(ListrLogLevels.SKIPPED, 'No UI specified in manifest, skipping Vite server')
-								throw new Error('UI must be specified in manifest to start Vite server')
-							}
-							return files
-						},
-					},
 					{
 						title: 'Closing existing server',
 						task: async () => {
@@ -111,7 +121,6 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 					{
 						title: 'Creating server configuration',
 						task: async (ctx: ServerContext) => {
-							const files = await getUserFiles(options)
 							const configs = createViteConfigs(options, files)
 
 							const baseConfig = {

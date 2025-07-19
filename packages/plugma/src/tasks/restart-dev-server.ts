@@ -55,7 +55,7 @@ export const restartViteServer = async (
 
 		// Skip if no UI is specified
 		if (!files.manifest?.ui) {
-			log.debug('No UI specified in manifest, skipping Vite server restart')
+			log.debug('No UI specified in manifest, restart-dev-server')
 			return { server: null }
 		}
 

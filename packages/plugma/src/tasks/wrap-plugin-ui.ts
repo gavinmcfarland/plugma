@@ -24,7 +24,7 @@ export const createWrapPluginUiTask = <T extends { uiDuration?: number }>(
 			const files = await getUserFiles(options)
 
 			if (!files.manifest.ui) {
-				logger.log(ListrLogLevels.SKIPPED, 'No UI specified in manifest, skipping build:wrap-plugin-ui task')
+				logger.log(ListrLogLevels.SKIPPED, 'No UI specified in manifest, skipping wrap-plugin-ui task')
 				return { outputPath: undefined }
 			}
 
@@ -33,15 +33,9 @@ export const createWrapPluginUiTask = <T extends { uiDuration?: number }>(
 				.then(() => true)
 				.catch(() => false)
 
-			// if (!fileExists) {
-			// 	logger.log(ListrLogLevels.SKIPPED, `UI file not found at ${uiPath}, skipping build:wrap-plugin-ui task`)
-			// 	return { outputPath: undefined }
-			// }
-
 			if (!fileExists) {
-				const error = new Error(`UI file not found at ${uiPath}`)
-				logger.log(ListrLogLevels.FAILED, error.message)
-				throw error
+				logger.log(ListrLogLevels.SKIPPED, `UI file not found at ${uiPath}, skipping wrap-plugin-ui task`)
+				return { outputPath: undefined }
 			}
 
 			const outputPath = join(options.output || 'dist', 'ui.html')

@@ -36,6 +36,7 @@ const mocks = vi.hoisted(() => {
     },
     loggerInstance: loggerMock,
     Logger: vi.fn().mockImplementation(() => loggerMock),
+    getUserFiles: vi.fn(),
   };
 });
 
@@ -58,8 +59,13 @@ vi.mock('#utils/log/logger.js', () => ({
   Logger: mocks.Logger,
 }));
 
-import { GetFilesTask, WrapPluginUiTask } from '#tasks';
+vi.mock('#utils/get-user-files.js', () => ({
+  getUserFiles: mocks.getUserFiles,
+}));
+
+import { GetFilesTask, createWrapPluginUiTask } from '#tasks';
 import { type MockFs, createMockFs, createMockTaskContext } from '#test';
+import { Listr } from 'listr2';
 
 const baseOptions = {
   command: 'dev' as const,
@@ -110,6 +116,13 @@ describe('WrapPluginUiTask', () => {
       [templatePath]: templateContent,
     });
 
+    mocks.getUserFiles.mockResolvedValue({
+      manifest: {
+        ui: uiPath,
+      },
+      userPkgJson: {},
+    });
+
     const context = createMockTaskContext({
       [GetFilesTask.name]: {
         files: {
@@ -120,7 +133,9 @@ describe('WrapPluginUiTask', () => {
       },
     });
 
-    const result = await WrapPluginUiTask.run(baseOptions, context);
+    const task = createWrapPluginUiTask(baseOptions);
+    const listr = new Listr([task], { concurrent: false });
+    const result = await listr.run(context);
 
     // Verify output path
     expect(result.outputPath).toBe('dist/ui.html');
@@ -151,6 +166,11 @@ describe('WrapPluginUiTask', () => {
   });
 
   test('should skip when manifest has no UI field', async () => {
+    mocks.getUserFiles.mockResolvedValue({
+      manifest: {},
+      userPkgJson: {},
+    });
+
     const context = createMockTaskContext({
       [GetFilesTask.name]: {
         files: {
@@ -159,7 +179,9 @@ describe('WrapPluginUiTask', () => {
       },
     });
 
-    const result = await WrapPluginUiTask.run(baseOptions, context);
+    const task = createWrapPluginUiTask(baseOptions);
+    const listr = new Listr([task], { concurrent: false });
+    const result = await listr.run(context);
 
     expect(result.outputPath).toBeUndefined();
     expect(mocks.loggerInstance.debug).toHaveBeenCalledWith(
@@ -171,6 +193,13 @@ describe('WrapPluginUiTask', () => {
   test('should skip when UI file does not exist', async () => {
     const uiPath = '/path/to/nonexistent.html';
 
+    mocks.getUserFiles.mockResolvedValue({
+      manifest: {
+        ui: uiPath,
+      },
+      userPkgJson: {},
+    });
+
     const context = createMockTaskContext({
       [GetFilesTask.name]: {
         files: {
@@ -181,7 +210,9 @@ describe('WrapPluginUiTask', () => {
       },
     });
 
-    const result = await WrapPluginUiTask.run(baseOptions, context);
+    const task = createWrapPluginUiTask(baseOptions);
+    const listr = new Listr([task], { concurrent: false });
+    const result = await listr.run(context);
 
     expect(result.outputPath).toBeUndefined();
     expect(mocks.loggerInstance.debug).toHaveBeenCalledWith(
@@ -197,6 +228,13 @@ describe('WrapPluginUiTask', () => {
       [uiPath]: '<div>test</div>',
     });
 
+    mocks.getUserFiles.mockResolvedValue({
+      manifest: {
+        ui: uiPath,
+      },
+      userPkgJson: {},
+    });
+
     const context = createMockTaskContext({
       [GetFilesTask.name]: {
         files: {
@@ -207,7 +245,9 @@ describe('WrapPluginUiTask', () => {
       },
     });
 
-    await expect(WrapPluginUiTask.run(baseOptions, context)).rejects.toThrow(
+    const task = createWrapPluginUiTask(baseOptions);
+    const listr = new Listr([task], { concurrent: false });
+    await expect(listr.run(context)).rejects.toThrow(
       `Template file not found at ${templatePath}`,
     );
     expect(mocks.loggerInstance.error).toHaveBeenCalledWith(
@@ -217,9 +257,13 @@ describe('WrapPluginUiTask', () => {
   });
 
   test('should handle missing get-files result', async () => {
+    mocks.getUserFiles.mockRejectedValue(new Error('get-files task must run first'));
+
     const context = createMockTaskContext({});
 
-    await expect(WrapPluginUiTask.run(baseOptions, context)).rejects.toThrow(
+    const task = createWrapPluginUiTask(baseOptions);
+    const listr = new Listr([task], { concurrent: false });
+    await expect(listr.run(context)).rejects.toThrow(
       'get-files task must run first',
     );
   });
