@@ -7,9 +7,16 @@
 		"rank": 1000
     },
     "include": [
-        "../../base"
+        "../../base",
+        {
+			"source": "../../frameworks/<%= framework %>/components",
+			"target": "src/ui/components"
+		},
+		{
+			"source": "../../frameworks/<%= framework %>/assets",
+			"target": "src/ui/assets"
+		}
     ],
-    "exclude": ["../../base/src/ui/vite-env.d.ts", "../../base/tsconfig.ui.json"],
     "data": {
         "description": "A sticky notes widget for Figma"
     }

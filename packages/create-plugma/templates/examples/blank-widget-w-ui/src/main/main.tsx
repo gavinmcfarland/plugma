@@ -20,5 +20,5 @@ function Widget() {
 }
 
 export default function () {
-	widget.register(Counter);
+	widget.register(Widget);
 }

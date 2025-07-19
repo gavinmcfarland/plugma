@@ -2,8 +2,5 @@
     "id": "com.<%- name %>",
     "name": "<%- name %>",
     "main": "src/main/main.<%- typescript ? 'ts' : 'js' %>",
-    "editorType": ["figma", "figjam"],
-    "networkAccess": {
-        "allowedDomains": ["none"]
-    }
+    "editorType": ["figma", "figjam"]
 }

@@ -1,9 +1,0 @@
-{
-	"plugma": {
-		"manifest": {
-			"name": "minimal",
-			"ui": "src/ui.ts",
-			"main": "src/main.ts"
-		}
-	}
-}
