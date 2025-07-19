@@ -1,0 +1,10 @@
+{
+	"id": "com.<%- name %>",
+	"name": "<%- name %>",
+    "api": "1.0.0",
+	"main": "<%- mainDir %>/main.<%- typescript ? 'ts' : 'js' %>",
+	"editorType": ["figma", "figjam"],
+	"networkAccess": {
+		"allowedDomains": ["none"]
+	}
+}

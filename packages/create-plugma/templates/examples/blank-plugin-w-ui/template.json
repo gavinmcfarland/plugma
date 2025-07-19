@@ -1,10 +1,10 @@
 {
 	"meta": {
-		"name": "Rectangle Creator",
-		"description": "A plugin that creates rectangles",
+		"name": "Blank",
+		"description": "A blank plugin to start from the ground up",
 		"type": "plugin",
 		"uiFrameworks": ["svelte", "vue", "react"],
-		"rank": 100
+		"rank": 1000
 	},
 	"include": [
 		"../../base",

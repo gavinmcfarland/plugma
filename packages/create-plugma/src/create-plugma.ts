@@ -20,7 +20,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const NO_UI_OPTION = 'No UI'
 const NO_UI_DESCRIPTION = 'no UI'
 const NO_UI_HINT = 'No UI included'
-const ANY_FRAMEWORK_OPTION = 'Any'
 const BROWSE_MORE_OPTION = 'More...'
 const DEFAULT_EXAMPLE_THRESHOLD = 10
 
@@ -47,6 +46,7 @@ interface ExampleMetadata {
 	type?: string
 	description?: string
 	hidden?: boolean
+	rank?: number
 }
 
 interface Example {
@@ -169,8 +169,7 @@ const filterExamples = (examples: Example[], needsUI: boolean, framework: string
 
 		// Only check framework compatibility for examples with UI
 		// Examples without UI don't need framework filtering
-		// Skip framework filtering if "Any" is selected
-		if (hasUI && metadata.uiFrameworks && framework !== ANY_FRAMEWORK_OPTION) {
+		if (hasUI && metadata.uiFrameworks) {
 			// Handle both array and string cases
 			let frameworksArray = metadata.uiFrameworks
 			if (typeof metadata.uiFrameworks === 'string') {
@@ -474,10 +473,6 @@ async function main(): Promise<void> {
 			message: colors[index % colors.length](framework),
 			value: framework,
 		})),
-		{
-			message: chalk.blue(ANY_FRAMEWORK_OPTION),
-			value: ANY_FRAMEWORK_OPTION,
-		},
 	]
 
 	if (frameworkChoices.length === 0) {
@@ -503,21 +498,13 @@ async function main(): Promise<void> {
 		process.exit(1)
 	}
 
-	// Sort examples to prioritize "Widget Starter" or "Plugin Starter"
+	// Sort examples by rank (highest rank first)
 	const sortedExamples = availableExamples.sort((a, b) => {
-		const aDisplayName = getDisplayName(a)
-		const bDisplayName = getDisplayName(b)
+		const aRank = a.metadata.rank ?? 0
+		const bRank = b.metadata.rank ?? 0
 
-		// Check if either is "Widget Starter" or "Plugin Starter"
-		const aIsPriority = aDisplayName === 'Widget Starter' || aDisplayName === 'Plugin Starter'
-		const bIsPriority = bDisplayName === 'Widget Starter' || bDisplayName === 'Plugin Starter'
-
-		// If only one is priority, prioritize it
-		if (aIsPriority && !bIsPriority) return -1
-		if (!aIsPriority && bIsPriority) return 1
-
-		// If both are priority or both are not priority, maintain original order
-		return 0
+		// Sort by rank in descending order (highest rank first)
+		return bRank - aRank
 	})
 
 	// Select example using the new helper function
@@ -576,7 +563,7 @@ async function main(): Promise<void> {
 	}
 
 	// Add framework-specific template after example (higher priority)
-	if (needsUI && framework !== ANY_FRAMEWORK_OPTION) {
+	if (needsUI) {
 		const frameworkTemplateDir = path.join(__dirname, '..', 'templates', 'frameworks', frameworkLower)
 		if (fs.existsSync(frameworkTemplateDir)) {
 			templates.push(frameworkTemplateDir)
