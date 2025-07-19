@@ -44,7 +44,7 @@ async function runWatchMode({ options, viteConfigs, userUIConfig }: ViteConfigOp
 					watch: {},
 					outDir: join(options.output),
 				},
-				plugins: [renameIndexHtml()],
+				plugins: [renameIndexHtml(join(options.output))],
 			},
 			userUIConfig?.config ?? {},
 		),
@@ -77,7 +77,7 @@ async function runBuild({ options, viteConfigs, userUIConfig }: ViteConfigOption
 		mergeConfig(
 			{
 				configFile: false,
-				plugins: [renameIndexHtml()],
+				plugins: [renameIndexHtml(join(options.output))],
 			},
 			userUIConfig?.config ?? {},
 		),
