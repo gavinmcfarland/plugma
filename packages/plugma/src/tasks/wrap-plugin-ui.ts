@@ -33,9 +33,15 @@ export const createWrapPluginUiTask = <T extends { uiDuration?: number }>(
 				.then(() => true)
 				.catch(() => false)
 
+			// if (!fileExists) {
+			// 	logger.log(ListrLogLevels.SKIPPED, `UI file not found at ${uiPath}, skipping build:wrap-plugin-ui task`)
+			// 	return { outputPath: undefined }
+			// }
+
 			if (!fileExists) {
-				logger.log(ListrLogLevels.SKIPPED, `UI file not found at ${uiPath}, skipping build:wrap-plugin-ui task`)
-				return { outputPath: undefined }
+				const error = new Error(`UI file not found at ${uiPath}`)
+				logger.log(ListrLogLevels.FAILED, error.message)
+				throw error
 			}
 
 			const outputPath = join(options.output || 'dist', 'ui.html')

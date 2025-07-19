@@ -2,7 +2,6 @@
  * Common test utilities for build tasks
  */
 
-import type { BuildUiTask } from '#tasks/build/ui';
 import { vi } from 'vitest';
 
 /**
@@ -15,7 +14,7 @@ export const mockBuildOptions = {
   output: 'dist',
   instanceId: 'test',
   debug: false,
-} satisfies Partial<BuildUiTask['options']>;
+};
 
 /**
  * Mock build options with entry and outDir for main build task
@@ -24,7 +23,7 @@ export const mockMainBuildOptions = {
   ...mockBuildOptions,
   entry: 'src/main.ts',
   outDir: 'dist',
-} satisfies BuildUiTask['options'];
+};
 
 /**
  * Sets up common fs mocks used in build tests

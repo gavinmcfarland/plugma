@@ -45,6 +45,7 @@ const mocks = vi.hoisted(() => {
     performance: {
       now: vi.fn().mockReturnValue(1000),
     },
+    getUserFiles: vi.fn(),
   };
 });
 
@@ -83,8 +84,12 @@ vi.mock('node:perf_hooks', () => ({
   performance: mocks.performance,
 }));
 
-import { BuildUiTask, GetFilesTask } from '#tasks';
-import { type MockFs, createMockFs, createMockTaskContext } from '#test';
+vi.mock('#utils/get-user-files.js', () => ({
+  getUserFiles: mocks.getUserFiles,
+}));
+
+import { createBuildUiTask } from '#tasks/build-ui.js';
+import { type MockFs, createMockFs } from '#test';
 
 const baseOptions = {
   command: 'dev' as const,
@@ -95,7 +100,7 @@ const baseOptions = {
   debug: false,
 };
 
-describe('BuildUiTask', () => {
+describe('createBuildUiTask', () => {
   let mockFs: MockFs;
 
   beforeEach(() => {
@@ -120,64 +125,62 @@ describe('BuildUiTask', () => {
       [uiPath]: uiContent,
     });
 
-    const context = createMockTaskContext({
-      [GetFilesTask.name]: {
-        files: {
-          manifest: {
-            ui: uiPath,
-          },
-        },
+    mocks.getUserFiles.mockResolvedValue({
+      manifest: {
+        ui: uiPath,
       },
+      userPkgJson: {},
     });
 
-    const result = await BuildUiTask.run(baseOptions, context);
+    const task = createBuildUiTask(baseOptions);
+    const context = {};
 
-    expect(result.outputPath).toBe('dist/ui.html');
-    expect(mocks.loggerInstance.debug).toHaveBeenCalledWith(
-      `Building UI from ${uiPath}...`,
-    );
+    await task.task(context, task);
+
     expect(mocks.build).toHaveBeenCalled();
   });
 
   test('should skip when manifest has no UI', async () => {
-    const context = createMockTaskContext({
-      [GetFilesTask.name]: {
-        files: {
-          manifest: {},
-        },
-      },
+    mocks.getUserFiles.mockResolvedValue({
+      manifest: {},
+      userPkgJson: {},
     });
 
-    const result = await BuildUiTask.run(baseOptions, context);
+    const task = createBuildUiTask(baseOptions);
+    const context = {};
 
-    expect(result.outputPath).toBe('dist/ui.html');
+    await task.task(context, task);
+
     expect(mocks.build).not.toHaveBeenCalled();
   });
 
-  test('should skip when UI file does not exist', async () => {
+  test('should throw error when UI file does not exist', async () => {
     const uiPath = '/path/to/nonexistent.html';
     mocks.access.mockImplementation(() => Promise.reject(new Error('ENOENT')));
 
-    const context = createMockTaskContext({
-      [GetFilesTask.name]: {
-        files: {
-          manifest: {
-            ui: uiPath,
-          },
-        },
+    mocks.getUserFiles.mockResolvedValue({
+      manifest: {
+        ui: uiPath,
       },
+      userPkgJson: {},
     });
 
-    const result = await BuildUiTask.run(baseOptions, context);
+    const task = createBuildUiTask(baseOptions);
+    const context = {};
 
-    expect(result.outputPath).toBe('dist/ui.html');
+    await expect(task.task(context, task)).rejects.toThrow(
+      `UI file not found at ${uiPath}`,
+    );
     expect(mocks.build).not.toHaveBeenCalled();
   });
 
   test('should handle missing get-files result', async () => {
-    const context = createMockTaskContext({});
+    mocks.getUserFiles.mockRejectedValue(new Error('get-files task must run first'));
 
-    await expect(BuildUiTask.run(baseOptions, context)).rejects.toThrow(
+    const task = createBuildUiTask(baseOptions);
+    const context = {};
+
+    await expect(task.task(context, task)).rejects.toThrow(
       'get-files task must run first',
     );
   });
@@ -202,19 +205,18 @@ describe('BuildUiTask', () => {
     // Mock successful build
     mocks.build.mockResolvedValue(undefined);
 
-    const context = createMockTaskContext({
-      [GetFilesTask.name]: {
-        files: {
-          manifest: {
-            ui: uiPath,
-            main: mainPath,
-          },
-        },
-        config: createMockViteConfig(),
+    mocks.getUserFiles.mockResolvedValue({
+      manifest: {
+        ui: uiPath,
+        main: mainPath,
       },
+      userPkgJson: {},
     });
 
-    await BuildUiTask.run(baseOptions, context);
+    const task = createBuildUiTask(baseOptions);
+    const context = {};
+
+    await task.task(context, task);
 
     expect(mocks.notifyInvalidManifestOptions).toHaveBeenCalledWith(
       expect.any(Object),

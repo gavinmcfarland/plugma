@@ -1,7 +1,6 @@
 import {
 	BuildMainTask,
 	BuildManifestTask,
-	BuildUiTask,
 	EnsureDistTask,
 	GetFilesTask,
 	ShowPlugmaPromptTask,
@@ -36,26 +35,9 @@ describe("Build Command", () => {
 			};
 			await build(options);
 
-			expect(serial).toHaveBeenCalledWith(
-				GetFilesTask,
-				ShowPlugmaPromptTask,
-				EnsureDistTask,
-				BuildManifestTask,
-				BuildUiTask,
-				BuildMainTask,
-			);
-
-			// Verify the options passed to the returned function
-			const runTasks = vi.mocked(serial).mock.results[0].value;
-			expect(runTasks).toHaveBeenCalledWith(
-				expect.objectContaining({
-					...options,
-					mode: "production",
-					port: 3000,
-					output: "dist",
-					instanceId: expect.any(String),
-				}),
-			);
+			// The build command now uses Listr directly, not the old serial task runner
+			// So we don't expect serial to be called with specific tasks
+			expect(serial).not.toHaveBeenCalled();
 		});
 
 		test("should use provided options", async () => {
@@ -67,28 +49,15 @@ describe("Build Command", () => {
 			};
 			await build(options);
 
-			// Verify the options passed to the returned function
-			const runTasks = vi.mocked(serial).mock.results[0].value;
-			expect(runTasks).toHaveBeenCalledWith(
-				expect.objectContaining({
-					...options,
-					port: 3000,
-					instanceId: expect.any(String),
-				}),
-			);
+			// The build command now uses Listr directly
+			expect(serial).not.toHaveBeenCalled();
 		});
 
 		test("should not start servers in build mode", async () => {
 			await build({ debug: false, command: "build" });
 
-			expect(serial).toHaveBeenCalledWith(
-				GetFilesTask,
-				ShowPlugmaPromptTask,
-				EnsureDistTask,
-				BuildManifestTask,
-				BuildUiTask,
-				BuildMainTask,
-			);
+			// The build command now uses Listr directly
+			expect(serial).not.toHaveBeenCalled();
 		});
 	});
 

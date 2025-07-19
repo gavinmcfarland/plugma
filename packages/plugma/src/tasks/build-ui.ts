@@ -12,10 +12,6 @@ import { Timer } from '../utils/timer.js'
 import { ListrLogLevels, ListrTask } from 'listr2'
 import { BuildCommandOptions, DevCommandOptions, PreviewCommandOptions } from '../utils/create-options.js'
 import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
-interface BuildUiResult {
-	outputPath: string
-	duration?: string
-}
 
 interface ViteConfigOptions {
 	options: PluginOptions
@@ -116,8 +112,9 @@ export const createBuildUiTask = <T extends { uiDuration?: number }>(
 
 				const uiPath = resolve(currentFiles.manifest.ui)
 				if (!(await fileExists(uiPath))) {
-					console.error(`UI file not found at ${uiPath}, skipping build`)
-					return ctx
+					const error = new Error(`UI file not found at .... ${uiPath}`)
+					logger.log(ListrLogLevels.FAILED, error.message)
+					throw error
 				}
 
 				const viteConfigs = createViteConfigs(options, currentFiles)
@@ -149,43 +146,4 @@ export const createBuildUiTask = <T extends { uiDuration?: number }>(
 			}
 		},
 	}
-}
-
-// Keep the old task for backward compatibility
-export const BuildUiTask = {
-	run: async (options: any): Promise<BuildUiResult> => {
-		const currentFiles = await getUserFiles(options)
-		const outputPath = join(options.output, 'ui.html')
-
-		await viteState.viteUi.close()
-
-		const timer = new Timer()
-
-		if (!currentFiles.manifest.ui) {
-			return { outputPath }
-		}
-
-		const uiPath = resolve(currentFiles.manifest.ui)
-		if (!(await fileExists(uiPath))) {
-			console.error(`UI file not found at ${uiPath}, skipping build`)
-			return { outputPath }
-		}
-
-		const viteConfigs = createViteConfigs(options, currentFiles)
-		const userUIConfig = await loadConfig('vite.config.ui', options, 'ui')
-		const configOptions = { options, viteConfigs, userUIConfig }
-
-		if (options.command === 'build' && options.watch) {
-			runWatchMode(configOptions)
-		} else {
-			timer.start()
-			await runBuild(configOptions)
-			timer.stop()
-		}
-
-		await notifyInvalidManifestOptions(options, currentFiles, 'plugin-built')
-
-		const duration = timer.getDuration()
-		return { outputPath, duration }
-	},
 }

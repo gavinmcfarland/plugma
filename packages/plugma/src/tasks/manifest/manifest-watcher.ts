@@ -4,7 +4,7 @@ import { join, resolve } from 'node:path'
 import { unlink } from 'node:fs/promises'
 import { BuildCommandOptions, DevCommandOptions, PreviewCommandOptions } from '../../utils/create-options.js'
 import { createBuildMainTask } from '../build-main.js'
-import { BuildUiTask } from '../build-ui.js'
+import { createBuildUiTask } from '../build-ui.js'
 import { createStartViteServerTask } from '../start-dev-server.js'
 import { Listr } from 'listr2'
 import { fileExists } from './utils.js'
@@ -99,7 +99,9 @@ async function handleUiFileChanges(
 				const listr = new Listr([startViteTask], { concurrent: false })
 				await listr.run({})
 			}
-			await BuildUiTask.run(options)
+			const buildUiTask = createBuildUiTask(options)
+			const listr = new Listr([buildUiTask], { concurrent: false })
+			await listr.run({})
 		} else {
 			try {
 				await unlink(outputUiPath)
@@ -114,6 +116,8 @@ async function handleUiFileChanges(
 			const listr = new Listr([startViteTask], { concurrent: false })
 			await listr.run({})
 		}
-		await BuildUiTask.run(options)
+		const buildUiTask = createBuildUiTask(options)
+		const listr = new Listr([buildUiTask], { concurrent: false })
+		await listr.run({})
 	}
 }

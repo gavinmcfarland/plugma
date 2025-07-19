@@ -4,28 +4,11 @@ import { mockWebSocket } from '../server/mock-websocket';
 import { mockVite } from '../vite/mock-vite';
 
 /**
- * Mock task to get files
- */
-export const GetFilesTask: Task = async () => {
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  mockFs.writeFile('dist/files.json', JSON.stringify({ files: [] }));
-};
-
-/**
  * Mock task to show Plugma prompt
  */
 export const ShowPlugmaPromptTask: Task = async () => {
   await new Promise((resolve) => setTimeout(resolve, 100));
   mockWebSocket.sendMessage({ type: 'prompt:show' });
-};
-
-/**
- * Mock task to build UI
- */
-export const BuildUiTask: Task = async () => {
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  mockFs.writeFile('dist/ui/index.html', '<html></html>');
-  mockFs.writeFile('dist/ui/index.js', 'console.log("UI built")');
 };
 
 /**
