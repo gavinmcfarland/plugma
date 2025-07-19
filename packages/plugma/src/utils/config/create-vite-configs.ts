@@ -50,20 +50,39 @@ export type ViteConfigs = {
  * Creates Vite configurations for both development and build
  */
 export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfigs {
-	// Copy template to the current working directory
-	// Was ui.html, but now using index.html
-	const localUiHtmlPath = path.join(process.cwd(), 'index.html')
-	let indexInputPath = templateUiHtmlPath
-	if (fs.existsSync(localUiHtmlPath)) {
-		indexInputPath = localUiHtmlPath
-		// fs.copyFileSync(indexInputPath, localUiHtmlPath);
+	// Create a virtual HTML module plugin because Vite complains about the html template being relative or absolute
+	const virtualHtmlPlugin: Plugin = {
+		name: 'plugma:virtual-html',
+		apply: 'build',
+		resolveId(id) {
+			// Handle our virtual HTML module
+			if (id === 'virtual:plugma-ui.html') {
+				return id
+			}
+			return null
+		},
+		load(id) {
+			// Return the HTML content for our virtual module
+			if (id === 'virtual:plugma-ui.html') {
+				return `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><!--[ PLUGIN_NAME ]--></title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <!--[ PLUGIN_UI ]-->
+  </body>
+</html>`
+			}
+			return null
+		},
 	}
 
-	// Ensure the input path is properly resolved relative to the current working directory
-	// This prevents Vite from using absolute paths as asset names
-	const resolvedInputPath = path.isAbsolute(indexInputPath)
-		? path.relative(process.cwd(), indexInputPath)
-		: indexInputPath
+	// Use the virtual module as input
+	const resolvedInputPath = 'virtual:plugma-ui.html'
 
 	console.log('resolvedInputPath', resolvedInputPath)
 
@@ -148,7 +167,14 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 					},
 				},
 			},
-			plugins: [replacePlaceholders(placeholders), ...commonVitePlugins],
+			plugins: [
+				replacePlaceholders(placeholders),
+				htmlTransform(options),
+				rewritePostMessageTargetOrigin(),
+				serveUi(options),
+				...commonVitePlugins,
+				virtualHtmlPlugin,
+			],
 		} satisfies UserConfig,
 	}
 
