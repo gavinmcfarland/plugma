@@ -1,0 +1,18 @@
+{
+	"meta": {
+		"name": "Dev Mode",
+		"description": "A plugin that demonstrates how to use the dev mode API",
+		"type": "plugin"
+	},
+	"include": [
+		"../../base",
+		{
+			"source": "../../frameworks/<%= framework %>/components",
+			"target": "src/ui/components"
+		},
+		{
+			"source": "../../frameworks/<%= framework %>/assets",
+			"target": "src/ui/assets"
+		}
+	]
+}
