@@ -44,7 +44,7 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 			// Check if UI is specified in manifest first
 			const files = await getUserFiles(options)
 			if (!files.manifest.ui) {
-				logger.log(ListrLogLevels.SKIPPED, 'No UI specified in manifest, start-dev-server')
+				logger.log(ListrLogLevels.SKIPPED, 'No UI specified in manifest, skipping start-dev-server')
 				return ctx
 			}
 
