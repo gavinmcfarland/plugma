@@ -491,6 +491,10 @@ async function main(): Promise<void> {
 	const colors = [chalk.green, chalk.yellow, chalk.red, chalk.gray, chalk.blue, chalk.magenta]
 
 	const frameworkChoices = [
+		...availableFrameworks.map((framework, index) => ({
+			message: colors[index % colors.length](framework),
+			value: framework,
+		})),
 		...(hasNoUIExamples
 			? [
 					{
@@ -499,10 +503,6 @@ async function main(): Promise<void> {
 					},
 				]
 			: []),
-		...availableFrameworks.map((framework, index) => ({
-			message: colors[index % colors.length](framework),
-			value: framework,
-		})),
 	]
 
 	if (frameworkChoices.length === 0) {
