@@ -4,5 +4,5 @@
 	"main": "<%- mainDir %>/main.<%- typescript ? 'ts' : 'js' %>",
 	"editorType": ["dev", "figma"],
     "capabilities": ["codegen", "inspect"],
-    "codegenLanguages": [{ "label": "Text", "value": "text" }],
+    "codegenLanguages": [{ "label": "Text", "value": "text" }]
   }
