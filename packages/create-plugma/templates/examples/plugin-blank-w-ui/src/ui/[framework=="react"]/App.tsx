@@ -1,6 +1,7 @@
 import React from "react";
 import reactLogo from "./assets/react.svg";
 import Icon from "./components/Icon";
+import Button from "./components/Button";
 
 const App: React.FC = () => {
 	const styles = {
@@ -18,9 +19,11 @@ const App: React.FC = () => {
 			gap: "18px",
 			marginBottom: "16px",
 		},
-		nodeCount: {
-			fontSize: "11px",
-		}
+		docsButton: {
+			position: "absolute",
+			right: 16,
+			bottom: 16,
+		},
 	};
 
 	return (
@@ -30,6 +33,13 @@ const App: React.FC = () => {
 				<Icon svg="plus" size={24} />
 				<img src={reactLogo} width="44" height="44" alt="Svelte logo" />
 			</div>
+			<Button
+				href="https://plugma.dev/docs"
+				target="_blank"
+				style={styles.docsButton}
+			>
+				Read the docs
+			</Button>
 		</div>
 	);
 };
