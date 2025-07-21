@@ -16,19 +16,27 @@ function Widget() {
 
 	return (
 		<AutoLayout
+			name="Frame1"
+			fill="#0C8CE9"
+			cornerRadius={40}
+			spacing={8}
+			padding={{
+				vertical: 10,
+				horizontal: 16,
+			}}
+			horizontalAlignItems="center"
 			verticalAlignItems="center"
-			padding={{ left: 16, right: 8, top: 8, bottom: 8 }}
-			fill="#CCCCCC"
-			cornerRadius={8}
-			spacing={12}
+			onClick={handleTextClick}
 		>
 			<Text
-				fontSize={32}
+				name="Click me"
+				fill="#FFF"
 				horizontalAlignText="center"
-				onClick={handleTextClick}
-				fill="#000000"
+				fontFamily="Inter"
+				fontSize={32}
+				fontWeight={500}
 			>
-				Hello World
+				Click me
 			</Text>
 		</AutoLayout>
 	);
