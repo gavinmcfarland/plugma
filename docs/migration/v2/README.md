@@ -1,6 +1,6 @@
 # Migrating from v1 to v2
 
-Plugma v2 fixes bugs and adds a new testing feature.
+Plugma v2 fixes bugs and introduces a new add-on feature.
 
 ## Updating Plugma dependecy
 
@@ -81,9 +81,11 @@ These changes only affect users who were using specific features in v1. If you w
 - WebSocket support is now enabled by default. If you were using the `-w, --websockets` flag, you can remove it as it's no longer needed. If you need to disable WebSocket support, you can use the new `--no-websockets` flag.
 - The `preview` command has been deprecated. If you were using this command, you should now use `dev --dock-plugin` instead.
 
-## Optional Changes
+## Optional
 
 These changes are completely optional and can be implemented if you want to take advantage of new features.
+
+### Custom `index.html` Entry Point
 
 - Add support for custom `index.html` template
 
@@ -104,3 +106,21 @@ These changes are completely optional and can be implemented if you want to take
         </body>
     </html>
     ```
+
+### New Intergrations
+
+You can now integrate new third party libraries and tools using the following:
+
+```bash
+npx plugma add
+```
+
+These include:
+
+- Tailwind (figma variables coming soon)
+- ESlint (with Figma specific rules)
+- Vitest (experimental)
+- Playwright (experimental)
+- Shadcn (coming soon)
+
+Each integration will automatically scaffold the necessary files and configuration, sparing you the manual setup. They’re still being refined, but they’ll cover most of what you need to get started.
