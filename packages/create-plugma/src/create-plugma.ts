@@ -32,7 +32,7 @@ const showCreatePlugmaPrompt = (): void => {
 
 	// Match original formatting with chalk
 	console.log(
-		`${chalk.blue.bold('Create Plugma')} ${chalk.gray(`v${version}${DEVELOPING_LOCALLY ? ' [development]' : ''}`)} \n`,
+		`${(chalk.blue as any).bold('Create Plugma')} ${chalk.gray(`v${version}${DEVELOPING_LOCALLY ? ' [development]' : ''}`)} \n`,
 	)
 }
 
