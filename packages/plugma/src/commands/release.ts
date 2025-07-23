@@ -154,10 +154,13 @@ export async function release(options: ReleaseCommandOptions): Promise<void> {
 	)
 
 	try {
-		await tasks.run()
+		const ctx = await tasks.run()
 
 		timer.stop()
-		console.log(`\n${chalk.green('✔ Plugin released successfully in ' + timer.getDuration() + 'ms')}\n`)
+		const version = ctx.newTag || 'unknown'
+		console.log(
+			`\n${chalk.green('✔ Plugin released ' + version + ' successfully in ' + timer.getDuration() + 'ms')}\n`,
+		)
 	} catch (error) {
 		const err = error instanceof Error ? error : new Error(String(error))
 		logger.log(ListrLogLevels.FAILED, err.message)

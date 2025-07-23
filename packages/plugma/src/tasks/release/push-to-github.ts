@@ -103,7 +103,9 @@ export async function gitRelease(options: GitReleaseOptions): Promise<GitRelease
 
 		// Run build after successful push
 		try {
-			execSync('plugma build', { stdio: 'inherit' })
+			// Use 'pipe' instead of 'inherit' to suppress the build output
+			// since it's already shown in the release task list
+			execSync('plugma build', { stdio: 'pipe' })
 			result.built = true
 		} catch (err) {
 			throw new GitReleaseError(
