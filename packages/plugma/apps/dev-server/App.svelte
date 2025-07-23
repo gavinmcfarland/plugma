@@ -18,6 +18,12 @@
 
 	const isInsideIframe = window.self !== window.top
 
+	// Initialize connection state based on context
+	if (isInsideIframe) {
+		// If we're inside an iframe, we're running inside Figma, so we're connected
+		isFigmaConnected.set(true)
+	}
+
 	// Default to true to avoid flickering when browser first opens
 	let isWebsocketServerActive = true
 	let isWebsocketsEnabled = window.runtimeData.websockets || false
