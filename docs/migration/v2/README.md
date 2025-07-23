@@ -1,4 +1,4 @@
-# Migrating to v2
+# Migrating from v1 to v2
 
 Plugma v2 fixes bugs and adds a new testing feature.
 
@@ -55,18 +55,16 @@ If you're using TypeScript you can add a reference for the new context paramater
 ```ts
 /// <reference types="vite/client" />
 
-import "vite";
-import type { UserConfigExport } from "vite";
+import 'vite'
+import type { UserConfigExport } from 'vite'
 
-declare module "vite" {
-	interface ConfigEnv {
-		context?: "ui" | "main";
-	}
+declare module 'vite' {
+    interface ConfigEnv {
+        context?: 'ui' | 'main'
+    }
 
-	// Overload defineConfig to acknowledge the context parameter
-	function defineConfig(
-		config: (env: ConfigEnv) => UserConfigExport,
-	): UserConfigExport;
+    // Overload defineConfig to acknowledge the context parameter
+    function defineConfig(config: (env: ConfigEnv) => UserConfigExport): UserConfigExport
 }
 ```
 
