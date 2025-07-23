@@ -180,9 +180,12 @@ program
 	)
 	.action(function (this: Command, type: string, options: ReleaseCommandOptions) {
 		release(
-			createOptions<'release'>(options, {
-				command: 'release',
-			}),
+			createOptions<'release'>(
+				{ ...options, type },
+				{
+					command: 'release',
+				},
+			),
 		)
 	})
 	.addHelpText(

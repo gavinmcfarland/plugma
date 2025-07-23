@@ -9,6 +9,10 @@ export async function release(options: ReleaseCommandOptions): Promise<void> {
 	// Validate release type/version
 	if (options.type && ['alpha', 'beta', 'stable'].includes(options.type)) {
 		options.type = options.type as ReleaseType
+	} else if (options.type && /^\d+$/.test(options.type)) {
+		// If type is a number, treat it as version
+		options.version = options.type
+		options.type = 'stable'
 	} else if (options.version && /^\d+$/.test(options.version)) {
 		// Version is already validated in options
 	} else {
@@ -52,9 +56,9 @@ export async function release(options: ReleaseCommandOptions): Promise<void> {
 		notes: options.notes,
 	})
 
-	// If release was successful, run build
-	if (releaseResult.pushed) {
-		execSync('plugma build', { stdio: 'inherit' })
+	// Build is already handled inside gitRelease function
+	if (!releaseResult.built) {
+		throw new Error('Release completed but build failed')
 	}
 
 	// TODO: review this...
