@@ -25,14 +25,14 @@ const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'packa
 // Function to show the package version as a prompt
 const showCreatePlugmaPrompt = (): void => {
 	// Load .env file from the package directory if it exists
-	dotenv.config({ path: path.join(__dirname, '..', '.env') })
+	// dotenv.config({ path: path.join(__dirname, '..', '.env') })
 
 	const version = packageJson.version
 	const DEVELOPING_LOCALLY = (process as any).env?.PLUGMA_DEVELOPING_LOCALLY === 'true'
 
 	// Match original formatting with chalk
 	console.log(
-		`${chalk.blue('Create Plugma')} ${chalk.gray(`v${version}${DEVELOPING_LOCALLY ? ' [development]' : ''}`)}`,
+		`${chalk.blue.bold('Create Plugma')} ${chalk.gray(`v${version}${DEVELOPING_LOCALLY ? ' [development]' : ''}`)} \n`,
 	)
 }
 
