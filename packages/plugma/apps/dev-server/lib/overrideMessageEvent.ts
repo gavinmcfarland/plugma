@@ -37,11 +37,11 @@ export function overrideMessageEvent() {
 			})
 		}
 
-		// // Intercept WebSocket messages and pass them to the stored message listeners
-		// addMessageListener('ws', (event) => {
-		// 	// Trigger all registered message listeners
-		// 	triggerMessageListeners(event)
-		// })
+		// Intercept WebSocket messages and pass them to the stored message listeners
+		addMessageListener('ws', (event) => {
+			// Trigger all registered message listeners
+			triggerMessageListeners(event)
+		})
 
 		// Override window.onmessage using Object.defineProperty
 		Object.defineProperty(window, 'onmessage', {
