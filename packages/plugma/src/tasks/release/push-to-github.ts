@@ -105,9 +105,6 @@ export async function gitRelease(options: GitReleaseOptions): Promise<GitRelease
 		try {
 			execSync('plugma build', { stdio: 'inherit' })
 			result.built = true
-
-			// Log success message
-			console.log(`\n✔ Plugin released successfully as ${options.tag}`)
 		} catch (err) {
 			throw new GitReleaseError(
 				`Build failed after release: ${err instanceof Error ? err.message : 'Unknown error'}`,
