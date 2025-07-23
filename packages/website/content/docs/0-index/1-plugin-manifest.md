@@ -45,7 +45,7 @@ export default defineManifest(() => {
 		api: '1.0.0',
 		main: 'src/main.ts',
 		ui: 'src/ui.ts',
-		editorType: ['figma', 'figjam', 'slides'],
+		editorType: ['figma', 'figjam'],
 		networkAccess: {
 			allowedDomains: ['none']
 		}

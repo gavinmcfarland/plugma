@@ -85,6 +85,30 @@ These changes only affect users who were using specific features in v1. If you w
 
 These changes are completely optional and can be implemented if you want to take advantage of new features.
 
+### Type-safe manifest file
+
+You can now manage your manifest in a TypeScript file.
+
+> This feature is still under development, so changes may not always trigger a plugin reload while it’s running.
+
+```ts
+import { defineManifest } from 'plugma/utils'
+
+export default defineManifest(() => {
+    return {
+        id: 'com.my-plugin',
+        name: 'My Plugin',
+        api: '1.0.0',
+        main: 'src/main.ts',
+        ui: 'src/ui.ts',
+        editorType: ['figma', 'figjam'],
+        networkAccess: {
+            allowedDomains: ['none'],
+        },
+    }
+})
+```
+
 ### Custom `index.html` Entry Point
 
 - Add support for custom `index.html` template
