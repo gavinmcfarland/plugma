@@ -43,23 +43,45 @@ export default defineConfig(({ context }) => {
 })
 ```
 
-If you're using TypeScript you can add a reference for the new context paramater type definition at the top of the file. (coming soon)
-
-```diff
-/// <reference path="./vite.plugma.d.ts" />
-```
-
 Alternatively you can create seperate files for the `main` and `ui` context, named respectively:
 
 - `vite.config.main.ts`
 - `vite.config.ui.ts`
 
+### Adding Support for `env` Types (recommended)
+
+If you're using TypeScript you can add a reference for the new context paramater type definition at the top of the file by adding the following `vite-env.d.ts` to the `src` directory of your plugin.
+
+```ts
+/// <reference types="vite/client" />
+
+import "vite";
+import type { UserConfigExport } from "vite";
+
+declare module "vite" {
+	interface ConfigEnv {
+		context?: "ui" | "main";
+	}
+
+	// Overload defineConfig to acknowledge the context parameter
+	function defineConfig(
+		config: (env: ConfigEnv) => UserConfigExport,
+	): UserConfigExport;
+}
+```
+
+Then reference it at the top of your `vite.config.ts` file.
+
+```bash
+/// <reference path="./src/ui/vite-env.d.ts" />
+```
+
 ### Command Line Changes
 
 These changes only affect users who were using specific features in v1. If you weren't using these features, you can skip this section.
 
-- WebSocket support is now enabled by default. If you were using the `--websockets` flag, you can remove it as it's no longer needed. If you need to disable WebSocket support, you can use the new `--no-websockets` flag.
-- The `preview` command has been removed. If you were using this command, you should now use `dev --dock-plugin` instead.
+- WebSocket support is now enabled by default. If you were using the `-w, --websockets` flag, you can remove it as it's no longer needed. If you need to disable WebSocket support, you can use the new `--no-websockets` flag.
+- The `preview` command has been deprecated. If you were using this command, you should now use `dev --dock-plugin` instead.
 
 ## Optional Changes
 
