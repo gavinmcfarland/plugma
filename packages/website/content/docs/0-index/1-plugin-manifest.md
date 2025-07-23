@@ -6,23 +6,51 @@ You can see the full list of available fields in Figma's [plugin manifest docume
 
 ## Manifest location
 
-The manifest can be configured by placing a `manifest.json` file in the project root or by adding a `plugma.manifest` field to the `package.json` file.
+The manifest can be configured in a few different ways, either by placing a `manifest.ts`, `manifest.js` or `manifest.json` file in your project root, or by adding a `plugma.manifest` field to your package.json.
 
-##### Example using package.json
+#### Example using `package.json`
 
 ```jsonc
 {
 	//...
 	"plugma": {
 		"manifest": {
+			"id": "com.myplugin",
 			"name": "My Plugin",
-			"id": "com.example.myplugin",
 			"api": "1.0.0",
 			"main": "src/code.js",
-			"ui": "src/ui.js"
+			"ui": "src/ui.js",
+			"editorType": ["figma", "figjam"],
+			"networkAccess": {
+				"allowedDomains": ["none"]
+			}
 		}
 	}
 }
+```
+
+#### Example using `manifest.ts`
+
+<blockquote class="warning">
+Support for type-safe files is still a work in progress, so changes may not trigger a plugin reload while it’s running.
+</blockquote>
+
+```ts
+import { defineManifest } from 'plugma/utils';
+
+export default defineManifest(() => {
+	return {
+		id: 'com.my-plugin',
+		name: 'My Plugin',
+		api: '1.0.0',
+		main: 'src/main.ts',
+		ui: 'src/ui.ts',
+		editorType: ['figma', 'figjam', 'slides'],
+		networkAccess: {
+			allowedDomains: ['none']
+		}
+	};
+});
 ```
 
 ## Main and UI fields
