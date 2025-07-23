@@ -72,7 +72,7 @@ declare module "vite" {
 
 Then reference it at the top of your `vite.config.ts` file.
 
-```bash
+```ts
 /// <reference path="./src/ui/vite-env.d.ts" />
 ```
 
