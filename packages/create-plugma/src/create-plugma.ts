@@ -11,10 +11,30 @@ import path from 'path'
 import chalk from 'chalk'
 import stripTS from '@combino/plugin-strip-ts'
 import ejsMate from '@combino/plugin-ejs-mate'
-import versions from '../versions.json' with { type: 'json' }
+import dotenv from 'dotenv'
 
 const CURR_DIR = process.cwd()
 const __dirname = dirname(fileURLToPath(import.meta.url))
+
+// Read versions.json file for compatibility with older Node.js versions
+const versions = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'versions.json'), 'utf8'))
+
+// Read package.json to get the version
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'))
+
+// Function to show the package version as a prompt
+const showCreatePlugmaPrompt = (): void => {
+	// Load .env file from the package directory if it exists
+	dotenv.config({ path: path.join(__dirname, '..', '.env') })
+
+	const version = packageJson.version
+	const DEVELOPING_LOCALLY = (process as any).env?.PLUGMA_DEVELOPING_LOCALLY === 'true'
+
+	// Match original formatting with chalk
+	console.log(
+		`${chalk.blue('Create Plugma')} ${chalk.gray(`v${version}${DEVELOPING_LOCALLY ? ' [development]' : ''}`)}`,
+	)
+}
 
 // Constants
 const NO_UI_OPTION = 'No UI'
@@ -425,6 +445,9 @@ const selectExample = async (examples: Example[], threshold: number = DEFAULT_EX
 }
 
 async function main(): Promise<void> {
+	// Show the package version prompt
+	showCreatePlugmaPrompt()
+
 	// Get all available examples to determine available types and frameworks
 	const allExamples = getAvailableExamples()
 
