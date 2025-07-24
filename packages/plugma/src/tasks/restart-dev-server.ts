@@ -7,6 +7,7 @@ import { task } from '../tasks/runner.js'
 import { viteState } from '../utils/vite-state-manager.js'
 import { getUserFiles } from '../utils/get-user-files.js'
 import { createViteConfigs } from '../utils/config/create-vite-configs.js'
+import { createViteServerConfig } from '../utils/config/create-server-config.js'
 import { DevCommandOptions } from '../utils/create-options.js'
 
 /**
@@ -74,28 +75,7 @@ export const restartViteServer = async (
 		}
 
 		// Configure and create new server
-		const serverConfig: InlineConfig = {
-			...config.ui.dev,
-			root: process.cwd(),
-			base: '/',
-			server: {
-				port: options.port,
-				strictPort: true,
-				cors: true,
-				host: 'localhost',
-				middlewareMode: false,
-				sourcemapIgnoreList: () => true,
-				hmr: {
-					port: options.port,
-					protocol: 'ws',
-					host: 'localhost',
-				},
-			},
-			optimizeDeps: {
-				entries: [files.manifest.ui || '', files.manifest.main || ''].filter(Boolean),
-			},
-			logLevel: options.debug ? 'info' : 'error',
-		}
+		const serverConfig = await createViteServerConfig(options, files, config)
 
 		// Create and start new server
 		log.debug('Creating new Vite server...')

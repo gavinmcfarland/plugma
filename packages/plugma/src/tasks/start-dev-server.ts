@@ -1,12 +1,12 @@
 import { registerCleanup } from '../utils/cleanup.js'
 import type { ViteDevServer } from 'vite'
-import { createServer, mergeConfig } from 'vite'
+import { createServer } from 'vite'
 import type { LogLevel } from 'vite'
 import { ListrLogLevels, ListrTask } from 'listr2'
 import { BuildCommandOptions, DevCommandOptions, PreviewCommandOptions } from '../utils/create-options.js'
 
 import { createViteConfigs } from '../utils/config/create-vite-configs.js'
-import { loadConfig } from '../utils/config/load-config.js'
+import { createViteServerConfig } from '../utils/config/create-server-config.js'
 import { viteState } from '../utils/vite-state-manager.js'
 import { getUserFiles } from '../utils/get-user-files.js'
 import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
@@ -122,52 +122,7 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 						title: 'Creating server configuration',
 						task: async (ctx: ServerContext) => {
 							const configs = createViteConfigs(options, files)
-
-							const baseConfig = {
-								...configs.ui.dev,
-								root: process.cwd(),
-								base: '/',
-								server: {
-									port: options.port,
-									strictPort: true,
-									cors: true,
-									host: 'localhost',
-									middlewareMode: false,
-									sourcemapIgnoreList: () => true,
-									hmr: {
-										port: options.port,
-										protocol: 'ws',
-										host: 'localhost',
-									},
-									fs: {
-										strict: false,
-										allow: ['.'],
-									},
-									headers: {
-										'Access-Control-Allow-Origin': '*',
-										'Access-Control-Allow-Methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
-										'Access-Control-Allow-Headers':
-											'Origin, X-Requested-With, Content-Type, Accept, Range',
-										'Access-Control-Expose-Headers': 'Content-Range',
-									},
-								},
-								optimizeDeps: {
-									entries: [files.manifest.ui || '', files.manifest.main || ''].filter(Boolean),
-									force: true,
-								},
-								clearScreen: false,
-								logLevel: (options.debug ? 'info' : 'error') as LogLevel,
-							}
-
-							const userUIConfig = await loadConfig('vite.config.ui', options, 'ui', 'serve')
-
-							ctx.serverConfig = mergeConfig(
-								{
-									configFile: false,
-									...baseConfig,
-								},
-								userUIConfig?.config ?? {},
-							)
+							ctx.serverConfig = await createViteServerConfig(options, files, configs)
 						},
 					},
 					{
