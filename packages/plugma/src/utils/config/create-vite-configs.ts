@@ -197,7 +197,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 		define: {
 			'process.env.NODE_ENV': JSON.stringify(options.mode),
 		},
-		plugins: [dotEnvLoader(options), replacePlugmaTesting(options)],
+		plugins: [replacePlugmaTesting(options)],
 		build: {
 			lib: {
 				entry: tempFilePath,
@@ -236,11 +236,8 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 			'process.env.NODE_ENV': JSON.stringify(options.mode),
 			'process.env.COMMAND': JSON.stringify(options.command),
 			'process.env.DEBUG': JSON.stringify(!!options.debug),
-			// "figma.ui.resize": "customResize",
-			// "figma.showUI": "customShowUI",
 		},
 		plugins: [
-			dotEnvLoader(options),
 			replacePlugmaTesting(options),
 			injectTests({
 				testDir: '',
