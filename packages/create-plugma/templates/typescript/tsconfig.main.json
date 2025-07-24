@@ -1,7 +1,9 @@
 {
 	"compilerOptions": {
 		"composite": true,
+        "module": "ESNext",
+        "moduleResolution": "bundler",
 		"typeRoots": ["node_modules/@figma", "node_modules/@types"]
 	},
-	"include": ["src/main/**/*.js", "src/main/**/*.ts"]
+	"include": ["<%= mainDir %>/**/*.js", "<%= mainDir %>/**/*.ts", "src/vite-env.d.ts"]
 }
