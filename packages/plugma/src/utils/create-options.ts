@@ -4,7 +4,7 @@ import { ManifestFile } from '../core/types.js'
 
 export const DEFAULT_OPTIONS = {
 	dockPlugin: false,
-	mode: 'production',
+	mode: process.env.NODE_ENV,
 	port: getRandomPort(),
 	output: 'dist',
 	websockets: true,
