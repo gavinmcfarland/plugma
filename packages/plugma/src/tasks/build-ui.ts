@@ -12,6 +12,7 @@ import { Timer } from '../utils/timer.js'
 import { ListrLogLevels, ListrTask } from 'listr2'
 import { BuildCommandOptions, DevCommandOptions, PreviewCommandOptions } from '../utils/create-options.js'
 import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
+import { colorStringify } from '../utils/cli/colorStringify.js'
 
 interface ViteConfigOptions {
 	options: PluginOptions
@@ -83,6 +84,8 @@ async function runBuild({ options, viteConfigs, userUIConfig }: ViteConfigOption
 		),
 	)
 
+	// console.log('build ui config', colorStringify(buildConfig, 2))
+
 	await build(buildConfig)
 }
 
@@ -118,7 +121,7 @@ export const createBuildUiTask = <T extends { uiDuration?: number }>(
 				}
 
 				const viteConfigs = createViteConfigs(options, currentFiles)
-				const userUIConfig = await loadConfig('vite.config.ui', options, 'ui')
+				const userUIConfig = await loadConfig('vite.config.ui', options, 'ui', 'build')
 				const configOptions = { options, viteConfigs, userUIConfig }
 
 				if (options.command === 'build' && options.watch) {

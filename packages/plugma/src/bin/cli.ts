@@ -63,6 +63,14 @@ program.hook('preAction', async (thisCommand, actionCommand) => {
 	const commandName = actionCommand.name()
 	const options = actionCommand.opts()
 
+	// // Required for Vite to use correct DEV and PROD env variables
+	if (commandName === 'build') {
+		process.env.NODE_ENV = 'production'
+	} else {
+		console.log('build', commandName)
+		process.env.NODE_ENV = 'development'
+	}
+
 	// You can add your common functionality here
 	await handleDebug(commandName, options)
 	if (options.output) {

@@ -141,6 +141,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 			logLevel: options.debug ? 'info' : 'error',
 		} satisfies UserConfig,
 		build: {
+			mode: options.mode,
 			root: process.cwd(),
 			base: './',
 			define: { 'process.env.NODE_ENV': JSON.stringify(options.mode) },

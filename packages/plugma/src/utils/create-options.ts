@@ -162,5 +162,7 @@ export function createOptions<T extends keyof CommandOptions>(
 		delete userOptions.noWebsockets
 	}
 
-	return new Options(userOptions, requiredDefaults) as CommandOptions[T] & OptionsWithMeta
+	const newOptions = new Options(userOptions, requiredDefaults) as CommandOptions[T] & OptionsWithMeta
+
+	return newOptions
 }

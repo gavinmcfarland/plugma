@@ -150,7 +150,7 @@ export const createBuildMainTask = <T extends BuildMainContext>(
 							await viteState.viteMain.close()
 
 							const viteConfigs = createViteConfigs(options, ctx.files)
-							const userMainConfig = await loadConfig('vite.config.main', options, 'main')
+							const userMainConfig = await loadConfig('vite.config.main', options, 'main', 'build')
 							const configOptions = { options, viteConfigs, userMainConfig }
 
 							if (options.watch || ['dev', 'preview'].includes(options.command ?? '')) {

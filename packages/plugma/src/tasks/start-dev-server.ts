@@ -159,7 +159,7 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 								logLevel: (options.debug ? 'info' : 'error') as LogLevel,
 							}
 
-							const userUIConfig = await loadConfig('vite.config.ui', options, 'ui')
+							const userUIConfig = await loadConfig('vite.config.ui', options, 'ui', 'serve')
 
 							ctx.serverConfig = mergeConfig(
 								{

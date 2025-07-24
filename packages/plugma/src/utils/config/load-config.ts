@@ -9,7 +9,12 @@ interface CustomConfigEnv extends ConfigEnv {
 	context: 'main' | 'ui'
 }
 
-export async function loadConfig(configName: string, options: any, context: 'main' | 'ui'): Promise<any> {
+export async function loadConfig(
+	configName: string,
+	options: any,
+	context: 'main' | 'ui',
+	viteCommand: 'build' | 'serve',
+): Promise<any> {
 	const logger = createDebugAwareLogger(options.debug)
 
 	const configPaths = [
@@ -30,8 +35,8 @@ export async function loadConfig(configName: string, options: any, context: 'mai
 	}
 
 	const configEnv: CustomConfigEnv = {
-		command: 'build',
-		mode: options.mode || process.env.NODE_ENV || 'development',
+		command: viteCommand,
+		mode: options.mode,
 		context,
 	}
 
