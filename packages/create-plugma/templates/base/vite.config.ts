@@ -1,4 +1,4 @@
-/// <reference path="./src/ui/vite-env.d.ts" />
+/// <reference path="./src/vite-env.d.ts" />
 
 import { defineConfig } from "vite";
 <%- typeof vite !== 'undefined' ? vite.plugins.map(plugin => {
