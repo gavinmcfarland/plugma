@@ -1,6 +1,6 @@
 # Environment variables
 
-Plugma supports environment variables by loading `.env` files located in the root of your project. When setting environment variables for use in the `ui` code, they must be prefixed with `VITE_` to be exposed to the UI.
+Plugma supports environment variables by loading `.env` files located in the root of your project.
 
 ## Configuring `.env` files
 
@@ -23,9 +23,27 @@ Specifying a custom mode allows for tailored environment setups, such as testing
 
 ```bash
 # .env.testing.local
-VITE_API_KEY=123456789
+VITE_SOME_KEY=123456789
 ```
 
 ## Referencing environment variables
 
-To reference environment variables in your main code, `use process.env.SOME_KEY`. For variables used in the `ui` code, use `import.meta.env.VITE_SOME_KEY`. Note that UI environment variables must begin with `VITE_`. This is to prevent accidentally leaking env variables to the browser client.
+To reference environment variables in your code, use `import.meta.env.VITE_SOME_KEY`. Variables must begin with `VITE_`, this is to prevent accidentally leaking env variables to the browser client.
+
+#### Example
+
+```js
+console.log(import.meta.env.VITE_SOME_KEY);
+```
+
+<blockquote class="warning">
+Environment variables must be prefixed with VITE_ to be exposed to the client code. Be mindful that these values are bundled with the plugin and can be discovered by inspecting the bundled source code where the plugin runs inside Figma, even if used only in the main thread.
+</blockquote>
+
+<blockquote class="info">
+`.env` files are loaded when Plugma starts. Restart the command after making changes.
+</blockquote>
+
+## Further documentation
+
+For more information see [Vite: Env Variables and Modes](https://vite.dev/guide/env-and-mode).
