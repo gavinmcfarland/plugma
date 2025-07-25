@@ -13,7 +13,7 @@ export default function () {
 	function getImageNodes(nodes) {
 		const imageNodes = []
 		nodes.forEach((node) => {
-			if (nodeHasImageFills(node)) {
+			if (nodeHasImageFill(node)) {
 				imageNodes.push(node)
 			}
 
