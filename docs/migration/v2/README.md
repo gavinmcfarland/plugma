@@ -2,6 +2,14 @@
 
 Plugma v2 fixes bugs and introduces a new add-on feature.
 
+## Updating Plugma Dependecy
+
+To install the beta version of the `plugma` dependency run:
+
+```
+npm install plugma@next
+```
+
 ## Breaking Changes
 
 ### Referencing env Variables
@@ -22,14 +30,6 @@ All environment variables used by Plugma must not be prefixed with `VITE_` and r
 // main.js
 - console.log(process.env.SOME_KEY)
 + console.log(import.meta.env.VITE_SOME_KEY)
-```
-
-## Updating Plugma Dependecy
-
-To install the beta version of the `plugma` dependency run:
-
-```
-npm install plugma@next
 ```
 
 ## Required Changes
