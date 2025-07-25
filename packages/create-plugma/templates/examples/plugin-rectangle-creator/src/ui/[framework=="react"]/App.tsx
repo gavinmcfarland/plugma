@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import reactLogo from "./assets/react.svg";
-import Icon from "./components/Icon";
-import Input from "./components/Input";
-import Button from "./components/Button";
+import React, { useState, useEffect } from 'react';
+import reactLogo from './assets/react.svg';
+import Icon from './components/Icon';
+import Input from './components/Input';
+import Button from './components/Button';
 
 const App: React.FC = () => {
 	const [rectCount, setRectCount] = useState<number>(5);
@@ -10,30 +10,30 @@ const App: React.FC = () => {
 
 	const styles = {
 		container: {
-			display: "flex",
-			alignItems: "center",
-			justifyContent: "center",
-			height: "100%",
-			width: "100%",
-			flexDirection: "column" as const,
+			display: 'flex',
+			alignItems: 'center',
+			justifyContent: 'center',
+			height: '100%',
+			width: '100%',
+			flexDirection: 'column' as const,
 		},
 		banner: {
-			display: "flex",
-			alignItems: "center",
-			gap: "18px",
-			marginBottom: "16px",
+			display: 'flex',
+			alignItems: 'center',
+			gap: '18px',
+			marginBottom: '16px',
 		},
 		nodeCount: {
-			fontSize: "11px",
+			fontSize: '11px',
 		},
 		field: {
-			display: "flex",
-			gap: "var(--spacer-2)",
-			height: "var(--spacer-5)",
-			alignItems: "center",
+			display: 'flex',
+			gap: 'var(--spacer-2)',
+			height: 'var(--spacer-5)',
+			alignItems: 'center',
 		},
 		createRectanglesInput: {
-			width: "40px",
+			width: '40px',
 		},
 	};
 
@@ -41,25 +41,25 @@ const App: React.FC = () => {
 		window.parent.postMessage(
 			{
 				pluginMessage: {
-					type: "CREATE_RECTANGLES",
+					type: 'CREATE_RECTANGLES',
 					count,
 				},
 			},
-			"*",
+			'*',
 		);
 	};
 
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
 			const message = event.data.pluginMessage;
-			if (message?.type === "POST_NODE_COUNT") {
+			if (message?.type === 'POST_NODE_COUNT') {
 				setNodeCount(message.count);
 			}
 		};
 
-		window.addEventListener("message", handleMessage);
+		window.addEventListener('message', handleMessage);
 		return () => {
-			window.removeEventListener("message", handleMessage);
+			window.removeEventListener('message', handleMessage);
 		};
 	}, []);
 
@@ -78,11 +78,7 @@ const App: React.FC = () => {
 					onChange={(value: string) => setRectCount(Number(value))}
 					style={styles.createRectanglesInput}
 				/>
-				<Button
-					onClick={() => createRectangles(rectCount)}
-					href={undefined}
-					target={undefined}
-				>
+				<Button onClick={() => createRectangles(rectCount)} href={undefined} target={undefined}>
 					Create Rectangles
 				</Button>
 			</div>

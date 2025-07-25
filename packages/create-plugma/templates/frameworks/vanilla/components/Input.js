@@ -1,4 +1,4 @@
-import html from "html-template-tag";
+import html from 'html-template-tag';
 
 /**
  * @param {Object} props
@@ -7,14 +7,14 @@ import html from "html-template-tag";
  * @param {boolean} [props.showIcon]
  * @param {(value: string) => void} [props.onInput]
  */
-export function InputField({ value = "", type = "text", showIcon = false, onInput } = {}) {
+export function InputField({ value = '', type = 'text', showIcon = false, onInput } = {}) {
 	const id = `input-${Math.random().toString(36).slice(2)}`;
 
 	setTimeout(() => {
 		const input = document.getElementById(id);
 		if (input) {
 			input.value = value;
-			input.addEventListener("input", (e) => {
+			input.addEventListener('input', (e) => {
 				onInput?.(e.target.value);
 			});
 		}
@@ -30,9 +30,7 @@ export function InputField({ value = "", type = "text", showIcon = false, onInpu
 					data-onboarding-key="scrubbable-control-x-position"
 					data-temporary-fpl-no-drag=""
 				>
-					${showIcon
-						? html`<span class="icon"><span>X</span></span>`
-						: ""}
+					${showIcon ? html`<span class="icon"><span>X</span></span>` : ''}
 					<input id="${id}" type="${type}" spellcheck="false" dir="auto" />
 				</label>
 			</div>

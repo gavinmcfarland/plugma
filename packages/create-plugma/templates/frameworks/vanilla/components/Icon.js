@@ -1,9 +1,15 @@
-import html from "html-template-tag";
+import html from 'html-template-tag';
 
 export function Icon({ svg, size = 16 }) {
-	if (svg === "plugma") {
+	if (svg === 'plugma') {
 		return html`
-			<svg width="${size}px" height="${size}px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<svg
+				width="${size}px"
+				height="${size}px"
+				viewBox="0 0 24 24"
+				fill="none"
+				xmlns="http://www.w3.org/2000/svg"
+			>
 				<g clip-path="url(#clip0_1508_4907)">
 					<path
 						fill-rule="evenodd"
@@ -21,9 +27,15 @@ export function Icon({ svg, size = 16 }) {
 		`;
 	}
 
-	if (svg === "plus") {
+	if (svg === 'plus') {
 		return html`
-			<svg width="${size}px" height="${size}px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<svg
+				width="${size}px"
+				height="${size}px"
+				viewBox="0 0 24 24"
+				fill="none"
+				xmlns="http://www.w3.org/2000/svg"
+			>
 				<g opacity="0.3">
 					<path d="M12 5V19Z" fill="white" />
 					<path
