@@ -26,7 +26,7 @@ Specifying a custom mode allows for tailored environment setups, such as testing
 VITE_SOME_KEY=123456789
 ```
 
-## Referencing environment variables
+## Referencing env variables
 
 To reference environment variables in your code, use `import.meta.env.VITE_SOME_KEY`. Variables must begin with `VITE_`, this is to prevent accidentally leaking env variables to the browser client.
 

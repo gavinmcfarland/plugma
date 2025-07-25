@@ -2,7 +2,29 @@
 
 Plugma v2 fixes bugs and introduces a new add-on feature.
 
-## Updating Plugma dependecy
+## Breaking Changes
+
+### Referencing env Variables
+
+This only applies if you were referencing envariables inside you main code using `process.env`.
+
+All environment variables used by Plugma must not be prefixed with `VITE_` and referenced using the `import.meta.env` object. This is because variables prefixed with `VITE_` are exposed to the client which can be discovered by inspecting the bundled source code where the plugin runs inside Figma, even if used only in the main thread.
+
+#### Example changes required
+
+```diff
+// .env
+- SOME_KEY=123
++ VITE_SOME_KEY=123
+```
+
+```diff
+// main.js
+- console.log(process.env.SOME_KEY)
++ console.log(import.meta.env.VITE_SOME_KEY)
+```
+
+## Updating Plugma Dependecy
 
 To install the beta version of the `plugma` dependency run:
 
@@ -71,7 +93,7 @@ declare module 'vite' {
 Then reference it at the top of your `vite.config.ts` file.
 
 ```ts
-/// <reference path="./src/ui/vite-env.d.ts" />
+/// <reference path="./src/vite-env.d.ts" />
 ```
 
 ### Command Line Changes
