@@ -6,11 +6,11 @@ Plugma uses a powerful template system built on [Combino](https://github.com/gav
 
 ## Creating an Plugin or Widget Example
 
-Get started by copying the `hello-world-plugin` example.
+Get started by copying the `plugin-blank-w-ui` example.
 
 ### Only Include Source Files
 
-Most examples use the base template as a foundation which is referenced in the `combino.json` config. The files from the base template are merged with the files in your example. This simplifies the files you need to include and manage in your template. If the user selects a frontend framework or typescript the revelant files and dependencies are also merged. This allows examples to support multiple frameworks.
+Most examples use the base template as a foundation which is referenced in the `template.json` config. The files from the base template are merged with the files in your example. This simplifies the files you need to include and manage in your template. If the user selects a frontend framework or typescript the revelant files and dependencies are also merged. This allows examples to support multiple frameworks.
 
 ### Write In TypeScript
 
