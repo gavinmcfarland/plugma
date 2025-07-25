@@ -28,7 +28,7 @@
 		"@combino/plugin-ejs-mate": "^1.0.1",
 		"@combino/plugin-strip-ts": "^1.0.1",
 		"chalk": "^5.4.1",
-		"combino": "^1.0.1",
+		"combino": "^1.0.2",
 		"dotenv": "^17.2.0",
 		"enquirer": "^2.4.1",
 		"kdljs": "^0.3.0",
