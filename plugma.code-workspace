@@ -23,6 +23,9 @@
 		{
 			"path": "packages/plugma/apps",
 		},
+		{
+			"path": "packages/create-plugma",
+		},
 	],
 	"settings": {},
 }
