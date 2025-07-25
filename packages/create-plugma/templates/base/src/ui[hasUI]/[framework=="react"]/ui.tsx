@@ -4,7 +4,7 @@ import './styles.css'
 import App from './App.<%= typescript ? "tsx" : "jsx" %>'
 
 createRoot(document.getElementById('app')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
+	<StrictMode>
+		<App />
+	</StrictMode>,
 )
