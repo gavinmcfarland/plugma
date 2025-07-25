@@ -41,3 +41,8 @@ Now you can publish the plugin from the Figma desktop app.
 ### Advanced
 
 See the [Plugma docs](https://plugma.dev/docs) for further information.
+
+<% if (attribution) { %>
+### Attribution
+<%- attribution %>
+<% } %>

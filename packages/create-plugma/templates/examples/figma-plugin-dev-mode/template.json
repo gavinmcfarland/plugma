@@ -15,5 +15,8 @@
 			"source": "../../frameworks/<%= framework %>/assets",
 			"target": "src/ui/assets"
 		}
-	]
+	],
+    "data": {
+         "attribution": "This example is adapted from the official [Figma plugin samples](https://github.com/figma/plugin-samples)."
+    }
 }
