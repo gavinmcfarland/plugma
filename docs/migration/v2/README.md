@@ -10,9 +10,11 @@ To install the beta version of the `plugma` dependency run:
 npm install plugma@next
 ```
 
-## Breaking Changes
+## Required Changes
 
-### Referencing env Variables
+These changes are necessary for your plugin to work with Plugma v2 and future versions.
+
+### Referencing env variables (breaking change)
 
 This only applies if you were referencing envariables inside you main code using `process.env`.
 
@@ -31,10 +33,6 @@ All environment variables used by Plugma must not be prefixed with `VITE_` and r
 - console.log(process.env.SOME_KEY)
 + console.log(import.meta.env.VITE_SOME_KEY)
 ```
-
-## Required Changes
-
-These changes are necessary for your plugin to work with Plugma v2 and future versions.
 
 ### Update your `manifest` file
 
