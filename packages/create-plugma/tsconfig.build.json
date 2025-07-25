@@ -10,5 +10,14 @@
 		"sourceRoot": "src"
 	},
 	"include": ["src/**/*.ts", "src/**/*.tsx"],
-	"exclude": ["archive", "dist", "node_modules", "test", "**/*.test.ts", "**/*.test.tsx", "**/__tests__/**"]
+	"exclude": [
+		"archive",
+		"dist",
+		"node_modules",
+		"test",
+		"**/*.test.ts",
+		"**/*.test.tsx",
+		"**/__tests__/**",
+		"templates"
+	]
 }
