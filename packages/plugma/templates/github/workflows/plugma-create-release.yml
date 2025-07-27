@@ -3,7 +3,8 @@ name: Create release
 on:
     push:
         tags:
-            - 'v*' # Trigger on tags starting with 'v'
+            - 'v*' # Trigger on tags starting with 'v' (default format)
+            - '*@*' # Trigger on tags with @ symbol (custom prefix format)
 
 permissions:
     contents: write # Allow the workflow to push tags
