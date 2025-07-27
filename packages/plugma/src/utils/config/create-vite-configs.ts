@@ -205,7 +205,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 			watch: null,
 			target: 'es6',
 			sourcemap: 'inline',
-			minify: options.command === 'build',
+			minify: options.command === 'build' && options.watch ? false : true,
 			rollupOptions: {
 				input: tempFilePath,
 				output: {
