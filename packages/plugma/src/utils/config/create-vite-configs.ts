@@ -1,11 +1,11 @@
-import { fileURLToPath } from 'node:url'
-import path from 'node:path'
-import fs from 'node:fs'
-import type { Plugin, UserConfig } from 'vite'
-import { viteSingleFile } from 'vite-plugin-singlefile'
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+import fs from 'node:fs';
+import type { Plugin, UserConfig } from 'vite';
+import { viteSingleFile } from 'vite-plugin-singlefile';
 
-import type { PluginOptions, UserFiles } from '../../core/types.js'
-import { defaultLogger, writeTempFile } from '../../utils/index.js'
+import type { PluginOptions, UserFiles } from '../../core/types.js';
+import { defaultLogger, writeTempFile } from '../../utils/index.js';
 import {
 	dotEnvLoader,
 	htmlTransform,
@@ -15,35 +15,35 @@ import {
 	rewritePostMessageTargetOrigin,
 	serveUi,
 	injectTests,
-} from '../../vite-plugins/index.js'
-import { createBuildNotifierPlugin } from '../../vite-plugins/build-notifier.js'
-import { injectEventListeners } from '../../vite-plugins/main/inject-test-event-listeners.js'
-import viteCopyDirectoryPlugin from '../../vite-plugins/move-dir.js'
-import devtoolsJson from '../../vite-plugins/devtools-json.js'
+} from '../../vite-plugins/index.js';
+import { createBuildNotifierPlugin } from '../../vite-plugins/build-notifier.js';
+import { injectEventListeners } from '../../vite-plugins/main/inject-test-event-listeners.js';
+import viteCopyDirectoryPlugin from '../../vite-plugins/move-dir.js';
+import devtoolsJson from '../../vite-plugins/devtools-json.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const projectRoot = path.join(__dirname, '../../..')
+const projectRoot = path.join(__dirname, '../../..');
 
 // Use relative path to find templates directory
-const plugmaRoot = path.join(__dirname, '../../..')
-const templateUiHtmlPath = path.join(plugmaRoot, 'templates', 'vite', 'ui.html')
+const plugmaRoot = path.join(__dirname, '../../..');
+const templateUiHtmlPath = path.join(plugmaRoot, 'templates', 'vite', 'ui.html');
 
 // Before using the runtime code, bundle it
-const runtimeBundlePath = path.join(projectRoot, 'dist/apps/plugma-runtime.js')
+const runtimeBundlePath = path.join(projectRoot, 'dist/apps/plugma-runtime.js');
 
-const plugmaRuntimeCode = fs.readFileSync(runtimeBundlePath, 'utf8')
+const plugmaRuntimeCode = fs.readFileSync(runtimeBundlePath, 'utf8');
 
 export type ViteConfigs = {
 	ui: {
-		dev: UserConfig
-		build: UserConfig
-	}
+		dev: UserConfig;
+		build: UserConfig;
+	};
 	main: {
-		dev: UserConfig
-		build: UserConfig
-	}
-}
+		dev: UserConfig;
+		build: UserConfig;
+	};
+};
 
 /**
  * Creates Vite configurations for both development and build
@@ -56,41 +56,41 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 		resolveId(id) {
 			// Handle our virtual HTML module
 			if (id === 'virtual:plugma-ui.html') {
-				return id
+				return id;
 			}
-			return null
+			return null;
 		},
 		load(id) {
 			// Return the HTML content for our virtual module
 			if (id === 'virtual:plugma-ui.html') {
 				// Check for user-provided index.html first (same logic as serveUi plugin)
-				const localTemplatePath = path.join(process.cwd(), 'index.html')
+				const localTemplatePath = path.join(process.cwd(), 'index.html');
 
 				// Find the plugma package root more reliably
 				// Look for the templates directory relative to the current file location
-				const currentDir = path.dirname(fileURLToPath(import.meta.url))
-				const defaultTemplatePath = path.resolve(currentDir, '../../../templates/vite/ui.html')
+				const currentDir = path.dirname(fileURLToPath(import.meta.url));
+				const defaultTemplatePath = path.resolve(currentDir, '../../../templates/vite/ui.html');
 
-				let templatePath = defaultTemplatePath
+				let templatePath = defaultTemplatePath;
 
 				// Use local template if it exists
 				if (fs.existsSync(localTemplatePath)) {
-					templatePath = localTemplatePath
+					templatePath = localTemplatePath;
 				}
 
 				try {
-					return fs.readFileSync(templatePath, 'utf-8')
+					return fs.readFileSync(templatePath, 'utf-8');
 				} catch (error) {
 					// Provide a more helpful error message
-					throw new Error(`Failed to read HTML template file at ${templatePath}: ${error}`)
+					throw new Error(`Failed to read HTML template file at ${templatePath}: ${error}`);
 				}
 			}
-			return null
+			return null;
 		},
-	}
+	};
 
 	// Use the virtual module as input
-	const resolvedInputPath = 'virtual:plugma-ui.html'
+	const resolvedInputPath = 'virtual:plugma-ui.html';
 
 	// TODO: Change so that input is dynamically referenced. Checking if exists in project root and if not, use one from templates. Also should it be called ui.html?
 	// defaultLogger.debug('Creating Vite configs with:', {
@@ -106,12 +106,12 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 			sourceDir: path.join(options.output, 'node_modules', 'plugma', 'templates', 'vite'),
 			targetDir: path.join(options.output),
 		}),
-	]
+	];
 
 	const placeholders = {
 		pluginName: userFiles.manifest.name,
 		pluginUi: `<script type="module" src="/${userFiles.manifest.ui}"></script>`,
-	}
+	};
 
 	const viteConfigUI = {
 		dev: {
@@ -155,21 +155,21 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 						entryFileNames: '[name].js',
 						chunkFileNames: '[name].js',
 						assetFileNames: (assetInfo: { name?: string }) => {
-							defaultLogger.debug('assetFileNames called with:', assetInfo)
-							if (!assetInfo.name) return '[name].[ext]'
+							defaultLogger.debug('assetFileNames called with:', assetInfo);
+							if (!assetInfo.name) return '[name].[ext]';
 
 							// Extract just the filename, not the path
-							const basename = path.basename(assetInfo.name)
+							const basename = path.basename(assetInfo.name);
 
 							// Handle the case where the name is a full path
 							if (basename === 'ui.html') {
-								return 'ui.html'
+								return 'ui.html';
 							}
 
 							// For other files, ensure we only use the filename
 							// and sanitize it to remove any path separators
-							const sanitizedName = basename.replace(/[\/\\]/g, '_')
-							return sanitizedName || '[name].[ext]'
+							const sanitizedName = basename.replace(/[\/\\]/g, '_');
+							return sanitizedName || '[name].[ext]';
 						},
 					},
 				},
@@ -183,14 +183,14 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 				virtualHtmlPlugin,
 			],
 		} satisfies UserConfig,
-	}
+	};
 
-	const configKey = options.command === 'build' ? 'build' : 'dev'
+	const configKey = options.command === 'build' ? 'build' : 'dev';
 	// defaultLogger.debug('Vite config UI (configKey):', viteConfigUI[configKey])
 
-	const tempFilePath = writeTempFile(`temp_${Date.now()}.js`, userFiles, options)
+	const tempFilePath = writeTempFile(`temp_${Date.now()}.js`, userFiles, options);
 
-	options.manifest = userFiles.manifest
+	options.manifest = userFiles.manifest;
 
 	const viteConfigMainBuild: UserConfig = {
 		mode: options.mode,
@@ -228,7 +228,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 		resolve: {
 			extensions: ['.ts', '.js'],
 		},
-	} satisfies UserConfig
+	} satisfies UserConfig;
 
 	const viteConfigMainDev: UserConfig = {
 		mode: options.mode,
@@ -277,7 +277,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 		resolve: {
 			extensions: ['.ts', '.js'],
 		},
-	} satisfies UserConfig
+	} satisfies UserConfig;
 
 	// defaultLogger.debug(`Vite config Main (configKey):`, configKey === 'dev' ? viteConfigMainDev : viteConfigMainBuild)
 	return {
@@ -286,5 +286,5 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 			dev: viteConfigMainDev,
 			build: viteConfigMainBuild,
 		},
-	}
+	};
 }
