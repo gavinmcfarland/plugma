@@ -199,18 +199,19 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 		},
 		plugins: [replacePlugmaTesting(options)],
 		build: {
-			lib: {
-				entry: tempFilePath,
-				formats: ['es'],
-				fileName: () => 'main.js',
-			},
+			outDir: options.output,
+			emptyOutDir: false,
+			write: true,
+			watch: null,
+			target: 'es6',
+			sourcemap: 'inline',
+			minify: options.command === 'build',
 			rollupOptions: {
+				input: tempFilePath,
 				output: {
-					dir: options.output,
 					entryFileNames: 'main.js',
 					inlineDynamicImports: true,
 					format: 'es',
-					exports: 'auto',
 					generatedCode: {
 						constBindings: true,
 						objectShorthand: true,
@@ -218,12 +219,6 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 				},
 				external: ['figma'],
 			},
-			target: 'es6',
-			sourcemap: 'inline',
-			minify: options.command === 'build',
-			emptyOutDir: false,
-			write: true,
-			watch: null,
 		},
 		resolve: {
 			extensions: ['.ts', '.js'],
