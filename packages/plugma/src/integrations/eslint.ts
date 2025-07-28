@@ -41,7 +41,7 @@ export default defineIntegration({
 		// Update package.json
 		await helpers.updateJson('package.json', (json) => {
 			json.scripts = json.scripts || {};
-			json.scripts['test'] = 'npx vitest';
+			json.scripts['lint'] = 'eslint .';
 		});
 
 		// Create ESLint config file

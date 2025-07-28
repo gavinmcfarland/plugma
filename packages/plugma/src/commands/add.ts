@@ -19,11 +19,11 @@ import eslintIntegration from '../integrations/eslint.js';
 import { AddCommandOptions } from '../utils/create-options.js';
 // Define available integrations and their types
 const INTEGRATIONS = {
-	playwright: playwrightIntegration,
 	tailwind: tailwindIntegration,
 	shadcn: shadcnIntegration,
-	vitest: vitestIntegration,
 	eslint: eslintIntegration,
+	playwright: playwrightIntegration,
+	vitest: vitestIntegration,
 	// Add other integrations here...
 } as const;
 

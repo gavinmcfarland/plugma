@@ -13,6 +13,7 @@ export interface FileHelpers {
 	detectTypeScript: () => Promise<boolean>;
 	getExtension: (forceJs?: boolean) => Promise<'ts' | 'js'>;
 	detectViteConfigFile: () => Promise<string | null>;
+	detectTsConfigFile: () => Promise<string | null>;
 }
 
 export function createFileHelpers(cwd = process.cwd()): FileHelpers {
@@ -100,6 +101,25 @@ export function createFileHelpers(cwd = process.cwd()): FileHelpers {
 			const viteConfigFiles = ['vite.config.ui.ts', 'vite.config.ui.js', 'vite.config.ts', 'vite.config.js'];
 
 			for (const file of viteConfigFiles) {
+				try {
+					// Check if file exists by trying to read it without modifying
+					const content = await this.readFile(file);
+					if (content !== null) {
+						return file;
+					}
+				} catch (error) {
+					// File doesn't exist, continue to next
+					continue;
+				}
+			}
+
+			return null;
+		},
+
+		async detectTsConfigFile() {
+			const tsConfigFiles = ['tsconfig.ui.json', 'tsconfig.json'];
+
+			for (const file of tsConfigFiles) {
 				try {
 					// Check if file exists by trying to read it without modifying
 					const content = await this.readFile(file);
