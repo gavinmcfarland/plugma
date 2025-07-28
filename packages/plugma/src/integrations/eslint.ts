@@ -1,6 +1,6 @@
-import chalk from 'chalk'
-import { defineIntegration } from './define-integration.js'
-import dedent from 'dedent'
+import chalk from 'chalk';
+import { defineIntegration } from './define-integration.js';
+import dedent from 'dedent';
 
 // TODO: Update tsconfig.json to include tests
 
@@ -17,18 +17,9 @@ export default defineIntegration({
 		'@figma/eslint-plugin-figma-plugins',
 	],
 
-	async setup({ helpers, typescript }) {
-		const ext = typescript ? 'ts' : 'js'
-
-		// Update package.json
-		await helpers.updateJson('package.json', (json) => {
-			json.scripts = json.scripts || {}
-			json.scripts['test'] = 'npx vitest'
-		})
-
-		await helpers.writeFile(
-			`.eslintrc.cjs`,
-			dedent`/* eslint-env node */
+	async setup({ answers }) {
+		// Store configuration in answers for postSetup to use
+		answers.eslintConfig = dedent`/* eslint-env node */
 					module.exports = {
 					extends: [
 						'eslint:recommended',
@@ -41,13 +32,24 @@ export default defineIntegration({
 					},
 					root: true
 				}
-			`,
-		)
+			`;
 	},
 
-	nextSteps: (answers) => dedent`
-		[Instructions here]
+	async postSetup({ answers, helpers }) {
+		const eslintConfig = answers.eslintConfig;
+
+		// Update package.json
+		await helpers.updateJson('package.json', (json) => {
+			json.scripts = json.scripts || {};
+			json.scripts['test'] = 'npx vitest';
+		});
+
+		// Create ESLint config file
+		await helpers.writeFile('.eslintrc.cjs', eslintConfig);
+	},
+
+	nextSteps: () => dedent`
 		To run the linter, run \`npm run lint\`.
 		[Optional] Install ESLint extension for VSCode: ${chalk.cyan('https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint')}
 	`,
-})
+});
