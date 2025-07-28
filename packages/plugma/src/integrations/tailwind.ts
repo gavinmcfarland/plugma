@@ -108,8 +108,31 @@ ${content}`;
 			return content;
 		});
 
+		// Check for Vite config files in order of preference
+		const viteConfigFiles = ['vite.config.ui.ts', 'vite.config.ui.js', 'vite.config.ts', 'vite.config.js'];
+
+		let viteConfigFile: string | null = null;
+		for (const file of viteConfigFiles) {
+			try {
+				// Check if file exists by trying to read it without modifying
+				const content = await helpers.readFile(file);
+				if (content !== null) {
+					viteConfigFile = file;
+					break;
+				}
+			} catch (error) {
+				// File doesn't exist, continue to next
+				continue;
+			}
+		}
+
+		if (!viteConfigFile) {
+			console.warn('No Vite config file found. Tailwind plugin will not be added to Vite config.');
+			return;
+		}
+
 		// Update Vite config to use Tailwind
-		await helpers.updateFile(`vite.config.${ext}`, (content) => {
+		await helpers.updateFile(viteConfigFile, (content) => {
 			const s = new MagicString(content);
 
 			// Add tailwind import if needed
