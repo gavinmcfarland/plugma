@@ -1,6 +1,13 @@
-# Migrating from v1 to v2
+# Migrating from V1 to V2
 
 Plugma v2 fixes bugs and introduces a new add-on feature.
+
+## Breaking changes
+
+- `process.env` is not longer support by default. See [Referncing Env Variables](#referencing-env-variables)
+- `-ws, --websockets` is no longer supported. See [Command Line Changes](#command-line-changes)
+- iframe origin is now `null` origin during development [Iframe Origin](#iframe-origin)
+- window events behaivour now matches production [Window Events Behaivour](#window-events-behaivour)
 
 ## Updating Plugma Dependecy
 
@@ -14,7 +21,7 @@ npm install plugma@next
 
 These changes are necessary for your plugin to work with Plugma v2 and future versions.
 
-### Referencing env variables (breaking change)
+### Referencing Env variables
 
 This only applies if you were referencing envariables inside you main code using `process.env`.
 
@@ -75,16 +82,16 @@ If you're using TypeScript you can add a reference for the new context paramater
 ```ts
 /// <reference types="vite/client" />
 
-import 'vite'
-import type { UserConfigExport } from 'vite'
+import 'vite';
+import type { UserConfigExport } from 'vite';
 
 declare module 'vite' {
     interface ConfigEnv {
-        context?: 'ui' | 'main'
+        context?: 'ui' | 'main';
     }
 
     // Overload defineConfig to acknowledge the context parameter
-    function defineConfig(config: (env: ConfigEnv) => UserConfigExport): UserConfigExport
+    function defineConfig(config: (env: ConfigEnv) => UserConfigExport): UserConfigExport;
 }
 ```
 
@@ -101,7 +108,15 @@ These changes only affect users who were using specific features in v1. If you w
 - WebSocket support is now enabled by default. If you were using the `-w, --websockets` flag, you can remove it as it's no longer needed. If you need to disable WebSocket support, you can use the new `--no-websockets` flag.
 - The `preview` command has been deprecated. If you were using this command, you should now use `dev --dock-plugin` instead.
 
-## Optional
+### Iframe Origin
+
+The iframe origin of the plugin has been updated to `null` to match what is used in production. If you relied on this during development the workaround is to use a local development server that supports cross origin for development purposes.
+
+### Window Events Behaivour
+
+In Plugma V1, some events, like drop events—didn't work the same in development as they did in production. This was because the UI was hosted on an external server. Now, Plugma still uses a server, but the UI is embedded directly using a data URI, which better matches how plugins run in production.
+
+## Optional Changes
 
 These changes are completely optional and can be implemented if you want to take advantage of new features.
 
@@ -112,7 +127,7 @@ You can now manage your manifest in a TypeScript file.
 > This feature is still under development, so changes may not always trigger a plugin reload while it’s running.
 
 ```ts
-import { defineManifest } from 'plugma/utils'
+import { defineManifest } from 'plugma/utils';
 
 export default defineManifest(() => {
     return {
@@ -125,8 +140,8 @@ export default defineManifest(() => {
         networkAccess: {
             allowedDomains: ['none'],
         },
-    }
-})
+    };
+});
 ```
 
 ### Custom `index.html` Entry Point
