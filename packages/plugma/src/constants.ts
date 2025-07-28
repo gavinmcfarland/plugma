@@ -1,5 +1,5 @@
-import chalk from 'chalk'
-import { color, ListrLogLevels, ListrRendererValue } from 'listr2'
+import chalk from 'chalk';
+import { color, ListrLogLevels, ListrRendererValue } from 'listr2';
 
 export const LISTR_LOGGER_STYLES = {
 	color: {
@@ -9,8 +9,9 @@ export const LISTR_LOGGER_STYLES = {
 		[ListrLogLevels.FAILED]: (message: string | undefined): string => chalk.red(message ?? ''),
 		[ListrLogLevels.STARTED]: (message: string | undefined): string => chalk.yellow(message ?? ''),
 		[ListrLogLevels.PAUSED]: (message: string | undefined): string => chalk.gray(message ?? ''),
+		[ListrLogLevels.RETRY]: (message: string | undefined): string => chalk.red(message ?? ''),
 	},
-}
+};
 
 export const DEFAULT_RENDERER_OPTIONS = {
 	renderer: 'default' as ListrRendererValue,
@@ -18,8 +19,8 @@ export const DEFAULT_RENDERER_OPTIONS = {
 		// showSubtasks: false,
 		collapseSubtasks: false,
 	},
-}
+};
 
 export const SILENT_RENDERER_OPTIONS = {
 	renderer: 'silent' as ListrRendererValue,
-}
+};

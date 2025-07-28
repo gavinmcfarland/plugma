@@ -1,7 +1,7 @@
 import { ListrLogLevels } from 'listr2';
 import type { ManifestFile, PluginOptions } from '../core/types.js';
 import { BuildCommandOptions, DevCommandOptions, PreviewCommandOptions } from './create-options.js';
-import { createDebugAwareLogger } from './debug-aware-logger.js';
+import { createDebugAwareLogger, DebugAwareLogger } from './debug-aware-logger.js';
 import { filterNullProps } from './filter-null-props.js';
 import { join, resolve } from 'node:path';
 import { unlink } from 'node:fs/promises';
@@ -18,14 +18,14 @@ let deprecatedDomainsWarningShown = false;
  * Shows warning about deprecated domains that are no longer needed only once
  * @param deprecatedDomains - Array of domains that are no longer required
  */
-function showDeprecatedDomainsWarning(deprecatedDomains: string[]) {
+function showDeprecatedDomainsWarning(logger: DebugAwareLogger, deprecatedDomains: string[]) {
 	if (deprecatedDomainsWarningShown || deprecatedDomains.length === 0) {
 		return;
 	}
 
-	console.warn('Warning: The following domains in your manifest are no longer needed and can be removed:');
-	deprecatedDomains.forEach((domain: string) => console.warn(`  - ${domain}`));
-	console.warn('Please remove these from your manifest.');
+	logger.log(ListrLogLevels.RETRY, 'The following domains in your manifest are no longer needed and can be removed:');
+	deprecatedDomains.forEach((domain: string) => logger.log(ListrLogLevels.RETRY, `  - ${domain}`));
+	logger.log(ListrLogLevels.RETRY, 'Please remove these from your manifest.');
 
 	deprecatedDomainsWarningShown = true;
 }
@@ -104,6 +104,7 @@ export async function transformManifest(
 		throw new Error('No manifest found in manifest.json or package.json');
 	}
 
+	const logger = createDebugAwareLogger(options.debug);
 	const overriddenValues = await setSourcePaths(options, manifest);
 
 	// Process the manifest with default values and overrides
@@ -135,7 +136,7 @@ export async function transformManifest(
 			(domain: string) =>
 				domain === 'http://localhost:*' || domain === 'ws://localhost:*' || domain === 'ws://localhost:9001',
 		);
-		showDeprecatedDomainsWarning(deprecatedDomains);
+		showDeprecatedDomainsWarning(logger, deprecatedDomains);
 
 		// Filter out deprecated domains
 		const filteredDomains = transformed.networkAccess.devAllowedDomains.filter(
