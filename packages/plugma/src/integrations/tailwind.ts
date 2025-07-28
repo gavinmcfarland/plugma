@@ -51,8 +51,6 @@ export default defineIntegration({
 	name: 'Tailwind CSS',
 	description: 'CSS framework',
 
-	questions: [],
-
 	dependencies: ['tailwindcss', '@tailwindcss/vite'],
 
 	async setup({ answers, helpers, typescript }) {
@@ -95,8 +93,22 @@ export default defineIntegration({
 
 		// Store the paths in answers for nextSteps to use
 		answers.uiDir = uiDir;
-		answers.cssFilePath = targetCssPath;
+		answers.targetCssPath = targetCssPath;
 		answers.relativeCssPath = relativeCssPath;
+		answers.ext = ext;
+		answers.uiFilePath = uiFilePath;
+		answers.cssFilePath = cssFilePath;
+		answers.manifestUiPath = manifestUiPath;
+	},
+
+	async postSetup({ answers, helpers, typescript }) {
+		const ext = answers.ext;
+		const uiDir = answers.uiDir;
+		const relativeCssPath = answers.relativeCssPath;
+		const uiFilePath = answers.uiFilePath;
+		const cssFilePath = answers.cssFilePath;
+		const manifestUiPath = answers.manifestUiPath;
+		const targetCssPath = answers.targetCssPath;
 
 		// Create base CSS file
 		await helpers.updateFile(relativeCssPath, (content) => {

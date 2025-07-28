@@ -1,80 +1,81 @@
-import { select, confirm, text, isCancel } from '@clack/prompts'
-import { FileHelpers, createFileHelpers } from '../utils/file-helpers.js'
+import { select, confirm, text, isCancel } from '@clack/prompts';
+import { FileHelpers, createFileHelpers } from '../utils/file-helpers.js';
 
-export type QuestionType = 'select' | 'confirm' | 'text'
+export type QuestionType = 'select' | 'confirm' | 'text';
 
 export interface BaseQuestion {
-	id: string
-	question: string
-	type: QuestionType
-	condition?: (answers: Record<string, any>) => boolean
+	id: string;
+	question: string;
+	type: QuestionType;
+	condition?: (answers: Record<string, any>) => boolean;
 }
 
 export interface SelectQuestion extends BaseQuestion {
-	type: 'select'
-	options: Array<{ value: string; label: string; hint?: string }>
-	default?: string
+	type: 'select';
+	options: Array<{ value: string; label: string; hint?: string }>;
+	default?: string;
 }
 
 export interface ConfirmQuestion extends BaseQuestion {
-	type: 'confirm'
-	default?: boolean
+	type: 'confirm';
+	default?: boolean;
 }
 
 export interface TextQuestion extends BaseQuestion {
-	type: 'text'
-	default?: string
+	type: 'text';
+	default?: string;
 }
 
-export type Question = SelectQuestion | ConfirmQuestion | TextQuestion
+export type Question = SelectQuestion | ConfirmQuestion | TextQuestion;
 
 export interface FileOperation {
-	path: string
-	content: string | ((existingContent: string) => string)
+	path: string;
+	content: string | ((existingContent: string) => string);
 }
 
 export interface SetupContext {
-	answers: Record<string, any>
-	helpers: FileHelpers
-	typescript: boolean
+	answers: Record<string, any>;
+	helpers: FileHelpers;
+	typescript: boolean;
 }
 
 export interface Integration {
-	id: string
-	name: string
-	description: string
-	questions?: Question[]
-	dependencies?: string[]
-	devDependencies?: string[]
-	requires?: string[]
-	files?: FileOperation[]
-	setup?: (context: SetupContext) => Promise<void>
-	nextSteps?: (answers: Record<string, any>) => string | string[]
+	id: string;
+	name: string;
+	description: string;
+	questions?: Question[];
+	dependencies?: string[];
+	devDependencies?: string[];
+	requires?: string[];
+	files?: FileOperation[];
+	setup?: (context: SetupContext) => Promise<void>;
+	postSetup?: (context: SetupContext) => Promise<void>;
+	nextSteps?: (answers: Record<string, any>) => string | string[];
 }
 
 export function defineIntegration(integration: Integration): Integration {
-	return integration
+	return integration;
 }
 
 interface RunIntegrationOptions {
-	name: string
-	prefixPrompts?: boolean
+	name: string;
+	prefixPrompts?: boolean;
 }
 
 export async function runIntegration(integration: Integration, options?: RunIntegrationOptions) {
 	// Get answers to all questions
 	const answers = integration.questions
 		? await askQuestions(integration.questions, {}, options?.prefixPrompts ? options.name : undefined)
-		: {}
+		: {};
 
-	if (!answers) return null
+	if (!answers) return null;
 
-	const helpers = createFileHelpers()
-	const typescript = await helpers.detectTypeScript()
+	const helpers = createFileHelpers();
+	const typescript = await helpers.detectTypeScript();
 
 	// Run setup function if provided
 	if (integration.setup) {
-		await integration.setup({ answers, helpers, typescript })
+		await integration.setup({ answers, helpers, typescript });
 	}
 
 	return {
@@ -83,46 +84,46 @@ export async function runIntegration(integration: Integration, options?: RunInte
 		devDependencies: integration.devDependencies || [],
 		files: integration.files || [],
 		nextSteps: integration.nextSteps?.(answers) || [],
-	}
+	};
 }
 
 async function askQuestions(questions: Question[], answers: Record<string, any> = {}, prefixName?: string) {
 	for (const question of questions) {
 		if (question.condition && !question.condition(answers)) {
-			continue
+			continue;
 		}
 
-		const message = prefixName ? `[${prefixName}] ${question.question}` : question.question
+		const message = prefixName ? `[${prefixName}] ${question.question}` : question.question;
 
-		let answer
+		let answer;
 		switch (question.type) {
 			case 'select':
 				answer = await select({
 					message,
 					options: question.options,
 					initialValue: question.default,
-				})
-				break
+				});
+				break;
 			case 'confirm':
 				answer = await confirm({
 					message,
 					initialValue: question.default,
-				})
-				break
+				});
+				break;
 			case 'text':
 				answer = await text({
 					message,
 					initialValue: question.default,
-				})
-				break
+				});
+				break;
 		}
 
 		if (isCancel(answer)) {
-			return null
+			return null;
 		}
 
-		answers[question.id] = answer
+		answers[question.id] = answer;
 	}
 
-	return answers
+	return answers;
 }
