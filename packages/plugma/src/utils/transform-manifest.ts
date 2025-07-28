@@ -11,23 +11,23 @@ const DEFAULT_MANIFEST_VALUES = {
 	api: '1.0.0',
 };
 
-// Track if wildcard port warning has been shown
-let wildcardWarningShown = false;
+// Track if deprecated domains warning has been shown
+let deprecatedDomainsWarningShown = false;
 
 /**
- * Shows warning about deprecated wildcard port syntax only once
- * @param wildcardDomains - Array of domains using wildcard ports
+ * Shows warning about deprecated domains that are no longer needed only once
+ * @param deprecatedDomains - Array of domains that are no longer required
  */
-function showWildcardPortWarning(wildcardDomains: string[]) {
-	if (wildcardWarningShown || wildcardDomains.length === 0) {
+function showDeprecatedDomainsWarning(deprecatedDomains: string[]) {
+	if (deprecatedDomainsWarningShown || deprecatedDomains.length === 0) {
 		return;
 	}
 
-	console.warn('Warning: The following domains in your manifest use wildcard ports (*) which are no longer needed.');
-	wildcardDomains.forEach((domain: string) => console.warn(`  - ${domain}`));
+	console.warn('Warning: The following domains in your manifest are no longer needed and can be removed:');
+	deprecatedDomains.forEach((domain: string) => console.warn(`  - ${domain}`));
 	console.warn('Please remove these from your manifest.');
 
-	wildcardWarningShown = true;
+	deprecatedDomainsWarningShown = true;
 }
 
 async function setSourcePaths(
@@ -130,13 +130,17 @@ export async function transformManifest(
 			transformed.networkAccess.devAllowedDomains = [];
 		}
 
-		const wildcardDomains = transformed.networkAccess.devAllowedDomains.filter((domain: string) =>
-			domain.endsWith(':*'),
+		// Check for deprecated domains that are no longer needed
+		const deprecatedDomains = transformed.networkAccess.devAllowedDomains.filter(
+			(domain: string) =>
+				domain === 'http://localhost:*' || domain === 'ws://localhost:*' || domain === 'ws://localhost:9001',
 		);
-		showWildcardPortWarning(wildcardDomains);
+		showDeprecatedDomainsWarning(deprecatedDomains);
 
+		// Filter out deprecated domains
 		const filteredDomains = transformed.networkAccess.devAllowedDomains.filter(
-			(domain: string) => !domain.endsWith(':*'),
+			(domain: string) =>
+				domain !== 'http://localhost:*' && domain !== 'ws://localhost:*' && domain !== 'ws://localhost:9001',
 		);
 		const newDomains = [
 			`http://localhost:${options.port}`,

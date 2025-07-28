@@ -26,7 +26,7 @@ This <%- type %> was created with [Plugma](https://github.com/gavinmcfarland/plu
     - Search for "Import plugin from manifest..." using the [Quick Actions](https://help.figma.com/hc/en-us/articles/360040328653-Use-shortcuts-and-quick-actions#Use_quick_actions) bar.
     - Choose the `manifest.json` file from the `dist` folder.
 
-3. Manage `manifest` details from inside `package.json`.
+3. Manage `manifest` details from inside `./manifest.json`.
 
 ### Before Publishing
 

@@ -17,13 +17,15 @@
 			"path": "packages/plugma/src",
 		},
 		{
+			"name": "apps",
+			"path": "packages/plugma/apps",
+		},
+		{
 			"name": "plugma",
 			"path": "packages/plugma",
 		},
 		{
-			"path": "packages/plugma/apps",
-		},
-		{
+			"name": "create-plugma",
 			"path": "packages/create-plugma",
 		},
 	],
