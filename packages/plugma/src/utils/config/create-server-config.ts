@@ -1,8 +1,8 @@
-import type { InlineConfig } from 'vite'
-import { mergeConfig } from 'vite'
-import { loadConfig } from './load-config.js'
-import type { DevCommandOptions, PreviewCommandOptions } from '../../utils/create-options.js'
-import type { UserFiles } from '../../core/types.js'
+import type { InlineConfig } from 'vite';
+import { mergeConfig } from 'vite';
+import { loadConfig } from './load-config.js';
+import type { DevCommandOptions, PreviewCommandOptions } from '../../utils/create-options.js';
+import type { UserFiles } from '../../core/types.js';
 
 /**
  * Creates a standardized server configuration for Vite development server
@@ -47,9 +47,13 @@ export async function createViteServerConfig(
 		},
 		clearScreen: false,
 		logLevel: (options.debug ? 'info' : 'error') as any,
-	}
+	};
 
-	const userUIConfig = await loadConfig('vite.config.ui', options, 'ui', 'serve')
+	const userUIConfig = await loadConfig({
+		options,
+		context: 'ui',
+		viteCommand: 'serve',
+	});
 
 	return mergeConfig(
 		{
@@ -57,5 +61,5 @@ export async function createViteServerConfig(
 			...baseConfig,
 		},
 		userUIConfig?.config ?? {},
-	)
+	);
 }
