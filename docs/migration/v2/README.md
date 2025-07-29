@@ -6,7 +6,7 @@ Plugma v2 fixes bugs and introduces a new add-on feature.
 
 - `process.env` is not longer support by default. See [Referncing Env Variables](#referencing-env-variables)
 - `-ws, --websockets` is no longer supported. See [Command Line Changes](#command-line-changes)
-- iframe origin is now `null` origin during development [Iframe Origin](#iframe-origin)
+- iframe origin is now `null` during development [Iframe Origin](#iframe-origin)
 - window events behaivour now matches production [Window Events Behaivour](#window-events-behaivour)
 
 ## Updating Plugma Dependecy
