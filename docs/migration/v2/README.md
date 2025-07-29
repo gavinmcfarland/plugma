@@ -70,11 +70,12 @@ export default defineConfig(({ context }) => {
 })
 ```
 
+<!--
 Alternatively you can create seperate files for the `main` and `ui` context, named respectively:
 
 - `vite.config.main.ts`
 - `vite.config.ui.ts`
-
+-->
 ### Adding Support for `env` Types (recommended)
 
 If you're using TypeScript you can add a reference for the new context paramater type definition at the top of the file by adding the following `vite-env.d.ts` to the `src` directory of your plugin.
