@@ -3,7 +3,7 @@
 		"composite": true,
 		"module": "ESNext",
 		"moduleResolution": "bundler",
-		"typeRoots": ["node_modules/@figma", "node_modules/@types"]
+		"typeRoots": ["<%= rebase('node_modules/@figma') %>", "<%= rebase('node_modules/@types') %>"]
 	},
-	"include": ["<%= mainDir %>/**/*.js", "<%= mainDir %>/**/*.ts", "src/vite-env.d.ts"]
+	"include": ["**/*.ts", "<%= rebase('vite-env.d.ts', { locate: true }) %>"]
 }

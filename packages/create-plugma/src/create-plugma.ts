@@ -11,6 +11,7 @@ import path from 'path';
 import chalk from 'chalk';
 import stripTS from '@combino/plugin-strip-ts';
 import ejsMate from '@combino/plugin-ejs-mate';
+import rebase from '@combino/plugin-rebase';
 import dotenv from 'dotenv';
 
 const CURR_DIR = process.cwd();
@@ -678,7 +679,7 @@ async function main(): Promise<void> {
 			outputDir: destDir,
 			include: templates,
 			data: { ...templateData, versions },
-			plugins: [ejsMate(), stripTS({ skip: typescript })],
+			plugins: [rebase(), ejsMate(), stripTS({ skip: typescript })],
 			configFileName: 'template.json',
 		});
 
