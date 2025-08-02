@@ -23,54 +23,54 @@ importers:
                 specifier: ^3.1.1
                 version: 3.1.2(@types/debug@4.1.12)(@types/node@22.15.3)(@vitest/ui@3.1.2)(terser@5.39.0)
 
-    packages/create-plugma:
-        dependencies:
-            '@babel/traverse':
-                specifier: ^7.27.7
-                version: 7.27.7
-            '@combino/plugin-ejs-mate':
-                specifier: ^1.0.1
-                version: 1.0.1(combino@1.4.0(svelte@5.34.8))
-            '@combino/plugin-rebase':
-                specifier: ^1.5.0
-                version: 1.5.0(combino@1.4.0(svelte@5.34.8))
-            '@combino/plugin-strip-ts':
-                specifier: ^1.0.1
-                version: 1.0.1(combino@1.4.0(svelte@5.34.8))(postcss-load-config@4.0.2(postcss@8.5.6))(postcss@8.5.6)
-            chalk:
-                specifier: ^5.4.1
-                version: 5.4.1
-            combino:
-                specifier: ^1.4.0
-                version: 1.4.0(svelte@5.34.8)
-            dotenv:
-                specifier: ^17.2.0
-                version: 17.2.0
-            enquirer:
-                specifier: ^2.4.1
-                version: 2.4.1
-            kdljs:
-                specifier: ^0.3.0
-                version: 0.3.0
-            lodash:
-                specifier: ^4.17.21
-                version: 4.17.21
-            slugify:
-                specifier: ^1.6.6
-                version: 1.6.6
-        devDependencies:
-            '@types/ejs':
-                specifier: ^3.1.0
-                version: 3.1.5
-            '@types/lodash':
-                specifier: ^4.14.0
-                version: 4.17.20
-            '@types/node':
-                specifier: ^20.0.0
-                version: 20.19.4
-            typescript:
-                specifier: ^5.0.0
-                version: 5.8.3
+  packages/create-plugma:
+    dependencies:
+      '@babel/traverse':
+        specifier: ^7.27.7
+        version: 7.27.7
+      '@combino/plugin-ejs-mate':
+        specifier: ^1.0.1
+        version: 1.0.1(combino@1.5.1(svelte@5.34.8))
+      '@combino/plugin-rebase':
+        specifier: ^1.5.1
+        version: 1.5.1(combino@1.5.1(svelte@5.34.8))
+      '@combino/plugin-strip-ts':
+        specifier: ^1.0.1
+        version: 1.0.1(combino@1.5.1(svelte@5.34.8))(postcss-load-config@4.0.2(postcss@8.5.6))(postcss@8.5.6)
+      chalk:
+        specifier: ^5.4.1
+        version: 5.4.1
+      combino:
+        specifier: ^1.5.1
+        version: 1.5.1(svelte@5.34.8)
+      dotenv:
+        specifier: ^17.2.0
+        version: 17.2.0
+      enquirer:
+        specifier: ^2.4.1
+        version: 2.4.1
+      kdljs:
+        specifier: ^0.3.0
+        version: 0.3.0
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
+      slugify:
+        specifier: ^1.6.6
+        version: 1.6.6
+    devDependencies:
+      '@types/ejs':
+        specifier: ^3.1.0
+        version: 3.1.5
+      '@types/lodash':
+        specifier: ^4.14.0
+        version: 4.17.20
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.4
+      typescript:
+        specifier: ^5.0.0
+        version: 5.8.3
 
     packages/plugma:
         dependencies:
@@ -477,13 +477,10 @@ packages:
         peerDependencies:
             combino: ^1.0.0
 
-    '@combino/plugin-rebase@1.5.0':
-        resolution:
-            {
-                integrity: sha512-JXzuHD350o+B3QH6ghZzM0AKDlNwdXsypLhHlvh8hoe3G38zdjZBXiDJtK049kype8R2/kdnixx3h9GfRfk6FA==,
-            }
-        peerDependencies:
-            combino: ^1.0.0
+  '@combino/plugin-rebase@1.5.1':
+    resolution: {integrity: sha512-gRcsVP6E/V9py1V6wYUvNoF5U/V22qTKMTa4nwmFospxPOUSGNIPZ6X36KaXzbqAecNHsyJxNik3GpJqYGZGYA==}
+    peerDependencies:
+      combino: ^1.0.0
 
     '@combino/plugin-strip-ts@1.0.1':
         resolution:
@@ -3489,12 +3486,9 @@ packages:
             }
         engines: { node: '>= 0.8' }
 
-    combino@1.4.0:
-        resolution:
-            {
-                integrity: sha512-m1typTloVAw8VKdASTckbl/3/c4Tzg94kOkn3xMtqDxjzwXiTnHhPSKF4u9a3w1rl5d5ZME8LxRMGn4pKn/+2g==,
-            }
-        hasBin: true
+  combino@1.5.1:
+    resolution: {integrity: sha512-qPSZlr5SyAzFf7DiPBJTzVDEj22atdPnQAk2HosWUJmcQcbVj8PjBAjEveGQAaChyc5cEZyKwVlo1o/3rRRANA==}
+    hasBin: true
 
     comma-separated-tokens@2.0.3:
         resolution:
@@ -8739,32 +8733,32 @@ snapshots:
             picocolors: 1.1.1
             sisteransi: 1.0.5
 
-    '@combino/plugin-ejs-mate@1.0.1(combino@1.4.0(svelte@5.34.8))':
-        dependencies:
-            combino: 1.4.0(svelte@5.34.8)
-            ejs: 3.1.10
+  '@combino/plugin-ejs-mate@1.0.1(combino@1.5.1(svelte@5.34.8))':
+    dependencies:
+      combino: 1.5.1(svelte@5.34.8)
+      ejs: 3.1.10
 
-    '@combino/plugin-rebase@1.5.0(combino@1.4.0(svelte@5.34.8))':
-        dependencies:
-            combino: 1.4.0(svelte@5.34.8)
-            path: 0.12.7
+  '@combino/plugin-rebase@1.5.1(combino@1.5.1(svelte@5.34.8))':
+    dependencies:
+      combino: 1.5.1(svelte@5.34.8)
+      path: 0.12.7
 
-    '@combino/plugin-strip-ts@1.0.1(combino@1.4.0(svelte@5.34.8))(postcss-load-config@4.0.2(postcss@8.5.6))(postcss@8.5.6)':
-        dependencies:
-            chalk: 5.4.1
-            combino: 1.4.0(svelte@5.34.8)
-            strip-ts: 0.0.0(postcss-load-config@4.0.2(postcss@8.5.6))(postcss@8.5.6)
-        transitivePeerDependencies:
-            - '@babel/core'
-            - coffeescript
-            - less
-            - postcss
-            - postcss-load-config
-            - pug
-            - sass
-            - stylus
-            - sugarss
-            - supports-color
+  '@combino/plugin-strip-ts@1.0.1(combino@1.5.1(svelte@5.34.8))(postcss-load-config@4.0.2(postcss@8.5.6))(postcss@8.5.6)':
+    dependencies:
+      chalk: 5.4.1
+      combino: 1.5.1(svelte@5.34.8)
+      strip-ts: 0.0.0(postcss-load-config@4.0.2(postcss@8.5.6))(postcss@8.5.6)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - coffeescript
+      - less
+      - postcss
+      - postcss-load-config
+      - pug
+      - sass
+      - stylus
+      - sugarss
+      - supports-color
 
     '@csstools/cascade-layer-name-parser@2.0.4(@csstools/css-parser-algorithms@3.0.4(@csstools/css-tokenizer@3.0.3))(@csstools/css-tokenizer@3.0.3)':
         dependencies:
@@ -10540,24 +10534,24 @@ snapshots:
         dependencies:
             delayed-stream: 1.0.0
 
-    combino@1.4.0(svelte@5.34.8):
-        dependencies:
-            chalk: 5.4.1
-            commander: 11.1.0
-            deepmerge: 4.3.1
-            edge.js: 6.2.1
-            eta: 3.5.0
-            expr-eval: 2.0.2
-            glob: 10.4.5
-            gray-matter: 4.0.3
-            handlebars: 4.7.8
-            jsonc-parser: 3.3.1
-            minimatch: 10.0.3
-            mustache: 4.2.0
-            prettier: 3.5.3
-            prettier-plugin-svelte: 3.4.0(prettier@3.5.3)(svelte@5.34.8)
-        transitivePeerDependencies:
-            - svelte
+  combino@1.5.1(svelte@5.34.8):
+    dependencies:
+      chalk: 5.4.1
+      commander: 11.1.0
+      deepmerge: 4.3.1
+      edge.js: 6.2.1
+      eta: 3.5.0
+      expr-eval: 2.0.2
+      glob: 10.4.5
+      gray-matter: 4.0.3
+      handlebars: 4.7.8
+      jsonc-parser: 3.3.1
+      minimatch: 10.0.3
+      mustache: 4.2.0
+      prettier: 3.5.3
+      prettier-plugin-svelte: 3.4.0(prettier@3.5.3)(svelte@5.34.8)
+    transitivePeerDependencies:
+      - svelte
 
     comma-separated-tokens@2.0.3: {}
 
