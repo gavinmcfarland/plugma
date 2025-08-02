@@ -21,11 +21,11 @@
 			"target": "src/main/tsconfig.json"
 		},
         {
-			"source": "../../frameworks/[framework]/[typescript]/tsconfig.ui.json",
+			"source": "../../frameworks/[framework]/[typescript]/tsconfig.ui.json[hasUI]",
 			"target": "src/ui/tsconfig.json"
 		},
         {
-			"source": "../../typescript[typescript]/tsconfig.ui.json",
+			"source": "../../typescript[typescript]/tsconfig.ui.json[hasUI]",
 			"target": "src/ui/tsconfig.json"
 		}
 	]

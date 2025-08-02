@@ -1,4 +1,4 @@
 {
 	"files": [],
-	"references": [{ "path": "<%= mainDir %>/tsconfig.json" }, { "path": "<%= uiDir %>/tsconfig.json" }]
+	"references": [{ "path": "<%= mainDir %>/tsconfig.json" }, <%- hasUI ? `{ "path": "${uiDir}/tsconfig.json" }` : '' %> ]
 }
