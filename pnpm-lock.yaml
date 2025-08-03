@@ -2543,8 +2543,8 @@ packages:
     resolution: {integrity: sha512-vnjzfpqpjM4Mjt9typc1zLoFpC1F6kAObfcdyA6rSy+izIPji2RaQz5jWx5s5iG9hNcuyjtNyGRCLFVfoYhWcA==}
     engines: {node: '>=18.16.0'}
 
-  edge.js@6.2.1:
-    resolution: {integrity: sha512-me875zh6YA0V429hywgQIpHgMvQkondv5XHaP6EsL2yIBpLcBWCl7Ba1cai0SwYhp8iD0IyV3KjpxLrnW7S2Ag==}
+  edge.js@6.3.0:
+    resolution: {integrity: sha512-Xm7XW6J2+6cvfRK6AJEKV5hBF230iCvwQRg5wattg+RAzQ6tRwWSe4gqCsvvCaHt4xp10xkm8+ZdhApF1FVCzA==}
     engines: {node: '>=18.16.0'}
 
   editor@1.0.0:
@@ -7119,7 +7119,7 @@ snapshots:
       chalk: 5.4.1
       commander: 11.1.0
       deepmerge: 4.3.1
-      edge.js: 6.2.1
+      edge.js: 6.3.0
       eta: 3.5.0
       expr-eval: 2.0.2
       glob: 10.4.5
@@ -7387,7 +7387,7 @@ snapshots:
       edge-lexer: 6.0.3
       js-stringify: 1.0.2
 
-  edge.js@6.2.1:
+  edge.js@6.3.0:
     dependencies:
       '@poppinss/inspect': 1.0.1
       '@poppinss/macroable': 1.0.5
