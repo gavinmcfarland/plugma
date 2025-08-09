@@ -9,6 +9,11 @@ on:
 permissions:
     contents: write # Allow the workflow to push tags
 
+env:
+    # Set the working directory for the plugin (for monorepo support)
+    # This will be automatically updated by plugma if the plugin is in a subdirectory
+    PLUGIN_DIR: '.'
+
 jobs:
     release:
         runs-on: ubuntu-latest
@@ -30,6 +35,7 @@ jobs:
                   git fetch origin "refs/tags/$TAG_NAME:refs/tags/$TAG_NAME" # Fetch only the specific tag
 
             - name: Prepare environment
+              working-directory: ${{ env.PLUGIN_DIR }}
               run: |
                   # Enable corepack to handle package managers
                   corepack enable
@@ -52,6 +58,7 @@ jobs:
                   if [ -f "package-lock.json" ]; then echo "  ✅ package-lock.json"; fi
 
             - name: Detect package manager and install dependencies
+              working-directory: ${{ env.PLUGIN_DIR }}
               run: |
                   # Check packageManager field in package.json first
                   if [ -f "package.json" ]; then
@@ -127,6 +134,7 @@ jobs:
                   fi
 
             - name: Verify package manager selection
+              working-directory: ${{ env.PLUGIN_DIR }}
               run: |
                   echo "🔍 Verifying package manager selection..."
 
@@ -177,6 +185,7 @@ jobs:
               run: git tag -l
 
             - name: Verify dependencies and build environment
+              working-directory: ${{ env.PLUGIN_DIR }}
               run: |
                   echo "🔍 Verifying build environment..."
 
@@ -225,6 +234,7 @@ jobs:
                   fi
 
             - name: Verify plugma binary availability
+              working-directory: ${{ env.PLUGIN_DIR }}
               run: |
                   echo "🔍 Verifying plugma availability..."
 
@@ -267,6 +277,7 @@ jobs:
                   fi
 
             - name: Build project
+              working-directory: ${{ env.PLUGIN_DIR }}
               run: |
                   echo "🔨 Building project..."
 
@@ -308,6 +319,7 @@ jobs:
 
             - name: Handle build failure
               if: failure()
+              working-directory: ${{ env.PLUGIN_DIR }}
               run: |
                   echo "❌ Build failed!"
                   echo "📋 Current directory contents:"
@@ -325,6 +337,7 @@ jobs:
                   exit 1
 
             - name: Zip dist folder
+              working-directory: ${{ env.PLUGIN_DIR }}
               run: |
                   echo "📦 Creating release archive..."
 
@@ -366,12 +379,28 @@ jobs:
                   echo "📋 Created archives:"
                   ls -la *.zip || echo "No zip files found"
 
+            - name: Move assets to root for upload
+              run: |
+                  echo "📦 Moving build assets to repository root for upload..."
+
+                  # If plugin is in a subdirectory, move the zip files to the root
+                  if [ "${{ env.PLUGIN_DIR }}" != "." ]; then
+                    cd "${{ env.PLUGIN_DIR }}"
+                    for zipfile in *.zip; do
+                      if [ -f "$zipfile" ]; then
+                        echo "Moving $zipfile to repository root"
+                        mv "$zipfile" "../$zipfile" 2>/dev/null || mv "$zipfile" "../../$zipfile" 2>/dev/null || echo "Could not move $zipfile"
+                      fi
+                    done
+                    cd "$GITHUB_WORKSPACE"
+                  fi
+
             - name: Determine release asset to upload
               id: determine_asset
               run: |
                   echo "🔍 Determining which asset to upload..."
 
-                  # Find the first zip file available
+                  # Find the first zip file available (now in the root)
                   if [ -f "dist.zip" ]; then
                     echo "✅ Found dist.zip"
                     echo "ASSET_PATH=./dist.zip" >> $GITHUB_ENV

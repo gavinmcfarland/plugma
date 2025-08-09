@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { GitReleaseError, gitRelease } from '#tasks';
+import { GitReleaseError, gitRelease } from '../../../src/tasks/release/push-to-github.js';
 
 // Mock child_process.execSync
 vi.mock('node:child_process', () => ({
@@ -42,7 +42,7 @@ describe('gitRelease', () => {
     expect(execSync).toHaveBeenCalledWith('git push origin v1', {
       stdio: 'ignore',
     });
-    expect(execSync).toHaveBeenCalledWith('plugma build', { stdio: 'inherit' });
+    expect(execSync).toHaveBeenCalledWith('plugma build', { stdio: 'pipe' });
   });
 
   it('should create release with title and notes', async () => {
