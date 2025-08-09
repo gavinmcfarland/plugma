@@ -60,77 +60,110 @@ jobs:
             - name: Detect package manager and install dependencies
               working-directory: ${{ env.PLUGIN_DIR }}
               run: |
-                  # Check packageManager field in package.json first
-                  if [ -f "package.json" ]; then
-                    PACKAGE_MANAGER=$(grep -o '"packageManager": "[^"]*"' package.json | cut -d'"' -f4 | cut -d'@' -f1)
-                    if [ "$PACKAGE_MANAGER" = "pnpm" ]; then
-                      echo "📦 Using pnpm (detected from packageManager field)"
-                      # Try with frozen lockfile first, fallback to regular install if it fails
+                  # Function to detect package manager from a directory
+                  detect_package_manager() {
+                    local dir=$1
+                    local package_manager=""
+
+                    # Check packageManager field in package.json first
+                    if [ -f "$dir/package.json" ]; then
+                      package_manager=$(grep -o '"packageManager": "[^"]*"' "$dir/package.json" | cut -d'"' -f4 | cut -d'@' -f1 2>/dev/null)
+                    fi
+
+                    # If no packageManager field, detect from lockfiles
+                    if [ -z "$package_manager" ]; then
+                      if [ -f "$dir/pnpm-lock.yaml" ]; then
+                        package_manager="pnpm"
+                      elif [ -f "$dir/yarn.lock" ]; then
+                        package_manager="yarn"
+                      elif [ -f "$dir/package-lock.json" ]; then
+                        package_manager="npm"
+                      fi
+                    fi
+
+                    echo "$package_manager"
+                  }
+
+                  # Function to install dependencies with detected package manager
+                  install_deps() {
+                    local package_manager=$1
+                    local install_dir=$2
+
+                    cd "$install_dir"
+
+                    if [ "$package_manager" = "pnpm" ]; then
+                      echo "📦 Installing with pnpm in $install_dir"
                       if ! pnpm install --frozen-lockfile; then
                         echo "⚠️  Lockfile is out of sync, updating dependencies..."
                         pnpm install
                       fi
-
-                      # Ensure plugma is installed locally (not linked globally)
-                      echo "📦 Ensuring plugma is installed locally..."
-                      PLUGMA_VERSION=$(grep -o '"plugma": "[^"]*"' package.json | cut -d'"' -f4)
-                      if pnpm list plugma | grep -q "link:"; then
-                        echo "⚠️  plugma is linked globally, reinstalling locally..."
-                        pnpm remove plugma
-                        pnpm add "plugma@$PLUGMA_VERSION" --ignore-workspace-root-check
-                      fi
-                    elif [ "$PACKAGE_MANAGER" = "yarn" ]; then
-                      echo "📦 Using yarn (detected from packageManager field)"
-                      # Try with frozen lockfile first, fallback to regular install if it fails
+                    elif [ "$package_manager" = "yarn" ]; then
+                      echo "📦 Installing with yarn in $install_dir"
                       if ! yarn install --frozen-lockfile; then
                         echo "⚠️  Lockfile is out of sync, updating dependencies..."
                         yarn install
                       fi
-                    elif [ "$PACKAGE_MANAGER" = "npm" ]; then
-                      echo "📦 Using npm (detected from packageManager field)"
-                      # Try with ci first, fallback to install if it fails
+                    elif [ "$package_manager" = "npm" ]; then
+                      echo "📦 Installing with npm in $install_dir"
                       if ! npm ci; then
                         echo "⚠️  Lockfile is out of sync, updating dependencies..."
                         npm install
                       fi
                     else
-                      echo "ℹ️  No packageManager field found or unsupported manager: $PACKAGE_MANAGER"
-                      # Fall back to lockfile detection
-                      if [ -f "pnpm-lock.yaml" ]; then
-                        echo "📦 Using pnpm (detected from pnpm-lock.yaml)"
-                        if ! pnpm install --frozen-lockfile; then
-                          echo "⚠️  Lockfile is out of sync, updating dependencies..."
-                          pnpm install
-                        fi
+                      echo "❌ Unknown package manager: $package_manager"
+                      return 1
+                    fi
+                  }
 
-                        # Ensure plugma is installed locally (not linked globally)
-                        echo "📦 Ensuring plugma is installed locally..."
-                        PLUGMA_VERSION=$(grep -o '"plugma": "[^"]*"' package.json | cut -d'"' -f4)
-                        if pnpm list plugma | grep -q "link:"; then
-                          echo "⚠️  plugma is linked globally, reinstalling locally..."
-                          pnpm remove plugma
-                          pnpm add "plugma@$PLUGMA_VERSION" --ignore-workspace-root-check
-                        fi
-                      elif [ -f "yarn.lock" ]; then
-                        echo "📦 Using yarn (detected from yarn.lock)"
-                        if ! yarn install --frozen-lockfile; then
-                          echo "⚠️  Lockfile is out of sync, updating dependencies..."
-                          yarn install
-                        fi
-                      elif [ -f "package-lock.json" ]; then
-                        echo "📦 Using npm (detected from package-lock.json)"
-                        if ! npm ci; then
-                          echo "⚠️  Lockfile is out of sync, updating dependencies..."
-                          npm install
-                        fi
-                      else
-                        echo "❌ No lockfile found. Cannot determine package manager."
-                        exit 1
-                      fi
+                  # First, try to detect package manager from plugin directory
+                  PACKAGE_MANAGER=$(detect_package_manager ".")
+                  echo "🔍 Package manager detected from plugin directory: '$PACKAGE_MANAGER'"
+
+                  # If not found in plugin directory, check repository root
+                  if [ -z "$PACKAGE_MANAGER" ]; then
+                    echo "🔍 Checking repository root for package manager..."
+                    PACKAGE_MANAGER=$(detect_package_manager "$GITHUB_WORKSPACE")
+                    echo "🔍 Package manager detected from repository root: '$PACKAGE_MANAGER'"
+                  fi
+
+                  # If still no package manager found, error
+                  if [ -z "$PACKAGE_MANAGER" ]; then
+                    echo "❌ No package manager could be detected from plugin directory or repository root"
+                    echo "📋 Plugin directory contents:"
+                    ls -la .
+                    echo "📋 Repository root contents:"
+                    ls -la "$GITHUB_WORKSPACE"
+                    exit 1
+                  fi
+
+                  echo "✅ Using package manager: $PACKAGE_MANAGER"
+
+                  # Install dependencies
+                  # First try in repository root (for monorepos)
+                  if [ -f "$GITHUB_WORKSPACE/package.json" ] && [ "$GITHUB_WORKSPACE" != "$(pwd)" ]; then
+                    echo "🔍 Found package.json in repository root, attempting root installation first..."
+                    if install_deps "$PACKAGE_MANAGER" "$GITHUB_WORKSPACE"; then
+                      echo "✅ Dependencies installed from repository root"
+                    else
+                      echo "⚠️  Root installation failed, trying plugin directory..."
+                      install_deps "$PACKAGE_MANAGER" "."
                     fi
                   else
-                    echo "❌ package.json not found. Cannot determine package manager."
-                    exit 1
+                    echo "🔍 Installing dependencies in plugin directory..."
+                    install_deps "$PACKAGE_MANAGER" "."
+                  fi
+
+                  # For pnpm, ensure plugma is installed locally (not linked globally)
+                  if [ "$PACKAGE_MANAGER" = "pnpm" ] && [ -f "package.json" ]; then
+                    echo "📦 Ensuring plugma is installed locally..."
+                    PLUGMA_VERSION=$(grep -o '"plugma": "[^"]*"' package.json | cut -d'"' -f4)
+                    if [ -n "$PLUGMA_VERSION" ]; then
+                      if pnpm list plugma | grep -q "link:" 2>/dev/null; then
+                        echo "⚠️  plugma is linked globally, reinstalling locally..."
+                        pnpm remove plugma
+                        pnpm add "plugma@$PLUGMA_VERSION" --ignore-workspace-root-check
+                      fi
+                    fi
                   fi
 
             - name: Verify package manager selection
@@ -138,29 +171,58 @@ jobs:
               run: |
                   echo "🔍 Verifying package manager selection..."
 
-                  # Show which package manager was used
-                  if [ -f "package.json" ]; then
-                    PACKAGE_MANAGER=$(grep -o '"packageManager": "[^"]*"' package.json | cut -d'"' -f4 | cut -d'@' -f1)
-                    echo "📦 Package manager from package.json: $PACKAGE_MANAGER"
+                  # Function to detect package manager (same as previous step)
+                  detect_package_manager() {
+                    local dir=$1
+                    local package_manager=""
 
-                    # Check if the package manager is available
-                    if [ "$PACKAGE_MANAGER" = "pnpm" ]; then
-                      echo "🔧 Testing pnpm availability:"
-                      pnpm --version || echo "❌ pnpm not available"
-                    elif [ "$PACKAGE_MANAGER" = "yarn" ]; then
-                      echo "🔧 Testing yarn availability:"
-                      yarn --version || echo "❌ yarn not available"
-                    elif [ "$PACKAGE_MANAGER" = "npm" ]; then
-                      echo "🔧 Testing npm availability:"
-                      npm --version || echo "❌ npm not available"
+                    if [ -f "$dir/package.json" ]; then
+                      package_manager=$(grep -o '"packageManager": "[^"]*"' "$dir/package.json" | cut -d'"' -f4 | cut -d'@' -f1 2>/dev/null)
                     fi
+
+                    if [ -z "$package_manager" ]; then
+                      if [ -f "$dir/pnpm-lock.yaml" ]; then
+                        package_manager="pnpm"
+                      elif [ -f "$dir/yarn.lock" ]; then
+                        package_manager="yarn"
+                      elif [ -f "$dir/package-lock.json" ]; then
+                        package_manager="npm"
+                      fi
+                    fi
+
+                    echo "$package_manager"
+                  }
+
+                  # Detect package manager
+                  PACKAGE_MANAGER=$(detect_package_manager ".")
+                  if [ -z "$PACKAGE_MANAGER" ]; then
+                    PACKAGE_MANAGER=$(detect_package_manager "$GITHUB_WORKSPACE")
                   fi
 
-                  # Show which lockfiles exist
-                  echo "📋 Lockfiles present:"
+                  echo "📦 Package manager: $PACKAGE_MANAGER"
+
+                  # Check if the package manager is available
+                  if [ "$PACKAGE_MANAGER" = "pnpm" ]; then
+                    echo "🔧 Testing pnpm availability:"
+                    pnpm --version || echo "❌ pnpm not available"
+                  elif [ "$PACKAGE_MANAGER" = "yarn" ]; then
+                    echo "🔧 Testing yarn availability:"
+                    yarn --version || echo "❌ yarn not available"
+                  elif [ "$PACKAGE_MANAGER" = "npm" ]; then
+                    echo "🔧 Testing npm availability:"
+                    npm --version || echo "❌ npm not available"
+                  fi
+
+                  # Show which lockfiles exist in both directories
+                  echo "📋 Lockfiles in plugin directory:"
                   if [ -f "pnpm-lock.yaml" ]; then echo "  ✅ pnpm-lock.yaml"; fi
                   if [ -f "yarn.lock" ]; then echo "  ✅ yarn.lock"; fi
                   if [ -f "package-lock.json" ]; then echo "  ✅ package-lock.json"; fi
+
+                  echo "📋 Lockfiles in repository root:"
+                  if [ -f "$GITHUB_WORKSPACE/pnpm-lock.yaml" ]; then echo "  ✅ pnpm-lock.yaml"; fi
+                  if [ -f "$GITHUB_WORKSPACE/yarn.lock" ]; then echo "  ✅ yarn.lock"; fi
+                  if [ -f "$GITHUB_WORKSPACE/package-lock.json" ]; then echo "  ✅ package-lock.json"; fi
 
             - name: Determine release type and prerelease status
               id: determine_release_type
@@ -213,24 +275,45 @@ jobs:
 
                   # List installed packages (top level only) using the same package manager detection
                   echo "📦 Top-level dependencies:"
-                  if [ -f "package.json" ]; then
-                    PACKAGE_MANAGER=$(grep -o '"packageManager": "[^"]*"' package.json | cut -d'"' -f4 | cut -d'@' -f1)
+
+                  # Function to detect package manager (same as previous steps)
+                  detect_package_manager() {
+                    local dir=$1
+                    local package_manager=""
+
+                    if [ -f "$dir/package.json" ]; then
+                      package_manager=$(grep -o '"packageManager": "[^"]*"' "$dir/package.json" | cut -d'"' -f4 | cut -d'@' -f1 2>/dev/null)
+                    fi
+
+                    if [ -z "$package_manager" ]; then
+                      if [ -f "$dir/pnpm-lock.yaml" ]; then
+                        package_manager="pnpm"
+                      elif [ -f "$dir/yarn.lock" ]; then
+                        package_manager="yarn"
+                      elif [ -f "$dir/package-lock.json" ]; then
+                        package_manager="npm"
+                      fi
+                    fi
+
+                    echo "$package_manager"
+                  }
+
+                  # Detect package manager
+                  PACKAGE_MANAGER=$(detect_package_manager ".")
+                  if [ -z "$PACKAGE_MANAGER" ]; then
+                    PACKAGE_MANAGER=$(detect_package_manager "$GITHUB_WORKSPACE")
+                  fi
+
+                  if [ -n "$PACKAGE_MANAGER" ]; then
                     if [ "$PACKAGE_MANAGER" = "pnpm" ]; then
                       pnpm list --depth=0 || echo "⚠️  Could not list pnpm dependencies"
                     elif [ "$PACKAGE_MANAGER" = "yarn" ]; then
                       yarn list --depth=0 || echo "⚠️  Could not list yarn dependencies"
                     elif [ "$PACKAGE_MANAGER" = "npm" ]; then
                       npm list --depth=0 || echo "⚠️  Could not list npm dependencies"
-                    else
-                      # Fall back to lockfile detection
-                      if [ -f "pnpm-lock.yaml" ]; then
-                        pnpm list --depth=0 || echo "⚠️  Could not list pnpm dependencies"
-                      elif [ -f "yarn.lock" ]; then
-                        yarn list --depth=0 || echo "⚠️  Could not list yarn dependencies"
-                      elif [ -f "package-lock.json" ]; then
-                        npm list --depth=0 || echo "⚠️  Could not list npm dependencies"
-                      fi
                     fi
+                  else
+                    echo "⚠️  No package manager detected for dependency listing"
                   fi
 
             - name: Verify plugma binary availability
@@ -262,8 +345,36 @@ jobs:
 
                   # Test if the package manager can run the build command
                   echo "🔧 Testing package manager build command..."
-                  if [ -f "package.json" ]; then
-                    PACKAGE_MANAGER=$(grep -o '"packageManager": "[^"]*"' package.json | cut -d'"' -f4 | cut -d'@' -f1)
+
+                  # Function to detect package manager (same as previous steps)
+                  detect_package_manager() {
+                    local dir=$1
+                    local package_manager=""
+
+                    if [ -f "$dir/package.json" ]; then
+                      package_manager=$(grep -o '"packageManager": "[^"]*"' "$dir/package.json" | cut -d'"' -f4 | cut -d'@' -f1 2>/dev/null)
+                    fi
+
+                    if [ -z "$package_manager" ]; then
+                      if [ -f "$dir/pnpm-lock.yaml" ]; then
+                        package_manager="pnpm"
+                      elif [ -f "$dir/yarn.lock" ]; then
+                        package_manager="yarn"
+                      elif [ -f "$dir/package-lock.json" ]; then
+                        package_manager="npm"
+                      fi
+                    fi
+
+                    echo "$package_manager"
+                  }
+
+                  # Detect package manager
+                  PACKAGE_MANAGER=$(detect_package_manager ".")
+                  if [ -z "$PACKAGE_MANAGER" ]; then
+                    PACKAGE_MANAGER=$(detect_package_manager "$GITHUB_WORKSPACE")
+                  fi
+
+                  if [ -n "$PACKAGE_MANAGER" ]; then
                     if [ "$PACKAGE_MANAGER" = "pnpm" ]; then
                       echo "📦 Testing pnpm run build (dry run):"
                       pnpm run --dry-run build || echo "❌ pnpm run build failed"
@@ -274,6 +385,8 @@ jobs:
                       echo "📦 Testing npm run build (dry run):"
                       npm run build --dry-run || echo "❌ npm run build failed"
                     fi
+                  else
+                    echo "⚠️  No package manager detected for build testing"
                   fi
 
             - name: Build project
@@ -281,38 +394,53 @@ jobs:
               run: |
                   echo "🔨 Building project..."
 
-                  # Use the same package manager detection logic as dependency installation
-                  if [ -f "package.json" ]; then
-                    PACKAGE_MANAGER=$(grep -o '"packageManager": "[^"]*"' package.json | cut -d'"' -f4 | cut -d'@' -f1)
-                    if [ "$PACKAGE_MANAGER" = "pnpm" ]; then
-                      echo "📦 Building with pnpm..."
-                      # Use pnpm run build which should work with linked packages
-                      pnpm run build
-                    elif [ "$PACKAGE_MANAGER" = "yarn" ]; then
-                      echo "📦 Building with yarn..."
-                      yarn build
-                    elif [ "$PACKAGE_MANAGER" = "npm" ]; then
-                      echo "📦 Building with npm..."
-                      npm run build
-                    else
-                      echo "ℹ️  No packageManager field found or unsupported manager: $PACKAGE_MANAGER"
-                      # Fall back to lockfile detection
-                      if [ -f "pnpm-lock.yaml" ]; then
-                        echo "📦 Building with pnpm (detected from pnpm-lock.yaml)..."
-                        pnpm run build
-                      elif [ -f "yarn.lock" ]; then
-                        echo "📦 Building with yarn (detected from yarn.lock)..."
-                        yarn build
-                      elif [ -f "package-lock.json" ]; then
-                        echo "📦 Building with npm (detected from package-lock.json)..."
-                        npm run build
-                      else
-                        echo "❌ No lockfile found. Cannot determine package manager for build."
-                        exit 1
+                  # Function to detect package manager (same as previous steps)
+                  detect_package_manager() {
+                    local dir=$1
+                    local package_manager=""
+
+                    if [ -f "$dir/package.json" ]; then
+                      package_manager=$(grep -o '"packageManager": "[^"]*"' "$dir/package.json" | cut -d'"' -f4 | cut -d'@' -f1 2>/dev/null)
+                    fi
+
+                    if [ -z "$package_manager" ]; then
+                      if [ -f "$dir/pnpm-lock.yaml" ]; then
+                        package_manager="pnpm"
+                      elif [ -f "$dir/yarn.lock" ]; then
+                        package_manager="yarn"
+                      elif [ -f "$dir/package-lock.json" ]; then
+                        package_manager="npm"
                       fi
                     fi
+
+                    echo "$package_manager"
+                  }
+
+                  # Detect package manager
+                  PACKAGE_MANAGER=$(detect_package_manager ".")
+                  if [ -z "$PACKAGE_MANAGER" ]; then
+                    PACKAGE_MANAGER=$(detect_package_manager "$GITHUB_WORKSPACE")
+                  fi
+
+                  if [ -z "$PACKAGE_MANAGER" ]; then
+                    echo "❌ No package manager could be detected"
+                    exit 1
+                  fi
+
+                  echo "📦 Building with package manager: $PACKAGE_MANAGER"
+
+                  # Build with detected package manager
+                  if [ "$PACKAGE_MANAGER" = "pnpm" ]; then
+                    echo "📦 Building with pnpm..."
+                    pnpm run build
+                  elif [ "$PACKAGE_MANAGER" = "yarn" ]; then
+                    echo "📦 Building with yarn..."
+                    yarn build
+                  elif [ "$PACKAGE_MANAGER" = "npm" ]; then
+                    echo "📦 Building with npm..."
+                    npm run build
                   else
-                    echo "❌ package.json not found. Cannot determine package manager for build."
+                    echo "❌ Unknown package manager: $PACKAGE_MANAGER"
                     exit 1
                   fi
               continue-on-error: false
