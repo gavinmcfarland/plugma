@@ -1,6 +1,6 @@
 {
 	"name": "create-plugma",
-	"private": true,
+	"version": "2.0.7",
 	"description": "",
 	"main": "dist/create-plugma.js",
 	"type": "module",
