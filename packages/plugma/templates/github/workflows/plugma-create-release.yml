@@ -513,14 +513,42 @@ jobs:
 
                   # If plugin is in a subdirectory, move the zip files to the root
                   if [ "${{ env.PLUGIN_DIR }}" != "." ]; then
+                    echo "🔍 Plugin is in subdirectory: ${{ env.PLUGIN_DIR }}"
+                    echo "📋 Current working directory: $(pwd)"
+                    echo "📋 Contents of plugin directory:"
+                    ls -la "${{ env.PLUGIN_DIR }}"
+
+                    # Change to plugin directory and move files
                     cd "${{ env.PLUGIN_DIR }}"
+                    echo "📋 Looking for zip files in plugin directory:"
+                    ls -la *.zip 2>/dev/null || echo "No zip files found"
+
                     for zipfile in *.zip; do
                       if [ -f "$zipfile" ]; then
-                        echo "Moving $zipfile to repository root"
-                        mv "$zipfile" "../$zipfile" 2>/dev/null || mv "$zipfile" "../../$zipfile" 2>/dev/null || echo "Could not move $zipfile"
+                        echo "📦 Moving $zipfile to repository root..."
+                        # Calculate path to repository root from plugin directory
+                        # Count the number of path segments to determine how many '../' we need
+                        SEGMENTS=$(echo "${{ env.PLUGIN_DIR }}" | tr '/' '\n' | wc -l)
+                        PARENT_PATH=""
+                        for i in $(seq 1 $SEGMENTS); do
+                          PARENT_PATH="../$PARENT_PATH"
+                        done
+
+                        echo "🔧 Moving to: ${PARENT_PATH}$zipfile"
+                        if mv "$zipfile" "${PARENT_PATH}$zipfile"; then
+                          echo "✅ Successfully moved $zipfile"
+                        else
+                          echo "❌ Failed to move $zipfile"
+                        fi
                       fi
                     done
+
+                    # Return to repository root
                     cd "$GITHUB_WORKSPACE"
+                    echo "📋 Contents of repository root after moving:"
+                    ls -la *.zip 2>/dev/null || echo "No zip files found in repository root"
+                  else
+                    echo "ℹ️  Plugin is at repository root, no moving needed"
                   fi
 
             - name: Determine release asset to upload
