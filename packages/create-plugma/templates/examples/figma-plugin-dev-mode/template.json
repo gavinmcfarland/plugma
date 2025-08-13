@@ -6,15 +6,7 @@
 		"type": "plugin"
 	},
 	"include": [
-		"../../base",
-		{
-			"source": "../../frameworks/<%= framework %>/components",
-			"target": "src/ui/components"
-		},
-		{
-			"source": "../../frameworks/<%= framework %>/assets",
-			"target": "src/ui/assets"
-		}
+		"../../base"
 	],
     "data": {
          "attribution": "This example is adapted from the official [Figma plugin samples](https://github.com/figma/plugin-samples)."
