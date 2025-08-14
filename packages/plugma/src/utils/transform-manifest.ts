@@ -145,7 +145,8 @@ export async function transformManifest(
 		);
 		const newDomains = [
 			`http://localhost:${options.port}`,
-			// `ws://localhost:${options.port}`,
+			// Needed for Vite websocket connection
+			`ws://localhost:${options.port}`,
 			`ws://localhost:${options.port + 1}`,
 		];
 		transformed.networkAccess.devAllowedDomains = [...newDomains, ...filteredDomains];
