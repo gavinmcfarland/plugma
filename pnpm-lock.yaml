@@ -42,7 +42,7 @@ importers:
         specifier: ^5.4.1
         version: 5.4.1
       combino:
-        specifier: ^1.10.1
+        specifier: ^1.10.2
         version: 1.10.2(svelte@5.34.8)
       dotenv:
         specifier: ^17.2.0
