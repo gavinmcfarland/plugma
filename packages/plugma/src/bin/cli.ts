@@ -67,7 +67,6 @@ program.hook('preAction', async (thisCommand, actionCommand) => {
 	if (commandName === 'build') {
 		process.env.NODE_ENV = 'production';
 	} else {
-		console.log('build', commandName);
 		process.env.NODE_ENV = 'development';
 	}
 
