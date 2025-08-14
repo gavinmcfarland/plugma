@@ -31,19 +31,19 @@ importers:
         version: 7.27.7
       '@combino/plugin-ejs-mate':
         specifier: ^1.10.0
-        version: 1.10.0(combino@1.10.1(svelte@5.34.8))
+        version: 1.10.0(combino@1.10.2(svelte@5.34.8))
       '@combino/plugin-rebase':
         specifier: ^1.5.1
-        version: 1.5.1(combino@1.10.1(svelte@5.34.8))
+        version: 1.5.1(combino@1.10.2(svelte@5.34.8))
       '@combino/plugin-strip-ts':
         specifier: ^1.0.1
-        version: 1.0.1(combino@1.10.1(svelte@5.34.8))(postcss-load-config@4.0.2(postcss@8.5.6))(postcss@8.5.6)
+        version: 1.0.1(combino@1.10.2(svelte@5.34.8))(postcss-load-config@4.0.2(postcss@8.5.6))(postcss@8.5.6)
       chalk:
         specifier: ^5.4.1
         version: 5.4.1
       combino:
-        specifier: ^1.10.1
-        version: 1.10.1(svelte@5.34.8)
+        specifier: ^1.10.2
+        version: 1.10.2(svelte@5.34.8)
       dotenv:
         specifier: ^17.2.0
         version: 17.2.0
@@ -2264,8 +2264,8 @@ packages:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
     engines: {node: '>= 0.8'}
 
-  combino@1.10.1:
-    resolution: {integrity: sha512-pYfjdZR96xeRSWj8zDXtYwqYtQXfz4g9LZYkucpgPCX1TjiaLmPQelASmDkAGo96dxJx87vMOh4CjsPkdcdybg==}
+  combino@1.10.2:
+    resolution: {integrity: sha512-rQAha+6dDWlKV35Hl+f5fqiXPDJ1VrkV8ANieoWWkgRL7mVAvyKQJ2nl8WfRwUQC4f35BW6VaYW4YfRHqzbHhA==}
     hasBin: true
 
   comma-separated-tokens@2.0.3:
@@ -5313,20 +5313,20 @@ snapshots:
       picocolors: 1.1.1
       sisteransi: 1.0.5
 
-  '@combino/plugin-ejs-mate@1.10.0(combino@1.10.1(svelte@5.34.8))':
+  '@combino/plugin-ejs-mate@1.10.0(combino@1.10.2(svelte@5.34.8))':
     dependencies:
-      combino: 1.10.1(svelte@5.34.8)
+      combino: 1.10.2(svelte@5.34.8)
       ejs: 3.1.10
 
-  '@combino/plugin-rebase@1.5.1(combino@1.10.1(svelte@5.34.8))':
+  '@combino/plugin-rebase@1.5.1(combino@1.10.2(svelte@5.34.8))':
     dependencies:
-      combino: 1.10.1(svelte@5.34.8)
+      combino: 1.10.2(svelte@5.34.8)
       path: 0.12.7
 
-  '@combino/plugin-strip-ts@1.0.1(combino@1.10.1(svelte@5.34.8))(postcss-load-config@4.0.2(postcss@8.5.6))(postcss@8.5.6)':
+  '@combino/plugin-strip-ts@1.0.1(combino@1.10.2(svelte@5.34.8))(postcss-load-config@4.0.2(postcss@8.5.6))(postcss@8.5.6)':
     dependencies:
       chalk: 5.4.1
-      combino: 1.10.1(svelte@5.34.8)
+      combino: 1.10.2(svelte@5.34.8)
       strip-ts: 0.0.0(postcss-load-config@4.0.2(postcss@8.5.6))(postcss@8.5.6)
     transitivePeerDependencies:
       - '@babel/core'
@@ -7114,7 +7114,7 @@ snapshots:
     dependencies:
       delayed-stream: 1.0.0
 
-  combino@1.10.1(svelte@5.34.8):
+  combino@1.10.2(svelte@5.34.8):
     dependencies:
       chalk: 5.4.1
       commander: 11.1.0

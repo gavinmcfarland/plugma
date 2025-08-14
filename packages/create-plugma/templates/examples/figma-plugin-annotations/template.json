@@ -5,7 +5,7 @@
 		"type": "plugin"
 	},
 	"include": [
-		"../../base",
+		"../../base"
     ],
     "data": {
         "attribution": "This example is adapted from the official [Figma plugin samples](https://github.com/figma/plugin-samples)."
