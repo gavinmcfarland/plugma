@@ -74,9 +74,12 @@ And add the following to your `tsconfig.json` file.
 
 ```jsonc
 {
-	// ...
 	"compilerOptions": {
-		"typeRoots": ["node_modules/@figma"]
+        // ...
+		"typeRoots": [
+            "./node_modules/@types"
+            "node_modules/@figma",
+        ]
 	}
 }
 ```
@@ -86,7 +89,6 @@ And add the following to your `tsconfig.json` file.
 Each framework will have it's own file for mounting the UI to the DOM. Make sure the id of the element that this is mounted to is called `app`.
 
 ```js
-// ui.ts
 import { mount } from 'svelte'
 import './styles.css'
 import App from './App.svelte'
@@ -103,8 +105,6 @@ export default app
 Plugma uses vite. If you need to make any changes to your bundling process you can define them here.
 
 ```js
-// vite.config.js
-
 /// <reference path="./src/ui/vite-env.d.ts" />
 
 import { defineConfig } from "vite";

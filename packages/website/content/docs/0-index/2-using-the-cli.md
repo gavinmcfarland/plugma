@@ -37,9 +37,6 @@ plugma dev [options]
 ```bash
 # Start development server on port 3000
 plugma dev -p 3000
-
-# Start development server with websockets enabled
-plugma dev -ws
 ```
 
 </details>
@@ -159,7 +156,7 @@ Adds support for various integrations to your project, including testing framewo
 ##### Usage
 
 ```bash
-plugma add [integration] [options]
+plugma add
 ```
 
 ##### Integration
@@ -169,15 +166,9 @@ plugma add [integration] [options]
 - `tailwind`
 - `shadcn`
 
-##### Options
+<!-- ##### Options
 
-- `--no-install` - prevents installing dependencies
-
-##### Example
-
-```bash
-plugma add playwright
-```
+- `--no-install` - prevents installing dependencies -->
 
 ## Installing globally
 

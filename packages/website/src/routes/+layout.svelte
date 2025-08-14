@@ -32,9 +32,9 @@
 	<!-- <Header /> -->
 
 	<div class="fixed top-0 z-50 w-full">
-		<Banner>
+		<!-- <Banner>
 			<p>Previewing the next release of Plugma</p>
-		</Banner>
+		</Banner> -->
 
 		<div class="navbar py-4 px-6 flex justify-between border-b">
 			<nav class="mx-auto flex grow justify-between">
@@ -58,7 +58,7 @@
 		</div>
 	</div>
 
-	<main class="grow mt-[98px] max-w-[1200px] mx-auto">
+	<main class="grow mt-[59px] md:mt-[98px]">
 		{@render children?.()}
 	</main>
 
@@ -86,8 +86,6 @@
 		@apply backdrop-blur-lg;
 	}
 	.app {
-		display: flex;
-		flex-direction: column;
 		min-height: 100vh;
 	}
 </style>

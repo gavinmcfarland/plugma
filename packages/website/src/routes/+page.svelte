@@ -33,7 +33,7 @@
 		</div>
 		<div class="max-w-6xl mx-auto">
 			<div class="text-center">
-				<Badge href="/whats-new">V2 What's New<Icon svg="arrow-right" /></Badge>
+				<Badge>New V2</Badge>
 				<h1 class="text-4xl/tight md:text-7xl/tight text-center font-medium mb-4">
 					Experience the future<br /> of Figma plugin development
 				</h1>
@@ -42,7 +42,7 @@
 					class_="max-w-fit mx-auto"
 					persistCopyButton
 					lang="bash"
-					text="npm create plugma@next"
+					text="npm create plugma@latest"
 				/>
 				<Button class="mt-4 mx-auto" href="docs/getting-started">Get started</Button>
 			</div>
@@ -89,7 +89,7 @@
 			<Card>
 				<div class="flex flex-col gap-3">
 					<span class="flex gap-3 font-semibold"
-						><Icon svg="terminal" size={24} opacity={1} />Easy to Set Up</span
+						><Icon svg="terminal" size={24} opacity={1} />Minimal Configuration</span
 					>
 					<p class="m-0">
 						Get started quickly with minimal configuration, everything from bundling to
@@ -105,21 +105,8 @@
 					>
 					<p class="m-0">
 						Preview your plugin across multiple browsers during development before
-						publishing. Test manually or automate with tools like <b>Playwright</b> to ensure
-						consistent behavior across browsers.
-					</p>
-				</div>
-			</Card>
-
-			<Card>
-				<div class="flex flex-col gap-3">
-					<span class="flex gap-3 font-semibold"
-						><Icon svg="boolean-subtract" size={24} opacity={1} />First-Class Testing</span
-					>
-					<p class="m-0">
-						Write fast, reliable unit tests with <b>Vitest</b> and run full end-to-end
-						tests using <b>Playwright</b>, without ever leaving your development
-						workflow. The first toolkit to bring comprehensive testing to Figma plugins.
+						publishing. Make use of tools like <b>Playwright</b> to ensure consistent behavior
+						across browsers.
 					</p>
 				</div>
 			</Card>
@@ -162,23 +149,42 @@
 					</p>
 				</div>
 			</Card>
+
+			<Card>
+				<div class="flex flex-col gap-3">
+					<span class="flex gap-3 font-semibold"
+						><Icon svg="package" size={24} opacity={1} />Optimized Bundling</span
+					>
+					<p class="m-0">
+						Powered by <b>Vite</b> for lightning-fast builds and efficient bundling. All
+						scripts, styles, and assets are inlined for seamless use in Figma, keeping your
+						plugin lightweight and production-ready.
+					</p>
+				</div>
+			</Card>
+
+			<!-- <Card>
+				<div class="flex flex-col gap-3">
+					<span class="flex gap-3 font-semibold"
+						><Icon svg="boolean-subtract" size={24} opacity={1} />First-Class Testing</span
+					>
+					<p class="m-0">
+						Write fast, reliable unit tests with <b>Vitest</b> and run full end-to-end
+						tests using <b>Playwright</b>, without ever leaving your development
+						workflow. The first toolkit to bring comprehensive testing to Figma plugins.
+					</p>
+				</div>
+			</Card> -->
 		</div>
 	</Section>
 
 	<Section class="commands">
 		<h2 class="text-3xl text-center font-medium mb-12">Commands</h2>
-		<div class="lg:max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
+		<div class="lg:max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
 			<div>
 				<h3 class="font-bold mb-2">Start dev server</h3>
 				<Code2 class_="mb-1" lang="bash" text="plugma dev" />
 				<p>Development is faster because it doesn't require a rebuild for each change.</p>
-			</div>
-			<div>
-				<h3 class="font-bold mb-2">Preview in any browser</h3>
-				<Code2 class_="mb-1" lang="bash" text="plugma preview" />
-				<p>
-					Debug and test across different browsers without having to publish your plugin.
-				</p>
 			</div>
 			<div>
 				<h3 class="font-bold mb-2">Create a build</h3>

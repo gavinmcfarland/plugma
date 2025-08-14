@@ -90,7 +90,7 @@
 					onNavigate={() => (isMenuOpen = false)}
 				/>
 
-				<div class="grow main-content min-w-0">
+				<div class="grow main-content min-w-0 mt-[32px] max-w-[900px] mx-auto">
 					{@render children?.()}
 
 					<!-- Add next and previous navigation links -->

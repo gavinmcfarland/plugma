@@ -20,6 +20,48 @@
 </script>
 
 <span class="Icon">
+	{#if svg === 'package'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 25 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M4.5 8V16L12.5 21L20.5 16V8"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M12.5 13V21"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M12.5 3L20.5 8L12.5 13L4.5 8L12.5 3Z"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M8.5 5.5L16.5 10.5"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	{/if}
 	{#if svg === 'copy'}
 		<svg
 			style:width={sizePx}

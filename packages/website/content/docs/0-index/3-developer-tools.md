@@ -32,4 +32,4 @@ If you want to edit your source files directly from Chrome DevTools and have bre
 3. Grant permission to read/write the files.
 4. Chrome will now link the source maps to your actual files on disk, allowing you to edit them live during development.
 
-> If you're developing in the browser, Chrome will suggest adding your workspace automatically.
+If you're developing in the browser, Chrome will suggest adding your workspace automatically.

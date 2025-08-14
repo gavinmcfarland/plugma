@@ -26,7 +26,7 @@
 
 <div class="my-8 mx-6">
 	<h1 class="text-center text-3xl my-24">What's new</h1>
-	<div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-12 gap-9">
+	<div class="max-w-7xl grid grid-cols-1 sm:grid-cols-12 gap-9">
 		<div
 			class="min-h-80 border rounded-lg sm:col-span-12 lg:col-span-4 place-content-center place-items-center p-10 pt-0 flex flex-col relative overflow-hidden"
 		>

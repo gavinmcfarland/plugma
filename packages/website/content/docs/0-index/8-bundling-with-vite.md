@@ -17,10 +17,10 @@ export default defineConfig(({ mode, context }) => (
 }));
 ```
 
-Alternative you can configure vite to use seperate files for `main` and `ui`.
+<!-- Alternative you can configure vite to use seperate files for `main` and `ui`.
 
 - `vite.config.ui.js` - For UI code configuration
-- `vite.config.main.js` - For main process configuration
+- `vite.config.main.js` - For main process configuration -->
 
 ## Environment-Specific
 

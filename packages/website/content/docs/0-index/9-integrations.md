@@ -5,7 +5,7 @@ Plugma makes it easy to add integrations with other libraries and frameworks. Wi
 ## Usage
 
 ```bash
-npx plugma add [integration]
+npx plugma add
 ```
 
 Running the command without specifying an integration will show you a list of available options to choose from.
