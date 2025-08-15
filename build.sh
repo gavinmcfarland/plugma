@@ -160,7 +160,9 @@ main() {
     for package_dir in packages/*/; do
         if [ -d "$package_dir/dist" ]; then
             package_name=$(basename "$package_dir")
-            echo "  📦 $package_name: $package_dir/dist"
+            # Remove trailing slash from package_dir for clean path display
+            clean_package_dir=${package_dir%/}
+            echo "  📦 $package_name: $clean_package_dir/dist"
         fi
     done
 }
