@@ -11,5 +11,5 @@
         "noFallthroughCasesInSwitch": true,
         "noUncheckedSideEffectImports": true
     },
-    "include": ["<%= uiDir %>/**/*.ts", "<%= uiDir %>/**/*.js", "<%= uiDir %>/**/*.tsx", "<%= uiDir %>/**/*.vue"]
+    "include": ["**/*.ts", "**/*.tsx", "**/*.vue"]
 }

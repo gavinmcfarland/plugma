@@ -23,5 +23,5 @@
         "noFallthroughCasesInSwitch": true,
         "noUncheckedSideEffectImports": true
     },
-    "include": ["<%= uiDir %>/**/*.ts", "<%= uiDir %>/**/*.js","<%= uiDir %>/**/*.tsx"]
+    "include": ["**/*.ts", "**/*.tsx"]
 }

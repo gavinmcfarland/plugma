@@ -16,5 +16,5 @@
         "isolatedModules": true,
         "moduleDetection": "force"
     },
-    "include": ["<%= uiDir %>/**/*.ts", "<%= uiDir %>/**/*.js", "<%= uiDir %>/**/*.svelte"]
+    "include": ["**/*.ts", "**/*.svelte"]
 }
