@@ -117,12 +117,22 @@ const baseOptions = {
 }
 
 describe('SourceWatcher', () => {
+  let activeWatchers: any[] = []
+
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.viteStateMock.viteServer = null
+    activeWatchers = []
   })
 
-  afterEach(() => {
+  afterEach(async () => {
+    // Close any active watchers
+    for (const watcher of activeWatchers) {
+      if (watcher && typeof watcher.close === 'function') {
+        await watcher.close()
+      }
+    }
+    activeWatchers = []
     vi.clearAllMocks()
   })
 
@@ -151,6 +161,7 @@ describe('SourceWatcher', () => {
       }
 
       const watcher = setupSourceWatcher(baseOptions, state)
+      activeWatchers.push(watcher)
 
       // Wait for async initialization
       await new Promise(resolve => setTimeout(resolve, 0))
@@ -191,6 +202,7 @@ describe('SourceWatcher', () => {
       }
 
       const watcher = setupSourceWatcher(baseOptions, state)
+      activeWatchers.push(watcher)
 
       // Wait for async initialization
       await new Promise(resolve => setTimeout(resolve, 0))
@@ -225,6 +237,7 @@ describe('SourceWatcher', () => {
       }
 
       const watcher = setupSourceWatcher(baseOptions, state)
+      activeWatchers.push(watcher)
 
       // Wait for async initialization
       await new Promise(resolve => setTimeout(resolve, 0))
@@ -249,6 +262,7 @@ describe('SourceWatcher', () => {
       }
 
       const watcher = setupSourceWatcher(baseOptions, state)
+      activeWatchers.push(watcher)
 
       // Simulate a file add event for the UI file
       const addHandler = mocks.watcher.on.mock.calls.find(
@@ -276,6 +290,7 @@ describe('SourceWatcher', () => {
       }
 
       const watcher = setupSourceWatcher(baseOptions, state)
+      activeWatchers.push(watcher)
 
       // Simulate a file add event for the UI file
       const addHandler = mocks.watcher.on.mock.calls.find(
