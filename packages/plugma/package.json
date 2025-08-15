@@ -35,7 +35,7 @@
 		"prepublishOnly": "nr clean && nr build",
 		"test:coverage": "vitest --run --coverage",
 		"test:watch": "vitest",
-		"test": "vitest --run",
+		"test": "vitest run",
 		"start:websocket-server": "tsx src/tasks/server/websocket.ts",
 		"version": "node scripts/bump-plugma-version.js"
 	},

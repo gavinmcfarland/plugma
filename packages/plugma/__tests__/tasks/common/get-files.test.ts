@@ -38,6 +38,7 @@ vi.mock('#utils', () => ({
 
 vi.mock('#utils/fs/read-json.js', () => ({
   readJson: mocks.readJson,
+  readModule: vi.fn().mockResolvedValue(null),
   readPlugmaPackageJson: mocks.readPlugmaPackageJson,
 }));
 
@@ -61,6 +62,7 @@ describe('get-files Task', () => {
     output: 'dist',
     instanceId: 'test',
     debug: false,
+    cwd: '/mock/test/dir',
   };
 
   const baseContext = {};

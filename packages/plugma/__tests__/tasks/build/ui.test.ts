@@ -98,6 +98,7 @@ const baseOptions = {
   output: 'dist',
   instanceId: 'test',
   debug: false,
+  cwd: '/mock/test/dir',
 };
 
 describe('createBuildUiTask', () => {
