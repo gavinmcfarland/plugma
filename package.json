@@ -2,6 +2,9 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
+		"build": "./build.sh",
+		"build:clean": "./build.sh --clean",
+		"clean": "./build.sh --clean && echo 'Clean completed'",
 		"test:coverage": "vitest --run --coverage",
 		"test:watch": "vitest",
 		"test": "vitest --run",
