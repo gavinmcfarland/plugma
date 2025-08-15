@@ -18,6 +18,7 @@ import ejsMate from '@combino/plugin-ejs-mate';
 import rebase from '@combino/plugin-rebase';
 import { InitCommandOptions } from '../utils/create-options.js';
 import { createDebugAwareLogger } from '../utils/debug-aware-logger.js';
+import { createSpinner, createBox } from '../utils/cli/spinner.js';
 
 const CURR_DIR = process.cwd();
 
@@ -36,12 +37,9 @@ function outro(message: string): void {
 	console.log(message);
 }
 
-// Spinner simulation
+// Legacy spinner function for compatibility
 function spinner() {
-	return {
-		start: (message: string) => console.log(chalk.cyan(`⏳ ${message}`)),
-		stop: (message: string) => console.log(chalk.green(message)),
-	};
+	return createSpinner();
 }
 
 // Helper to handle cancellation
@@ -861,16 +859,33 @@ async function createProjectFromOptions(params: {
 			configFileName: 'template.json',
 		});
 
-		s.stop('✅ Project created successfully!');
+		// Clear spinner and show success message with next steps in a single box
+		s.stop();
 
-		outro(`
-Next steps:
-  ${chalk.cyan(`cd ${name}`)}
-  ${chalk.cyan('npm install')}
-  ${chalk.cyan('npm run dev')}
-		`);
+		const successMessage = [
+			'Next steps:',
+			`  ${chalk.cyan(`cd ${name}`)}`,
+			`  ${chalk.cyan('npm install')}`,
+			`  ${chalk.cyan('npm run dev')}`,
+		].join('\n');
+
+		console.log(
+			createBox(successMessage, {
+				type: 'success',
+				title: 'Success',
+			}),
+		);
 	} catch (error) {
-		s.stop('❌ Failed to create project');
+		s.fail('Failed to create project');
+
+		// Show error message in a nice box
+		console.log(
+			createBox(undefined, {
+				type: 'error',
+				title: 'Project Creation Error',
+			}),
+		);
+
 		throw error;
 	}
 }

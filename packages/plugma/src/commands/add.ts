@@ -6,17 +6,109 @@ import { Logger } from '../utils/log/logger.js';
 import { exec } from 'child_process';
 import { detect } from 'package-manager-detector/detect';
 import { resolveCommand } from 'package-manager-detector/commands';
-import { select, intro, outro, isCancel, spinner, note, confirm } from '@clack/prompts';
+// @ts-ignore - enquirer doesn't have types
+import enquirer from 'enquirer';
+// @ts-ignore - enquirer doesn't have types
+const { Select, Toggle } = enquirer;
+import chalk from 'chalk';
 import { runIntegration } from '../integrations/define-integration.js';
 import { createFileHelpers, type FileHelpers } from '../utils/file-helpers.js';
 import playwrightIntegration from '../integrations/playwright.js';
 import tailwindIntegration from '../integrations/tailwind.js';
 import shadcnIntegration from '../integrations/shadcn.js';
-import chalk from 'chalk';
 import type { Integration } from '../integrations/define-integration.js';
 import vitestIntegration from '../integrations/vitest.js';
 import eslintIntegration from '../integrations/eslint.js';
 import { AddCommandOptions } from '../utils/create-options.js';
+import { createSpinner, createBox } from '../utils/cli/spinner.js';
+
+// Helper functions to replace intro/outro
+function intro(message: string): void {
+	console.log(chalk.bold(message));
+	console.log('');
+}
+
+function outro(message: string): void {
+	console.log('');
+	console.log(message);
+}
+
+// Legacy spinner function for compatibility
+function spinner() {
+	return createSpinner();
+}
+
+// Note function simulation
+function note(content: string, title?: string): void {
+	if (title) {
+		console.log(chalk.cyan(title + ':'));
+	}
+	console.log(content);
+	console.log('');
+}
+
+// Helper to handle cancellation
+class CancelError extends Error {
+	constructor() {
+		super('User cancelled');
+		this.name = 'CancelError';
+	}
+}
+
+function isCancel(value: any): boolean {
+	return value === undefined || value === '' || (value instanceof Error && value.message === 'User cancelled');
+}
+
+// Enquirer wrapper functions
+async function select(options: {
+	message: string;
+	options: Array<{ label: string; value: any; hint?: string }>;
+}): Promise<any> {
+	// Create a mapping from display labels to values
+	const labelToValue = new Map();
+
+	const choices = options.options.map((opt) => {
+		// Strip chalk colors for the mapping key but keep them for display
+		const cleanLabel = opt.label.replace(/\u001b\[[0-9;]*m/g, ''); // Remove ANSI color codes
+		labelToValue.set(cleanLabel, opt.value);
+
+		return {
+			name: cleanLabel,
+			message: opt.label, // Keep colors for display
+			hint: opt.hint,
+		};
+	});
+
+	const prompt = new Select({
+		name: 'value',
+		message: options.message,
+		choices,
+	});
+
+	try {
+		const selectedLabel = await prompt.run();
+		return labelToValue.get(selectedLabel);
+	} catch (error) {
+		throw new CancelError();
+	}
+}
+
+async function confirm(options: { message: string; initialValue?: boolean }): Promise<boolean> {
+	const prompt = new Toggle({
+		name: 'value',
+		message: options.message,
+		enabled: 'Yes',
+		disabled: 'No',
+		initial: options.initialValue,
+	});
+
+	try {
+		return await prompt.run();
+	} catch (error) {
+		throw new CancelError();
+	}
+}
+
 // Define available integrations and their types
 const INTEGRATIONS = {
 	tailwind: tailwindIntegration,
@@ -264,20 +356,34 @@ export async function add(options: AddCommandOptions): Promise<void> {
 	const log = new Logger({ debug: options.debug });
 
 	try {
-		intro('Adding integration to your project');
+		let selectedIntegration: string;
 
-		const selectedIntegration = await select({
-			message: 'What would you like to add?',
-			options: Object.entries(INTEGRATIONS).map(([value, integration]) => ({
-				value,
-				label: integration.name,
-				hint: integration.description,
-			})),
-		});
+		// If integration is provided via CLI argument, use it directly
+		if (options.integration && options.integration in INTEGRATIONS) {
+			selectedIntegration = options.integration;
+		} else if (options.integration) {
+			// If invalid integration provided, show error and available options
+			console.error(chalk.red(`Integration "${options.integration}" not found.`));
+			console.log(chalk.yellow('Available integrations:'));
+			for (const [key, integration] of Object.entries(INTEGRATIONS)) {
+				console.log(`  ${chalk.green(key)} - ${integration.description}`);
+			}
+			process.exit(1);
+		} else {
+			// No integration provided, show selection prompt
+			selectedIntegration = await select({
+				message: 'What would you like to add?',
+				options: Object.entries(INTEGRATIONS).map(([value, integration]) => ({
+					value,
+					label: integration.name,
+					hint: integration.description,
+				})),
+			});
 
-		if (isCancel(selectedIntegration)) {
-			outro('Operation cancelled');
-			process.exit(0);
+			if (isCancel(selectedIntegration)) {
+				outro('Operation cancelled');
+				process.exit(0);
+			}
 		}
 
 		const integration = INTEGRATIONS[selectedIntegration as IntegrationKey];
@@ -349,9 +455,9 @@ export async function add(options: AddCommandOptions): Promise<void> {
 				s.start('Installing all dependencies...');
 				try {
 					await installDependencies(depsArray, devDepsArray);
-					s.stop('All dependencies installed successfully!');
+					s.stop();
 				} catch (error) {
-					s.stop('Failed to install dependencies');
+					s.fail('Failed to install dependencies');
 					throw error;
 				}
 			} else {
@@ -369,9 +475,24 @@ export async function add(options: AddCommandOptions): Promise<void> {
 			note(Array.isArray(result.nextSteps) ? result.nextSteps.join('\n') : result.nextSteps, 'Next steps');
 		}
 
-		outro('Integration added successfully!');
+		// Show success message in a nice box
+		console.log(
+			createBox(undefined, {
+				type: 'success',
+				title: `${integration.name} Integration`,
+			}),
+		);
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : String(error);
+
+		// Show error message in a nice box
+		console.log(
+			createBox(undefined, {
+				type: 'error',
+				title: 'Integration Error',
+			}),
+		);
+
 		log.error('Failed to add integration:', errorMessage);
 		throw error;
 	}

@@ -284,11 +284,14 @@ program
 		'Specify a JSON configuration object for testing and debugging',
 		DEFAULT_OPTIONS.configParser,
 	)
-	.action(async function (this: Command, options: Partial<AddCommandOptions>) {
+	.action(async function (this: Command, integration: string, options: Partial<AddCommandOptions>) {
 		await add(
-			createOptions<'add'>(options, {
-				command: 'add',
-			}),
+			createOptions<'add'>(
+				{ ...options, integration },
+				{
+					command: 'add',
+				},
+			),
 		);
 	})
 	.addHelpText(
