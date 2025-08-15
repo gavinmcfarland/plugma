@@ -2,7 +2,7 @@ import { type ViteDevServer, createServer } from 'vite';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { ResultsOfTask } from '#core/types.js';
-import { GetFilesTask, StartViteServerTask } from '#tasks';
+import { GetFilesTask, createStartViteServerTask } from '#tasks';
 import {
   type MockFs,
   createMockFs,
@@ -51,7 +51,8 @@ describe('Vite Server Tasks', () => {
   describe('StartViteServerTask', () => {
     describe('Task Definition', () => {
       test('should have correct name', () => {
-        expect(StartViteServerTask.name).toBe('server:start-vite');
+        const task = createStartViteServerTask(baseOptions);
+        expect(task.title).toBe('Start Vite Server');
       });
     });
 

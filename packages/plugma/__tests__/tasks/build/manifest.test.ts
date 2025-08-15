@@ -90,6 +90,13 @@ vi.mock('node:fs/promises', () => ({
   rm: mocks.rm,
 }));
 
+vi.mock('node:fs', () => ({
+  default: {
+    readFileSync: vi.fn().mockReturnValue('// Mock plugma runtime code'),
+  },
+  readFileSync: vi.fn().mockReturnValue('// Mock plugma runtime code'),
+}));
+
 vi.mock('node:path', () => mocks.path);
 
 vi.mock('#utils/log/logger.js', () => ({
