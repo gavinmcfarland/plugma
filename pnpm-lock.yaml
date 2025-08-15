@@ -111,6 +111,9 @@ importers:
       dotenv:
         specifier: ^16.5.0
         version: 16.5.0
+      enquirer:
+        specifier: ^2.4.1
+        version: 2.4.1
       glob:
         specifier: ^11.0.1
         version: 11.0.2
@@ -148,8 +151,8 @@ importers:
         specifier: 5.4.12
         version: 5.4.12(@types/node@22.15.3)(terser@5.39.0)
       vite-plugin-singlefile:
-        specifier: ^0.13.5
-        version: 0.13.5(rollup@4.40.1)(vite@5.4.12(@types/node@22.15.3)(terser@5.39.0))
+        specifier: ^2.3.0
+        version: 2.3.0(rollup@4.40.1)(vite@5.4.12(@types/node@22.15.3)(terser@5.39.0))
       vitest:
         specifier: ^3.1.1
         version: 3.1.2(@types/debug@4.1.12)(@types/node@22.15.3)(@vitest/ui@3.1.2)(terser@5.39.0)
@@ -4808,12 +4811,12 @@ packages:
     peerDependencies:
       vite: ^2.7.0 || ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
 
-  vite-plugin-singlefile@0.13.5:
-    resolution: {integrity: sha512-y/aRGh8qHmw2f1IhaI/C6PJAaov47ESYDvUv1am1YHMhpY+19B5k5Odp8P+tgs+zhfvak6QB1ykrALQErEAo7g==}
-    engines: {node: ^14.18.0 || >=16.0.0}
+  vite-plugin-singlefile@2.3.0:
+    resolution: {integrity: sha512-DAcHzYypM0CasNLSz/WG0VdKOCxGHErfrjOoyIPiNxTPTGmO6rRD/te93n1YL/s+miXq66ipF1brMBikf99c6A==}
+    engines: {node: '>18.0.0'}
     peerDependencies:
-      rollup: '>=2.79.0'
-      vite: '>=3.2.0'
+      rollup: ^4.44.1
+      vite: ^5.4.11 || ^6.0.0 || ^7.0.0
 
   vite-tsconfig-paths@5.1.4:
     resolution: {integrity: sha512-cYj0LRuLV2c2sMqhqhGpaO3LretdtMn/BVX4cPLanIZuwwrkVl+lK84E/miEXkCHWXuq65rhNN4rXsBcOB3S4w==}
@@ -9867,7 +9870,7 @@ snapshots:
       uuid: 11.1.0
       vite: 5.4.12(@types/node@22.15.3)(terser@5.39.0)
 
-  vite-plugin-singlefile@0.13.5(rollup@4.40.1)(vite@5.4.12(@types/node@22.15.3)(terser@5.39.0)):
+  vite-plugin-singlefile@2.3.0(rollup@4.40.1)(vite@5.4.12(@types/node@22.15.3)(terser@5.39.0)):
     dependencies:
       micromatch: 4.0.8
       rollup: 4.40.1

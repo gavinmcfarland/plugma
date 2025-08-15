@@ -4,7 +4,10 @@
  */
 
 import { Combino } from 'combino';
-import { select, text, confirm, intro, outro, isCancel, spinner } from '@clack/prompts';
+// @ts-ignore - enquirer doesn't have types
+import enquirer from 'enquirer';
+// @ts-ignore - enquirer doesn't have types
+const { Select, Input, Confirm, Toggle } = enquirer;
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { dirname } from 'node:path';
@@ -21,6 +24,111 @@ const CURR_DIR = process.cwd();
 // Constants
 const NO_UI_OPTION = 'No UI';
 const NO_UI_DESCRIPTION = 'no UI';
+
+// Helper functions to replace intro/outro
+function intro(message: string): void {
+	console.log(chalk.bold(message));
+	console.log('');
+}
+
+function outro(message: string): void {
+	console.log('');
+	console.log(message);
+}
+
+// Spinner simulation
+function spinner() {
+	return {
+		start: (message: string) => console.log(chalk.cyan(`⏳ ${message}`)),
+		stop: (message: string) => console.log(chalk.green(message)),
+	};
+}
+
+// Helper to handle cancellation
+class CancelError extends Error {
+	constructor() {
+		super('User cancelled');
+		this.name = 'CancelError';
+	}
+}
+
+function isCancel(value: any): boolean {
+	return value === undefined || value === '' || (value instanceof Error && value.message === 'User cancelled');
+}
+
+// Enquirer wrapper functions
+async function select(options: {
+	message: string;
+	options: Array<{ label: string; value: any; hint?: string }>;
+}): Promise<any> {
+	// Create a mapping from display labels to values
+	const labelToValue = new Map();
+
+	const choices = options.options.map((opt) => {
+		// Strip chalk colors for the mapping key but keep them for display
+		const cleanLabel = opt.label.replace(/\u001b\[[0-9;]*m/g, ''); // Remove ANSI color codes
+		labelToValue.set(cleanLabel, opt.value);
+
+		return {
+			name: cleanLabel,
+			message: opt.label, // Keep colors for display
+			hint: opt.hint,
+		};
+	});
+
+	const prompt = new Select({
+		name: 'value',
+		message: options.message,
+		choices,
+	});
+
+	try {
+		const selectedLabel = await prompt.run();
+		return labelToValue.get(selectedLabel);
+	} catch (error) {
+		throw new CancelError();
+	}
+}
+
+async function text(options: {
+	message: string;
+	defaultValue?: string;
+	validate?: (value: string) => string | undefined;
+}): Promise<string> {
+	const prompt = new Input({
+		name: 'value',
+		message: options.message,
+		initial: options.defaultValue,
+		validate: options.validate
+			? (value: string) => {
+					const result = options.validate!(value);
+					return result === undefined ? true : result;
+				}
+			: undefined,
+	});
+
+	try {
+		return await prompt.run();
+	} catch (error) {
+		throw new CancelError();
+	}
+}
+
+async function confirm(options: { message: string; initialValue?: boolean }): Promise<boolean> {
+	const prompt = new Toggle({
+		name: 'value',
+		message: options.message,
+		enabled: 'Yes',
+		disabled: 'No',
+		initial: options.initialValue,
+	});
+
+	try {
+		return await prompt.run();
+	} catch (error) {
+		throw new CancelError();
+	}
+}
 
 interface ExampleMetadata {
 	name?: string;
@@ -252,8 +360,6 @@ function getVersions(): Record<string, string> {
 export async function init(options: InitCommandOptions): Promise<void> {
 	const logger = createDebugAwareLogger(options.debug);
 
-	intro(chalk.blue.bold('Create Plugma Project'));
-
 	// Handle specific template option
 	if (options.template) {
 		await createFromSpecificTemplate(options);
@@ -344,22 +450,19 @@ async function browseAndSelectTemplate(options: InitCommandOptions): Promise<voi
 			process.exit(1);
 		}
 
-		const selectedType = await select({
-			message: 'What type of project do you want to create?',
-			options: availableTypes.map((type) => ({
-				label:
-					type === 'plugin'
-						? chalk.blue(`${type!.charAt(0).toUpperCase() + type!.slice(1)}`)
-						: chalk.green(`${type!.charAt(0).toUpperCase() + type!.slice(1)}`),
-				value: type,
-				hint:
-					type === 'plugin'
-						? 'Extends Figma with custom functionality'
-						: 'Interactive components for Figma files',
-			})),
-		});
-
-		if (isCancel(selectedType)) {
+		let selectedType: string;
+		try {
+			selectedType = await select({
+				message: 'Choose a type:',
+				options: availableTypes.map((type) => ({
+					label:
+						type === 'plugin'
+							? chalk.blue(`${type!.charAt(0).toUpperCase() + type!.slice(1)}`)
+							: chalk.green(`${type!.charAt(0).toUpperCase() + type!.slice(1)}`),
+					value: type,
+				})),
+			});
+		} catch (error) {
 			outro(chalk.gray('Operation cancelled.'));
 			process.exit(0);
 		}
@@ -383,19 +486,17 @@ async function browseAndSelectTemplate(options: InitCommandOptions): Promise<voi
 					framework.toLowerCase() === 'react'
 						? chalk.red(`${framework.charAt(0).toUpperCase() + framework.slice(1)}`)
 						: framework.toLowerCase() === 'svelte'
-							? chalk.hex('#FF8C00')(`${framework.charAt(0).toUpperCase() + framework.slice(1)}`)
+							? chalk.yellow(`${framework.charAt(0).toUpperCase() + framework.slice(1)}`)
 							: framework.toLowerCase() === 'vue'
 								? chalk.green(`${framework.charAt(0).toUpperCase() + framework.slice(1)}`)
 								: chalk.white(framework.charAt(0).toUpperCase() + framework.slice(1)),
 				value: framework,
-				hint: `Use ${framework.charAt(0).toUpperCase() + framework.slice(1)} for the user interface`,
 			})),
 			...(hasNoUIExamples
 				? [
 						{
 							label: chalk.gray(`${NO_UI_OPTION}`),
 							value: NO_UI_OPTION,
-							hint: 'No user interface - command-line only',
 						},
 					]
 				: []),
@@ -404,17 +505,16 @@ async function browseAndSelectTemplate(options: InitCommandOptions): Promise<voi
 		let selectedFramework: string = 'React'; // default
 
 		if (frameworkOptions.length > 1) {
-			const frameworkChoice = await select({
-				message: 'Choose a framework:',
-				options: frameworkOptions,
-			});
-
-			if (isCancel(frameworkChoice)) {
+			try {
+				const frameworkChoice = await select({
+					message: 'Choose a framework:',
+					options: frameworkOptions,
+				});
+				selectedFramework = frameworkChoice as string;
+			} catch (error) {
 				outro(chalk.gray('Operation cancelled.'));
 				process.exit(0);
 			}
-
-			selectedFramework = frameworkChoice as string;
 		} else if (frameworkOptions.length === 1) {
 			selectedFramework = frameworkOptions[0].value;
 		}
@@ -460,12 +560,13 @@ async function browseAndSelectTemplate(options: InitCommandOptions): Promise<voi
 			};
 		});
 
-		const selectedTemplate = await select({
-			message: `Choose a ${selectedType} template:`,
-			options: templateOptions,
-		});
-
-		if (isCancel(selectedTemplate)) {
+		let selectedTemplate: Example;
+		try {
+			selectedTemplate = await select({
+				message: `Choose a ${selectedType} template:`,
+				options: templateOptions,
+			});
+		} catch (error) {
 			outro(chalk.gray('Operation cancelled.'));
 			process.exit(0);
 		}
@@ -488,12 +589,13 @@ async function browseAndSelectTemplate(options: InitCommandOptions): Promise<voi
 			}
 		}
 
-		const typescript = await confirm({
-			message: 'Use TypeScript?',
-			initialValue: true,
-		});
-
-		if (isCancel(typescript)) {
+		let typescript: boolean;
+		try {
+			typescript = await confirm({
+				message: 'Use TypeScript?',
+				initialValue: true,
+			});
+		} catch (error) {
 			outro(chalk.gray('Operation cancelled.'));
 			process.exit(0);
 		}
@@ -506,13 +608,14 @@ async function browseAndSelectTemplate(options: InitCommandOptions): Promise<voi
 		const frameworkPart = needsUI ? `-${selectedFramework.toLowerCase()}` : '';
 		const baseName = `${normalizedExampleName}${frameworkPart}-${type}`;
 
-		const projectName = await text({
-			message: `${type.charAt(0).toUpperCase() + type.slice(1)} name:`,
-			defaultValue: options.name || baseName,
-			validate: validateProjectName,
-		});
-
-		if (isCancel(projectName)) {
+		let projectName: string;
+		try {
+			projectName = await text({
+				message: `${type.charAt(0).toUpperCase() + type.slice(1)} name:`,
+				defaultValue: options.name || baseName,
+				validate: validateProjectName,
+			});
+		} catch (error) {
 			outro(chalk.gray('Operation cancelled.'));
 			process.exit(0);
 		}
@@ -521,8 +624,8 @@ async function browseAndSelectTemplate(options: InitCommandOptions): Promise<voi
 		await createProjectFromOptions({
 			type,
 			framework: needsUI ? selectedFramework : NO_UI_OPTION,
-			typescript: typescript as boolean,
-			name: projectName as string,
+			typescript,
+			name: projectName,
 			selectedExample: templateExample,
 			debug: options.debug || false,
 		});
@@ -568,50 +671,49 @@ async function createFromSpecificTemplate(options: InitCommandOptions): Promise<
 		if (matchingTemplates.length > 1) {
 			console.log(chalk.yellow(`Multiple templates found for "${templateName}":`));
 
-			const templateChoice = await select({
-				message: 'Which template do you want to use?',
-				options: matchingTemplates.map((template) => {
-					const displayName = getDisplayName(template);
-					const type = template.metadata.type || 'unknown';
-					const hasUI = exampleHasUI(template.metadata);
-					const frameworks = template.metadata.uiFrameworks;
+			try {
+				const templateChoice = await select({
+					message: 'Which template do you want to use?',
+					options: matchingTemplates.map((template) => {
+						const displayName = getDisplayName(template);
+						const type = template.metadata.type || 'unknown';
+						const hasUI = exampleHasUI(template.metadata);
+						const frameworks = template.metadata.uiFrameworks;
 
-					// Build the framework part
-					let frameworkPart = '';
-					if (hasUI && frameworks) {
-						const frameworkList = Array.isArray(frameworks) ? frameworks : [frameworks];
-						frameworkPart = frameworkList.join('/');
-					} else if (!hasUI) {
-						frameworkPart = 'no ui';
-					}
+						// Build the framework part
+						let frameworkPart = '';
+						if (hasUI && frameworks) {
+							const frameworkList = Array.isArray(frameworks) ? frameworks : [frameworks];
+							frameworkPart = frameworkList.join('/');
+						} else if (!hasUI) {
+							frameworkPart = 'no ui';
+						}
 
-					// Build the label with square brackets and colors
-					const typeInfo = `${type}${frameworkPart ? `, ${frameworkPart}` : ''}`;
+						// Build the label with square brackets and colors
+						const typeInfo = `${type}${frameworkPart ? `, ${frameworkPart}` : ''}`;
 
-					// Color code the display name based on type
-					const coloredDisplayName =
-						type === 'plugin' ? chalk.blue(`${displayName}`) : chalk.green(`${displayName}`);
+						// Color code the display name based on type
+						const coloredDisplayName =
+							type === 'plugin' ? chalk.blue(`${displayName}`) : chalk.green(`${displayName}`);
 
-					// Color code the type info
-					const coloredTypeInfo =
-						type === 'plugin' ? chalk.blue(`[${typeInfo}]`) : chalk.green(`[${typeInfo}]`);
+						// Color code the type info
+						const coloredTypeInfo =
+							type === 'plugin' ? chalk.blue(`[${typeInfo}]`) : chalk.green(`[${typeInfo}]`);
 
-					const label = `${coloredDisplayName} ${coloredTypeInfo}`;
+						const label = `${coloredDisplayName} ${coloredTypeInfo}`;
 
-					return {
-						label,
-						value: template,
-						hint: template.metadata.description || 'No description',
-					};
-				}),
-			});
-
-			if (isCancel(templateChoice)) {
+						return {
+							label,
+							value: template,
+							hint: template.metadata.description || 'No description',
+						};
+					}),
+				});
+				selectedTemplate = templateChoice as Example;
+			} catch (error) {
 				outro(chalk.gray('Operation cancelled.'));
 				process.exit(0);
 			}
-
-			selectedTemplate = templateChoice as Example;
 		} else {
 			selectedTemplate = matchingTemplates[0];
 		}

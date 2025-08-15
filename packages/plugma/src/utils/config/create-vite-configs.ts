@@ -107,7 +107,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 			sourceDir: path.join(options.output, 'node_modules', 'plugma', 'templates', 'vite'),
 			targetDir: path.join(options.output),
 		}),
-	];
+	].filter(Boolean) as Plugin[];
 
 	const placeholders = {
 		pluginName: userFiles.manifest.name,
