@@ -23,5 +23,5 @@
         "./package.json",
         "__tests__/**/*.test.ts"
     ],
-    "exclude": ["archive", "dist", "node_modules"]
+    "exclude": ["archive", "dist", "node_modules", "templates"]
 }

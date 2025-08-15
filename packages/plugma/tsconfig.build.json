@@ -17,6 +17,7 @@
     "test",
     "**/*.test.ts",
     "**/*.test.tsx",
-    "**/__tests__/**"
+    "**/__tests__/**",
+    "templates"
   ]
 }
