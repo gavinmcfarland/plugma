@@ -12,7 +12,6 @@ import chalk from 'chalk';
 import stripTS from '@combino/plugin-strip-ts';
 import ejsMate from '@combino/plugin-ejs-mate';
 import rebase from '@combino/plugin-rebase';
-import dotenv from 'dotenv';
 
 const CURR_DIR = process.cwd();
 const __dirname = dirname(fileURLToPath(import.meta.url));
