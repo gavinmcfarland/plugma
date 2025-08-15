@@ -40,7 +40,9 @@ export function processEnvMigrationWarning(): Plugin {
 				logWarning('  - console.log(process.env.SOME_KEY)');
 				logWarning('  + console.log(import.meta.env.VITE_SOME_KEY)');
 				logWarning('');
-				logWarning('See migration guide: docs/migration/v2/README.md');
+				logWarning(
+					'See migration guide: https://github.com/gavinmcfarland/plugma/blob/main/docs/migration/v2/README.md',
+				);
 			}
 
 			return null;

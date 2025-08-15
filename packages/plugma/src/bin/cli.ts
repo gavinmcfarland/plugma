@@ -40,7 +40,9 @@ function checkDeprecatedFlags() {
 		logger.warn('⚠️  The -ws/--websockets flag is no longer supported.');
 		logger.warn('WebSocket support is now enabled by default.');
 		logger.warn('If you need to disable WebSockets, use --no-websockets instead.');
-		logger.warn('See migration guide: docs/migration/v2/README.md');
+		logger.warn(
+			'See migration guide: https://github.com/gavinmcfarland/plugma/blob/main/docs/migration/v2/README.md',
+		);
 	}
 }
 

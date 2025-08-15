@@ -26,8 +26,8 @@ function showDeprecatedDomainsWarning(logger: DebugAwareLogger, deprecatedDomain
 	logger.warn('⚠️  The following domains in your manifest are no longer needed and can be removed:');
 	deprecatedDomains.forEach((domain: string) => logger.warn(`  - ${domain}`));
 	logger.warn('These domains are now added automatically by Plugma.');
-	logger.warn('Please remove these from your manifest file.');
-	logger.warn('See migration guide: docs/migration/v2/README.md');
+	logger.warn('Please remove these from your manifest.');
+	logger.warn('See migration guide: https://github.com/gavinmcfarland/plugma/blob/main/docs/migration/v2/README.md');
 
 	deprecatedDomainsWarningShown = true;
 }

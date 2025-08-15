@@ -42,7 +42,9 @@ function checkViteConfigForContextUsage(configPath: string) {
 			logWarning('    };');
 			logWarning('  });');
 			logWarning('');
-			logWarning('See migration guide: docs/migration/v2/README.md');
+			logWarning(
+				'See migration guide: https://github.com/gavinmcfarland/plugma/blob/main/docs/migration/v2/README.md',
+			);
 		}
 	} catch (error) {
 		// Ignore errors reading config file
