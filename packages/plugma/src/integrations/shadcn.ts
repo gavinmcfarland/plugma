@@ -125,35 +125,17 @@ export default defineIntegration({
 		answers.uiFilePath = uiFilePath;
 		answers.cssFilePath = cssFilePath;
 		answers.manifestUiPath = manifestUiPath;
-		answers.componentsConfig = {
-			$schema: 'https://ui.shadcn.com/schema.json',
-			style: answers.style,
-			rsc: false,
-			tsx: false,
-			tailwind: {
-				config: '',
-				css: relativeCssPath,
-				baseColor: answers.baseColor,
-				cssVariables: true,
-				prefix: '',
-			},
-			aliases: {
-				components: `@/components`,
-				utils: '@/lib/utils',
-				ui: `@/components/ui`,
-				lib: '@/lib',
-				hooks: '@/hooks',
-			},
-			iconLibrary: 'lucide',
-		};
 	},
 
 	async postSetup({ answers, helpers, typescript }) {
 		const ext = answers.ext;
-		const componentsConfig = answers.componentsConfig;
 
-		// Create components.json file
-		await helpers.writeFile(`components.json`, JSON.stringify(componentsConfig, null, 2));
+		// Create components.json file using template
+		await helpers.writeTemplateFile('templates/integrations/shadcn', 'components.json', {
+			style: answers.style,
+			baseColor: answers.baseColor,
+			relativeCssPath: answers.relativeCssPath,
+		});
 
 		// Update TypeScript config files
 		if (typescript) {
