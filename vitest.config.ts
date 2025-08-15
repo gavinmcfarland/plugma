@@ -9,6 +9,7 @@ export default defineConfig({
 		include: ['packages/**/__tests__/**/*.test.ts'],
 		exclude: [
 			'**/node_modules/**',
+			// Temporarily excluded
 			'**/__tests__/**/source-watcher.test.ts',
 			'**/__tests__/**/main.test.ts',
 			'**/__tests__/**/vite.test.ts',
