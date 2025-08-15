@@ -13,7 +13,7 @@
 		"format:templates": "prettier --write templates/**/*.{js,ts,jsx,tsx,json,md}"
 	},
 	"bin": {
-		"create-plugma": "./dist/create-plugma.js"
+		"create-plugma": "./dist/create-plugma-wrapper.js"
 	},
 	"files": [
 		"dist",

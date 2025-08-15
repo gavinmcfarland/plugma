@@ -71,6 +71,19 @@ export interface CommandOptions {
 		command: 'add';
 		integration?: string;
 	};
+	init: MinimalBaseOptions & {
+		command: 'init';
+		name?: string;
+		plugin?: boolean;
+		widget?: boolean;
+		framework?: string;
+		react?: boolean;
+		svelte?: boolean;
+		vue?: boolean;
+		template?: string;
+		noTypescript?: boolean;
+		noUi?: boolean;
+	};
 }
 
 // Export individual command types
@@ -80,6 +93,7 @@ export type PreviewCommandOptions = CommandOptions['preview'];
 export type TestCommandOptions = CommandOptions['test'];
 export type ReleaseCommandOptions = CommandOptions['release'];
 export type AddCommandOptions = CommandOptions['add'];
+export type InitCommandOptions = CommandOptions['init'];
 
 // User-provided options
 export type UserOptions = {

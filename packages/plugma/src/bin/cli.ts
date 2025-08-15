@@ -10,13 +10,14 @@ import {
 	PreviewCommandOptions,
 	ReleaseCommandOptions,
 	AddCommandOptions,
+	InitCommandOptions,
 } from '../utils/create-options.js';
 
 import { readPlugmaPackageJson } from '../utils/fs/read-json.js';
 
-import { Command } from 'commander';
+import { Command, Option } from 'commander';
 
-import { build, dev } from '../commands/index.js';
+import { build, dev, init } from '../commands/index.js';
 import { colorStringify, debugLogger, defaultLogger } from '../utils/index.js';
 import chalk from 'chalk';
 import { add } from '../commands/add.js';
@@ -76,6 +77,53 @@ program
 	.description('A modern Figma plugin development toolkit')
 	.version(version, '-v, --version', 'Output the current version')
 	.addHelpText('beforeAll', `${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}`)}\n`);
+
+// Init Command
+program
+	.command('init')
+	.description('Create a new Figma plugin project')
+
+	// Project Type Options
+	.option('--plugin', 'Create a plugin project')
+	.option('--widget', 'Create a widget project')
+
+	// Template Options
+	.option('--template <template>', 'Use a specific template (e.g., rectangle-creator, blank)')
+
+	// Framework Options (add your new framework flags here)
+	.option('--framework <framework>', 'UI framework (e.g., React, Svelte, Vue)')
+	.addOption(new Option('--react', 'Use React framework').hideHelp())
+	.addOption(new Option('--svelte', 'Use Svelte framework').hideHelp())
+	.addOption(new Option('--vue', 'Use Vue framework').hideHelp())
+
+	// Project Configuration
+	.option('--name <name>', 'Project name')
+	.option('--no-typescript', 'Use JavaScript instead of TypeScript')
+	.option('--no-ui', 'No UI (plugins only)')
+	.option('-d, --debug', 'Enable debug mode', DEFAULT_OPTIONS.debug)
+
+	.action(async function (this: Command, options: Partial<InitCommandOptions>) {
+		await init(
+			createOptions<'init'>(options, {
+				command: 'init',
+			}),
+		);
+	})
+	.addHelpText(
+		'after',
+		`
+Framework Shortcuts:
+  --react              Equivalent to --framework React
+  --svelte             Equivalent to --framework Svelte
+  --vue                Equivalent to --framework Vue
+
+Examples:
+  plugma init --plugin --name my-plugin --no-ui
+  plugma init --widget --react
+  plugma init --template rectangle-creator --svelte
+  plugma init
+  `,
+	);
 
 // Add a hook that runs before every command
 program.hook('preAction', async (thisCommand, actionCommand) => {
