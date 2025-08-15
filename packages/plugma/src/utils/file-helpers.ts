@@ -55,19 +55,25 @@ export function createFileHelpers(cwd = process.cwd()): FileHelpers {
 				});
 
 				// Read the generated file from temp directory
-				const fileName = path.basename(targetPath);
-				const tempFilePath = path.join(tempDir, fileName);
+				// The target path might include subdirectories, so we need to find the file in the same relative location
+				const tempFilePath = path.join(tempDir, targetPath);
 
 				let content: string;
 				try {
 					content = await fs.readFile(tempFilePath, 'utf-8');
 				} catch (error) {
-					// If the exact filename doesn't exist, try to find any file in the temp directory
-					const files = await fs.readdir(tempDir);
-					if (files.length === 1) {
-						content = await fs.readFile(path.join(tempDir, files[0]), 'utf-8');
-					} else {
-						throw new Error(`Template file not found in ${tempDir}. Available files: ${files.join(', ')}`);
+					// If the exact path doesn't exist, try to find the file by basename
+					const fileName = path.basename(targetPath);
+					const tempFilePathByName = path.join(tempDir, fileName);
+
+					try {
+						content = await fs.readFile(tempFilePathByName, 'utf-8');
+					} catch (secondError) {
+						// If still not found, list available files for debugging
+						const files = await fs.readdir(tempDir, { recursive: true });
+						throw new Error(
+							`Template file not found at ${tempFilePath} or ${tempFilePathByName}. Available files: ${files.join(', ')}`,
+						);
 					}
 				}
 

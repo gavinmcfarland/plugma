@@ -173,7 +173,6 @@ export default defineIntegration({
 
 	nextSteps: (answers) => dedent`
 		UI directory: ${answers.uiDir}
-		Shadcn UI is now installed and configured!
 		Add components using the Shadcn UI CLI:
 		npx shadcn@latest add button
 		Visit https://ui.shadcn.com/docs/components for available components

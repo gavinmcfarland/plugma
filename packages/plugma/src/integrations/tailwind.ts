@@ -239,9 +239,7 @@ ${content}`;
 		const relativeCssPath = answers.relativeCssPath || `${uiDir}/styles.css`;
 
 		return dedent`
-			Tailwind CSS is now installed and configured!
 			The base Tailwind CSS file is at ${relativeCssPath}
-
 			Start using Tailwind classes in your HTML!
 			Example: <div class="flex items-center justify-center">
 		`;

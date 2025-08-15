@@ -8,7 +8,7 @@ import { detect } from 'package-manager-detector/detect';
 import { resolveCommand } from 'package-manager-detector/commands';
 import { select, intro, outro, isCancel, spinner, note, confirm } from '@clack/prompts';
 import { runIntegration } from '../integrations/define-integration.js';
-import { createFileHelpers } from '../utils/file-helpers.js';
+import { createFileHelpers, type FileHelpers } from '../utils/file-helpers.js';
 import playwrightIntegration from '../integrations/playwright.js';
 import tailwindIntegration from '../integrations/tailwind.js';
 import shadcnIntegration from '../integrations/shadcn.js';
@@ -22,8 +22,8 @@ const INTEGRATIONS = {
 	tailwind: tailwindIntegration,
 	shadcn: shadcnIntegration,
 	eslint: eslintIntegration,
-	playwright: playwrightIntegration,
 	vitest: vitestIntegration,
+	playwright: playwrightIntegration,
 	// Add other integrations here...
 } as const;
 
@@ -34,49 +34,230 @@ interface DependencyCollection {
 	devDependencies: Set<string>;
 }
 
+interface RequiredIntegrationResult {
+	integration: Integration;
+	answers: Record<string, any>;
+}
+
+/**
+ * Safely reads a file and returns its content or null if it doesn't exist
+ */
+async function safeReadFile(helpers: FileHelpers, filePath: string): Promise<string | null> {
+	try {
+		return await helpers.readFile(filePath);
+	} catch (error) {
+		// If file doesn't exist, return null
+		if (error instanceof Error && 'code' in error && (error as any).code === 'ENOENT') {
+			return null;
+		}
+		// Re-throw other errors
+		throw error;
+	}
+}
+
+/**
+ * Safely reads and parses a JSON file
+ */
+async function safeReadJson(helpers: FileHelpers, filePath: string): Promise<any | null> {
+	try {
+		const content = await helpers.readFile(filePath);
+		return JSON.parse(content);
+	} catch (error) {
+		return null;
+	}
+}
+
+/**
+ * Detects if an integration is fully installed by checking ALL essential components
+ */
+async function isIntegrationInstalled(integrationId: string): Promise<boolean> {
+	const helpers = createFileHelpers();
+
+	switch (integrationId) {
+		case 'tailwind': {
+			// Must have BOTH: CSS import AND Vite plugin
+			let hasCssImport = false;
+			let hasVitePlugin = false;
+
+			// Check for @import "tailwindcss" in CSS files
+			const cssLocations = ['src/styles.css', 'src/app.css', 'src/index.css', 'src/ui/styles.css'];
+			for (const cssPath of cssLocations) {
+				const cssContent = await safeReadFile(helpers, cssPath);
+				if (cssContent && cssContent.includes('@import "tailwindcss"')) {
+					hasCssImport = true;
+					break;
+				}
+			}
+
+			// Check for tailwindcss plugin in vite config
+			const viteConfigFile = await helpers.detectViteConfigFile();
+			if (viteConfigFile) {
+				const viteContent = await safeReadFile(helpers, viteConfigFile);
+				if (viteContent && viteContent.includes('@tailwindcss/vite')) {
+					hasVitePlugin = true;
+				}
+			}
+
+			return hasCssImport && hasVitePlugin;
+		}
+
+		case 'shadcn': {
+			// Must have BOTH: components.json AND TypeScript path aliases
+			const componentsJson = await safeReadFile(helpers, 'components.json');
+			if (!componentsJson) return false;
+
+			// Check for TypeScript path aliases in tsconfig files
+			const tsConfigFiles = ['tsconfig.json', 'tsconfig.ui.json'];
+			for (const configFile of tsConfigFiles) {
+				const tsConfig = await safeReadJson(helpers, configFile);
+				if (tsConfig?.compilerOptions?.paths?.['@/*']) {
+					return true; // Found path aliases
+				}
+			}
+
+			return false; // Has components.json but no path aliases
+		}
+
+		case 'playwright': {
+			// Must have ALL: config file, package.json script, and example test
+			const playwrightTs = await safeReadFile(helpers, 'playwright.config.ts');
+			const playwrightJs = await safeReadFile(helpers, 'playwright.config.js');
+			const hasConfig = playwrightTs !== null || playwrightJs !== null;
+
+			if (!hasConfig) return false;
+
+			// Check for package.json script
+			const packageJson = await safeReadJson(helpers, 'package.json');
+			const hasScript = packageJson?.scripts?.playwright;
+
+			// Check for example test file
+			const exampleTestTs = await safeReadFile(helpers, 'playwright/example.spec.ts');
+			const exampleTestJs = await safeReadFile(helpers, 'playwright/example.spec.js');
+			const hasExampleTest = exampleTestTs !== null || exampleTestJs !== null;
+
+			return hasConfig && hasScript && hasExampleTest;
+		}
+
+		case 'vitest': {
+			// Must have ALL: config file, package.json script, and example test
+			const vitestTs = await safeReadFile(helpers, 'vitest.config.ts');
+			const vitestJs = await safeReadFile(helpers, 'vitest.config.js');
+			const hasConfig = vitestTs !== null || vitestJs !== null;
+
+			if (!hasConfig) return false;
+
+			// Check for package.json script
+			const packageJson = await safeReadJson(helpers, 'package.json');
+			const hasScript = packageJson?.scripts?.vitest;
+
+			// Check for example test file
+			const exampleTestTs = await safeReadFile(helpers, 'vitest/example.test.ts');
+			const exampleTestJs = await safeReadFile(helpers, 'vitest/example.test.js');
+			const hasExampleTest = exampleTestTs !== null || exampleTestJs !== null;
+
+			return hasConfig && hasScript && hasExampleTest;
+		}
+
+		case 'eslint': {
+			// Must have BOTH: config file AND package.json script
+			const eslintConfig = await safeReadFile(helpers, 'eslint.config.js');
+			if (!eslintConfig) return false;
+
+			// Check for package.json script
+			const packageJson = await safeReadJson(helpers, 'package.json');
+			const hasScript = packageJson?.scripts?.lint;
+
+			return hasScript !== undefined;
+		}
+
+		default:
+			// For unknown integrations, assume not installed
+			return false;
+	}
+}
+
 interface RunIntegrationOptions {
 	name: string;
 	prefixPrompts?: boolean;
 }
 
-async function installRequiredIntegrations(integration: Integration, allDeps: DependencyCollection): Promise<boolean> {
-	if (!integration.requires?.length) return true;
+async function installRequiredIntegrations(
+	integration: Integration,
+	allDeps: DependencyCollection,
+): Promise<RequiredIntegrationResult[] | null> {
+	if (!integration.requires?.length) return [];
 
+	// Check which required integrations are already installed
 	const requiredIntegrations = integration.requires.map((id) => INTEGRATIONS[id as IntegrationKey]);
-
-	note(
-		`${integration.name} requires the following integrations:\n` +
-			requiredIntegrations.map((int: Integration) => `  • ${int.name}`).join('\n'),
-		'Required Integrations',
+	const installationStatus = await Promise.all(
+		integration.requires.map(async (id) => ({
+			id,
+			integration: INTEGRATIONS[id as IntegrationKey],
+			isInstalled: await isIntegrationInstalled(id),
+		})),
 	);
 
+	const alreadyInstalled = installationStatus.filter((item) => item.isInstalled);
+	const needsInstallation = installationStatus.filter((item) => !item.isInstalled);
+
+	// Show status of required integrations
+	if (alreadyInstalled.length > 0) {
+		note(
+			`${integration.name} requires the following integrations:\n` +
+				alreadyInstalled.map((item) => `  ✓ ${item.integration.name} (already installed)`).join('\n') +
+				(needsInstallation.length > 0
+					? '\n' + needsInstallation.map((item) => `  • ${item.integration.name}`).join('\n')
+					: ''),
+			'Required Integrations',
+		);
+	} else {
+		note(
+			`${integration.name} requires the following integrations:\n` +
+				needsInstallation.map((item) => `  • ${item.integration.name}`).join('\n'),
+			'Required Integrations',
+		);
+	}
+
+	// If all required integrations are already installed, skip the confirmation
+	if (needsInstallation.length === 0) {
+		note('All required integrations are already installed!', 'Info');
+		return [];
+	}
+
 	const shouldInstall = await confirm({
-		message: 'Would you like to install the required integrations first?',
+		message: `Would you like to install the missing integrations (${needsInstallation.map((item) => item.integration.name).join(', ')})?`,
 		initialValue: true,
 	});
 
 	if (isCancel(shouldInstall) || !shouldInstall) {
-		return false;
+		return null;
 	}
 
-	// Install each required integration
-	for (const requiredId of integration.requires) {
-		const requiredIntegration = INTEGRATIONS[requiredId as IntegrationKey];
-		const result = await runIntegration(requiredIntegration, {
-			name: requiredIntegration.name,
+	const requiredResults: RequiredIntegrationResult[] = [];
+
+	// Setup each required integration that needs installation (but don't run postSetup yet)
+	for (const item of needsInstallation) {
+		const result = await runIntegration(item.integration, {
+			name: item.integration.name,
 			prefixPrompts: true,
 		});
 
 		if (!result) {
-			return false;
+			return null;
 		}
+
+		// Store the result for later postSetup execution
+		requiredResults.push({
+			integration: item.integration,
+			answers: result.answers,
+		});
 
 		// Collect dependencies from required integration
 		result.dependencies.forEach((dep) => allDeps.dependencies.add(dep));
 		result.devDependencies.forEach((dep) => allDeps.devDependencies.add(dep));
 	}
 
-	return true;
+	return requiredResults;
 }
 
 export async function add(options: AddCommandOptions): Promise<void> {
@@ -108,8 +289,8 @@ export async function add(options: AddCommandOptions): Promise<void> {
 		};
 
 		// Handle required integrations first
-		const requiredInstalled = await installRequiredIntegrations(integration, allDeps);
-		if (!requiredInstalled) {
+		const requiredResults = await installRequiredIntegrations(integration, allDeps);
+		if (requiredResults === null) {
 			outro('Operation cancelled');
 			process.exit(0);
 		}
@@ -143,10 +324,23 @@ export async function add(options: AddCommandOptions): Promise<void> {
 				process.exit(0);
 			}
 
-			// Run postSetup hook when user confirms (regardless of installation choice)
+			// Run postSetup hooks for required integrations first, then main integration
+			const helpers = createFileHelpers();
+			const typescript = await helpers.detectTypeScript();
+
+			// Run postSetup for all required integrations first
+			for (const requiredResult of requiredResults) {
+				if (requiredResult.integration.postSetup) {
+					await requiredResult.integration.postSetup({
+						answers: requiredResult.answers,
+						helpers,
+						typescript,
+					});
+				}
+			}
+
+			// Then run postSetup for the main integration
 			if (integration.postSetup) {
-				const helpers = createFileHelpers();
-				const typescript = await helpers.detectTypeScript();
 				await integration.postSetup({ answers: result.answers, helpers, typescript });
 			}
 

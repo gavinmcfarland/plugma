@@ -1,67 +1,31 @@
-import chalk from 'chalk'
-import { defineIntegration } from './define-integration.js'
-import dedent from 'dedent'
+import chalk from 'chalk';
+import { defineIntegration } from './define-integration.js';
+import dedent from 'dedent';
 
 export default defineIntegration({
 	id: 'playwright',
 	name: 'Playwright',
-	description: 'End to end testing',
+	description: 'End to end testing (experimental)',
 	dependencies: ['@playwright/test'],
 
-	async setup({ helpers, typescript }) {
-		const ext = typescript ? 'ts' : 'js'
+	async postSetup({ helpers, typescript }) {
+		const ext = typescript ? 'ts' : 'js';
 
 		// Update package.json
 		await helpers.updateJson('package.json', (json) => {
-			json.scripts = json.scripts || {}
-			json.scripts['playwright'] = 'npx playwright test'
-		})
+			json.scripts = json.scripts || {};
+			json.scripts['playwright'] = 'npx playwright test';
+		});
 
-		await helpers.writeFile(
-			`playwright.config.${ext}`,
-			dedent`import { defineConfig, devices } from '@playwright/test';
+		// Create Playwright config file using template
+		await helpers.writeTemplateFile('templates/integrations/playwright', `playwright.config.${ext}`);
 
-					export default defineConfig({
-					testDir: './playwright',
-					fullyParallel: true,
-					projects: [
-						{
-						name: 'chromium',
-						use: { ...devices['Desktop Chrome'] },
-						},
-					],
-					webServer: {
-						command: 'npm run dev -- -ws --port 4000',
-						url: 'http://localhost:4000',
-						reuseExistingServer: !process.env.CI,
-					},
-				});
-			`,
-		)
-
-		await helpers.writeFile(
-			`playwright/example.spec.${ext}`,
-			dedent`import { test, expect } from 'plugma/playwright';
-
-				test("create 10 rectangles", async ({ ui, main }) => {
-
-					await ui.goto("http://localhost:4000/");
-					await ui.getByRole("spinbutton", { name: "X-position" }).click();
-					await ui.getByRole("spinbutton", { name: "X-position" }).fill("10");
-					await ui.getByRole("button", { name: "Create Rectangles" }).click();
-
-					const rects = await main(async () => {
-						return figma.currentPage.children;
-					});
-
-					expect(rects.length).toBe(10);
-				});
-			`,
-		)
+		// Create example test file using template
+		await helpers.writeTemplateFile('templates/integrations/playwright', `playwright/example.spec.${ext}`);
 	},
 
 	nextSteps: (answers) => dedent`
 		Run tests with ${chalk.cyan('npm run playwright')}
 		See Playwright docs for more information: ${chalk.cyan('https://playwright.dev/docs/intro')}
 	`,
-})
+});
