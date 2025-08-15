@@ -97,11 +97,11 @@ describe('WrapPluginUiTask', () => {
     );
 
     // Set up the build directory path
-    buildDir = '/work/cva/plugma/packages/plugma/src/tasks/build';
+    buildDir = '/test/plugma/packages/plugma/src/tasks/build';
     mocks.getDirName.mockReturnValue(buildDir);
 
     // Calculate the template path (corrected to match actual file location)
-    templatePath = mocks.path.resolve(buildDir, '../apps/figma-bridge/index.html');
+    templatePath = mocks.path.resolve(buildDir, '../apps/figma-bridge.html');
   });
 
   afterEach(() => {
