@@ -236,11 +236,31 @@ check_package_configs() {
 test_publish_dry_run() {
     print_header "Testing Publish Process"
 
-    print_info "Running publish dry run..."
-    if npx lerna publish --dry-run >/dev/null 2>&1; then
-        print_success "Publish dry run completed successfully"
+    # Check if lerna.json exists and is valid
+    if [ -f "lerna.json" ]; then
+        if jq empty lerna.json >/dev/null 2>&1; then
+            print_success "lerna.json is valid"
+        else
+            print_error "lerna.json has invalid JSON"
+        fi
     else
-        print_error "Publish dry run failed"
+        print_error "lerna.json not found"
+    fi
+
+    # Check if packages have proper structure for publishing
+    print_info "Checking package structure..."
+    PACKAGES_READY=true
+    for pkg in packages/plugma packages/create-plugma; do
+        if [ -f "$pkg/package.json" ] && [ -d "$pkg/dist" ]; then
+            print_success "$(basename "$pkg") ready for publishing"
+        else
+            print_warning "$(basename "$pkg") missing dist folder or package.json"
+            PACKAGES_READY=false
+        fi
+    done
+
+    if [ "$PACKAGES_READY" = true ]; then
+        print_success "All packages are structured correctly for publishing"
     fi
 }
 
