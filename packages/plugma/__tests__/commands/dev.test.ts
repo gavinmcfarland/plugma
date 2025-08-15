@@ -53,10 +53,14 @@ Object.defineProperty(globalThis, 'process', {
 	value: {
 		...globalThis.process,
 		exit: mocks.processExit,
-		// Preserve essential process methods for other modules
+		// Preserve essential process methods for other modules (Listr2, cleanup, etc.)
 		on: globalThis.process.on?.bind(globalThis.process) || vi.fn(),
+		once: globalThis.process.once?.bind(globalThis.process) || vi.fn(),
 		off: globalThis.process.off?.bind(globalThis.process) || vi.fn(),
 		removeListener: globalThis.process.removeListener?.bind(globalThis.process) || vi.fn(),
+		removeAllListeners: globalThis.process.removeAllListeners?.bind(globalThis.process) || vi.fn(),
+		addListener: globalThis.process.addListener?.bind(globalThis.process) || vi.fn(),
+		emit: globalThis.process.emit?.bind(globalThis.process) || vi.fn(),
 	},
 	writable: true,
 });
