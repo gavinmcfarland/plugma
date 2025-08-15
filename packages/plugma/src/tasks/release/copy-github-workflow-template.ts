@@ -1,9 +1,6 @@
-import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '../../core/types.js';
-import { Logger } from '../../utils/log/logger.js';
+import type { PluginOptions } from '../../core/types.js';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-// import { EnsureDistTask } from '../create-ouput-dir.js' // Temporarily disabled - old task runner
-// import { task } from '../runner.js' // Temporarily disabled - old task runner
 import { ListrLogLevels } from 'listr2';
 import { createDebugAwareLogger } from '../../utils/debug-aware-logger.js';
 
@@ -16,19 +13,14 @@ interface Result {
  * This file is used to automate the release process of the plugin.
  *
  * @param options - Plugin options
- * @param context - Task context containing results from previous tasks
+ * @param outputPath - Output directory path where the yml file should be created
  * @returns The path to the created yml file
  */
-const createReleaseYml = async (options: PluginOptions, context: ResultsOfTask<EnsureDistTask>): Promise<Result> => {
+const createReleaseYml = async (options: PluginOptions, outputPath: string): Promise<Result> => {
 	const logger = createDebugAwareLogger(options.debug);
 
 	try {
-		const distResult = context[EnsureDistTask.name];
-		if (!distResult) {
-			throw new Error('ensure-dist task must run first');
-		}
-
-		const ymlPath = join(distResult.outputPath, 'plugma-create-release.yml');
+		const ymlPath = join(outputPath, 'plugma-create-release.yml');
 
 		const ymlContent = `
 name: Create Release
@@ -69,7 +61,5 @@ jobs:
 	}
 };
 
-// export const CreateReleaseYmlTask = task('release:create-yml', createReleaseYml);
-// export type CreateReleaseYmlTask = GetTaskTypeFor<typeof CreateReleaseYmlTask>;
-
-// export default CreateReleaseYmlTask;
+// Task exports removed - using direct function exports instead
+export default createReleaseYml;

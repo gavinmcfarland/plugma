@@ -3,32 +3,31 @@
  * Handles test discovery, execution, and reporting
  */
 
-import type { GetTaskTypeFor, PluginOptions } from '../../core/types.js'
-import { createViteConfigs } from '../../utils/config/create-vite-configs.js'
-import { getUserFiles } from '../../utils/get-user-files.js'
-import { Logger } from '../../utils/log/logger.js'
-import { replacePlugmaTesting } from '../../vite-plugins/replace-testing-import-path.js'
-import { startVitest } from 'vitest/node'
-import { task } from '../runner.js'
+import type { PluginOptions } from '../../core/types.js';
+import { createViteConfigs } from '../../utils/config/create-vite-configs.js';
+import { getUserFiles } from '../../utils/get-user-files.js';
+import { Logger } from '../../utils/log/logger.js';
+import { replacePlugmaTesting } from '../../vite-plugins/replace-testing-import-path.js';
+import { startVitest } from 'vitest/node';
 
 /**
  * Result type for the runVitest task
  */
 export interface RunVitestResult {
 	/** Whether all tests passed */
-	success: boolean
+	success: boolean;
 }
 
 /**
  * Task that configures and runs Vitest in the user's plugin project
  */
 export const runVitest = async (options: PluginOptions): Promise<RunVitestResult> => {
-	const log = new Logger({ debug: options.debug })
+	const log = new Logger({ debug: options.debug });
 
 	try {
-		log.info('Loading plugin configuration...')
-		const files = await getUserFiles(options)
-		const configs = createViteConfigs(options, files)
+		log.info('Loading plugin configuration...');
+		const files = await getUserFiles(options);
+		const configs = createViteConfigs(options, files);
 
 		// Add our test plugin to the Vite config
 		const testConfig = {
@@ -40,27 +39,25 @@ export const runVitest = async (options: PluginOptions): Promise<RunVitestResult
 				testTimeout: options.timeout ?? 10000,
 				watch: options.watch ?? false,
 			},
-		}
+		};
 
-		log.info('Starting Vitest...')
+		log.info('Starting Vitest...');
 		const vitest = await startVitest('test', [], {
 			...testConfig,
 			api: true,
-		})
+		});
 
 		// Wait for tests to complete and check results
-		await vitest.start()
-		const success = vitest.state.getCountOfFailedTests() === 0
+		await vitest.start();
+		const success = vitest.state.getCountOfFailedTests() === 0;
 
-		return { success }
+		return { success };
 	} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : String(error)
-		log.error('Failed to run Vitest:', errorMessage)
-		throw error
+		const errorMessage = error instanceof Error ? error.message : String(error);
+		log.error('Failed to run Vitest:', errorMessage);
+		throw error;
 	}
-}
+};
 
-export const RunVitestTask = task('test:run-vitest', runVitest)
-export type RunVitestTask = GetTaskTypeFor<typeof RunVitestTask>
-
-export default RunVitestTask
+// Task exports removed - using direct function exports instead
+export default runVitest;

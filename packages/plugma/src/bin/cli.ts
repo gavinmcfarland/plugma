@@ -29,6 +29,21 @@ import { release } from '../commands/release.js';
 
 const logger = createDebugAwareLogger();
 
+/**
+ * Checks for deprecated command line flags and shows migration warnings
+ */
+function checkDeprecatedFlags() {
+	const args = process.argv;
+	const hasDeprecatedWebsocketsFlag = args.includes('-ws') || args.includes('--websockets');
+
+	if (hasDeprecatedWebsocketsFlag) {
+		logger.warn('⚠️  The -ws/--websockets flag is no longer supported.');
+		logger.warn('WebSocket support is now enabled by default.');
+		logger.warn('If you need to disable WebSockets, use --no-websockets instead.');
+		logger.warn('See migration guide: docs/migration/v2/README.md');
+	}
+}
+
 // Read package.json to get the version
 const packageJson = await readPlugmaPackageJson();
 const version = packageJson.version;
@@ -50,6 +65,9 @@ const handleDebug = async (command: string, options: Record<string, any> & { deb
 
 // Initialize Commander
 const program = new Command();
+
+// Check for deprecated flags before Commander.js processes arguments
+checkDeprecatedFlags();
 
 program
 	.name('plugma')
@@ -76,6 +94,7 @@ program.hook('preAction', async (thisCommand, actionCommand) => {
 		suppressLogs(options);
 	}
 	await showPlugmaPrompt();
+	checkDeprecatedFlags();
 });
 
 program

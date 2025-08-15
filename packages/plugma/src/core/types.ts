@@ -1,66 +1,65 @@
 //@index('./**/types.ts', f => `export * from '${f.path}.js';`)
-export * from './task-runner/types.js'
-import type { PackageJson } from 'type-fest'
-import type { BaseOptions } from '../utils/create-options.js'
+import type { PackageJson } from 'type-fest';
+import type { BaseOptions } from '../utils/create-options.js';
 //@endindex
 
-import type { UserConfig } from 'vite'
+import type { UserConfig } from 'vite';
 
-export type PlugmaCommand = 'build' | 'dev' | 'test' | 'preview'
+export type PlugmaCommand = 'build' | 'dev' | 'test' | 'preview';
 
 // TODO: Remove eventually
-export type PluginOptions = BaseOptions
+export type PluginOptions = BaseOptions;
 
 export interface UserPluginOptions {
-	mode?: string
-	port?: number
-	output?: string
-	debug?: boolean
-	watch?: boolean
-	cwd: string
+	mode?: string;
+	port?: number;
+	output?: string;
+	debug?: boolean;
+	watch?: boolean;
+	cwd: string;
 }
 
-export type PlugmaRuntimeData = PluginOptions
+export type PlugmaRuntimeData = PluginOptions;
 
 /**
  * Manifest file structure for Figma plugins
  */
 export interface ManifestFile {
-	name: string
-	version: string
-	main: string
-	ui?: string
-	api: string
+	name: string;
+	version: string;
+	main: string;
+	ui?: string;
+	api: string;
 	networkAccess?: {
-		devAllowedDomains?: string[]
-		allowedDomains?: string[]
-	}
-	[key: string]: unknown
+		devAllowedDomains?: string[];
+		allowedDomains?: string[];
+	};
+	[key: string]: unknown;
 }
 
-export type PlugmaPackageJson = typeof import('../../package.json')
+export type PlugmaPackageJson = typeof import('../../package.json');
 export type UserPackageJson = PackageJson & {
 	plugma?: {
-		manifest?: ManifestFile
-	}
-}
+		manifest?: ManifestFile;
+	};
+};
 
 /**
  * User files configuration
  */
 export interface UserFiles {
-	manifest: ManifestFile
-	userPkgJson: UserPackageJson
-	rawManifest: ManifestFile
+	manifest: ManifestFile;
+	userPkgJson: UserPackageJson;
+	rawManifest: ManifestFile;
 }
 
 export interface ViteConfigs {
 	vite: {
-		dev: UserConfig
-		build: UserConfig
-	}
+		dev: UserConfig;
+		build: UserConfig;
+	};
 	viteMain: {
-		dev: UserConfig
-		build: UserConfig
-	}
+		dev: UserConfig;
+		build: UserConfig;
+	};
 }

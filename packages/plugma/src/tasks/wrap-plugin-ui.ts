@@ -54,7 +54,7 @@ export const createWrapPluginUiTask = <T extends { uiDuration?: number }>(
 				{
 					title: 'Load template',
 					task: async (ctx) => {
-						const templatePath = resolve(getDirName(), '../apps/figma-bridge/index.html');
+						const templatePath = resolve(getDirName(), '../apps/figma-bridge.html');
 						try {
 							ctx.template = await readFile(templatePath, 'utf-8');
 						} catch (error) {

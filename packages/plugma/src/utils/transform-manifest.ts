@@ -23,9 +23,11 @@ function showDeprecatedDomainsWarning(logger: DebugAwareLogger, deprecatedDomain
 		return;
 	}
 
-	logger.log(ListrLogLevels.RETRY, 'The following domains in your manifest are no longer needed and can be removed:');
-	deprecatedDomains.forEach((domain: string) => logger.log(ListrLogLevels.RETRY, `  - ${domain}`));
-	logger.log(ListrLogLevels.RETRY, 'Please remove these from your manifest.');
+	logger.warn('⚠️  The following domains in your manifest are no longer needed and can be removed:');
+	deprecatedDomains.forEach((domain: string) => logger.warn(`  - ${domain}`));
+	logger.warn('These domains are now added automatically by Plugma.');
+	logger.warn('Please remove these from your manifest file.');
+	logger.warn('See migration guide: docs/migration/v2/README.md');
 
 	deprecatedDomainsWarningShown = true;
 }

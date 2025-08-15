@@ -20,6 +20,7 @@ import { createBuildNotifierPlugin } from '../../vite-plugins/build-notifier.js'
 import { injectEventListeners } from '../../vite-plugins/main/inject-test-event-listeners.js';
 import viteCopyDirectoryPlugin from '../../vite-plugins/move-dir.js';
 import devtoolsJson from '../../vite-plugins/devtools-json.js';
+import { processEnvMigrationWarning } from '../../vite-plugins/process-env-migration-warning.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -122,6 +123,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 				htmlTransform(options),
 				rewritePostMessageTargetOrigin(),
 				serveUi(options),
+				processEnvMigrationWarning(),
 				...commonVitePlugins,
 				devtoolsJson(),
 			],
@@ -197,7 +199,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 		define: {
 			'process.env.NODE_ENV': JSON.stringify(options.mode),
 		},
-		plugins: [replacePlugmaTesting(options)],
+		plugins: [replacePlugmaTesting(options), processEnvMigrationWarning()],
 		build: {
 			outDir: options.output,
 			emptyOutDir: false,
@@ -234,6 +236,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 		},
 		plugins: [
 			replacePlugmaTesting(options),
+			processEnvMigrationWarning(),
 			injectTests({
 				testDir: '',
 				pluginOptions: options,
