@@ -46,7 +46,7 @@ vi.mock('#utils/config/create-vite-configs.js', () => ({
   createViteConfigs: mocks.createViteConfigs,
 }));
 
-vi.mock('#utils/config/get-user-files.js', () => ({
+vi.mock('#utils/get-user-files.js', () => ({
   getUserFiles: mocks.getUserFiles,
 }));
 

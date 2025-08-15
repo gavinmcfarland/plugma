@@ -170,7 +170,7 @@ describe('createBuildUiTask', () => {
     const context = {};
 
     await expect(task.task(context, task)).rejects.toThrow(
-      `UI file not found at ${uiPath}`,
+      `Failed to build UI: UI file not found at .... ${uiPath}`,
     );
     expect(mocks.build).not.toHaveBeenCalled();
   });
