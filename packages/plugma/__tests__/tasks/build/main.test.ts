@@ -196,11 +196,23 @@ describe("Main Build Tasks", () => {
 			expect(mockServer.close).toHaveBeenCalled();
 		});
 
-		test("should handle missing get-files result", async () => {
-			await expect(
-				BuildMainTask.run(mockBuildOptions, {} as any),
-			).rejects.toThrow("get-files task must run first");
-		});
+			test("should handle missing get-files result", async () => {
+		const task = createBuildMainTask(mockBuildOptions);
+		const mockTaskWrapper = {
+			output: '',
+			promptOutput: '',
+			newListr: vi.fn(),
+			report: vi.fn(),
+			isCompleted: vi.fn(),
+			isPending: vi.fn(),
+			isSkipped: vi.fn(),
+			isRetrying: vi.fn(),
+		} as any;
+
+		await expect(
+			task.task({} as any, mockTaskWrapper),
+		).rejects.toThrow("get-files task must run first");
+	});
 
 		test("should handle Vite build errors", async () => {
 			const mainPath = "src/plugin-main.ts";
