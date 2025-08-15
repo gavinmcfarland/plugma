@@ -90,7 +90,11 @@ export const getFiles = async (options: PluginOptions): Promise<GetFilesTaskResu
 	}
 };
 
-// export const GetFilesTask = task('common:get-files', getFiles);
-// export type GetFilesTask = GetTaskTypeFor<typeof GetFilesTask>;
+// Temporary exports for compatibility with old tests
+export const GetFilesTask = {
+	name: 'common:get-files',
+	run: getFiles,
+};
+export type GetFilesTask = typeof GetFilesTask;
 
-// export default GetFilesTask;
+export default GetFilesTask;

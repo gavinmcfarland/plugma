@@ -6,7 +6,7 @@ import { GetFilesTask, RestartViteServerTask } from "#tasks";
 import { type MockFs, createMockFs, createMockGetFilesResult } from "#test";
 import { createMockViteConfig } from "#test/mocks/vite/mock-vite-config.js";
 import { createMockViteServer } from "#test/mocks/vite/mock-vite.js";
-import { viteState } from "../../src/tasks/server/vite.js";
+import { viteState } from "../../src/utils/vite-state-manager.js";
 
 vi.mock("vite", () => ({
 	createServer: vi.fn(),

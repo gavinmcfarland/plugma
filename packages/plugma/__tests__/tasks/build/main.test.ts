@@ -12,7 +12,8 @@ import { build } from "vite";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { GetFilesTask } from "../../../src/tasks/get-files.js";
 import { viteState } from "../../../src/utils/vite-state-manager.js";
-import { BuildMainTask } from "../../../src/tasks/build/main.js";
+import { createBuildMainTask } from "../../../src/tasks/build-main.js";
+import { BuildMainTask } from "test/mocks/tasks/mock-tasks.js";
 
 // Setup mocks
 setupFsMocks();

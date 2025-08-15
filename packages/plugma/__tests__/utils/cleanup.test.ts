@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { registerCleanup, runCleanup, unregisterCleanup } from '../../src/utils/cleanup.js';
 
 // Mock process event handlers
@@ -9,6 +9,17 @@ vi.mock('node:process', () => ({
 describe('Cleanup Utility', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(async () => {
+    // Clear any registered cleanup functions to prevent test pollution
+    // Wrap in try-catch to prevent test failures from cleanup errors
+    try {
+      await runCleanup();
+    } catch (error) {
+      // Ignore cleanup errors in tests to prevent cross-test pollution
+      console.warn('Cleanup error in test (ignored):', error);
+    }
   });
 
   describe('registerCleanup', () => {
@@ -68,6 +79,10 @@ describe('Cleanup Utility', () => {
 
       expect(handler1).toHaveBeenCalled();
       expect(handler2).toHaveBeenCalled();
+
+      // Unregister handlers to prevent pollution
+      unregisterCleanup(handler1);
+      unregisterCleanup(handler2);
     });
 
     test('should clear handlers after cleanup', async () => {

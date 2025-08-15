@@ -11,7 +11,7 @@ import {
 } from '#test';
 import { createMockViteConfig } from '#test/mocks/vite/mock-vite-config.js';
 import { createMockViteServer } from '#test/mocks/vite/mock-vite.js';
-import { viteState } from './vite.js';
+import { viteState } from '../../src/utils/vite-state-manager.js';
 
 const mocks = vi.hoisted(() => ({
   registerCleanup: vi.fn(),

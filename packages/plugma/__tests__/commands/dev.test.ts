@@ -48,11 +48,15 @@ vi.mock("listr2", () => ({
 	},
 }));
 
-// Mock process.exit to prevent test termination
+// Mock process.exit to prevent test termination while preserving other methods
 Object.defineProperty(globalThis, 'process', {
 	value: {
 		...globalThis.process,
 		exit: mocks.processExit,
+		// Preserve essential process methods for other modules
+		on: globalThis.process.on?.bind(globalThis.process) || vi.fn(),
+		off: globalThis.process.off?.bind(globalThis.process) || vi.fn(),
+		removeListener: globalThis.process.removeListener?.bind(globalThis.process) || vi.fn(),
 	},
 	writable: true,
 });
@@ -241,7 +245,12 @@ describe("Dev Command", () => {
 	describe("Error Handling", () => {
 		test("should handle errors gracefully", async () => {
 			const error = new Error("Task execution failed");
-			mockListrRun.mockRejectedValueOnce(error);
+
+			// Set up the mock to reject before calling dev()
+			const mockRun = vi.fn().mockRejectedValue(error);
+			mocks.Listr.mockImplementation(() => ({
+				run: mockRun,
+			}));
 
 			const options = {
 				debug: false,
@@ -256,12 +265,12 @@ describe("Dev Command", () => {
 			await dev(options);
 
 			// Verify error exit
-			expect(mockProcessExit).toHaveBeenCalledWith(1);
+			expect(mocks.processExit).toHaveBeenCalledWith(1);
 		});
 
 		test("should handle task creation errors", async () => {
 			const error = new Error("Task creation failed");
-			mockCreateBuildManifestTask.mockImplementationOnce(() => {
+			mocks.createBuildManifestTask.mockImplementationOnce(() => {
 				throw error;
 			});
 
