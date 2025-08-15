@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { registerCleanup, runCleanup, unregisterCleanup } from './cleanup.js';
+import { registerCleanup, runCleanup, unregisterCleanup } from '../../src/utils/cleanup.js';
 
 // Mock process event handlers
 vi.mock('node:process', () => ({

@@ -1,14 +1,14 @@
-import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '../../core/types.js'
-import { Logger } from '../../utils/log/logger.js'
-import { writeFile } from 'node:fs/promises'
-import { join } from 'node:path'
-import { EnsureDistTask } from '../create-ouput-dir.js'
-import { task } from '../runner.js'
-import { ListrLogLevels } from 'listr2'
-import { createDebugAwareLogger } from '../../utils/debug-aware-logger.js'
+import type { GetTaskTypeFor, PluginOptions, ResultsOfTask } from '../../core/types.js';
+import { Logger } from '../../utils/log/logger.js';
+import { writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+// import { EnsureDistTask } from '../create-ouput-dir.js' // Temporarily disabled - old task runner
+// import { task } from '../runner.js' // Temporarily disabled - old task runner
+import { ListrLogLevels } from 'listr2';
+import { createDebugAwareLogger } from '../../utils/debug-aware-logger.js';
 
 interface Result {
-	ymlPath: string
+	ymlPath: string;
 }
 
 /**
@@ -20,15 +20,15 @@ interface Result {
  * @returns The path to the created yml file
  */
 const createReleaseYml = async (options: PluginOptions, context: ResultsOfTask<EnsureDistTask>): Promise<Result> => {
-	const logger = createDebugAwareLogger(options.debug)
+	const logger = createDebugAwareLogger(options.debug);
 
 	try {
-		const distResult = context[EnsureDistTask.name]
+		const distResult = context[EnsureDistTask.name];
 		if (!distResult) {
-			throw new Error('ensure-dist task must run first')
+			throw new Error('ensure-dist task must run first');
 		}
 
-		const ymlPath = join(distResult.outputPath, 'plugma-create-release.yml')
+		const ymlPath = join(distResult.outputPath, 'plugma-create-release.yml');
 
 		const ymlContent = `
 name: Create Release
@@ -57,19 +57,19 @@ jobs:
           release_name: Release \${{ github.ref }}
           draft: false
           prerelease: false
-    `
+    `;
 
-		await writeFile(ymlPath, ymlContent.trim())
-		logger.log(ListrLogLevels.OUTPUT, `Created release yml at ${ymlPath}`)
+		await writeFile(ymlPath, ymlContent.trim());
+		logger.log(ListrLogLevels.OUTPUT, `Created release yml at ${ymlPath}`);
 
-		return { ymlPath }
+		return { ymlPath };
 	} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : String(error)
-		throw new Error(`Failed to create release yml: ${errorMessage}`)
+		const errorMessage = error instanceof Error ? error.message : String(error);
+		throw new Error(`Failed to create release yml: ${errorMessage}`);
 	}
-}
+};
 
-export const CreateReleaseYmlTask = task('release:create-yml', createReleaseYml)
-export type CreateReleaseYmlTask = GetTaskTypeFor<typeof CreateReleaseYmlTask>
+// export const CreateReleaseYmlTask = task('release:create-yml', createReleaseYml);
+// export type CreateReleaseYmlTask = GetTaskTypeFor<typeof CreateReleaseYmlTask>;
 
-export default CreateReleaseYmlTask
+// export default CreateReleaseYmlTask;

@@ -1,14 +1,47 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { dev } from "../../src/commands/dev.js";
 
-// Mock Listr2 instead of old task runner
-const mockListrRun = vi.fn().mockResolvedValue({});
-const mockListr = vi.fn().mockImplementation(() => ({
-	run: mockListrRun,
+// Hoist all mocks to ensure they're applied before imports
+const mocks = vi.hoisted(() => ({
+	Listr: vi.fn().mockImplementation(() => ({
+		run: vi.fn().mockResolvedValue({}),
+	})),
+	processExit: vi.fn(),
+	createBuildManifestTask: vi.fn().mockReturnValue({
+		title: 'Build Manifest',
+		task: vi.fn(),
+	}),
+	createBuildMainTask: vi.fn().mockReturnValue({
+		title: 'Build Main',
+		task: vi.fn(),
+	}),
+	createWrapPluginUiTask: vi.fn().mockReturnValue({
+		title: 'Wrap Plugin UI',
+		task: vi.fn(),
+	}),
+	createStartWebSocketsServerTask: vi.fn().mockReturnValue({
+		title: 'Start WebSocket Server',
+		task: vi.fn(),
+	}),
+	createStartViteServerTask: vi.fn().mockReturnValue({
+		title: 'Start Vite Server',
+		task: vi.fn(),
+	}),
+	Timer: vi.fn().mockImplementation(() => ({
+		start: vi.fn(),
+		stop: vi.fn(),
+		getDuration: vi.fn().mockReturnValue("100"),
+	})),
+	createDebugAwareLogger: vi.fn().mockReturnValue({
+		log: vi.fn(),
+	}),
+	chalk: {
+		green: vi.fn((text) => text),
+	},
+	showPlugmaPrompt: vi.fn(),
 }));
 
 vi.mock("listr2", () => ({
-	Listr: mockListr,
+	Listr: mocks.Listr,
 	ListrLogLevels: {
 		FAILED: 'FAILED',
 		OUTPUT: 'OUTPUT',
@@ -16,56 +49,51 @@ vi.mock("listr2", () => ({
 }));
 
 // Mock process.exit to prevent test termination
-const mockProcessExit = vi.fn();
-vi.mock("process", () => ({
-	exit: mockProcessExit,
-}));
-
-// Mock the task factory functions used in dev command
-const mockCreateBuildManifestTask = vi.fn().mockReturnValue({
-	title: 'Build Manifest',
-	task: vi.fn(),
-});
-
-const mockCreateBuildMainTask = vi.fn().mockReturnValue({
-	title: 'Build Main',
-	task: vi.fn(),
-});
-
-const mockCreateWrapPluginUiTask = vi.fn().mockReturnValue({
-	title: 'Wrap Plugin UI',
-	task: vi.fn(),
-});
-
-const mockCreateStartWebSocketsServerTask = vi.fn().mockReturnValue({
-	title: 'Start WebSocket Server',
-	task: vi.fn(),
-});
-
-const mockCreateStartViteServerTask = vi.fn().mockReturnValue({
-	title: 'Start Vite Server',
-	task: vi.fn(),
+Object.defineProperty(globalThis, 'process', {
+	value: {
+		...globalThis.process,
+		exit: mocks.processExit,
+	},
+	writable: true,
 });
 
 vi.mock("../../src/tasks/build-manifest.js", () => ({
-	createBuildManifestTask: mockCreateBuildManifestTask,
+	createBuildManifestTask: mocks.createBuildManifestTask,
 }));
 
 vi.mock("../../src/tasks/build-main.js", () => ({
-	createBuildMainTask: mockCreateBuildMainTask,
+	createBuildMainTask: mocks.createBuildMainTask,
 }));
 
 vi.mock("../../src/tasks/wrap-plugin-ui.js", () => ({
-	createWrapPluginUiTask: mockCreateWrapPluginUiTask,
+	createWrapPluginUiTask: mocks.createWrapPluginUiTask,
 }));
 
 vi.mock("../../src/tasks/start-websocket-server.js", () => ({
-	createStartWebSocketsServerTask: mockCreateStartWebSocketsServerTask,
+	createStartWebSocketsServerTask: mocks.createStartWebSocketsServerTask,
 }));
 
 vi.mock("../../src/tasks/start-dev-server.js", () => ({
-	createStartViteServerTask: mockCreateStartViteServerTask,
+	createStartViteServerTask: mocks.createStartViteServerTask,
 }));
+
+vi.mock("../../src/utils/timer.js", () => ({
+	Timer: mocks.Timer,
+}));
+
+vi.mock("../../src/utils/debug-aware-logger.js", () => ({
+	createDebugAwareLogger: mocks.createDebugAwareLogger,
+}));
+
+vi.mock("chalk", () => ({
+	default: mocks.chalk,
+}));
+
+vi.mock("../../src/utils/show-plugma-prompt.js", () => ({
+	showPlugmaPrompt: mocks.showPlugmaPrompt,
+}));
+
+import { dev } from "../../src/commands/dev.js";
 
 // Mock other dependencies
 vi.mock("../../src/utils/debug-aware-logger.js", () => ({
@@ -109,7 +137,7 @@ describe("Dev Command", () => {
 			await dev(options);
 
 			// Verify Listr was created with correct tasks in order
-			expect(mockListr).toHaveBeenCalledWith(
+			expect(mocks.Listr).toHaveBeenCalledWith(
 				[
 					expect.objectContaining({ title: 'Build Manifest' }),
 					expect.objectContaining({ title: 'Build Main' }),
@@ -121,17 +149,18 @@ describe("Dev Command", () => {
 			);
 
 			// Verify all task factories were called with options
-			expect(mockCreateBuildManifestTask).toHaveBeenCalledWith(options);
-			expect(mockCreateBuildMainTask).toHaveBeenCalledWith(options);
-			expect(mockCreateWrapPluginUiTask).toHaveBeenCalledWith(options);
-			expect(mockCreateStartWebSocketsServerTask).toHaveBeenCalledWith(options);
-			expect(mockCreateStartViteServerTask).toHaveBeenCalledWith(options);
+			expect(mocks.createBuildManifestTask).toHaveBeenCalledWith(options);
+			expect(mocks.createBuildMainTask).toHaveBeenCalledWith(options);
+			expect(mocks.createWrapPluginUiTask).toHaveBeenCalledWith(options);
+			expect(mocks.createStartWebSocketsServerTask).toHaveBeenCalledWith(options);
+			expect(mocks.createStartViteServerTask).toHaveBeenCalledWith(options);
 
 			// Verify Listr.run was called
-			expect(mockListrRun).toHaveBeenCalled();
+			const listrInstance = mocks.Listr.mock.results[0].value;
+			expect(listrInstance.run).toHaveBeenCalled();
 
 			// Dev command should not exit (it runs continuously)
-			expect(mockProcessExit).not.toHaveBeenCalled();
+			expect(mocks.processExit).not.toHaveBeenCalled();
 		});
 
 		test("should use provided options over defaults", async () => {
@@ -149,17 +178,17 @@ describe("Dev Command", () => {
 			await dev(options);
 
 			// Verify debug mode affects renderer options
-			expect(mockListr).toHaveBeenCalledWith(
+			expect(mocks.Listr).toHaveBeenCalledWith(
 				expect.any(Array),
 				expect.any(Object)
 			);
 
 			// Verify task factories received custom options
-			expect(mockCreateBuildManifestTask).toHaveBeenCalledWith(options);
-			expect(mockCreateBuildMainTask).toHaveBeenCalledWith(options);
-			expect(mockCreateWrapPluginUiTask).toHaveBeenCalledWith(options);
-			expect(mockCreateStartWebSocketsServerTask).toHaveBeenCalledWith(options);
-			expect(mockCreateStartViteServerTask).toHaveBeenCalledWith(options);
+			expect(mocks.createBuildManifestTask).toHaveBeenCalledWith(options);
+			expect(mocks.createBuildMainTask).toHaveBeenCalledWith(options);
+			expect(mocks.createWrapPluginUiTask).toHaveBeenCalledWith(options);
+			expect(mocks.createStartWebSocketsServerTask).toHaveBeenCalledWith(options);
+			expect(mocks.createStartViteServerTask).toHaveBeenCalledWith(options);
 		});
 
 		test("should include all development tasks", async () => {
@@ -176,14 +205,14 @@ describe("Dev Command", () => {
 			await dev(options);
 
 			// Verify all dev-specific tasks are included
-			expect(mockCreateBuildManifestTask).toHaveBeenCalled();
-			expect(mockCreateBuildMainTask).toHaveBeenCalled();
-			expect(mockCreateWrapPluginUiTask).toHaveBeenCalled();
-			expect(mockCreateStartWebSocketsServerTask).toHaveBeenCalled();
-			expect(mockCreateStartViteServerTask).toHaveBeenCalled();
+			expect(mocks.createBuildManifestTask).toHaveBeenCalled();
+			expect(mocks.createBuildMainTask).toHaveBeenCalled();
+			expect(mocks.createWrapPluginUiTask).toHaveBeenCalled();
+			expect(mocks.createStartWebSocketsServerTask).toHaveBeenCalled();
+			expect(mocks.createStartViteServerTask).toHaveBeenCalled();
 
 			// Verify Listr has all 5 tasks
-			const [tasks] = mockListr.mock.calls[0];
+			const [tasks] = mocks.Listr.mock.calls[0];
 			expect(tasks).toHaveLength(5);
 		});
 
@@ -201,10 +230,11 @@ describe("Dev Command", () => {
 			await dev(options);
 
 			// Verify tasks were executed
-			expect(mockListrRun).toHaveBeenCalled();
+			const listrInstance = mocks.Listr.mock.results[0].value;
+			expect(listrInstance.run).toHaveBeenCalled();
 
 			// Dev command should complete without exit
-			expect(mockProcessExit).not.toHaveBeenCalled();
+			expect(mocks.processExit).not.toHaveBeenCalled();
 		});
 	});
 

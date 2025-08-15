@@ -1,12 +1,12 @@
-import type { GetTaskTypeFor, PluginOptions, PlugmaPackageJson, UserFiles } from '../core/types.js'
-import { createViteConfigs } from '../utils/config/create-vite-configs.js'
-import { getUserFiles } from '../utils/get-user-files.js'
-import { readPlugmaPackageJson } from '../utils/fs/read-json.js'
-import { Logger } from '../utils/log/logger.js'
-import { task } from './runner.js'
-import { ListrLogger, ListrLogLevels, ListrLoggerOptions } from 'listr2'
-import { LISTR_LOGGER_STYLES } from '../constants.js'
-import { DebugAwareLogger, createDebugAwareLogger } from '../utils/debug-aware-logger.js'
+import type { PluginOptions, PlugmaPackageJson, UserFiles } from '../core/types.js';
+import { createViteConfigs } from '../utils/config/create-vite-configs.js';
+import { getUserFiles } from '../utils/get-user-files.js';
+import { readPlugmaPackageJson } from '../utils/fs/read-json.js';
+import { Logger } from '../utils/log/logger.js';
+// import { task } from './runner.js' // Temporarily disabled - old task runner pattern
+import { ListrLogger, ListrLogLevels, ListrLoggerOptions } from 'listr2';
+import { LISTR_LOGGER_STYLES } from '../constants.js';
+import { DebugAwareLogger, createDebugAwareLogger } from '../utils/debug-aware-logger.js';
 
 /**
  * Custom error class for file loading operations
@@ -17,9 +17,9 @@ export class GetFilesError extends Error {
 		public code: 'INVALID_PACKAGE_JSON' | 'CONFIG_ERROR' | 'FILE_ERROR',
 		public cause?: Error | unknown,
 	) {
-		super(`${message}: ${cause instanceof Error ? cause.message : String(cause)}`)
-		this.name = 'GetFilesError'
-		this.stack = cause instanceof Error ? cause.stack : undefined
+		super(`${message}: ${cause instanceof Error ? cause.message : String(cause)}`);
+		this.name = 'GetFilesError';
+		this.stack = cause instanceof Error ? cause.stack : undefined;
 	}
 }
 
@@ -28,69 +28,69 @@ export class GetFilesError extends Error {
  */
 export interface GetFilesTaskResult {
 	/** The version of the plugin */
-	plugmaPkg: PlugmaPackageJson
+	plugmaPkg: PlugmaPackageJson;
 	/** The files to be used by the plugin */
-	files: UserFiles
+	files: UserFiles;
 	/** The configuration objects */
-	config: ReturnType<typeof createViteConfigs>
+	config: ReturnType<typeof createViteConfigs>;
 }
 
 /**
  * Task that loads and prepares necessary files and configurations
  */
 export const getFiles = async (options: PluginOptions): Promise<GetFilesTaskResult> => {
-	const logger = createDebugAwareLogger(options.debug)
-	let plugmaPkg: PlugmaPackageJson
-	let files: UserFiles
-	let config: ReturnType<typeof createViteConfigs>
+	const logger = createDebugAwareLogger(options.debug);
+	let plugmaPkg: PlugmaPackageJson;
+	let files: UserFiles;
+	let config: ReturnType<typeof createViteConfigs>;
 
 	try {
-		logger.log(ListrLogLevels.OUTPUT, 'Starting get-files task...')
+		logger.log(ListrLogLevels.OUTPUT, 'Starting get-files task...');
 
 		try {
-			logger.log(ListrLogLevels.OUTPUT, 'Getting user files...')
-			files = await getUserFiles(options)
+			logger.log(ListrLogLevels.OUTPUT, 'Getting user files...');
+			files = await getUserFiles(options);
 			logger.log(ListrLogLevels.OUTPUT, [
 				'User files loaded:',
 				{
 					manifest: files.manifest,
 					userPkgJson: files.userPkgJson,
 				},
-			])
+			]);
 		} catch (err) {
 			if (err instanceof Error && err.message.includes('manifest configuration')) {
-				throw new GetFilesError('Invalid package.json structure', 'INVALID_PACKAGE_JSON')
+				throw new GetFilesError('Invalid package.json structure', 'INVALID_PACKAGE_JSON');
 			}
-			throw new GetFilesError('Failed to load files', 'FILE_ERROR', err)
+			throw new GetFilesError('Failed to load files', 'FILE_ERROR', err);
 		}
 
 		try {
-			logger.log(ListrLogLevels.OUTPUT, 'Creating Vite configs...')
-			config = createViteConfigs(options, files)
-			logger.log(ListrLogLevels.OUTPUT, 'Vite configs created successfully')
+			logger.log(ListrLogLevels.OUTPUT, 'Creating Vite configs...');
+			config = createViteConfigs(options, files);
+			logger.log(ListrLogLevels.OUTPUT, 'Vite configs created successfully');
 		} catch (err) {
-			throw new GetFilesError('Failed to create configs', 'CONFIG_ERROR', err)
+			throw new GetFilesError('Failed to create configs', 'CONFIG_ERROR', err);
 		}
 
-		logger.log(ListrLogLevels.OUTPUT, 'Reading Plugma package.json...')
-		plugmaPkg = await readPlugmaPackageJson()
-		logger.log(ListrLogLevels.OUTPUT, 'Plugma package.json loaded successfully')
+		logger.log(ListrLogLevels.OUTPUT, 'Reading Plugma package.json...');
+		plugmaPkg = await readPlugmaPackageJson();
+		logger.log(ListrLogLevels.OUTPUT, 'Plugma package.json loaded successfully');
 
-		logger.log(ListrLogLevels.OUTPUT, 'Get-files task completed successfully')
+		logger.log(ListrLogLevels.OUTPUT, 'Get-files task completed successfully');
 		return {
 			plugmaPkg,
 			files,
 			config,
-		}
+		};
 	} catch (err) {
 		if (err instanceof GetFilesError) {
-			throw err
+			throw err;
 		}
-		throw new GetFilesError('Failed to load files', 'FILE_ERROR', err)
+		throw new GetFilesError('Failed to load files', 'FILE_ERROR', err);
 	}
-}
+};
 
-export const GetFilesTask = task('common:get-files', getFiles)
-export type GetFilesTask = GetTaskTypeFor<typeof GetFilesTask>
+// export const GetFilesTask = task('common:get-files', getFiles);
+// export type GetFilesTask = GetTaskTypeFor<typeof GetFilesTask>;
 
-export default GetFilesTask
+// export default GetFilesTask;
