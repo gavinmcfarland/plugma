@@ -10,42 +10,24 @@ export default defineIntegration({
 	description: 'Linting',
 	dependencies: [
 		'typescript',
-		'eslint@8',
-		'@typescript-eslint/parser@6',
-		'@typescript-eslint/eslint-plugin@6',
-		'@figma/plugin-typings',
-		'@figma/eslint-plugin-figma-plugins',
+		'eslint@9',
+		// '@typescript-eslint/parser@8',
+		// '@typescript-eslint/eslint-plugin@8',
+		'typescript-eslint@8',
+		// NOTE: Disabled for now because they are not compatible with the latest version of ESLint
+		// '@figma/plugin-typings',
+		// '@figma/eslint-plugin-figma-plugins',
 	],
 
-	async setup({ answers }) {
-		// Store configuration in answers for postSetup to use
-		answers.eslintConfig = dedent`/* eslint-env node */
-					module.exports = {
-					extends: [
-						'eslint:recommended',
-						'plugin:@typescript-eslint/recommended',
-						'plugin:@figma/figma-plugins/recommended',
-					],
-					parser: '@typescript-eslint/parser',
-					parserOptions: {
-						project: './tsconfig.json',
-					},
-					root: true
-				}
-			`;
-	},
-
-	async postSetup({ answers, helpers }) {
-		const eslintConfig = answers.eslintConfig;
-
+	async postSetup({ helpers }) {
 		// Update package.json
 		await helpers.updateJson('package.json', (json) => {
 			json.scripts = json.scripts || {};
 			json.scripts['lint'] = 'eslint .';
 		});
 
-		// Create ESLint config file
-		await helpers.writeFile('.eslintrc.cjs', eslintConfig);
+		// Create ESLint config file using template
+		await helpers.writeTemplateFile('templates/integrations/eslint', 'eslint.config.js');
 	},
 
 	nextSteps: () => dedent`

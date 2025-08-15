@@ -1,10 +1,16 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import MagicString from 'magic-string';
 import * as commentJson from 'comment-json';
+import { Combino } from 'combino';
+import ejsMate from '@combino/plugin-ejs-mate';
+import rebase from '@combino/plugin-rebase';
+import stripTS from '@combino/plugin-strip-ts';
 
 export interface FileHelpers {
 	writeFile: (path: string, content: string) => Promise<void>;
+	writeTemplateFile: (templateDir: string, targetPath: string, data?: Record<string, any>) => Promise<void>;
 	readFile: (path: string) => Promise<string>;
 	updateFile: (path: string, updater: (content: string) => string) => Promise<void>;
 	updateJson: (path: string, updater: (json: any) => void) => Promise<void>;
@@ -22,6 +28,60 @@ export function createFileHelpers(cwd = process.cwd()): FileHelpers {
 			const fullPath = path.join(cwd, filePath);
 			await fs.mkdir(path.dirname(fullPath), { recursive: true });
 			await fs.writeFile(fullPath, content);
+		},
+
+		async writeTemplateFile(templateDir: string, targetPath: string, data: Record<string, any> = {}) {
+			const isTypeScript = await this.detectTypeScript();
+
+			// Resolve the template directory relative to the plugma package
+			const currentDir = path.dirname(fileURLToPath(import.meta.url));
+			const plugmaRoot = path.resolve(currentDir, '../..');
+			const absoluteTemplateDir = path.resolve(plugmaRoot, templateDir);
+
+			// Create a temporary directory for Combino output
+			const tempDir = path.join(cwd, '.temp-template-' + Math.random().toString(36).substring(7));
+
+			try {
+				// Initialize Combino
+				const combino = new Combino();
+
+				// Build the template to a temporary directory
+				await combino.build({
+					outputDir: tempDir,
+					include: [absoluteTemplateDir],
+					data: { typescript: isTypeScript, ...data },
+					plugins: [rebase(), ejsMate(), stripTS({ skip: isTypeScript })],
+					configFileName: 'template.json',
+				});
+
+				// Read the generated file from temp directory
+				const fileName = path.basename(targetPath);
+				const tempFilePath = path.join(tempDir, fileName);
+
+				let content: string;
+				try {
+					content = await fs.readFile(tempFilePath, 'utf-8');
+				} catch (error) {
+					// If the exact filename doesn't exist, try to find any file in the temp directory
+					const files = await fs.readdir(tempDir);
+					if (files.length === 1) {
+						content = await fs.readFile(path.join(tempDir, files[0]), 'utf-8');
+					} else {
+						throw new Error(`Template file not found in ${tempDir}. Available files: ${files.join(', ')}`);
+					}
+				}
+
+				// Write the processed content to the target location
+				await this.writeFile(targetPath, content);
+			} finally {
+				// Clean up temporary directory
+				try {
+					await fs.rm(tempDir, { recursive: true, force: true });
+				} catch (error) {
+					// Ignore cleanup errors
+					console.warn(`Warning: Could not clean up temporary directory ${tempDir}:`, error);
+				}
+			}
 		},
 
 		async readFile(filePath: string) {
