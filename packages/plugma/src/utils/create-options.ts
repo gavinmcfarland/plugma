@@ -177,6 +177,18 @@ export function createOptions<T extends keyof CommandOptions>(
 		delete userOptions.noWebsockets;
 	}
 
+	// Handle --no-ui flag (Commander.js converts --no-ui to ui: false)
+	if ('ui' in userOptions && userOptions.ui === false) {
+		userOptions.noUi = true;
+		delete userOptions.ui;
+	}
+
+	// Handle --no-typescript flag (Commander.js converts --no-typescript to typescript: false)
+	if ('typescript' in userOptions && userOptions.typescript === false) {
+		userOptions.noTypescript = true;
+		delete userOptions.typescript;
+	}
+
 	const newOptions = new Options(userOptions, requiredDefaults) as CommandOptions[T] & OptionsWithMeta;
 
 	return newOptions;

@@ -296,7 +296,10 @@ function filterExamples(examples: Example[], needsUI: boolean, framework: string
 					? [metadata.uiFrameworks]
 					: [];
 
-			if (!uiFrameworks.includes(framework)) return false;
+			// Case-insensitive framework comparison
+			const frameworkLower = framework.toLowerCase();
+			const hasMatchingFramework = uiFrameworks.some((fw) => fw.toLowerCase() === frameworkLower);
+			if (!hasMatchingFramework) return false;
 		}
 
 		return true;
@@ -364,8 +367,13 @@ export async function init(options: InitCommandOptions): Promise<void> {
 		return;
 	}
 
-	// Handle CLI flags for quick creation
-	if (options.plugin || options.widget) {
+	// Check if we should use quick creation (skip all interactive questions)
+	// This happens when enough flags are provided to determine all requirements
+	const hasTypeFlag = options.plugin || options.widget;
+	const hasFrameworkFlag = options.framework || options.react || options.svelte || options.vue || options.noUi;
+
+	// Only use fully quick creation if we have type, framework, AND name specified
+	if (hasTypeFlag && hasFrameworkFlag && options.name) {
 		const type = options.plugin ? 'plugin' : 'widget';
 
 		// Determine framework from various options
@@ -381,15 +389,36 @@ export async function init(options: InitCommandOptions): Promise<void> {
 			type,
 			framework: options.noUi ? NO_UI_OPTION : framework,
 			typescript,
-			name: options.name || `my-${type}`,
+			name: options.name,
 			debug: options.debug || false,
 		});
 
 		return;
 	}
 
-	// Default behavior: use browse functionality
-	await browseAndSelectTemplate(options);
+	// Determine pre-selected values from CLI flags
+	const preSelectedType = hasTypeFlag ? (options.plugin ? 'plugin' : 'widget') : undefined;
+
+	let preSelectedFramework: string | undefined;
+	if (hasFrameworkFlag) {
+		if (options.noUi) {
+			preSelectedFramework = NO_UI_OPTION;
+		} else {
+			preSelectedFramework = options.framework || 'React';
+			if (options.react) preSelectedFramework = 'React';
+			if (options.svelte) preSelectedFramework = 'Svelte';
+			if (options.vue) preSelectedFramework = 'Vue';
+		}
+	}
+
+	// Determine pre-selected TypeScript value from CLI flags
+	let preSelectedTypescript: boolean | undefined;
+	if (options.noTypescript !== undefined) {
+		preSelectedTypescript = !options.noTypescript; // Convert --no-typescript to false
+	}
+
+	// Default behavior: use browse functionality (with optional pre-selected values)
+	await browseAndSelectTemplate(options, preSelectedType, preSelectedFramework, preSelectedTypescript);
 }
 
 /**
@@ -423,7 +452,12 @@ function groupExamplesByType(examples: Example[]): Record<string, Example[]> {
 /**
  * Browse and select template interactively
  */
-async function browseAndSelectTemplate(options: InitCommandOptions): Promise<void> {
+async function browseAndSelectTemplate(
+	options: InitCommandOptions,
+	preSelectedType?: string,
+	preSelectedFramework?: string,
+	preSelectedTypescript?: boolean,
+): Promise<void> {
 	try {
 		const allExamples = getAvailableExamples();
 		const visibleExamples = allExamples.filter((example) => !example.metadata.hidden);
@@ -433,36 +467,42 @@ async function browseAndSelectTemplate(options: InitCommandOptions): Promise<voi
 			process.exit(1);
 		}
 
-		// First, let user choose the type
-		const availableTypes = Array.from(
-			new Set(visibleExamples.map((example) => example.metadata.type).filter(Boolean)),
-		).sort((a, b) => {
-			// Ensure Plugin comes first
-			if (a === 'plugin') return -1;
-			if (b === 'plugin') return 1;
-			return a!.localeCompare(b!);
-		});
-
-		if (availableTypes.length === 0) {
-			outro(chalk.red('No valid template types found.'));
-			process.exit(1);
-		}
-
 		let selectedType: string;
-		try {
-			selectedType = await select({
-				message: 'Choose a type:',
-				options: availableTypes.map((type) => ({
-					label:
-						type === 'plugin'
-							? chalk.blue(`${type!.charAt(0).toUpperCase() + type!.slice(1)}`)
-							: chalk.green(`${type!.charAt(0).toUpperCase() + type!.slice(1)}`),
-					value: type,
-				})),
+
+		// If type is pre-selected via CLI flags, use it; otherwise ask the user
+		if (preSelectedType) {
+			selectedType = preSelectedType;
+		} else {
+			// First, let user choose the type
+			const availableTypes = Array.from(
+				new Set(visibleExamples.map((example) => example.metadata.type).filter(Boolean)),
+			).sort((a, b) => {
+				// Ensure Plugin comes first
+				if (a === 'plugin') return -1;
+				if (b === 'plugin') return 1;
+				return a!.localeCompare(b!);
 			});
-		} catch (error) {
-			outro(chalk.gray('Operation cancelled.'));
-			process.exit(0);
+
+			if (availableTypes.length === 0) {
+				outro(chalk.red('No valid template types found.'));
+				process.exit(1);
+			}
+
+			try {
+				selectedType = await select({
+					message: 'Choose a type:',
+					options: availableTypes.map((type) => ({
+						label:
+							type === 'plugin'
+								? chalk.blue(`${type!.charAt(0).toUpperCase() + type!.slice(1)}`)
+								: chalk.green(`${type!.charAt(0).toUpperCase() + type!.slice(1)}`),
+						value: type,
+					})),
+				});
+			} catch (error) {
+				outro(chalk.gray('Operation cancelled.'));
+				process.exit(0);
+			}
 		}
 
 		// Filter templates by selected type
@@ -502,7 +542,10 @@ async function browseAndSelectTemplate(options: InitCommandOptions): Promise<voi
 
 		let selectedFramework: string = 'React'; // default
 
-		if (frameworkOptions.length > 1) {
+		// If framework is pre-selected via CLI flags, use it; otherwise ask the user
+		if (preSelectedFramework) {
+			selectedFramework = preSelectedFramework;
+		} else if (frameworkOptions.length > 1) {
 			try {
 				const frameworkChoice = await select({
 					message: 'Choose a framework:',
@@ -577,7 +620,11 @@ async function browseAndSelectTemplate(options: InitCommandOptions): Promise<voi
 		if (templateNeedsUI && selectedFramework !== NO_UI_OPTION) {
 			const availableFrameworks = getFrameworksForExample(selectedTemplate as Example);
 
-			if (!availableFrameworks.includes(selectedFramework)) {
+			// Case-insensitive framework comparison
+			const selectedFrameworkLower = selectedFramework.toLowerCase();
+			const supportsFramework = availableFrameworks.some((fw) => fw.toLowerCase() === selectedFrameworkLower);
+
+			if (!supportsFramework) {
 				outro(
 					chalk.red(
 						`Template "${getDisplayName(selectedTemplate as Example)}" does not support ${selectedFramework}.`,
@@ -588,14 +635,20 @@ async function browseAndSelectTemplate(options: InitCommandOptions): Promise<voi
 		}
 
 		let typescript: boolean;
-		try {
-			typescript = await confirm({
-				message: 'Use TypeScript?',
-				initialValue: true,
-			});
-		} catch (error) {
-			outro(chalk.gray('Operation cancelled.'));
-			process.exit(0);
+
+		// If TypeScript is pre-selected via CLI flags, use it; otherwise ask the user
+		if (preSelectedTypescript !== undefined) {
+			typescript = preSelectedTypescript;
+		} else {
+			try {
+				typescript = await confirm({
+					message: 'Use TypeScript?',
+					initialValue: true,
+				});
+			} catch (error) {
+				outro(chalk.gray('Operation cancelled.'));
+				process.exit(0);
+			}
 		}
 
 		// Generate project name
@@ -742,7 +795,12 @@ async function createFromSpecificTemplate(options: InitCommandOptions): Promise<
 			// Check if a specific framework was chosen
 			// Validate framework is supported by template
 			const availableFrameworks = getFrameworksForExample(selectedTemplate);
-			if (!availableFrameworks.includes(framework)) {
+
+			// Case-insensitive framework comparison
+			const frameworkLower = framework.toLowerCase();
+			const supportsFramework = availableFrameworks.some((fw) => fw.toLowerCase() === frameworkLower);
+
+			if (!supportsFramework) {
 				console.error(chalk.red(`Framework "${framework}" is not supported by template "${templateName}".`));
 				console.log(chalk.yellow(`Supported frameworks: ${availableFrameworks.join(', ')}`));
 				process.exit(1);
