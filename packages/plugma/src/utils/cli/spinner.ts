@@ -101,40 +101,44 @@ export function createBox(
 	let borderColor: string;
 	let icon: string;
 	let genericMessage: string;
+	let titleColor: (text: string) => string;
 
 	switch (type) {
 		case 'success':
 			borderColor = 'green';
 			icon = '✓';
 			genericMessage = 'Operation completed successfully!';
+			titleColor = chalk.green;
 			break;
 		case 'error':
 			borderColor = 'red';
 			icon = '✗';
 			genericMessage = 'Operation failed!';
+			titleColor = chalk.red;
 			break;
 		case 'info':
 			borderColor = 'blue';
 			icon = 'ℹ';
 			genericMessage = 'Information';
+			titleColor = chalk.blue;
 			break;
 		case 'warning':
 			borderColor = 'yellow';
 			icon = '⚠';
 			genericMessage = 'Warning';
+			titleColor = chalk.yellow;
 			break;
 	}
 
 	// Use generic message if no custom message provided, otherwise use the provided message
 	const displayMessage = message || genericMessage;
-	const boxMessage = `${icon} ${displayMessage}`;
 
-	return boxen(boxMessage, {
+	return boxen(displayMessage, {
 		padding: options?.padding ?? 1,
 		margin: options?.margin ?? 1,
 		borderStyle: 'round',
 		borderColor,
-		title: options?.title,
+		title: options?.title ? titleColor(options.title) : undefined,
 		titleAlignment: 'center',
 	});
 }

@@ -278,7 +278,7 @@ Examples:
 // Add Command
 program
 	.command('add')
-	.argument('[integration]', 'Integration to add', 'playwright')
+	.argument('[integration]', 'Integration to add')
 	.option(
 		'-c, --config <json>',
 		'Specify a JSON configuration object for testing and debugging',

@@ -1,6 +1,7 @@
 import { defineIntegration } from './define-integration.js';
 import MagicString from 'magic-string';
 import dedent from 'dedent';
+import chalk from 'chalk';
 import { getUserFiles } from '../utils/get-user-files.js';
 import { dirname, resolve, join } from 'node:path';
 import { readFile } from 'node:fs/promises';
@@ -47,7 +48,7 @@ async function findCssImportPath(filePath: string, cwd: string): Promise<string 
  */
 export default defineIntegration({
 	id: 'shadcn',
-	name: 'Shadcn UI',
+	name: 'Shadcn',
 	description: 'UI components',
 
 	// Add required integrations - this will ensure tailwind is set up first
@@ -57,7 +58,7 @@ export default defineIntegration({
 		{
 			id: 'style',
 			type: 'select',
-			question: 'Which style would you like to use?',
+			question: 'Choose a style:',
 			options: [
 				{ value: 'default', label: 'Default', hint: 'Simple and clean' },
 				{ value: 'new-york', label: 'New York', hint: 'Elegant and professional' },
@@ -67,7 +68,7 @@ export default defineIntegration({
 		{
 			id: 'baseColor',
 			type: 'select',
-			question: 'Which color would you like to use as base?',
+			question: 'Choose a base color:',
 			options: [
 				{ value: 'slate', label: 'Slate' },
 				{ value: 'zinc', label: 'Zinc' },
@@ -172,10 +173,10 @@ export default defineIntegration({
 	},
 
 	nextSteps: (answers) => dedent`
-		UI directory: ${answers.uiDir}
+		UI directory: ${chalk.magenta(answers.uiDir)}
 		Add components using the Shadcn UI CLI:
-		npx shadcn@latest add button
-		Visit https://ui.shadcn.com/docs/components for available components
-		Import components from "@/components/ui"
+		${chalk.cyan('npx shadcn@latest add button')}
+		Visit ${chalk.magenta('https://ui.shadcn.com/docs/components')} for available components
+		Import components from ${chalk.magenta('"@/components/ui"')}
 	`,
 });

@@ -1,4 +1,5 @@
 import dedent from 'dedent';
+import chalk from 'chalk';
 import { defineIntegration } from './define-integration.js';
 import MagicString from 'magic-string';
 import { dirname, resolve, join, relative } from 'node:path';
@@ -48,7 +49,7 @@ async function findCssImportPath(filePath: string, cwd: string): Promise<string 
 
 export default defineIntegration({
 	id: 'tailwind',
-	name: 'Tailwind CSS',
+	name: 'Tailwind',
 	description: 'CSS framework',
 
 	dependencies: ['tailwindcss', '@tailwindcss/vite'],
@@ -239,9 +240,9 @@ ${content}`;
 		const relativeCssPath = answers.relativeCssPath || `${uiDir}/styles.css`;
 
 		return dedent`
-			The base Tailwind CSS file is at ${relativeCssPath}
+			The base Tailwind CSS file is at ${chalk.magenta(relativeCssPath)}
 			Start using Tailwind classes in your HTML!
-			Example: <div class="flex items-center justify-center">
+			Example: ${chalk.magenta('<div class="flex items-center justify-center">')}
 		`;
 	},
 });

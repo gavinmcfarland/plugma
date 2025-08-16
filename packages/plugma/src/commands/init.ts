@@ -628,6 +628,12 @@ async function browseAndSelectTemplate(options: InitCommandOptions): Promise<voi
 			debug: options.debug || false,
 		});
 	} catch (error) {
+		// Handle user cancellation gracefully
+		if (error instanceof CancelError || (error instanceof Error && error.message === 'User cancelled')) {
+			outro('Operation cancelled');
+			process.exit(0);
+		}
+
 		outro(chalk.red('Error browsing templates: ' + (error instanceof Error ? error.message : String(error))));
 		process.exit(1);
 	}
@@ -761,6 +767,12 @@ async function createFromSpecificTemplate(options: InitCommandOptions): Promise<
 			debug: options.debug || false,
 		});
 	} catch (error) {
+		// Handle user cancellation gracefully
+		if (error instanceof CancelError || (error instanceof Error && error.message === 'User cancelled')) {
+			outro('Operation cancelled');
+			process.exit(0);
+		}
+
 		console.error(
 			chalk.red('Error creating from template: ' + (error instanceof Error ? error.message : String(error))),
 		);
@@ -876,6 +888,13 @@ async function createProjectFromOptions(params: {
 			}),
 		);
 	} catch (error) {
+		// Handle user cancellation gracefully
+		if (error instanceof CancelError || (error instanceof Error && error.message === 'User cancelled')) {
+			s.stop();
+			outro('Operation cancelled');
+			process.exit(0);
+		}
+
 		s.fail('Failed to create project');
 
 		// Show error message in a nice box

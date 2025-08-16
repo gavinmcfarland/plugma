@@ -292,27 +292,26 @@ async function installRequiredIntegrations(
 	const alreadyInstalled = installationStatus.filter((item) => item.isInstalled);
 	const needsInstallation = installationStatus.filter((item) => !item.isInstalled);
 
-	// Show status of required integrations
-	if (alreadyInstalled.length > 0) {
-		note(
-			`${integration.name} requires the following integrations:\n` +
-				alreadyInstalled.map((item) => `  ✓ ${item.integration.name} (already installed)`).join('\n') +
-				(needsInstallation.length > 0
-					? '\n' + needsInstallation.map((item) => `  • ${item.integration.name}`).join('\n')
-					: ''),
-			'Required Integrations',
-		);
+	// Only show status if there are integrations that need to be installed
+	if (needsInstallation.length > 0) {
+		// Show status of required integrations
+		if (alreadyInstalled.length > 0) {
+			note(
+				`${integration.name} requires the following integrations:\n` +
+					alreadyInstalled.map((item) => `  ✓ ${item.integration.name} (already installed)`).join('\n') +
+					'\n' +
+					needsInstallation.map((item) => `  • ${item.integration.name}`).join('\n'),
+				'Required Integrations',
+			);
+		} else {
+			note(
+				`${integration.name} requires the following integrations:\n` +
+					needsInstallation.map((item) => `  • ${item.integration.name}`).join('\n'),
+				'Required Integrations',
+			);
+		}
 	} else {
-		note(
-			`${integration.name} requires the following integrations:\n` +
-				needsInstallation.map((item) => `  • ${item.integration.name}`).join('\n'),
-			'Required Integrations',
-		);
-	}
-
-	// If all required integrations are already installed, skip the confirmation
-	if (needsInstallation.length === 0) {
-		note('All required integrations are already installed!', 'Info');
+		// If all required integrations are already installed, don't show any messages
 		return [];
 	}
 
@@ -372,7 +371,7 @@ export async function add(options: AddCommandOptions): Promise<void> {
 		} else {
 			// No integration provided, show selection prompt
 			selectedIntegration = await select({
-				message: 'What would you like to add?',
+				message: 'Choose an add-on:',
 				options: Object.entries(INTEGRATIONS).map(([value, integration]) => ({
 					value,
 					label: integration.name,
@@ -461,28 +460,59 @@ export async function add(options: AddCommandOptions): Promise<void> {
 					throw error;
 				}
 			} else {
-				note(
-					`${chalk.bold('You can install the dependencies later by running:')}\n\n` +
-						`${chalk.cyan('Regular dependencies:')}\n${depsArray.map((dep) => `  • ${chalk.green(dep)}`).join('\n')}\n\n` +
-						`${chalk.cyan('Dev dependencies:')}\n${devDepsArray.map((dep) => `  • ${chalk.yellow(dep)}`).join('\n')}`,
-					'Dependencies to install',
+				const dependencySections = [];
+
+				if (depsArray.length > 0) {
+					dependencySections.push(
+						`Dependencies:\n${depsArray.map((dep) => `  • ${chalk.green(dep)}`).join('\n')}`,
+					);
+				}
+
+				if (devDepsArray.length > 0) {
+					dependencySections.push(
+						`Dev dependencies:\n${devDepsArray.map((dep) => `  • ${chalk.green(dep)}`).join('\n')}`,
+					);
+				}
+
+				console.log(
+					createBox(
+						`You can install the dependencies later by running:\n\n${dependencySections.join('\n\n')}`,
+						{
+							type: 'info',
+							title: 'Info',
+						},
+					),
 				);
 			}
 		}
 
-		// Show next steps
-		if (result.nextSteps) {
-			note(Array.isArray(result.nextSteps) ? result.nextSteps.join('\n') : result.nextSteps, 'Next steps');
-		}
+		// Show success message with next steps in a nice box
+		const nextStepsContent = result.nextSteps
+			? Array.isArray(result.nextSteps)
+				? result.nextSteps.join('\n')
+				: result.nextSteps
+			: null;
 
-		// Show success message in a nice box
+		const successMessage = nextStepsContent
+			? `Next steps:\n${nextStepsContent
+					.split('\n')
+					.map((line) => `  ${line}`)
+					.join('\n')}`
+			: undefined;
+
 		console.log(
-			createBox(undefined, {
+			createBox(successMessage, {
 				type: 'success',
-				title: `${integration.name} Integration`,
+				title: 'Success',
 			}),
 		);
 	} catch (error) {
+		// Handle user cancellation gracefully
+		if (error instanceof CancelError || (error instanceof Error && error.message === 'User cancelled')) {
+			outro('Operation cancelled');
+			process.exit(0);
+		}
+
 		const errorMessage = error instanceof Error ? error.message : String(error);
 
 		// Show error message in a nice box
