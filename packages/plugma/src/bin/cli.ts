@@ -100,6 +100,8 @@ program
 	.option('--name <name>', 'Project name')
 	.option('--no-typescript', 'Use JavaScript instead of TypeScript')
 	.option('--no-ui', 'No UI (plugins only)')
+	.option('--no-add-ons', 'Skip installing add-ons')
+	.option('--no-install', 'Skip installing dependencies')
 	.option('-d, --debug', 'Enable debug mode', DEFAULT_OPTIONS.debug)
 
 	.action(async function (this: Command, options: Partial<InitCommandOptions>) {
@@ -119,8 +121,9 @@ Framework Shortcuts:
 
 Examples:
   plugma init --plugin --name my-plugin --no-ui
-  plugma init --widget --react
-  plugma init --template rectangle-creator --svelte
+  plugma init --widget --react --no-add-ons
+  plugma init --template rectangle-creator --svelte --no-install
+  plugma init --plugin --name my-plugin --no-add-ons --no-install
   plugma init
   `,
 	);

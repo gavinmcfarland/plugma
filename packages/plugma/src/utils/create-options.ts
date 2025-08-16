@@ -83,6 +83,8 @@ export interface CommandOptions {
 		template?: string;
 		noTypescript?: boolean;
 		noUi?: boolean;
+		noAddOns?: boolean;
+		noInstall?: boolean;
 	};
 }
 
@@ -187,6 +189,18 @@ export function createOptions<T extends keyof CommandOptions>(
 	if ('typescript' in userOptions && userOptions.typescript === false) {
 		userOptions.noTypescript = true;
 		delete userOptions.typescript;
+	}
+
+	// Handle --no-add-ons flag (Commander.js converts --no-add-ons to addOns: false)
+	if ('addOns' in userOptions && userOptions.addOns === false) {
+		userOptions.noAddOns = true;
+		delete userOptions.addOns;
+	}
+
+	// Handle --no-install flag (Commander.js converts --no-install to install: false)
+	if ('install' in userOptions && userOptions.install === false) {
+		userOptions.noInstall = true;
+		delete userOptions.install;
 	}
 
 	const newOptions = new Options(userOptions, requiredDefaults) as CommandOptions[T] & OptionsWithMeta;

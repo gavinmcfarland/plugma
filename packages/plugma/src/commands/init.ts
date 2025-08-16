@@ -20,6 +20,11 @@ import { InitCommandOptions } from '../utils/create-options.js';
 import { createDebugAwareLogger } from '../utils/debug-aware-logger.js';
 import { createSpinner, createBox } from '../utils/cli/spinner.js';
 
+// Import necessary modules for dependency installation
+import { exec } from 'node:child_process';
+import { detect } from 'package-manager-detector/detect';
+import { resolveCommand } from 'package-manager-detector/commands';
+
 const CURR_DIR = process.cwd();
 
 // Constants
@@ -52,6 +57,36 @@ class CancelError extends Error {
 
 function isCancel(value: any): boolean {
 	return value === undefined || value === '' || (value instanceof Error && value.message === 'User cancelled');
+}
+
+/**
+ * Multi-select helper for add-ons using @inquirer/checkbox
+ */
+async function multiSelectAddOns(): Promise<string[]> {
+	// Dynamic import of @inquirer/checkbox
+	const { default: checkbox } = await import('@inquirer/checkbox');
+
+	const availableIntegrations = [
+		{ name: 'Tailwind CSS', value: 'tailwind', description: 'Utility-first CSS framework' },
+		{ name: 'ESLint', value: 'eslint', description: 'JavaScript linting utility' },
+		{ name: 'Vitest', value: 'vitest', description: 'Fast unit testing framework' },
+		{ name: 'Playwright', value: 'playwright', description: 'End-to-end testing framework' },
+		{ name: 'Shadcn/ui', value: 'shadcn', description: 'Re-usable UI components' },
+	];
+
+	try {
+		const selectedAddOns = await checkbox({
+			message: 'Select add-ons to install (space to select, enter to confirm):',
+			choices: availableIntegrations,
+			pageSize: 10,
+			loop: true,
+			required: false,
+		});
+
+		return selectedAddOns;
+	} catch (error) {
+		throw new CancelError();
+	}
 }
 
 // Enquirer wrapper functions
@@ -356,6 +391,153 @@ function getVersions(): Record<string, string> {
 }
 
 /**
+ * Install recommended add-ons for a specific project
+ */
+async function installRecommendedAddOns(
+	selectedAddOns: string[],
+): Promise<{ dependencies: string[]; devDependencies: string[] }> {
+	if (selectedAddOns.length === 0) {
+		console.log(chalk.blue('Skipping add-ons installation. You can install add-ons later using: plugma add'));
+		return { dependencies: [], devDependencies: [] };
+	}
+
+	// Import the integrations from the add command
+	const playwrightIntegration = await import('../integrations/playwright.js');
+	const tailwindIntegration = await import('../integrations/tailwind.js');
+	const shadcnIntegration = await import('../integrations/shadcn.js');
+	const vitestIntegration = await import('../integrations/vitest.js');
+	const eslintIntegration = await import('../integrations/eslint.js');
+	const { runIntegration } = await import('../integrations/define-integration.js');
+	const { createFileHelpers } = await import('../utils/file-helpers.js');
+
+	const INTEGRATIONS = {
+		tailwind: tailwindIntegration.default,
+		shadcn: shadcnIntegration.default,
+		eslint: eslintIntegration.default,
+		vitest: vitestIntegration.default,
+		playwright: playwrightIntegration.default,
+	};
+
+	// Collection for all dependencies
+	const allDeps = {
+		dependencies: new Set<string>(),
+		devDependencies: new Set<string>(),
+	};
+
+	// Store results for postSetup hooks
+	const integrationResults: Array<{ integration: any; answers: Record<string, any> }> = [];
+
+	for (const addOnKey of selectedAddOns) {
+		if (addOnKey in INTEGRATIONS) {
+			try {
+				const s = createSpinner();
+				s.start(`Setting up ${addOnKey}...`);
+
+				const integration = INTEGRATIONS[addOnKey as keyof typeof INTEGRATIONS];
+				const result = await runIntegration(integration, {
+					name: integration.name,
+					prefixPrompts: false, // Don't prefix prompts since we're in the init flow
+				});
+
+				if (result) {
+					s.stop();
+					console.log(chalk.green(`✓ ${integration.name} configured successfully`));
+
+					// Collect dependencies
+					result.dependencies.forEach((dep) => allDeps.dependencies.add(dep));
+					result.devDependencies.forEach((dep) => allDeps.devDependencies.add(dep));
+
+					// Store for postSetup
+					integrationResults.push({ integration, answers: result.answers });
+				} else {
+					s.fail(`Failed to configure ${addOnKey}`);
+				}
+			} catch (error) {
+				console.error(
+					chalk.red(
+						`Failed to configure ${addOnKey}: ${error instanceof Error ? error.message : String(error)}`,
+					),
+				);
+			}
+		} else {
+			console.warn(chalk.yellow(`Unknown add-on: ${addOnKey}`));
+		}
+	}
+
+	// Run postSetup hooks for all integrations
+	if (integrationResults.length > 0) {
+		const helpers = createFileHelpers();
+		const typescript = await helpers.detectTypeScript();
+
+		for (const { integration, answers } of integrationResults) {
+			if (integration.postSetup) {
+				try {
+					await integration.postSetup({ answers, helpers, typescript });
+				} catch (error) {
+					console.warn(
+						chalk.yellow(
+							`Warning: PostSetup failed for ${integration.name}: ${error instanceof Error ? error.message : String(error)}`,
+						),
+					);
+				}
+			}
+		}
+	}
+
+	return {
+		dependencies: Array.from(allDeps.dependencies),
+		devDependencies: Array.from(allDeps.devDependencies),
+	};
+}
+
+/**
+ * Install project dependencies from package.json
+ */
+async function installProjectDependencies(): Promise<void> {
+	let pm = await detect({ cwd: process.cwd() });
+
+	// Default to npm if no package manager is detected (common for new projects)
+	if (!pm) {
+		pm = { name: 'npm', agent: 'npm' };
+	}
+
+	const resolved = resolveCommand(pm.agent, 'install', []);
+	if (!resolved) {
+		throw new Error(`Could not resolve package manager command for ${pm.agent}`);
+	}
+
+	return new Promise((resolve, reject) => {
+		exec(`${resolved.command} ${resolved.args.join(' ')}`, (error) => {
+			if (error) {
+				reject(error);
+			} else {
+				resolve();
+			}
+		});
+	});
+}
+
+/**
+ * Install specific dependencies (borrowed from add command logic)
+ */
+async function installSpecificDependencies(dependencies: string[], devDependencies: string[]): Promise<void> {
+	const pm = await detect({ cwd: process.cwd() });
+	if (!pm) throw new Error('Could not detect package manager');
+
+	return new Promise((resolve, reject) => {
+		const resolved = resolveCommand(pm.agent, 'add', [...dependencies, ...devDependencies]);
+		if (!resolved) throw new Error('Could not resolve package manager command');
+		exec(`${resolved.command} ${resolved.args.join(' ')}`, (error) => {
+			if (error) {
+				reject(error);
+			} else {
+				resolve();
+			}
+		});
+	});
+}
+
+/**
  * Main init command implementation
  */
 export async function init(options: InitCommandOptions): Promise<void> {
@@ -391,6 +573,8 @@ export async function init(options: InitCommandOptions): Promise<void> {
 			typescript,
 			name: options.name,
 			debug: options.debug || false,
+			installAddOns: options.noAddOns ? [] : [], // Skip add-ons in quick mode
+			installDependencies: !options.noInstall,
 		});
 
 		return;
@@ -417,8 +601,27 @@ export async function init(options: InitCommandOptions): Promise<void> {
 		preSelectedTypescript = !options.noTypescript; // Convert --no-typescript to false
 	}
 
+	// Determine pre-selected add-ons value from CLI flags
+	let preSelectedAddOns: boolean | undefined;
+	if (options.noAddOns !== undefined) {
+		preSelectedAddOns = !options.noAddOns; // Convert --no-add-ons to false
+	}
+
+	// Determine pre-selected install dependencies value from CLI flags
+	let preSelectedInstall: boolean | undefined;
+	if (options.noInstall !== undefined) {
+		preSelectedInstall = !options.noInstall; // Convert --no-install to false
+	}
+
 	// Default behavior: use browse functionality (with optional pre-selected values)
-	await browseAndSelectTemplate(options, preSelectedType, preSelectedFramework, preSelectedTypescript);
+	await browseAndSelectTemplate(
+		options,
+		preSelectedType,
+		preSelectedFramework,
+		preSelectedTypescript,
+		preSelectedAddOns,
+		preSelectedInstall,
+	);
 }
 
 /**
@@ -457,6 +660,8 @@ async function browseAndSelectTemplate(
 	preSelectedType?: string,
 	preSelectedFramework?: string,
 	preSelectedTypescript?: boolean,
+	preSelectedAddOns?: boolean,
+	preSelectedInstall?: boolean,
 ): Promise<void> {
 	try {
 		const allExamples = getAvailableExamples();
@@ -651,6 +856,45 @@ async function browseAndSelectTemplate(
 			}
 		}
 
+		let selectedAddOns: string[] = [];
+
+		// If add-ons installation is pre-selected via CLI flags, use it; otherwise ask the user
+		if (preSelectedAddOns !== undefined) {
+			// If CLI flag is false, skip add-ons
+			if (!preSelectedAddOns) {
+				selectedAddOns = [];
+			} else {
+				// If CLI flag is true, we could install some recommended add-ons
+				// For now, we'll skip automatic selection and let the user choose
+				selectedAddOns = [];
+			}
+		} else {
+			try {
+				// Use multi-select interface for add-ons
+				selectedAddOns = await multiSelectAddOns();
+			} catch (error) {
+				outro(chalk.gray('Operation cancelled.'));
+				process.exit(0);
+			}
+		}
+
+		let installDependencies: boolean;
+
+		// If dependency installation is pre-selected via CLI flags, use it; otherwise ask the user
+		if (preSelectedInstall !== undefined) {
+			installDependencies = preSelectedInstall;
+		} else {
+			try {
+				installDependencies = await confirm({
+					message: 'Install dependencies?',
+					initialValue: true,
+				});
+			} catch (error) {
+				outro(chalk.gray('Operation cancelled.'));
+				process.exit(0);
+			}
+		}
+
 		// Generate project name
 		const templateExample = selectedTemplate as Example;
 		const exampleName = templateExample.metadata.name || templateExample.name;
@@ -679,6 +923,8 @@ async function browseAndSelectTemplate(
 			name: projectName,
 			selectedExample: templateExample,
 			debug: options.debug || false,
+			installAddOns: selectedAddOns,
+			installDependencies: installDependencies,
 		});
 	} catch (error) {
 		// Handle user cancellation gracefully
@@ -823,6 +1069,8 @@ async function createFromSpecificTemplate(options: InitCommandOptions): Promise<
 			name: defaultName,
 			selectedExample: selectedTemplate,
 			debug: options.debug || false,
+			installAddOns: options.noAddOns ? [] : [], // Skip add-ons in quick mode
+			installDependencies: !options.noInstall,
 		});
 	} catch (error) {
 		// Handle user cancellation gracefully
@@ -858,8 +1106,19 @@ async function createProjectFromOptions(params: {
 	name: string;
 	selectedExample?: Example;
 	debug: boolean;
+	installAddOns?: string[];
+	installDependencies?: boolean;
 }): Promise<void> {
-	const { type, framework, typescript, name, selectedExample, debug } = params;
+	const {
+		type,
+		framework,
+		typescript,
+		name,
+		selectedExample,
+		debug,
+		installAddOns = [],
+		installDependencies = true,
+	} = params;
 
 	const s = spinner();
 	s.start('Creating project...');
@@ -929,15 +1188,91 @@ async function createProjectFromOptions(params: {
 			configFileName: 'template.json',
 		});
 
-		// Clear spinner and show success message with next steps in a single box
+		// Clear spinner
 		s.stop();
 
-		const successMessage = [
-			'Next steps:',
-			`  ${chalk.cyan(`cd ${name}`)}`,
-			`  ${chalk.cyan('npm install')}`,
-			`  ${chalk.cyan('npm run dev')}`,
-		].join('\n');
+		// Change to the project directory for dependency installation
+		const originalCwd = process.cwd();
+		process.chdir(destDir);
+
+		try {
+			// Handle add-ons installation if requested
+			let addOnDependencies: string[] = [];
+			let addOnDevDependencies: string[] = [];
+
+			if (installAddOns.length > 0) {
+				try {
+					// Use the add command logic to install recommended add-ons
+					const { dependencies, devDependencies } = await installRecommendedAddOns(installAddOns);
+					addOnDependencies = dependencies;
+					addOnDevDependencies = devDependencies;
+				} catch (error) {
+					console.log(
+						createBox(undefined, {
+							type: 'error',
+							title: 'Add-ons Installation Error',
+						}),
+					);
+					console.error(
+						chalk.yellow('Warning: Failed to configure add-ons, but project was created successfully.'),
+					);
+					if (debug) {
+						console.error(error);
+					}
+				}
+			}
+
+			// Install dependencies if requested
+			if (installDependencies) {
+				const installSpinner = createSpinner();
+
+				if (addOnDependencies.length > 0 || addOnDevDependencies.length > 0) {
+					// Install template dependencies first, then add-on dependencies
+					installSpinner.start('Installing template dependencies...');
+					await installProjectDependencies();
+					installSpinner.stop();
+
+					installSpinner.start('Installing add-on dependencies...');
+					await installSpecificDependencies(addOnDependencies, addOnDevDependencies);
+					installSpinner.stop();
+				} else {
+					// Only install template dependencies
+					installSpinner.start('Installing dependencies...');
+					await installProjectDependencies();
+					installSpinner.stop();
+				}
+			}
+		} catch (error) {
+			console.log(
+				createBox(undefined, {
+					type: 'error',
+					title: 'Dependency Installation Error',
+				}),
+			);
+			console.error(
+				chalk.yellow('Warning: Failed to install dependencies, but project was created successfully.'),
+			);
+			if (debug) {
+				console.error('Detailed error:', error);
+			} else {
+				console.error('Run with --debug flag for more details.');
+			}
+		} finally {
+			// Change back to original directory
+			process.chdir(originalCwd);
+		}
+
+		// Build success message with next steps
+		const nextSteps = ['Next steps:', `  ${chalk.cyan(`cd ${name}`)}`];
+
+		// Only show npm install if dependencies weren't already installed
+		if (!installDependencies) {
+			nextSteps.push(`  ${chalk.cyan('npm install')}`);
+		}
+
+		nextSteps.push(`  ${chalk.cyan('npm run dev')}`);
+
+		const successMessage = nextSteps.join('\n');
 
 		console.log(
 			createBox(successMessage, {
