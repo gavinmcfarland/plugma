@@ -26,8 +26,8 @@ This command creates a new Figma plugin project with your chosen framework, incl
 
 ## Requirements
 
--   [Node.js](https://nodejs.org/en)
--   [Figma desktop app](https://www.figma.com/downloads/)
+- [Node.js](https://nodejs.org/en)
+- [Figma desktop app](https://www.figma.com/downloads/)
 
 ## License
 

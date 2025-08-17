@@ -82,19 +82,14 @@ program
 program
 	.command('init')
 	.description('Create a new Figma plugin project')
-
-	// Project Type Options
-	.option('--plugin', 'Create a plugin project')
-	.option('--widget', 'Create a widget project')
+	.argument('[type]', 'Project type: plugin or widget')
+	.argument('[framework]', 'UI framework: react, svelte, vue, or no-ui')
 
 	// Template Options
 	.option('--template <template>', 'Use a specific template (e.g., rectangle-creator, blank)')
 
-	// Framework Options (add your new framework flags here)
+	// Framework Options (keep --framework for backward compatibility)
 	.option('--framework <framework>', 'UI framework (e.g., React, Svelte, Vue)')
-	.addOption(new Option('--react', 'Use React framework').hideHelp())
-	.addOption(new Option('--svelte', 'Use Svelte framework').hideHelp())
-	.addOption(new Option('--vue', 'Use Vue framework').hideHelp())
 
 	// Project Configuration
 	.option('--name <name>', 'Project name')
@@ -104,9 +99,51 @@ program
 	.option('--no-install', 'Skip installing dependencies')
 	.option('-d, --debug', 'Enable debug mode', DEFAULT_OPTIONS.debug)
 
-	.action(async function (this: Command, options: Partial<InitCommandOptions>) {
+	.action(async function (
+		this: Command,
+		type: string | undefined,
+		framework: string | undefined,
+		options: Partial<InitCommandOptions>,
+	) {
+		// Convert positional arguments to options format for backward compatibility
+		const enhancedOptions = { ...options };
+
+		// Handle type argument
+		if (type) {
+			if (type === 'plugin') {
+				enhancedOptions.plugin = true;
+			} else if (type === 'widget') {
+				enhancedOptions.widget = true;
+			} else {
+				console.error(chalk.red(`Invalid project type: "${type}". Expected "plugin" or "widget".`));
+				process.exit(1);
+			}
+		}
+
+		// Handle framework argument
+		if (framework) {
+			const normalizedFramework = framework.toLowerCase();
+			if (normalizedFramework === 'react') {
+				enhancedOptions.react = true;
+				enhancedOptions.framework = 'React';
+			} else if (normalizedFramework === 'svelte') {
+				enhancedOptions.svelte = true;
+				enhancedOptions.framework = 'Svelte';
+			} else if (normalizedFramework === 'vue') {
+				enhancedOptions.vue = true;
+				enhancedOptions.framework = 'Vue';
+			} else if (normalizedFramework === 'no-ui') {
+				enhancedOptions.noUi = true;
+			} else {
+				console.error(
+					chalk.red(`Invalid framework: "${framework}". Expected "react", "svelte", "vue", or "no-ui".`),
+				);
+				process.exit(1);
+			}
+		}
+
 		await init(
-			createOptions<'init'>(options, {
+			createOptions<'init'>(enhancedOptions, {
 				command: 'init',
 			}),
 		);
@@ -114,16 +151,17 @@ program
 	.addHelpText(
 		'after',
 		`
-Framework Shortcuts:
-  --react              Equivalent to --framework React
-  --svelte             Equivalent to --framework Svelte
-  --vue                Equivalent to --framework Vue
+Framework Options:
+  react                Use React framework
+  svelte               Use Svelte framework
+  vue                  Use Vue framework
+  no-ui                No UI (plugins only)
 
 Examples:
-  plugma init --plugin --name my-plugin --no-ui
-  plugma init --widget --react --no-add-ons
-  plugma init --template rectangle-creator --svelte --no-install
-  plugma init --plugin --name my-plugin --no-add-ons --no-install
+  plugma init plugin react --name my-plugin
+  plugma init widget svelte --no-add-ons
+  plugma init plugin no-ui --name my-plugin
+  plugma init plugin --template rectangle-creator --framework svelte
   plugma init
   `,
 	);
