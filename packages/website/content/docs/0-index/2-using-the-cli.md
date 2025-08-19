@@ -40,6 +40,9 @@ plugma create [type?] [framework?] [options]
 ```bash
 # Create a react plugin with the defaults
 plugma create plugin react --yes
+
+# Create a widget using JavaScript with no UI using the defaults
+plugma create widget --yes --no-ts
 ```
 
 <details>
