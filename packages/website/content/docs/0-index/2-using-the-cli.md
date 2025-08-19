@@ -33,12 +33,13 @@ plugma create [type?] [framework?] [options]
 - `--no-ui`: No UI
 - `--no-add-ons`: Skip installing add-ons
 - `--no-install`: Skip installing dependencies
+- `--install <pkg-manager>`: Install dependencies using a certain package manager
 
 ##### Example
 
 ```bash
-# Start development server on port 3000
-plugma dev -p 3000
+# Create a react plugin with the defaults
+plugma create plugin react --yes
 ```
 
 <details>
