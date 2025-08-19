@@ -76,7 +76,7 @@ async function multiSelectAddOns(): Promise<string[]> {
 
 	try {
 		const selectedAddOns = await checkbox({
-			message: 'Select add-ons to install (space to select, enter to confirm):',
+			message: 'Choose add-ons:',
 			choices: availableIntegrations,
 			pageSize: 10,
 			loop: true,
@@ -839,23 +839,6 @@ async function browseAndSelectTemplate(
 			}
 		}
 
-		let typescript: boolean;
-
-		// If TypeScript is pre-selected via CLI flags, use it; otherwise ask the user
-		if (preSelectedTypescript !== undefined) {
-			typescript = preSelectedTypescript;
-		} else {
-			try {
-				typescript = await confirm({
-					message: 'Use TypeScript?',
-					initialValue: true,
-				});
-			} catch (error) {
-				outro(chalk.gray('Operation cancelled.'));
-				process.exit(0);
-			}
-		}
-
 		let selectedAddOns: string[] = [];
 
 		// If add-ons installation is pre-selected via CLI flags, use it; otherwise ask the user
@@ -872,6 +855,23 @@ async function browseAndSelectTemplate(
 			try {
 				// Use multi-select interface for add-ons
 				selectedAddOns = await multiSelectAddOns();
+			} catch (error) {
+				outro(chalk.gray('Operation cancelled.'));
+				process.exit(0);
+			}
+		}
+
+		let typescript: boolean;
+
+		// If TypeScript is pre-selected via CLI flags, use it; otherwise ask the user
+		if (preSelectedTypescript !== undefined) {
+			typescript = preSelectedTypescript;
+		} else {
+			try {
+				typescript = await confirm({
+					message: 'Use TypeScript?',
+					initialValue: true,
+				});
 			} catch (error) {
 				outro(chalk.gray('Operation cancelled.'));
 				process.exit(0);
