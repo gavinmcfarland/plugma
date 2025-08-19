@@ -12,6 +12,39 @@ When using the commands with `npm run` you need to pass the arguments with a dou
 
 <summary>
 
+### create
+
+</summary>
+
+Walks you through creating a Figma plugin or widget.
+
+##### Usage
+
+```bash
+plugma create [type?] [framework?] [options]
+```
+
+##### Options
+
+- `--template <template>`: Use a specific template
+- `--framework <framework>`: UI framework
+- `--name <name>`: Project name
+- `--no-ts`: Use JavaScript instead of TypeScript
+- `--no-ui`: No UI
+- `--no-add-ons`: Skip installing add-ons
+- `--no-install`: Skip installing dependencies
+
+##### Example
+
+```bash
+# Start development server on port 3000
+plugma dev -p 3000
+```
+
+<details>
+
+<summary>
+
 ### dev
 
 </summary>
