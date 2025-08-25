@@ -206,7 +206,7 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 			write: true,
 			watch: null,
 			target: 'es6',
-			sourcemap: 'inline',
+			sourcemap: options.command === 'build' && !options.watch ? false : 'inline',
 			minify: options.command === 'build' && !options.watch,
 			lib: {
 				name: 'plugmaMain',
