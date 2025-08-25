@@ -23,7 +23,7 @@ async function postNodeCount() {
 	figma.ui.postMessage({ type: 'POST_NODE_COUNT', count: nodeCount });
 }
 
-function on(event: string, handler: (...args: any[]) => void) {
+function on(event: any, handler: (...args: any[]) => void) {
 	figma.ui.on(event, handler);
 }
 

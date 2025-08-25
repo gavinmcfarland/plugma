@@ -208,16 +208,16 @@ export function createViteConfigs(options: any, userFiles: UserFiles): ViteConfi
 			target: 'es6',
 			sourcemap: 'inline',
 			minify: options.command === 'build' && !options.watch,
+			lib: {
+				name: 'plugmaMain',
+				entry: tempFilePath,
+				formats: ['iife'],
+				fileName: () => 'main.js',
+			},
 			rollupOptions: {
-				input: tempFilePath,
 				output: {
 					entryFileNames: 'main.js',
 					inlineDynamicImports: true,
-					format: 'es',
-					generatedCode: {
-						constBindings: true,
-						objectShorthand: true,
-					},
 				},
 				external: ['figma'],
 			},
