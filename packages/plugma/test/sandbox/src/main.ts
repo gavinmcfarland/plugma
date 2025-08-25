@@ -5,76 +5,27 @@
 // 	handleTestMessage(message);
 // });
 
-import { customTest } from './customTest'
+// import { customTest } from './customTest'
 
-customTest()
+// customTest()
 
-export default function () {
+export function main() {
 	// console.clear()
 
-	figma.showUI(__html__, { width: 300, height: 260, themeColors: true })
+	figma.showUI(__html__, { width: 300, height: 260, themeColors: true });
 
-	figma.ui.postMessage({ type: 'PLUGIN_OPENED' })
-
-	figma.on('drop', (event) => {
-		const { files, node, dropMetadata } = event
-
-		if (files.length > 0 && files[0].type === 'image/svg+xml') {
-			files[0].getTextAsync().then((text) => {
-				if (dropMetadata.parentingStrategy === 'page') {
-					const newNode = figma.createNodeFromSvg(text)
-					newNode.x = event.absoluteX
-					newNode.y = event.absoluteY
-
-					figma.currentPage.selection = [newNode]
-				} else if (dropMetadata.parentingStrategy === 'immediate') {
-					const newNode = figma.createNodeFromSvg(text)
-
-					// We can only append page nodes to documents
-					if ('appendChild' in node && node.type !== 'DOCUMENT') {
-						node.appendChild(newNode)
-					}
-
-					newNode.x = event.x
-					newNode.y = event.y
-
-					figma.currentPage.selection = [newNode]
-				}
-			})
-
-			return false
-		}
-	})
-
-	figma.ui.onmessage = async (message) => {
-		// if (message?.event !== 'ping' && message?.event !== 'pong') {
-		// 	console.log('[FIGMA MAIN] Received message:', message)
-		// }
-
-		if (message.type === 'CREATE_RECTANGLES') {
-			let i = 0
-
-			const rectangles = []
-			while (i < message.count) {
-				const rect = figma.createRectangle()
-				rect.x = i * 150
-				rect.y = 0
-				rect.resize(100, 100)
-				rect.fills = [{ type: 'SOLID', color: { r: Math.random(), g: Math.random(), b: Math.random() } }] // Random color
-				rectangles.push(rect)
-
-				i++
-			}
-
-			figma.viewport.scrollAndZoomIntoView(rectangles)
-		}
-	}
-
-	function postNodeCount() {
-		const nodeCount = figma.currentPage.selection.length
-
-		figma.ui.postMessage({ type: 'POST_NODE_COUNT', count: nodeCount })
-	}
-
-	figma.on('selectionchange', postNodeCount)
+	figma.ui.postMessage({ type: 'PLUGIN_OPENED' });
 }
+
+async function postNodeCount() {
+	const nodeCount = figma.currentPage.selection.length;
+
+	figma.ui.postMessage({ type: 'POST_NODE_COUNT', count: nodeCount });
+}
+
+function on(event: string, handler: (...args: any[]) => void) {
+	figma.ui.on(event, handler);
+}
+
+on('LICENSE_ACTIVATED_FROM_UI', async (licenseKey, isValid) => {});
+export default main();
