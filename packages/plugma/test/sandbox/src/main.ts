@@ -27,5 +27,6 @@ function on(event: string, handler: (...args: any[]) => void) {
 	figma.ui.on(event, handler);
 }
 
+// When async function is used in this example, Vite outputs export. Without this code below it builds normally as a plain function.
 on('LICENSE_ACTIVATED_FROM_UI', async (licenseKey, isValid) => {});
 export default main();
