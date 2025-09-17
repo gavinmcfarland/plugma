@@ -24,5 +24,11 @@
 		"node": ">=20.17.0",
 		"pnpm": ">=9.10.0",
 		"npm": "forbidden, use pnpm"
+	},
+	"pnpm": {
+		"overrides": {
+			"prettier-plugin-svelte": "^3.4.0",
+			"svelte": "^5.0.0"
+		}
 	}
 }

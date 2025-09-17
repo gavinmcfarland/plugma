@@ -5,17 +5,19 @@
         href?: string;
         target?: string;
         style?: string;
-        onclick?: () => void;
+        onClick?: () => void;
 	}
 
-	let { children, href, target, style, onclick }: Props = $props();
+	let { children, href, target, style, onClick }: Props = $props();
 </script>
 
 {#if href}
-	<a class="Button" {href} {target} {style} {onclick}>{@render children()}</a>
+	<a class="Button" {href} {target} {style} {onClick}>
+		{@render children?.()}
+	</a>
 {:else}
-	<button class="Button" {style} {onclick}>
-		{@render children()}
+	<button class="Button" {style} {onClick}>
+		{@render children?.()}
 	</button>
 {/if}
 
