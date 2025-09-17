@@ -26,7 +26,7 @@ For full documentation see [plugma.dev](https://next.plugma.dev/).
 Create a new plugin from a template:
 
 ```bash
-npm create plugma@next
+npx plugma create
 ```
 
 Supported frameworks:
@@ -34,7 +34,6 @@ Supported frameworks:
 - React
 - Svelte
 - Vue
-- Vanilla JavaScript
 
 ## Installation
 
@@ -54,9 +53,9 @@ npm install -g plugma
 
 | Command          | Description                       |
 | ---------------- | --------------------------------- |
+| `plugma create`  | Create a plugin or widget         |
 | `plugma dev`     | Start development server with HMR |
 | `plugma build`   | Create production build           |
-| `plugma preview` | Preview plugin in browser         |
 | `plugma release` | Build and release to GitHub       |
 | `plugma add`     | Add integrations to your plugin   |
 
