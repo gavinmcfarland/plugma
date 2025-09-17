@@ -18,6 +18,12 @@ npm create plugma@latest
 
 The frameworks currently supported are `React`, `Svelte`, `Vue` and vanilla `JavaScript`.
 
+> [!WARNING] > **Early Access** - Try the next release:
+>
+> ```bash
+> npx plugma@next create
+> ```
+
 ## Installation
 
 Add Plugma as a project dependency:
@@ -34,17 +40,17 @@ npm install -g plugma
 
 ## Commands
 
--   `plugma dev`: Start a server to develop your plugin.
--   `plugma build`: Create a build before publishing.
--   `plugma preview`: Preview the plugin in a browser preview.
--   `plugma release`: Build the plugin and release to GitHub.
+- `plugma dev`: Start a server to develop your plugin.
+- `plugma build`: Create a build before publishing.
+- `plugma preview`: Preview the plugin in a browser preview.
+- `plugma release`: Build the plugin and release to GitHub.
 
 Run `plugma --help` for a full list of the options.
 
 ## Requirements
 
--   [Node.js](https://nodejs.org/en)
--   [Figma desktop app](https://www.figma.com/downloads/)
+- [Node.js](https://nodejs.org/en)
+- [Figma desktop app](https://www.figma.com/downloads/)
 
 ## License
 
