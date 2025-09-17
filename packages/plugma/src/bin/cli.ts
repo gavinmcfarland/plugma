@@ -10,14 +10,14 @@ import {
 	PreviewCommandOptions,
 	ReleaseCommandOptions,
 	AddCommandOptions,
-	InitCommandOptions,
+	CreateCommandOptions,
 } from '../utils/create-options.js';
 
 import { readPlugmaPackageJson } from '../utils/fs/read-json.js';
 
 import { Command, Option } from 'commander';
 
-import { build, dev, init } from '../commands/index.js';
+import { build, dev, create } from '../commands/index.js';
 import { colorStringify, debugLogger, defaultLogger } from '../utils/index.js';
 import chalk from 'chalk';
 import { add } from '../commands/add.js';
@@ -78,9 +78,9 @@ program
 	.version(version, '-v, --version', 'Output the current version')
 	.addHelpText('beforeAll', `${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}`)}\n`);
 
-// Init Command
+// Create Command
 program
-	.command('init')
+	.command('create')
 	.description('Create a new Figma plugin or widget')
 	.argument('[type]', 'Project type: plugin or widget')
 	.argument('[framework]', 'UI framework: react, svelte, vue, or no-ui')
@@ -103,7 +103,7 @@ program
 		this: Command,
 		type: string | undefined,
 		framework: string | undefined,
-		options: Partial<InitCommandOptions>,
+		options: Partial<CreateCommandOptions>,
 	) {
 		// Convert positional arguments to options format for backward compatibility
 		const enhancedOptions = { ...options };
@@ -142,9 +142,9 @@ program
 			}
 		}
 
-		await init(
-			createOptions<'init'>(enhancedOptions, {
-				command: 'init',
+		await create(
+			createOptions<'create'>(enhancedOptions, {
+				command: 'create',
 			}),
 		);
 	})
@@ -158,11 +158,11 @@ Framework Options:
   no-ui                No UI (plugins only)
 
 Examples:
-  plugma init plugin react --name my-plugin
-  plugma init widget svelte --no-add-ons
-  plugma init plugin no-ui --name my-plugin
-  plugma init plugin --template rectangle-creator --framework svelte
-  plugma init
+  plugma create plugin react --name my-plugin
+  plugma create widget svelte --no-add-ons
+  plugma create plugin no-ui --name my-plugin
+  plugma create plugin --template rectangle-creator --framework svelte
+  plugma create
   `,
 	);
 

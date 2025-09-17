@@ -71,8 +71,8 @@ export interface CommandOptions {
 		command: 'add';
 		integration?: string;
 	};
-	init: MinimalBaseOptions & {
-		command: 'init';
+	create: MinimalBaseOptions & {
+		command: 'create';
 		name?: string;
 		plugin?: boolean;
 		widget?: boolean;
@@ -95,7 +95,7 @@ export type PreviewCommandOptions = CommandOptions['preview'];
 export type TestCommandOptions = CommandOptions['test'];
 export type ReleaseCommandOptions = CommandOptions['release'];
 export type AddCommandOptions = CommandOptions['add'];
-export type InitCommandOptions = CommandOptions['init'];
+export type CreateCommandOptions = CommandOptions['create'];
 
 // User-provided options
 export type UserOptions = {

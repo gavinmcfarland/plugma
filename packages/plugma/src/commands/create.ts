@@ -1,5 +1,5 @@
 /**
- * Initialize a new Figma plugin project
+ * Create a new Figma plugin project
  * Ported from create-plugma package to unify CLI commands
  */
 
@@ -16,7 +16,7 @@ import chalk from 'chalk';
 import stripTS from '@combino/plugin-strip-ts';
 import ejsMate from '@combino/plugin-ejs-mate';
 import rebase from '@combino/plugin-rebase';
-import { InitCommandOptions } from '../utils/create-options.js';
+import { CreateCommandOptions } from '../utils/create-options.js';
 import { createDebugAwareLogger } from '../utils/debug-aware-logger.js';
 import { createSpinner, createBox } from '../utils/cli/spinner.js';
 
@@ -435,7 +435,7 @@ async function installRecommendedAddOns(
 				const integration = INTEGRATIONS[addOnKey as keyof typeof INTEGRATIONS];
 				const result = await runIntegration(integration, {
 					name: integration.name,
-					prefixPrompts: false, // Don't prefix prompts since we're in the init flow
+					prefixPrompts: false, // Don't prefix prompts since we're in the create flow
 				});
 
 				if (result) {
@@ -537,9 +537,9 @@ async function installSpecificDependencies(dependencies: string[], devDependenci
 }
 
 /**
- * Main init command implementation
+ * Main create command implementation
  */
-export async function init(options: InitCommandOptions): Promise<void> {
+export async function create(options: CreateCommandOptions): Promise<void> {
 	const logger = createDebugAwareLogger(options.debug);
 
 	// Handle specific template option
@@ -655,7 +655,7 @@ function groupExamplesByType(examples: Example[]): Record<string, Example[]> {
  * Browse and select template interactively
  */
 async function browseAndSelectTemplate(
-	options: InitCommandOptions,
+	options: CreateCommandOptions,
 	preSelectedType?: string,
 	preSelectedFramework?: string,
 	preSelectedTypescript?: boolean,
@@ -940,7 +940,7 @@ async function browseAndSelectTemplate(
 /**
  * Create project from specific template name
  */
-async function createFromSpecificTemplate(options: InitCommandOptions): Promise<void> {
+async function createFromSpecificTemplate(options: CreateCommandOptions): Promise<void> {
 	try {
 		const allExamples = getAvailableExamples();
 		const templateName = options.template!;
@@ -962,7 +962,7 @@ async function createFromSpecificTemplate(options: InitCommandOptions): Promise<
 				console.log(`  ${chalk.green(example.name)} - ${example.metadata.description || 'No description'}`);
 			}
 			console.log(
-				chalk.yellow('\nTip: Run "plugma init" without --template to see all templates interactively.'),
+				chalk.yellow('\nTip: Run "plugma create" without --template to see all templates interactively.'),
 			);
 			process.exit(1);
 		}
