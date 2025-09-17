@@ -81,7 +81,7 @@ program
 // Init Command
 program
 	.command('init')
-	.description('Create a new Figma plugin project')
+	.description('Create a new Figma plugin or widget')
 	.argument('[type]', 'Project type: plugin or widget')
 	.argument('[framework]', 'UI framework: react, svelte, vue, or no-ui')
 
@@ -320,6 +320,7 @@ Examples:
 program
 	.command('add')
 	.argument('[integration]', 'Integration to add')
+	.description('Add external integrations to your plugin')
 	.option(
 		'-c, --config <json>',
 		'Specify a JSON configuration object for testing and debugging',
