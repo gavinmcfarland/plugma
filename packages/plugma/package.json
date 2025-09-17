@@ -12,7 +12,8 @@
 		"dist",
 		"migration",
 		"templates",
-		"test"
+		"test",
+		"versions.json"
 	],
 	"scripts": {
 		"build:apps": "./build/build-all-apps.sh",

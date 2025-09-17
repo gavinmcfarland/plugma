@@ -8,7 +8,7 @@ const execAsync = promisify(exec);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const versionsFilePath = resolve(__dirname, '../../create-plugma', 'versions.json');
+const versionsFilePath = resolve(__dirname, '../versions.json');
 
 // Read from CLI arg or fallback to 'latest'
 const DIST_TAG = process.argv[2] || process.env.DIST_TAG || 'latest';

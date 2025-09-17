@@ -8,7 +8,6 @@
 		"build": "tsc -p tsconfig.build.json",
 		"dev": "tsc -p tsconfig.build.json --watch",
 		"test": "echo \"Error: no test specified\"",
-		"bump-versions": "node dist/scripts/bump-plugma-version.js",
 		"prepublishOnly": "npm run build",
 		"format:templates": "prettier --write templates/**/*.{js,ts,jsx,tsx,json,md}"
 	},
@@ -18,7 +17,6 @@
 	"files": [
 		"dist",
 		"templates",
-		"versions.json",
 		"config"
 	],
 	"author": "",
