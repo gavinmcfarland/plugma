@@ -199,14 +199,14 @@ function getTemplatesPath(): string {
 		const createPlugmaPath = require.resolve('create-plugma/package.json');
 		const createPlugmaDir = path.dirname(createPlugmaPath);
 		const templatesPath = path.join(createPlugmaDir, 'templates');
-		
+
 		if (fs.existsSync(templatesPath)) {
 			return templatesPath;
 		}
 	} catch (error) {
 		// Fall back to development path if create-plugma is not found in node_modules
 	}
-	
+
 	// Fallback: In development, we need to reference the create-plugma templates
 	// This assumes create-plugma is a sibling package
 	const currentDir = dirname(fileURLToPath(import.meta.url));
