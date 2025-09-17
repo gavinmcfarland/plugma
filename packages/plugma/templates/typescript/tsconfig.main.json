@@ -1,0 +1,9 @@
+{
+	"compilerOptions": {
+		"composite": true,
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"typeRoots": ["<%= rebase('node_modules/@figma') %>", "<%= rebase('node_modules/@types') %>"]
+	},
+	"include": ["**/*.ts", "<%= rebase('vite-env.d.ts', { locate: true }) %>"]
+}

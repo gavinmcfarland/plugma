@@ -1,0 +1,15 @@
+{
+    "meta": {
+        "name": "Document Change",
+        "description": "A widget that logs document changes",
+        "type": "widget"
+    },
+    "include": [
+        "../../base"
+    ],
+    "exclude": ["../../base/src/ui/vite-env.d.ts", "../../base/tsconfig.ui.json"],
+    "data": {
+        "description": "A sticky notes widget for Figma",
+        "attribution": "This example is adapted from the official [Figma widget samples](https://github.com/figma/widget-samples)."
+    }
+}

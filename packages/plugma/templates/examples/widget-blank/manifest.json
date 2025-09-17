@@ -1,0 +1,8 @@
+{
+    "id": "com.<%- name %>",
+	"name": "<%- name %>",
+    "main": "<%- mainDir %>/main.<%- typescript ? 'tsx' : 'jsx' %>",
+    "editorType": ["figma", "figjam"],
+    "containsWidget": true,
+    "widgetApi": "1.0.0"
+}

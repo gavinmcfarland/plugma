@@ -12,7 +12,6 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createRequire } from 'node:module';
 import chalk from 'chalk';
 import stripTS from '@combino/plugin-strip-ts';
 import ejsMate from '@combino/plugin-ejs-mate';
@@ -190,27 +189,12 @@ interface TemplateData {
 }
 
 /**
- * Get the create-plugma template directory path
+ * Get the plugma template directory path
  */
 function getTemplatesPath(): string {
-	// Try to find create-plugma package in node_modules first
-	try {
-		const require = createRequire(import.meta.url);
-		const createPlugmaPath = require.resolve('create-plugma/package.json');
-		const createPlugmaDir = path.dirname(createPlugmaPath);
-		const templatesPath = path.join(createPlugmaDir, 'templates');
-
-		if (fs.existsSync(templatesPath)) {
-			return templatesPath;
-		}
-	} catch (error) {
-		// Fall back to development path if create-plugma is not found in node_modules
-	}
-
-	// Fallback: In development, we need to reference the create-plugma templates
-	// This assumes create-plugma is a sibling package
+	// Templates are now included in the plugma package itself
 	const currentDir = dirname(fileURLToPath(import.meta.url));
-	return path.join(currentDir, '..', '..', '..', 'create-plugma', 'templates');
+	return path.join(currentDir, '..', '..', 'templates');
 }
 
 /**

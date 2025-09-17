@@ -1,0 +1,15 @@
+{
+    "meta": {
+        "name": "Blank",
+		"description": "A blank widget to start from the ground up",
+        "type": "widget",
+		"rank": 1000
+    },
+    "include": [
+        "../../base"
+    ],
+    "exclude": ["../../base/src/ui/vite-env.d.ts", "../../base/tsconfig.ui.json"],
+    "data": {
+        "description": "A sticky notes widget for Figma"
+    }
+}

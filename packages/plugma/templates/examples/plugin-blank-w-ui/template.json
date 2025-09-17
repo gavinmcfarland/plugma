@@ -1,0 +1,12 @@
+{
+	"meta": {
+		"name": "Blank",
+		"description": "A blank plugin to start from the ground up",
+		"type": "plugin",
+		"uiFrameworks": ["svelte", "vue", "react"],
+		"rank": 1000
+	},
+	"include": [
+		"../../base"
+	]
+}

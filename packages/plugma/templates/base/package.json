@@ -1,0 +1,14 @@
+{
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "plugma dev",
+		"build": "plugma build",
+		"release": "plugma release"
+	},
+	"devDependencies": {
+		"vite": "^5.4.10",
+		"@figma/plugin-typings": "^1.100.2",
+		"plugma": "^<%- versions.plugma %>"
+	}
+}
