@@ -1,16 +1,12 @@
-import type {
-  NormalizedOutputOptions,
-  OutputBundle,
-  OutputChunk,
-} from 'rollup';
+import type { NormalizedOutputOptions, OutputBundle, OutputChunk } from 'rollup';
 import type { Plugin } from 'vite';
 
 interface CustomFunctionsOptions {
-  /**
-   * Code to be prepended to the entry chunk
-   */
-  codeToPrepend?: string;
-  [key: string]: unknown;
+	/**
+	 * Code to be prepended to the entry chunk
+	 */
+	codeToPrepend?: string;
+	[key: string]: unknown;
 }
 
 /**
@@ -22,36 +18,31 @@ interface CustomFunctionsOptions {
  * @param options - Configuration options containing the code to prepend
  * @returns A Vite plugin configuration object
  */
-export function vitePluginInsertCustomFunctions(
-  options: CustomFunctionsOptions = {},
-): Plugin {
-  return {
-    name: 'vite-plugin-insert-custom-functions',
-    apply: 'build',
-    enforce: 'post', // Ensures this plugin runs after other plugins and transformations
+export function vitePluginInsertCustomFunctions(options: CustomFunctionsOptions = {}): Plugin {
+	return {
+		name: 'vite-plugin-insert-custom-functions',
+		apply: 'build',
+		enforce: 'post', // Ensures this plugin runs after other plugins and transformations
 
-    generateBundle(
-      outputOptions: NormalizedOutputOptions,
-      bundle: OutputBundle,
-    ): void {
-      const { codeToPrepend = '' } = options;
+		generateBundle(outputOptions: NormalizedOutputOptions, bundle: OutputBundle, isWrite: boolean): void {
+			const { codeToPrepend = '' } = options;
 
-      // Find the main entry chunk
-      let entryChunk: OutputChunk | undefined;
-      for (const fileName in bundle) {
-        const chunk = bundle[fileName];
-        if (chunk.type === 'chunk' && chunk.isEntry) {
-          entryChunk = chunk;
-          break; // Modify only the first main entry chunk
-        }
-      }
+			// Find the main entry chunk
+			let entryChunk: OutputChunk | undefined;
+			for (const fileName in bundle) {
+				const chunk = bundle[fileName];
+				if (chunk.type === 'chunk' && chunk.isEntry) {
+					entryChunk = chunk;
+					break; // Modify only the first main entry chunk
+				}
+			}
 
-      if (entryChunk && codeToPrepend) {
-        // Prepend the code to the entry chunk
-        entryChunk.code = codeToPrepend + entryChunk.code;
-      }
-    },
-  };
+			if (entryChunk && codeToPrepend) {
+				// Prepend the code to the entry chunk
+				entryChunk.code = codeToPrepend + entryChunk.code;
+			}
+		},
+	};
 }
 
 export default vitePluginInsertCustomFunctions;
