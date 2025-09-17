@@ -1,10 +1,10 @@
-import path from 'node:path'
+import path from 'node:path';
 
-import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { defineConfig } from 'vite'
-import { viteSingleFile } from 'vite-plugin-singlefile'
+import { svelte } from '@sveltejs/vite-plugin-svelte';
+import { defineConfig } from 'vite';
+import { viteSingleFile } from 'vite-plugin-singlefile';
 
-import { gatherBuildOutputs } from './gather-build-outputs'
+import { gatherBuildOutputs } from './gather-build-outputs';
 
 const apps = {
 	'dev-server': {
@@ -13,18 +13,18 @@ const apps = {
 	'figma-bridge': {
 		entry: 'figma-bridge/main.js',
 	},
-}
+};
 
-const app = process.env.PLUGMA_APP_NAME
+const app = process.env.PLUGMA_APP_NAME;
 
 if (!app) {
-	throw new Error('PLUGMA_APP_NAME environment variable is not defined')
+	throw new Error('PLUGMA_APP_NAME environment variable is not defined');
 }
 
-const appConfig = apps[app as keyof typeof apps]
+const appConfig = apps[app as keyof typeof apps];
 
 if (!appConfig) {
-	throw new Error(`Unknown app: ${app}. Available apps: ${Object.keys(apps).join(', ')}`)
+	throw new Error(`Unknown app: ${app}. Available apps: ${Object.keys(apps).join(', ')}`);
 }
 
 export default defineConfig({
@@ -55,7 +55,7 @@ export default defineConfig({
 		{
 			name: 'html-transform',
 			transform(html) {
-				return html.replace(/<% appId %>/g, app).replace(/<% entrypoint %>/g, `./${appConfig.entry}`)
+				return html.replace(/<% appId %>/g, app).replace(/<% entrypoint %>/g, `./${appConfig.entry}`);
 			},
 		},
 		viteSingleFile(),
@@ -73,4 +73,4 @@ export default defineConfig({
 	},
 
 	root: app,
-})
+});

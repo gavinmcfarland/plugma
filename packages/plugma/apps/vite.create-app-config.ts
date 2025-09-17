@@ -1,9 +1,9 @@
-import path from 'node:path'
+import path from 'node:path';
 
-import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte'
-import { viteSingleFile } from 'vite-plugin-singlefile'
+import { svelte, vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import { viteSingleFile } from 'vite-plugin-singlefile';
 
-import { gatherBuildOutputs } from './gather-build-outputs'
+import { gatherBuildOutputs } from './gather-build-outputs';
 
 export const createAppConfig = (app: string) => ({
 	build: {
@@ -45,4 +45,4 @@ export const createAppConfig = (app: string) => ({
 			'#vite-plugins': path.resolve(__dirname, '../src/vite-plugins'),
 		},
 	},
-})
+});
