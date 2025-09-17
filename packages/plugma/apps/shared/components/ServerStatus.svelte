@@ -1,8 +1,12 @@
 <script lang="ts">
-	export let message: string | null = null
-	export let isConnected: boolean = false
+	interface Props {
+		message?: string | null;
+		isConnected?: boolean;
+	}
 
-	$: displayMessage = isConnected ? message || 'Dev server active' : 'Dev server inactive'
+	let { message = null, isConnected = false }: Props = $props();
+
+	let displayMessage = $derived(isConnected ? message || 'Dev server active' : 'Dev server inactive')
 </script>
 
 <div id="plugma-status">

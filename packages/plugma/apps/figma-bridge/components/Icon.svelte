@@ -1,11 +1,21 @@
 <script lang="ts">
-	export let svg
-	export let color = 'currentColor'
-	export let opacity: number = 1
-	export let accentColor: null | string = null
 
-	export let size: number = 24
-	$: sizePx = `${size}px`
+	interface Props {
+		svg: any;
+		color?: string;
+		opacity?: number;
+		accentColor?: null | string;
+		size?: number;
+	}
+
+	let {
+		svg,
+		color = 'currentColor',
+		opacity = 1,
+		accentColor = null,
+		size = 24
+	}: Props = $props();
+	let sizePx = $derived(`${size}px`)
 </script>
 
 <div class="Icon">

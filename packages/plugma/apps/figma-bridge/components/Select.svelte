@@ -1,10 +1,18 @@
-<script>
+<script lang="ts">
+	import { createBubbler, handlers } from 'svelte/legacy';
+
+	const bubble = createBubbler();
 	import { isDeveloperToolsActive, pluginWindowSettings } from '../../shared/stores'
 	import Icon from './Icon.svelte'
 
-	// export let label = "Choose an option"; // Default label
-	export let options = [] // Array of options passed into the component
-	export let selected = '' // Bound value for selected option
+	
+	interface Props {
+		// export let label = "Choose an option"; // Default label
+		options?: any; // Array of options passed into the component
+		selected?: string; // Bound value for selected option
+	}
+
+	let { options = [], selected = $bindable('') }: Props = $props();
 
 	// Event handlers
 	function handleChange(event) {
@@ -96,7 +104,7 @@
 </script>
 
 <div class="Select">
-	<select class="Select" bind:value={selected} on:change={handleChange} on:change>
+	<select class="Select" bind:value={selected} onchange={handlers(handleChange, bubble('change'))}>
 		<option value="select-an-option" disabled selected>Select an option</option>
 		{#each options as option (option.value)}
 			{#if option.isDivider}

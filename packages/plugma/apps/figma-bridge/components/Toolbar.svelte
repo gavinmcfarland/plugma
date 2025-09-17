@@ -15,15 +15,15 @@
 	// console.log(dropdownWindow)
 	// dropdownWindow.document.write('<html><body>Dropdown content here...</body></html>')
 
-	let selectedFruit = ''
-	let menuItems = [
+	let selectedFruit = $state('')
+	let menuItems = $state([
 		{ value: 'MINIMIZE_WINDOW', label: 'Minimize window' },
 		// { isDivider: true }, // Divider here
 		{ value: 'DELETE_CLIENT_STORAGE', label: 'Delete client storage' },
 		{ value: 'DELETE_ROOT_PLUGIN_DATA', label: 'Delete root plugin data' },
 		// { isDivider: true }, // Divider here
 		{ value: 'HIDE_TOOLBAR', label: 'Hide toolbar' },
-	]
+	])
 
 	if ($pluginWindowSettings.minimized) {
 		menuItems[0] = { value: 'MAXIMIZE_WINDOW', label: 'Maximise window' }

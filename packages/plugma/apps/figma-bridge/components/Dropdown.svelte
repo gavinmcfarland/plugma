@@ -1,10 +1,16 @@
-<script>
+<script lang="ts">
 	import { onMount, onDestroy } from 'svelte'
+	interface Props {
+		trigger?: import('svelte').Snippet<[any]>;
+		content?: import('svelte').Snippet;
+	}
 
-	let isOpen = false
-	let dropdownMenu
-	let triggerElement
-	let position = { top: false, left: false, right: false, bottom: false }
+	let { trigger, content }: Props = $props();
+
+	let isOpen = $state(false)
+	let dropdownMenu = $state()
+	let triggerElement = $state()
+	let position = $state({ top: false, left: false, right: false, bottom: false })
 
 	function toggleDropdown() {
 		isOpen = !isOpen
@@ -58,15 +64,15 @@
 
 <div class="dropdown" class:open={isOpen}>
 	<!-- Bind this to triggerElement to avoid closing when clicking the trigger -->
-	<div bind:this={triggerElement} on:click={toggleDropdown}>
-		<slot name="trigger" {isOpen}></slot>
+	<div bind:this={triggerElement} onclick={toggleDropdown}>
+		{@render trigger?.({ isOpen, })}
 	</div>
 
 	<div
 		bind:this={dropdownMenu}
 		class="dropdown-menu {position.bottom ? 'top' : 'bottom'} {position.right ? 'left' : 'right'}"
 	>
-		<slot name="content"></slot>
+		{@render content?.()}
 	</div>
 </div>
 

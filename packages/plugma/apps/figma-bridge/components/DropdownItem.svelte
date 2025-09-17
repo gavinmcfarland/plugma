@@ -1,5 +1,10 @@
 <script script lang="ts">
 	import { createEventDispatcher } from 'svelte'
+	interface Props {
+		children?: import('svelte').Snippet;
+	}
+
+	let { children }: Props = $props();
 
 	const dispatch = createEventDispatcher()
 
@@ -8,8 +13,8 @@
 	}
 </script>
 
-<div class="DropdownItem" on:click={handleClick}>
-	<slot></slot>
+<div class="DropdownItem" onclick={handleClick}>
+	{@render children?.()}
 </div>
 
 <style>

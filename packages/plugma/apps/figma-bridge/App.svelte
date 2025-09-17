@@ -19,13 +19,13 @@
 	import { postFigmaStyles } from './lib/postFigmaStyles'
 	import { redirectIframe } from './lib/redirectIframe'
 	import { devServerIframe } from '../shared/stores'
-	let iframe: HTMLIFrameElement
+	let iframe: HTMLIFrameElement = $state()
 	const html = document.querySelector('html')
 
 	// @ts-ignore
 	let devServerUIUrl = `http://localhost:${window.runtimeData.port}`
 
-	let isServerActive = true
+	let isServerActive = $state(true)
 
 	wsEnabled.set(window.runtimeData.websockets)
 

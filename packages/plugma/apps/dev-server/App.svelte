@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { onMount } from 'svelte'
 
 	import { initializeWsClient } from '../shared/stores'
@@ -25,9 +27,9 @@
 	}
 
 	// Default to true to avoid flickering when browser first opens
-	let isWebsocketServerActive = true
+	let isWebsocketServerActive = $state(true)
 	let isWebsocketsEnabled = window.runtimeData.websockets || false
-	let isServerActive = false
+	let isServerActive = $state(false)
 
 	// @ts-ignore
 	let devServerUIUrl = `http://localhost:${window.runtimeData.port}`
@@ -97,9 +99,11 @@
 	overrideMessageEvent() // Only applies to browser preview context
 	// interceptDragEnd() // REVIEW: disabled for now because might not be very robust
 
-	$: monitorUrl(devServerUIUrl, (isDevServerActive: boolean) => {
-		isServerActive = isDevServerActive
-	})
+	run(() => {
+		monitorUrl(devServerUIUrl, (isDevServerActive: boolean) => {
+			isServerActive = isDevServerActive
+		})
+	});
 
 	onMount(async () => {
 		await triggerDeveloperTools()

@@ -1,18 +1,37 @@
-<svelte:options accessors />
+<svelte:options />
 
 <script lang="ts">
+	import { createBubbler } from 'svelte/legacy';
+
+	const bubble = createBubbler();
 	import { createEventDispatcher, onDestroy, onMount } from 'svelte'
 	import Icon from './Icon.svelte'
 
-	export let id: string | null = null
-	export let variant: string = 'primary'
-	export let size: string = 'small'
-	export let style: string | null = null
-	export let href: string | null = null
-	export let target: string | null = null
-	export let disabled: boolean = false
-	export let loading: boolean = false
-	export let active = false
+	interface Props {
+		id?: string | null;
+		variant?: string;
+		size?: string;
+		style?: string | null;
+		href?: string | null;
+		target?: string | null;
+		disabled?: boolean;
+		loading?: boolean;
+		active?: boolean;
+		children?: import('svelte').Snippet;
+	}
+
+	let {
+		id = null,
+		variant = 'primary',
+		size = 'small',
+		style = null,
+		href = null,
+		target = null,
+		disabled = false,
+		loading = $bindable(false),
+		active = false,
+		children
+	}: Props = $props();
 
 	export function setLoading(boolean: boolean) {
 		loading = boolean
@@ -27,6 +46,18 @@
 	// async function handleClick(event: any) {
 	// 	dispatch('click')
 	// }
+
+	export {
+		id,
+		variant,
+		size,
+		style,
+		href,
+		target,
+		disabled,
+		loading,
+		active,
+	}
 </script>
 
 {#if href}
@@ -34,16 +65,16 @@
 		{#if loading}
 			<Icon svg="spinner" />
 		{:else}
-			<span class="label"><slot /></span>
+			<span class="label">{@render children?.()}</span>
 		{/if}
 	</a>
 {:else}
 	<button
-		on:click
-		on:mouseover
-		on:mouseenter
-		on:mouseleave
-		on:focus
+		onclick={bubble('click')}
+		onmouseover={bubble('mouseover')}
+		onmouseenter={bubble('mouseenter')}
+		onmouseleave={bubble('mouseleave')}
+		onfocus={bubble('focus')}
 		{id}
 		class="Button"
 		{style}
@@ -60,7 +91,7 @@
 				<Icon svg="spinner" size={24} />
 			{/if} -->
 		{:else}
-			<span class="label"><slot /></span>
+			<span class="label">{@render children?.()}</span>
 		{/if}
 	</button>
 {/if}
