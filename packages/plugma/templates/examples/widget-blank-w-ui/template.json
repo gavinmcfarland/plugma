@@ -3,7 +3,7 @@
         "name": "Blank",
 		"description": "A blank widget to start from the ground up",
         "type": "widget",
-        "uiFrameworks": ["svelte", "vue", "react"],
+        "frameworks": ["svelte", "vue", "react"],
 		"rank": 1000
     },
     "include": [

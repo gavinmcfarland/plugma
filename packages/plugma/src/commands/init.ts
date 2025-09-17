@@ -165,7 +165,7 @@ async function confirm(options: { message: string; initialValue?: boolean }): Pr
 
 interface ExampleMetadata {
 	name?: string;
-	uiFrameworks?: string[] | string;
+	frameworks?: string[] | string;
 	type?: string;
 	description?: string;
 	hidden?: boolean;
@@ -259,7 +259,7 @@ function getAllAvailableTypes(examples: Example[]): string[] {
  * Check if an example has UI
  */
 function exampleHasUI(metadata: ExampleMetadata): boolean {
-	return !!(metadata.uiFrameworks && metadata.uiFrameworks.length > 0);
+	return !!(metadata.frameworks && metadata.frameworks.length > 0);
 }
 
 /**
@@ -269,12 +269,12 @@ function getAvailableFrameworks(examples: Example[]): string[] {
 	const frameworks = new Set<string>();
 
 	for (const example of examples) {
-		if (example.metadata.uiFrameworks && !example.metadata.hidden) {
-			const uiFrameworks = Array.isArray(example.metadata.uiFrameworks)
-				? example.metadata.uiFrameworks
-				: [example.metadata.uiFrameworks];
+		if (example.metadata.frameworks && !example.metadata.hidden) {
+			const exampleFrameworks = Array.isArray(example.metadata.frameworks)
+				? example.metadata.frameworks
+				: [example.metadata.frameworks];
 
-			for (const framework of uiFrameworks) {
+			for (const framework of exampleFrameworks) {
 				frameworks.add(framework);
 			}
 		}
@@ -324,15 +324,15 @@ function filterExamples(examples: Example[], needsUI: boolean, framework: string
 
 		// Check framework match if UI is needed
 		if (needsUI && framework !== NO_UI_OPTION) {
-			const uiFrameworks = Array.isArray(metadata.uiFrameworks)
-				? metadata.uiFrameworks
-				: metadata.uiFrameworks
-					? [metadata.uiFrameworks]
+			const exampleFrameworks = Array.isArray(metadata.frameworks)
+				? metadata.frameworks
+				: metadata.frameworks
+					? [metadata.frameworks]
 					: [];
 
 			// Case-insensitive framework comparison
 			const frameworkLower = framework.toLowerCase();
-			const hasMatchingFramework = uiFrameworks.some((fw) => fw.toLowerCase() === frameworkLower);
+			const hasMatchingFramework = exampleFrameworks.some((fw) => fw.toLowerCase() === frameworkLower);
 			if (!hasMatchingFramework) return false;
 		}
 
@@ -788,10 +788,10 @@ async function browseAndSelectTemplate(
 		const templateOptions = sortedExamples.map((example) => {
 			const displayName = getDisplayName(example);
 			const description = example.metadata.description || 'No description';
-			const frameworks = example.metadata.uiFrameworks
-				? Array.isArray(example.metadata.uiFrameworks)
-					? example.metadata.uiFrameworks.join(', ')
-					: example.metadata.uiFrameworks
+			const frameworks = example.metadata.frameworks
+				? Array.isArray(example.metadata.frameworks)
+					? example.metadata.frameworks.join(', ')
+					: example.metadata.frameworks
 				: 'No UI';
 
 			// Add color coding based on template type
@@ -980,7 +980,7 @@ async function createFromSpecificTemplate(options: InitCommandOptions): Promise<
 						const displayName = getDisplayName(template);
 						const type = template.metadata.type || 'unknown';
 						const hasUI = exampleHasUI(template.metadata);
-						const frameworks = template.metadata.uiFrameworks;
+						const frameworks = template.metadata.frameworks;
 
 						// Build the framework part
 						let frameworkPart = '';
@@ -1089,10 +1089,10 @@ async function createFromSpecificTemplate(options: InitCommandOptions): Promise<
  * Get supported frameworks for an example
  */
 function getFrameworksForExample(example: Example): string[] {
-	const uiFrameworks = example.metadata.uiFrameworks;
-	if (!uiFrameworks) return [];
+	const frameworks = example.metadata.frameworks;
+	if (!frameworks) return [];
 
-	return Array.isArray(uiFrameworks) ? uiFrameworks : [uiFrameworks];
+	return Array.isArray(frameworks) ? frameworks : [frameworks];
 }
 
 /**
