@@ -11,7 +11,7 @@ Before you start, ensure you have [Node.js](https://nodejs.org/en) and the [Figm
 To create a plugin from a template, run the following command in your terminal and follow the prompts.
 
 ```bash
-npm create plugma@latest
+npx plugma@next create
 ```
 
 ### Installing Plugma
