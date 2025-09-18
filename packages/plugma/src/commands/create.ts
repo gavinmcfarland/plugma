@@ -1348,12 +1348,36 @@ async function createProjectFromOptions(params: {
 		// Build success message with next steps
 		const nextSteps = ['Next steps:', `  ${chalk.cyan(`cd ${name}`)}`];
 
-		// Only show npm install if dependencies weren't already installed
+		// Detect package manager for correct commands
+		const pm = await detect({ cwd: process.cwd() });
+		const packageManager = pm?.agent || 'npm'; // Default to npm if not detected
+
+		// Only show install command if dependencies weren't already installed
 		if (!installDependencies) {
-			nextSteps.push(`  ${chalk.cyan('npm install')}`);
+			const installCommand =
+				packageManager === 'npm'
+					? 'npm install'
+					: packageManager === 'yarn'
+						? 'yarn'
+						: packageManager === 'pnpm'
+							? 'pnpm install'
+							: packageManager === 'bun'
+								? 'bun install'
+								: 'npm install'; // fallback
+			nextSteps.push(`  ${chalk.cyan(installCommand)}`);
 		}
 
-		nextSteps.push(`  ${chalk.cyan('npm run dev')}`);
+		const devCommand =
+			packageManager === 'npm'
+				? 'npm run dev'
+				: packageManager === 'yarn'
+					? 'yarn dev'
+					: packageManager === 'pnpm'
+						? 'pnpm dev'
+						: packageManager === 'bun'
+							? 'bun run dev'
+							: 'npm run dev'; // fallback
+		nextSteps.push(`  ${chalk.cyan(devCommand)}`);
 		nextSteps.push(`  Import ${chalk.cyan('dist/manifest.json')} in Figma`);
 		nextSteps.push(`  \n  Check out the docs at ${chalk.blue.underline('https://plugma.dev')}.`);
 
