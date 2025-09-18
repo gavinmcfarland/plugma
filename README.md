@@ -18,12 +18,8 @@ npm create plugma@latest
 
 The frameworks currently supported are `React`, `Svelte`, `Vue` and vanilla `JavaScript`.
 
-<!-- > [!WARNING]
-> Early Access - try the next release:
->
-> ```bash
-> npx plugma@next create
-> ``` -->
+> [!TIP]
+> Check out the [next](https://github.com/gavinmcfarland/plugma/tree/next) release
 
 ## Installation
 
