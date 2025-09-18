@@ -516,17 +516,10 @@ async function installRecommendedAddOns(
 /**
  * Install project dependencies from package.json
  */
-async function installProjectDependencies(): Promise<void> {
-	let pm = await detect({ cwd: process.cwd() });
-
-	// Default to npm if no package manager is detected (common for new projects)
-	if (!pm) {
-		pm = { name: 'npm', agent: 'npm' };
-	}
-
-	const resolved = resolveCommand(pm.agent, 'install', []);
+async function installProjectDependencies(packageManager: string): Promise<void> {
+	const resolved = resolveCommand(packageManager as any, 'install', []);
 	if (!resolved) {
-		throw new Error(`Could not resolve package manager command for ${pm.agent}`);
+		throw new Error(`Could not resolve package manager command for ${packageManager}`);
 	}
 
 	return new Promise((resolve, reject) => {
@@ -543,12 +536,13 @@ async function installProjectDependencies(): Promise<void> {
 /**
  * Install specific dependencies (borrowed from add command logic)
  */
-async function installSpecificDependencies(dependencies: string[], devDependencies: string[]): Promise<void> {
-	const pm = await detect({ cwd: process.cwd() });
-	if (!pm) throw new Error('Could not detect package manager');
-
+async function installSpecificDependencies(
+	dependencies: string[],
+	devDependencies: string[],
+	packageManager: string,
+): Promise<void> {
 	return new Promise((resolve, reject) => {
-		const resolved = resolveCommand(pm.agent, 'add', [...dependencies, ...devDependencies]);
+		const resolved = resolveCommand(packageManager as any, 'add', [...dependencies, ...devDependencies]);
 		if (!resolved) throw new Error('Could not resolve package manager command');
 		exec(`${resolved.command} ${resolved.args.join(' ')}`, (error) => {
 			if (error) {
@@ -598,6 +592,7 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 			debug: options.debug || false,
 			installAddOns: options.noAddOns ? [] : [], // Skip add-ons in quick mode
 			installDependencies: !options.noInstall,
+			selectedPackageManager: !options.noInstall ? 'npm' : null, // Default to npm if installing
 			addOnAnswers: {}, // No add-ons in quick mode
 		});
 
@@ -954,22 +949,31 @@ async function browseAndSelectTemplate(
 			}
 		}
 
-		let installDependencies: boolean;
+		let selectedPackageManager: string | null = null;
 
 		// If dependency installation is pre-selected via CLI flags, use it; otherwise ask the user
 		if (preSelectedInstall !== undefined) {
-			installDependencies = preSelectedInstall;
+			selectedPackageManager = preSelectedInstall ? 'npm' : null; // Default to npm if installing
 		} else {
 			try {
-				installDependencies = await confirm({
-					message: 'Install dependencies?',
-					initialValue: true,
+				selectedPackageManager = await select({
+					message: 'Choose package manager:',
+					options: [
+						{ label: 'None', value: null },
+						{ label: 'npm', value: 'npm' },
+						{ label: 'yarn', value: 'yarn' },
+						{ label: 'pnpm', value: 'pnpm' },
+						{ label: 'bun', value: 'bun' },
+						{ label: 'deno', value: 'deno' },
+					],
 				});
 			} catch (error) {
 				outro(chalk.gray('Operation cancelled.'));
 				process.exit(0);
 			}
 		}
+
+		const installDependencies = selectedPackageManager !== null;
 
 		// Generate project name
 		const templateExample = selectedTemplate as Example;
@@ -1001,6 +1005,7 @@ async function browseAndSelectTemplate(
 			debug: options.debug || false,
 			installAddOns: selectedAddOns,
 			installDependencies: installDependencies,
+			selectedPackageManager: selectedPackageManager,
 			addOnAnswers: addOnAnswers,
 		});
 	} catch (error) {
@@ -1148,6 +1153,7 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 			debug: options.debug || false,
 			installAddOns: options.noAddOns ? [] : [], // Skip add-ons in quick mode
 			installDependencies: !options.noInstall,
+			selectedPackageManager: !options.noInstall ? 'npm' : null, // Default to npm if installing
 			addOnAnswers: {}, // No add-ons in quick mode
 		});
 	} catch (error) {
@@ -1186,6 +1192,7 @@ async function createProjectFromOptions(params: {
 	debug: boolean;
 	installAddOns?: string[];
 	installDependencies?: boolean;
+	selectedPackageManager?: string | null;
 	addOnAnswers?: Record<string, Record<string, any>>;
 }): Promise<void> {
 	const {
@@ -1197,6 +1204,7 @@ async function createProjectFromOptions(params: {
 		debug,
 		installAddOns = [],
 		installDependencies = true,
+		selectedPackageManager = null,
 		addOnAnswers = {},
 	} = params;
 
@@ -1306,22 +1314,22 @@ async function createProjectFromOptions(params: {
 			}
 
 			// Install dependencies if requested
-			if (installDependencies) {
+			if (installDependencies && selectedPackageManager) {
 				const installSpinner = createSpinner();
 
 				if (addOnDependencies.length > 0 || addOnDevDependencies.length > 0) {
 					// Install template dependencies first, then add-on dependencies
 					installSpinner.start('Installing template dependencies...');
-					await installProjectDependencies();
+					await installProjectDependencies(selectedPackageManager);
 					installSpinner.stop();
 
 					installSpinner.start('Installing add-on dependencies...');
-					await installSpecificDependencies(addOnDependencies, addOnDevDependencies);
+					await installSpecificDependencies(addOnDependencies, addOnDevDependencies, selectedPackageManager);
 					installSpinner.stop();
 				} else {
 					// Only install template dependencies
 					installSpinner.start('Installing dependencies...');
-					await installProjectDependencies();
+					await installProjectDependencies(selectedPackageManager);
 					installSpinner.stop();
 				}
 			}
@@ -1348,9 +1356,8 @@ async function createProjectFromOptions(params: {
 		// Build success message with next steps
 		const nextSteps = ['Next steps:', `  ${chalk.cyan(`cd ${name}`)}`];
 
-		// Detect package manager for correct commands
-		const pm = await detect({ cwd: process.cwd() });
-		const packageManager = pm?.agent || 'npm'; // Default to npm if not detected
+		// Use selected package manager for correct commands
+		const packageManager = selectedPackageManager || 'npm'; // Default to npm if none selected
 
 		// Only show install command if dependencies weren't already installed
 		if (!installDependencies) {
@@ -1363,7 +1370,9 @@ async function createProjectFromOptions(params: {
 							? 'pnpm install'
 							: packageManager === 'bun'
 								? 'bun install'
-								: 'npm install'; // fallback
+								: packageManager === 'deno'
+									? 'deno install'
+									: 'npm install'; // fallback
 			nextSteps.push(`  ${chalk.cyan(installCommand)}`);
 		}
 
@@ -1376,7 +1385,9 @@ async function createProjectFromOptions(params: {
 						? 'pnpm dev'
 						: packageManager === 'bun'
 							? 'bun run dev'
-							: 'npm run dev'; // fallback
+							: packageManager === 'deno'
+								? 'deno run --allow-all dev'
+								: 'npm run dev'; // fallback
 		nextSteps.push(`  ${chalk.cyan(devCommand)}`);
 		nextSteps.push(`  Import ${chalk.cyan('dist/manifest.json')} in Figma`);
 		nextSteps.push(`  \n  Check out the docs at ${chalk.blue.underline('https://plugma.dev')}.`);
