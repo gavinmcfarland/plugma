@@ -1319,16 +1319,16 @@ async function createProjectFromOptions(params: {
 
 				if (addOnDependencies.length > 0 || addOnDevDependencies.length > 0) {
 					// Install template dependencies first, then add-on dependencies
-					installSpinner.start('Installing template dependencies...');
+					installSpinner.start(`Installing template dependencies with ${selectedPackageManager}...`);
 					await installProjectDependencies(selectedPackageManager);
 					installSpinner.stop();
 
-					installSpinner.start('Installing add-on dependencies...');
+					installSpinner.start(`Installing add-on dependencies with ${selectedPackageManager}...`);
 					await installSpecificDependencies(addOnDependencies, addOnDevDependencies, selectedPackageManager);
 					installSpinner.stop();
 				} else {
 					// Only install template dependencies
-					installSpinner.start('Installing dependencies...');
+					installSpinner.start(`Installing dependencies with ${selectedPackageManager}...`);
 					await installProjectDependencies(selectedPackageManager);
 					installSpinner.stop();
 				}

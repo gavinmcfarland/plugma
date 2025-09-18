@@ -451,7 +451,11 @@ export async function add(options: AddCommandOptions): Promise<void> {
 
 			if (shouldInstall) {
 				const s = spinner();
-				s.start('Installing all dependencies...');
+				// Detect package manager first to show in message
+				const pm = await detect({ cwd: process.cwd() });
+				const packageManager = pm?.agent || 'npm';
+
+				s.start(`Installing all dependencies with ${packageManager}...`);
 				try {
 					await installDependencies(depsArray, devDepsArray);
 					s.stop();
