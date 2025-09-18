@@ -23,7 +23,7 @@ For full documentation see [plugma.dev](https://next.plugma.dev/).
 
 ## Quick Start
 
-Create a new plugin from a template, use `@next` for upcoming release.
+Create a new plugin or widget from a template.
 
 ```bash
 npx plugma@next create
