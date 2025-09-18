@@ -921,7 +921,7 @@ async function browseAndSelectTemplate(
 
 							const result = await runIntegration(questionOnlyIntegration, {
 								name: integration.name,
-								prefixPrompts: false, // Don't prefix prompts since we're in the create flow
+								prefixPrompts: true, // Prefix prompts with add-on name
 							});
 
 							if (result) {

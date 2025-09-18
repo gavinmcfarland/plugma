@@ -48,7 +48,7 @@ async function findCssImportPath(filePath: string, cwd: string): Promise<string 
  */
 export default defineIntegration({
 	id: 'shadcn',
-	name: 'Shadcn',
+	name: 'Shadcn/ui',
 	description: 'UI components',
 
 	// Add required integrations - this will ensure tailwind is set up first
