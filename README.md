@@ -19,14 +19,14 @@ Plugma is a powerful command-line tool that simplifies your Figma plugin develop
 For full documentation see [plugma.dev](https://next.plugma.dev/).
 
 > [!WARNING]
-> This repository is in beta, and features may not work as expected or may undergo changes.
+> This repository is in development and features may not work as expected or may undergo changes before release.
 
 ## Quick Start
 
-Create a new plugin from a template:
+Create a new plugin from a template, use `@next` for upcoming release.
 
 ```bash
-npx plugma create
+npx plugma@next create
 ```
 
 Supported frameworks:
