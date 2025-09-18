@@ -4,7 +4,7 @@ import Icon from './components/Icon';
 import Input from './components/Input';
 import Button from './components/Button';
 
-const App: React.FC = () => {
+const App = () => {
 	const [rectCount, setRectCount] = useState<number>(5);
 	const [nodeCount, setNodeCount] = useState<number>(0);
 

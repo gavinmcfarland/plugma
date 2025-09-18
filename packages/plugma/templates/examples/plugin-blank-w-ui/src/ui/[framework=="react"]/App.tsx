@@ -3,7 +3,7 @@ import reactLogo from './assets/react.svg';
 import Icon from './components/Icon';
 import Button from './components/Button';
 
-const App: React.FC = () => {
+const App = () => {
 	const styles = {
 		container: {
 			display: 'flex',
@@ -31,7 +31,7 @@ const App: React.FC = () => {
 			<div style={styles.banner}>
 				<Icon svg="plugma" size={38} />
 				<Icon svg="plus" size={24} />
-				<img src={reactLogo} width="44" height="44" alt="Svelte logo" />
+				<img src={reactLogo} width="44" height="44" alt="React logo" />
 			</div>
 			<Button href="https://plugma.dev/docs" target="_blank" style={styles.docsButton}>
 				Read the docs

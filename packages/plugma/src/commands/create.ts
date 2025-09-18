@@ -1270,6 +1270,7 @@ async function createProjectFromOptions(params: {
 		}
 
 		nextSteps.push(`  ${chalk.cyan('npm run dev')}`);
+		nextSteps.push(`  ${chalk.cyan('Import dist/manifest.json in Figma')}`);
 
 		const successMessage = nextSteps.join('\n');
 

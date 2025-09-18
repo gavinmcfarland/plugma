@@ -4,7 +4,7 @@ import Icon from './components/Icon';
 import Input from './components/Input';
 import Button from './components/Button';
 
-const App: React.FC = () => {
+const App = () => {
 	const [rectCount, setRectCount] = useState<number>(5);
 	const [nodeCount, setNodeCount] = useState<number>(0);
 
@@ -68,7 +68,7 @@ const App: React.FC = () => {
 			<div style={styles.banner}>
 				<Icon svg="plugma" size={38} />
 				<Icon svg="plus" size={24} />
-				<img src={reactLogo} width="44" height="44" alt="Svelte logo" />
+				<img src={reactLogo} width="44" height="44" alt="React logo" />
 			</div>
 
 			<div style={styles.field}>

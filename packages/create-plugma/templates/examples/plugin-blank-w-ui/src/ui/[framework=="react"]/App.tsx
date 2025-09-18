@@ -3,7 +3,7 @@ import reactLogo from './assets/react.svg';
 import Icon from './components/Icon';
 import Button from './components/Button';
 
-const App: React.FC = () => {
+const App = () => {
 	const styles = {
 		container: {
 			display: 'flex',
