@@ -93,6 +93,7 @@ async function multiSelectAddOns(): Promise<string[]> {
 async function select(options: {
 	message: string;
 	options: Array<{ label: string; value: any; hint?: string }>;
+	initial?: number;
 }): Promise<any> {
 	// Create a mapping from display labels to values
 	const labelToValue = new Map();
@@ -113,6 +114,7 @@ async function select(options: {
 		name: 'value',
 		message: options.message,
 		choices,
+		initial: options.initial,
 	});
 
 	try {
@@ -584,6 +586,9 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 		const typescript = !options.noTypescript; // Default to true unless --no-typescript is specified
 
 		// Create project with defaults
+		const detectedPM = await detect({ cwd: process.cwd() });
+		const defaultPM = detectedPM?.agent || 'npm';
+
 		await createProjectFromOptions({
 			type,
 			framework: options.noUi ? NO_UI_OPTION : framework,
@@ -592,7 +597,7 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 			debug: options.debug || false,
 			installAddOns: options.noAddOns ? [] : [], // Skip add-ons in quick mode
 			installDependencies: !options.noInstall,
-			selectedPackageManager: !options.noInstall ? 'npm' : null, // Default to npm if installing
+			selectedPackageManager: !options.noInstall ? defaultPM : null, // Use detected package manager
 			addOnAnswers: {}, // No add-ons in quick mode
 		});
 
@@ -953,19 +958,68 @@ async function browseAndSelectTemplate(
 
 		// If dependency installation is pre-selected via CLI flags, use it; otherwise ask the user
 		if (preSelectedInstall !== undefined) {
-			selectedPackageManager = preSelectedInstall ? 'npm' : null; // Default to npm if installing
+			// Detect preferred package manager for CLI flag usage
+			const detectedPM = await detect({ cwd: process.cwd() });
+			const defaultPM = detectedPM?.agent || 'npm';
+			selectedPackageManager = preSelectedInstall ? defaultPM : null;
 		} else {
 			try {
+				// Detect user's preferred package manager
+				const detectedPM = await detect({ cwd: process.cwd() });
+				let preferredPM = detectedPM?.agent || 'npm';
+
+				// If no package manager detected in current directory, try to detect from lock files
+				if (!detectedPM) {
+					const fs = await import('fs');
+					const path = await import('path');
+
+					// Check for lock files in current directory and parent directories
+					let currentDir = process.cwd();
+					const maxDepth = 5; // Limit search depth
+					let depth = 0;
+
+					while (currentDir !== path.dirname(currentDir) && depth < maxDepth) {
+						try {
+							const files = await fs.promises.readdir(currentDir);
+
+							if (files.includes('yarn.lock')) {
+								preferredPM = 'yarn';
+								break;
+							} else if (files.includes('pnpm-lock.yaml')) {
+								preferredPM = 'pnpm';
+								break;
+							} else if (files.includes('package-lock.json')) {
+								preferredPM = 'npm';
+								break;
+							} else if (files.includes('bun.lockb')) {
+								preferredPM = 'bun';
+								break;
+							}
+
+							currentDir = path.dirname(currentDir);
+							depth++;
+						} catch {
+							break;
+						}
+					}
+				}
+
+				const packageManagerOptions = [
+					{ label: 'None', value: null },
+					{ label: 'npm', value: 'npm' },
+					{ label: 'yarn', value: 'yarn' },
+					{ label: 'pnpm', value: 'pnpm' },
+					{ label: 'bun', value: 'bun' },
+					{ label: 'deno', value: 'deno' },
+				];
+
+				// Find the index of the preferred package manager
+				const preferredIndex = packageManagerOptions.findIndex((opt) => opt.value === preferredPM);
+
 				selectedPackageManager = await select({
-					message: 'Choose package manager:',
-					options: [
-						{ label: 'None', value: null },
-						{ label: 'npm', value: 'npm' },
-						{ label: 'yarn', value: 'yarn' },
-						{ label: 'pnpm', value: 'pnpm' },
-						{ label: 'bun', value: 'bun' },
-						{ label: 'deno', value: 'deno' },
-					],
+					message: `Install dependencies with:`,
+					options: packageManagerOptions,
+					initial: preferredIndex > 0 ? preferredIndex : 1, // Default to npm if preferred not found
 				});
 			} catch (error) {
 				outro(chalk.gray('Operation cancelled.'));
@@ -1144,6 +1198,9 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 		const defaultName = options.name || `${normalizedExampleName}${frameworkPart}-${type}`;
 
 		// Create the project
+		const detectedPM = await detect({ cwd: process.cwd() });
+		const defaultPM = detectedPM?.agent || 'npm';
+
 		await createProjectFromOptions({
 			type,
 			framework,
@@ -1153,7 +1210,7 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 			debug: options.debug || false,
 			installAddOns: options.noAddOns ? [] : [], // Skip add-ons in quick mode
 			installDependencies: !options.noInstall,
-			selectedPackageManager: !options.noInstall ? 'npm' : null, // Default to npm if installing
+			selectedPackageManager: !options.noInstall ? defaultPM : null, // Use detected package manager
 			addOnAnswers: {}, // No add-ons in quick mode
 		});
 	} catch (error) {
@@ -1283,6 +1340,9 @@ async function createProjectFromOptions(params: {
 		const originalCwd = process.cwd();
 		process.chdir(destDir);
 
+		// Track dependency installation status
+		let dependencyInstallationFailed = false;
+
 		try {
 			// Handle add-ons installation if requested
 			let addOnDependencies: string[] = [];
@@ -1316,33 +1376,44 @@ async function createProjectFromOptions(params: {
 			// Install dependencies if requested
 			if (installDependencies && selectedPackageManager) {
 				const installSpinner = createSpinner();
+				try {
+					if (addOnDependencies.length > 0 || addOnDevDependencies.length > 0) {
+						// Install template dependencies first, then add-on dependencies
+						installSpinner.start(`Installing template dependencies with ${selectedPackageManager}...`);
+						await installProjectDependencies(selectedPackageManager);
+						installSpinner.stop();
 
-				if (addOnDependencies.length > 0 || addOnDevDependencies.length > 0) {
-					// Install template dependencies first, then add-on dependencies
-					installSpinner.start(`Installing template dependencies with ${selectedPackageManager}...`);
-					await installProjectDependencies(selectedPackageManager);
-					installSpinner.stop();
-
-					installSpinner.start(`Installing add-on dependencies with ${selectedPackageManager}...`);
-					await installSpecificDependencies(addOnDependencies, addOnDevDependencies, selectedPackageManager);
-					installSpinner.stop();
-				} else {
-					// Only install template dependencies
-					installSpinner.start(`Installing dependencies with ${selectedPackageManager}...`);
-					await installProjectDependencies(selectedPackageManager);
-					installSpinner.stop();
+						installSpinner.start(`Installing add-on dependencies with ${selectedPackageManager}...`);
+						await installSpecificDependencies(
+							addOnDependencies,
+							addOnDevDependencies,
+							selectedPackageManager,
+						);
+						installSpinner.stop();
+					} else {
+						// Only install template dependencies
+						installSpinner.start(`Installing dependencies with ${selectedPackageManager}...`);
+						await installProjectDependencies(selectedPackageManager);
+						installSpinner.stop();
+					}
+				} catch (error) {
+					installSpinner.stop(); // Stop the spinner on error
+					dependencyInstallationFailed = true;
+					// Store error details to show after success message
+					if (debug) {
+						console.error('Dependency installation error:', error);
+					}
+					// Don't re-throw the error, just continue to show success message
 				}
 			}
 		} catch (error) {
 			console.log(
 				createBox(undefined, {
 					type: 'error',
-					title: 'Dependency Installation Error',
+					title: 'Project Creation Error',
 				}),
 			);
-			console.error(
-				chalk.yellow('Warning: Failed to install dependencies, but project was created successfully.'),
-			);
+			console.error(chalk.yellow('Warning: Failed to create project.'));
 			if (debug) {
 				console.error('Detailed error:', error);
 			} else {
@@ -1359,8 +1430,8 @@ async function createProjectFromOptions(params: {
 		// Use selected package manager for correct commands
 		const packageManager = selectedPackageManager || 'npm'; // Default to npm if none selected
 
-		// Only show install command if dependencies weren't already installed
-		if (!installDependencies) {
+		// Only show install command if dependencies weren't already installed OR if installation failed
+		if (!installDependencies || dependencyInstallationFailed) {
 			const installCommand =
 				packageManager === 'npm'
 					? 'npm install'
@@ -1394,12 +1465,28 @@ async function createProjectFromOptions(params: {
 
 		const successMessage = nextSteps.join('\n');
 
+		// Capitalize the first letter of the project type for the success message
+		const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
+
 		console.log(
 			createBox(successMessage, {
 				type: 'success',
-				title: 'Success',
+				title: `${capitalizedType} created!`,
 			}),
 		);
+
+		// Show dependency installation error after success message if installation failed
+		if (dependencyInstallationFailed) {
+			console.log(
+				createBox(undefined, {
+					type: 'error',
+					title: 'Dependency Installation Error',
+				}),
+			);
+			console.error(
+				chalk.yellow('Warning: Failed to install dependencies, but project was created successfully.'),
+			);
+		}
 	} catch (error) {
 		// Handle user cancellation gracefully
 		if (error instanceof CancelError || (error instanceof Error && error.message === 'User cancelled')) {
