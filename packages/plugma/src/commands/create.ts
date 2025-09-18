@@ -394,6 +394,7 @@ function getVersions(): Record<string, string> {
  */
 async function installRecommendedAddOns(
 	selectedAddOns: string[],
+	addOnAnswers: Record<string, Record<string, any>> = {},
 ): Promise<{ dependencies: string[]; devDependencies: string[] }> {
 	if (selectedAddOns.length === 0) {
 		console.log(chalk.blue('Skipping add-ons installation. You can install add-ons later using: plugma add'));
@@ -433,10 +434,33 @@ async function installRecommendedAddOns(
 				s.start(`Setting up ${addOnKey}...`);
 
 				const integration = INTEGRATIONS[addOnKey as keyof typeof INTEGRATIONS];
-				const result = await runIntegration(integration, {
-					name: integration.name,
-					prefixPrompts: false, // Don't prefix prompts since we're in the create flow
-				});
+
+				// Use pre-collected answers if available, otherwise run integration normally
+				let result;
+				if (addOnAnswers[addOnKey]) {
+					// Use pre-collected answers and run the full integration setup
+					const helpers = createFileHelpers();
+					const typescript = await helpers.detectTypeScript();
+
+					// Run setup function if provided (now the project exists, so file operations are safe)
+					if (integration.setup) {
+						await integration.setup({ answers: addOnAnswers[addOnKey], helpers, typescript });
+					}
+
+					result = {
+						answers: addOnAnswers[addOnKey],
+						dependencies: integration.dependencies || [],
+						devDependencies: integration.devDependencies || [],
+						files: integration.files || [],
+						nextSteps: integration.nextSteps?.(addOnAnswers[addOnKey]) || [],
+					};
+				} else {
+					// No pre-collected answers, run integration normally (shouldn't happen in create flow)
+					result = await runIntegration(integration, {
+						name: integration.name,
+						prefixPrompts: false, // Don't prefix prompts since we're in the create flow
+					});
+				}
 
 				if (result) {
 					s.stop();
@@ -574,6 +598,7 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 			debug: options.debug || false,
 			installAddOns: options.noAddOns ? [] : [], // Skip add-ons in quick mode
 			installDependencies: !options.noInstall,
+			addOnAnswers: {}, // No add-ons in quick mode
 		});
 
 		return;
@@ -860,6 +885,58 @@ async function browseAndSelectTemplate(
 			}
 		}
 
+		// Collect add-on questions and answers immediately after add-on selection
+		const addOnAnswers: Record<string, Record<string, any>> = {};
+		if (selectedAddOns.length > 0) {
+			// Import the integrations from the add command
+			const playwrightIntegration = await import('../integrations/playwright.js');
+			const tailwindIntegration = await import('../integrations/tailwind.js');
+			const shadcnIntegration = await import('../integrations/shadcn.js');
+			const vitestIntegration = await import('../integrations/vitest.js');
+			const eslintIntegration = await import('../integrations/eslint.js');
+			const { runIntegration } = await import('../integrations/define-integration.js');
+
+			const INTEGRATIONS = {
+				tailwind: tailwindIntegration.default,
+				shadcn: shadcnIntegration.default,
+				eslint: eslintIntegration.default,
+				vitest: vitestIntegration.default,
+				playwright: playwrightIntegration.default,
+			};
+
+			// Ask questions for each selected add-on (without running setup)
+			for (const addOnKey of selectedAddOns) {
+				if (addOnKey in INTEGRATIONS) {
+					const integration = INTEGRATIONS[addOnKey as keyof typeof INTEGRATIONS];
+
+					// Only ask questions if the integration has them
+					if (integration.questions && integration.questions.length > 0) {
+						try {
+							// Create a temporary integration that only asks questions without setup
+							const questionOnlyIntegration = {
+								...integration,
+								setup: undefined, // Remove setup to prevent file operations
+								postSetup: undefined, // Remove postSetup to prevent file operations
+							};
+
+							const result = await runIntegration(questionOnlyIntegration, {
+								name: integration.name,
+								prefixPrompts: false, // Don't prefix prompts since we're in the create flow
+							});
+
+							if (result) {
+								addOnAnswers[addOnKey] = result.answers;
+							}
+						} catch (error) {
+							// If user cancels during add-on questions, exit gracefully
+							outro(chalk.gray('Operation cancelled.'));
+							process.exit(0);
+						}
+					}
+				}
+			}
+		}
+
 		let typescript: boolean;
 
 		// If TypeScript is pre-selected via CLI flags, use it; otherwise ask the user
@@ -924,6 +1001,7 @@ async function browseAndSelectTemplate(
 			debug: options.debug || false,
 			installAddOns: selectedAddOns,
 			installDependencies: installDependencies,
+			addOnAnswers: addOnAnswers,
 		});
 	} catch (error) {
 		// Handle user cancellation gracefully
@@ -1070,6 +1148,7 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 			debug: options.debug || false,
 			installAddOns: options.noAddOns ? [] : [], // Skip add-ons in quick mode
 			installDependencies: !options.noInstall,
+			addOnAnswers: {}, // No add-ons in quick mode
 		});
 	} catch (error) {
 		// Handle user cancellation gracefully
@@ -1107,6 +1186,7 @@ async function createProjectFromOptions(params: {
 	debug: boolean;
 	installAddOns?: string[];
 	installDependencies?: boolean;
+	addOnAnswers?: Record<string, Record<string, any>>;
 }): Promise<void> {
 	const {
 		type,
@@ -1117,6 +1197,7 @@ async function createProjectFromOptions(params: {
 		debug,
 		installAddOns = [],
 		installDependencies = true,
+		addOnAnswers = {},
 	} = params;
 
 	const s = spinner();
@@ -1202,7 +1283,10 @@ async function createProjectFromOptions(params: {
 			if (installAddOns.length > 0) {
 				try {
 					// Use the add command logic to install recommended add-ons
-					const { dependencies, devDependencies } = await installRecommendedAddOns(installAddOns);
+					const { dependencies, devDependencies } = await installRecommendedAddOns(
+						installAddOns,
+						addOnAnswers,
+					);
 					addOnDependencies = dependencies;
 					addOnDevDependencies = devDependencies;
 				} catch (error) {
