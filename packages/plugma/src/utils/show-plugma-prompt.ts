@@ -1,12 +1,12 @@
-import chalk from 'chalk'
-import { readPlugmaPackageJson } from './fs/read-json.js'
+import chalk from 'chalk';
+import { readPlugmaPackageJson } from './fs/read-json.js';
 
 export async function showPlugmaPrompt() {
-	const version = (await readPlugmaPackageJson()).version
-	const DEVELOPING_LOCALLY = process.env.PLUGMA_DEVELOPING_LOCALLY === 'true'
+	const version = (await readPlugmaPackageJson()).version;
+	const DEVELOPING_LOCALLY = process.env.PLUGMA_DEVELOPING_LOCALLY === 'true';
 
 	// Match original formatting with chalk
 	console.log(
-		`\n${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}${DEVELOPING_LOCALLY ? ' [development]' : ''}`)}\n`,
-	)
+		`\n${chalk.bgMagenta(' Plugma ')} ${chalk.grey(`v${version}${DEVELOPING_LOCALLY ? ' [development]' : ''}`)}\n`,
+	);
 }

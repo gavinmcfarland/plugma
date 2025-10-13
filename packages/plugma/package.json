@@ -63,6 +63,7 @@
 		"@combino/plugin-rebase": "^1.5.1",
 		"@combino/plugin-strip-ts": "^1.0.1",
 		"@inquirer/checkbox": "^4.2.1",
+		"askeroo": "0.0.0-alpha.5",
 		"boxen": "^8.0.1",
 		"chalk": "^5.4.1",
 		"chokidar": "^4.0.3",

@@ -4,10 +4,7 @@
  */
 
 import { Combino } from 'combino';
-// @ts-ignore - enquirer doesn't have types
-import enquirer from 'enquirer';
-// @ts-ignore - enquirer doesn't have types
-const { Select, Input, Confirm, Toggle } = enquirer;
+import { ask, group, text, confirm, radio, multi, tasks, note, type Task, completedFields, spinner } from 'askeroo';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { dirname } from 'node:path';
@@ -31,22 +28,6 @@ const CURR_DIR = process.cwd();
 const NO_UI_OPTION = 'No UI';
 const NO_UI_DESCRIPTION = 'no UI';
 
-// Helper functions to replace intro/outro
-function intro(message: string): void {
-	console.log(chalk.bold(message));
-	console.log('');
-}
-
-function outro(message: string): void {
-	console.log('');
-	console.log(message);
-}
-
-// Legacy spinner function for compatibility
-function spinner() {
-	return createSpinner();
-}
-
 // Helper to handle cancellation
 class CancelError extends Error {
 	constructor() {
@@ -55,115 +36,8 @@ class CancelError extends Error {
 	}
 }
 
-function isCancel(value: any): boolean {
-	return value === undefined || value === '' || (value instanceof Error && value.message === 'User cancelled');
-}
-
-/**
- * Multi-select helper for add-ons using @inquirer/checkbox
- */
-async function multiSelectAddOns(): Promise<string[]> {
-	// Dynamic import of @inquirer/checkbox
-	const { default: checkbox } = await import('@inquirer/checkbox');
-
-	const availableIntegrations = [
-		{ name: 'Tailwind CSS', value: 'tailwind', description: 'Utility-first CSS framework' },
-		{ name: 'ESLint', value: 'eslint', description: 'JavaScript linting utility' },
-		{ name: 'Vitest', value: 'vitest', description: 'Fast unit testing framework' },
-		{ name: 'Playwright', value: 'playwright', description: 'End-to-end testing framework' },
-		{ name: 'Shadcn/ui', value: 'shadcn', description: 'Re-usable UI components' },
-	];
-
-	try {
-		const selectedAddOns = await checkbox({
-			message: 'Choose add-ons:',
-			choices: availableIntegrations,
-			pageSize: 10,
-			loop: true,
-			required: false,
-		});
-
-		return selectedAddOns;
-	} catch (error) {
-		throw new CancelError();
-	}
-}
-
-// Enquirer wrapper functions
-async function select(options: {
-	message: string;
-	options: Array<{ label: string; value: any; hint?: string }>;
-	initial?: number;
-}): Promise<any> {
-	// Create a mapping from display labels to values
-	const labelToValue = new Map();
-
-	const choices = options.options.map((opt) => {
-		// Strip chalk colors for the mapping key but keep them for display
-		const cleanLabel = opt.label.replace(/\u001b\[[0-9;]*m/g, ''); // Remove ANSI color codes
-		labelToValue.set(cleanLabel, opt.value);
-
-		return {
-			name: cleanLabel,
-			message: opt.label, // Keep colors for display
-			hint: opt.hint,
-		};
-	});
-
-	const prompt = new Select({
-		name: 'value',
-		message: options.message,
-		choices,
-		initial: options.initial,
-	});
-
-	try {
-		const selectedLabel = await prompt.run();
-		return labelToValue.get(selectedLabel);
-	} catch (error) {
-		throw new CancelError();
-	}
-}
-
-async function text(options: {
-	message: string;
-	defaultValue?: string;
-	validate?: (value: string) => string | undefined;
-}): Promise<string> {
-	const prompt = new Input({
-		name: 'value',
-		message: options.message,
-		initial: options.defaultValue,
-		validate: options.validate
-			? (value: string) => {
-					const result = options.validate!(value);
-					return result === undefined ? true : result;
-				}
-			: undefined,
-	});
-
-	try {
-		return await prompt.run();
-	} catch (error) {
-		throw new CancelError();
-	}
-}
-
-async function confirm(options: { message: string; initialValue?: boolean }): Promise<boolean> {
-	const prompt = new Toggle({
-		name: 'value',
-		message: options.message,
-		enabled: 'Yes',
-		disabled: 'No',
-		initial: options.initialValue,
-	});
-
-	try {
-		return await prompt.run();
-	} catch (error) {
-		throw new CancelError();
-	}
-}
+// Sleep helper function
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 interface ExampleMetadata {
 	name?: string;
@@ -687,391 +561,340 @@ async function browseAndSelectTemplate(
 	preSelectedAddOns?: boolean,
 	preSelectedInstall?: boolean,
 ): Promise<void> {
-	try {
-		const allExamples = getAvailableExamples();
-		const visibleExamples = allExamples.filter((example) => !example.metadata.hidden);
+	const allExamples = getAvailableExamples();
+	const visibleExamples = allExamples.filter((example) => !example.metadata.hidden);
 
-		if (visibleExamples.length === 0) {
-			outro(chalk.red('No templates available.'));
-			process.exit(1);
-		}
-
-		let selectedType: string;
-
-		// If type is pre-selected via CLI flags, use it; otherwise ask the user
-		if (preSelectedType) {
-			selectedType = preSelectedType;
-		} else {
-			// First, let user choose the type
-			const availableTypes = Array.from(
-				new Set(visibleExamples.map((example) => example.metadata.type).filter(Boolean)),
-			).sort((a, b) => {
-				// Ensure Plugin comes first
-				if (a === 'plugin') return -1;
-				if (b === 'plugin') return 1;
-				return a!.localeCompare(b!);
-			});
-
-			if (availableTypes.length === 0) {
-				outro(chalk.red('No valid template types found.'));
-				process.exit(1);
-			}
-
-			try {
-				selectedType = await select({
-					message: 'Choose a type:',
-					options: availableTypes.map((type) => ({
-						label:
-							type === 'plugin'
-								? chalk.blue(`${type!.charAt(0).toUpperCase() + type!.slice(1)}`)
-								: chalk.green(`${type!.charAt(0).toUpperCase() + type!.slice(1)}`),
-						value: type,
-					})),
-				});
-			} catch (error) {
-				outro(chalk.gray('Operation cancelled.'));
-				process.exit(0);
-			}
-		}
-
-		// Filter templates by selected type
-		const typeFilteredExamples = visibleExamples.filter((example) => example.metadata.type === selectedType);
-
-		if (typeFilteredExamples.length === 0) {
-			outro(chalk.red(`No templates available for ${selectedType}.`));
-			process.exit(1);
-		}
-
-		// Get available frameworks for this type
-		const availableFrameworks = getAvailableFrameworks(typeFilteredExamples);
-		const hasNoUIExamples = typeFilteredExamples.some((example) => !exampleHasUI(example.metadata));
-
-		// Create framework options
-		const frameworkOptions = [
-			...availableFrameworks.map((framework) => ({
-				label:
-					framework.toLowerCase() === 'react'
-						? chalk.red(`${framework.charAt(0).toUpperCase() + framework.slice(1)}`)
-						: framework.toLowerCase() === 'svelte'
-							? chalk.yellow(`${framework.charAt(0).toUpperCase() + framework.slice(1)}`)
-							: framework.toLowerCase() === 'vue'
-								? chalk.green(`${framework.charAt(0).toUpperCase() + framework.slice(1)}`)
-								: chalk.white(framework.charAt(0).toUpperCase() + framework.slice(1)),
-				value: framework,
-			})),
-			...(hasNoUIExamples
-				? [
-						{
-							label: chalk.gray(`${NO_UI_OPTION}`),
-							value: NO_UI_OPTION,
-						},
-					]
-				: []),
-		];
-
-		let selectedFramework: string = 'React'; // default
-
-		// If framework is pre-selected via CLI flags, use it; otherwise ask the user
-		if (preSelectedFramework) {
-			selectedFramework = preSelectedFramework;
-		} else if (frameworkOptions.length > 1) {
-			try {
-				const frameworkChoice = await select({
-					message: 'Choose a framework:',
-					options: frameworkOptions,
-				});
-				selectedFramework = frameworkChoice as string;
-			} catch (error) {
-				outro(chalk.gray('Operation cancelled.'));
-				process.exit(0);
-			}
-		} else if (frameworkOptions.length === 1) {
-			selectedFramework = frameworkOptions[0].value;
-		}
-
-		// Filter templates by both type and framework preference
-		const needsUI = selectedFramework !== NO_UI_OPTION;
-		const filteredExamples = filterExamples(typeFilteredExamples, needsUI, selectedFramework);
-
-		if (filteredExamples.length === 0) {
-			outro(
-				chalk.red(
-					`No templates available for ${selectedType} with ${selectedFramework === NO_UI_OPTION ? 'no UI' : selectedFramework}.`,
-				),
-			);
-			process.exit(1);
-		}
-
-		// Sort templates by rank
-		const sortedExamples = filteredExamples.sort((a, b) => {
-			const aRank = a.metadata.rank ?? 0;
-			const bRank = b.metadata.rank ?? 0;
-			return bRank - aRank;
-		});
-
-		// Create template options
-		const templateOptions = sortedExamples.map((example) => {
-			const displayName = getDisplayName(example);
-			const description = example.metadata.description || 'No description';
-			const frameworks = example.metadata.frameworks
-				? Array.isArray(example.metadata.frameworks)
-					? example.metadata.frameworks.join(', ')
-					: example.metadata.frameworks
-				: 'No UI';
-
-			// Add color coding based on template type
-			const type = example.metadata.type || 'plugin';
-			const coloredLabel = type === 'plugin' ? chalk.blue(`${displayName}`) : chalk.green(`${displayName}`);
-
-			return {
-				label: coloredLabel,
-				value: example,
-				hint: `${description} (${frameworks})`,
-			};
-		});
-
-		let selectedTemplate: Example;
-		try {
-			selectedTemplate = await select({
-				message: `Choose a ${selectedType} template:`,
-				options: templateOptions,
-			});
-		} catch (error) {
-			outro(chalk.gray('Operation cancelled.'));
-			process.exit(0);
-		}
-
-		// Get additional options - framework already selected above
-		const templateNeedsUI = exampleHasUI((selectedTemplate as Example).metadata);
-
-		// Framework was already selected above, no need to ask again
-		// Just validate that the selected template supports the chosen framework
-		if (templateNeedsUI && selectedFramework !== NO_UI_OPTION) {
-			const availableFrameworks = getFrameworksForExample(selectedTemplate as Example);
-
-			// Case-insensitive framework comparison
-			const selectedFrameworkLower = selectedFramework.toLowerCase();
-			const supportsFramework = availableFrameworks.some((fw) => fw.toLowerCase() === selectedFrameworkLower);
-
-			if (!supportsFramework) {
-				outro(
-					chalk.red(
-						`Template "${getDisplayName(selectedTemplate as Example)}" does not support ${selectedFramework}.`,
-					),
-				);
-				process.exit(1);
-			}
-		}
-
-		let selectedAddOns: string[] = [];
-
-		// If add-ons installation is pre-selected via CLI flags, use it; otherwise ask the user
-		if (preSelectedAddOns !== undefined) {
-			// If CLI flag is false, skip add-ons
-			if (!preSelectedAddOns) {
-				selectedAddOns = [];
-			} else {
-				// If CLI flag is true, we could install some recommended add-ons
-				// For now, we'll skip automatic selection and let the user choose
-				selectedAddOns = [];
-			}
-		} else {
-			try {
-				// Use multi-select interface for add-ons
-				selectedAddOns = await multiSelectAddOns();
-			} catch (error) {
-				outro(chalk.gray('Operation cancelled.'));
-				process.exit(0);
-			}
-		}
-
-		// Collect add-on questions and answers immediately after add-on selection
-		const addOnAnswers: Record<string, Record<string, any>> = {};
-		if (selectedAddOns.length > 0) {
-			// Import the integrations from the add command
-			const playwrightIntegration = await import('../integrations/playwright.js');
-			const tailwindIntegration = await import('../integrations/tailwind.js');
-			const shadcnIntegration = await import('../integrations/shadcn.js');
-			const vitestIntegration = await import('../integrations/vitest.js');
-			const eslintIntegration = await import('../integrations/eslint.js');
-			const { runIntegration } = await import('../integrations/define-integration.js');
-
-			const INTEGRATIONS = {
-				tailwind: tailwindIntegration.default,
-				shadcn: shadcnIntegration.default,
-				eslint: eslintIntegration.default,
-				vitest: vitestIntegration.default,
-				playwright: playwrightIntegration.default,
-			};
-
-			// Ask questions for each selected add-on (without running setup)
-			for (const addOnKey of selectedAddOns) {
-				if (addOnKey in INTEGRATIONS) {
-					const integration = INTEGRATIONS[addOnKey as keyof typeof INTEGRATIONS];
-
-					// Only ask questions if the integration has them
-					if (integration.questions && integration.questions.length > 0) {
-						try {
-							// Create a temporary integration that only asks questions without setup
-							const questionOnlyIntegration = {
-								...integration,
-								setup: undefined, // Remove setup to prevent file operations
-								postSetup: undefined, // Remove postSetup to prevent file operations
-							};
-
-							const result = await runIntegration(questionOnlyIntegration, {
-								name: integration.name,
-								prefixPrompts: true, // Prefix prompts with add-on name
-							});
-
-							if (result) {
-								addOnAnswers[addOnKey] = result.answers;
-							}
-						} catch (error) {
-							// If user cancels during add-on questions, exit gracefully
-							outro(chalk.gray('Operation cancelled.'));
-							process.exit(0);
-						}
-					}
-				}
-			}
-		}
-
-		let typescript: boolean;
-
-		// If TypeScript is pre-selected via CLI flags, use it; otherwise ask the user
-		if (preSelectedTypescript !== undefined) {
-			typescript = preSelectedTypescript;
-		} else {
-			try {
-				typescript = await confirm({
-					message: 'Use TypeScript?',
-					initialValue: true,
-				});
-			} catch (error) {
-				outro(chalk.gray('Operation cancelled.'));
-				process.exit(0);
-			}
-		}
-
-		let selectedPackageManager: string | null = null;
-
-		// If dependency installation is pre-selected via CLI flags, use it; otherwise ask the user
-		if (preSelectedInstall !== undefined) {
-			// Detect preferred package manager for CLI flag usage
-			const detectedPM = await detect({ cwd: process.cwd() });
-			const defaultPM = detectedPM?.agent || 'npm';
-			selectedPackageManager = preSelectedInstall ? defaultPM : null;
-		} else {
-			try {
-				// Detect user's preferred package manager
-				const detectedPM = await detect({ cwd: process.cwd() });
-				let preferredPM = detectedPM?.agent || 'npm';
-
-				// If no package manager detected in current directory, try to detect from lock files
-				if (!detectedPM) {
-					const fs = await import('fs');
-					const path = await import('path');
-
-					// Check for lock files in current directory and parent directories
-					let currentDir = process.cwd();
-					const maxDepth = 5; // Limit search depth
-					let depth = 0;
-
-					while (currentDir !== path.dirname(currentDir) && depth < maxDepth) {
-						try {
-							const files = await fs.promises.readdir(currentDir);
-
-							if (files.includes('yarn.lock')) {
-								preferredPM = 'yarn';
-								break;
-							} else if (files.includes('pnpm-lock.yaml')) {
-								preferredPM = 'pnpm';
-								break;
-							} else if (files.includes('package-lock.json')) {
-								preferredPM = 'npm';
-								break;
-							} else if (files.includes('bun.lockb')) {
-								preferredPM = 'bun';
-								break;
-							}
-
-							currentDir = path.dirname(currentDir);
-							depth++;
-						} catch {
-							break;
-						}
-					}
-				}
-
-				const packageManagerOptions = [
-					{ label: 'None', value: null },
-					{ label: 'npm', value: 'npm' },
-					{ label: 'yarn', value: 'yarn' },
-					{ label: 'pnpm', value: 'pnpm' },
-					{ label: 'bun', value: 'bun' },
-					{ label: 'deno', value: 'deno' },
-				];
-
-				// Find the index of the preferred package manager
-				const preferredIndex = packageManagerOptions.findIndex((opt) => opt.value === preferredPM);
-
-				selectedPackageManager = await select({
-					message: `Install dependencies with:`,
-					options: packageManagerOptions,
-					initial: preferredIndex > 0 ? preferredIndex : 1, // Default to npm if preferred not found
-				});
-			} catch (error) {
-				outro(chalk.gray('Operation cancelled.'));
-				process.exit(0);
-			}
-		}
-
-		const installDependencies = selectedPackageManager !== null;
-
-		// Generate project name
-		const templateExample = selectedTemplate as Example;
-		const exampleName = templateExample.metadata.name || templateExample.name;
-		const normalizedExampleName = exampleName.toLowerCase().replace(/\s+/g, '-');
-		const type = templateExample.metadata.type || 'plugin';
-		const frameworkPart = needsUI ? `-${selectedFramework.toLowerCase()}` : '';
-		const baseName = `${normalizedExampleName}${frameworkPart}-${type}`;
-
-		let projectName: string;
-		try {
-			projectName = await text({
-				message: `${type.charAt(0).toUpperCase() + type.slice(1)} name:`,
-				defaultValue: options.name || baseName,
-				validate: validateProjectName,
-			});
-		} catch (error) {
-			outro(chalk.gray('Operation cancelled.'));
-			process.exit(0);
-		}
-
-		// Create the project
-		await createProjectFromOptions({
-			type,
-			framework: needsUI ? selectedFramework : NO_UI_OPTION,
-			typescript,
-			name: projectName,
-			selectedExample: templateExample,
-			debug: options.debug || false,
-			installAddOns: selectedAddOns,
-			installDependencies: installDependencies,
-			selectedPackageManager: selectedPackageManager,
-			addOnAnswers: addOnAnswers,
-		});
-	} catch (error) {
-		// Handle user cancellation gracefully
-		if (error instanceof CancelError || (error instanceof Error && error.message === 'User cancelled')) {
-			outro('Operation cancelled');
-			process.exit(0);
-		}
-
-		outro(chalk.red('Error browsing templates: ' + (error instanceof Error ? error.message : String(error))));
+	if (visibleExamples.length === 0) {
+		await note(chalk.red('No templates available.'));
 		process.exit(1);
 	}
+
+	// Detect user's preferred package manager early
+	const detectedPM = await detect({ cwd: process.cwd() });
+	let preferredPM = detectedPM?.agent || 'npm';
+
+	// If no package manager detected in current directory, try to detect from lock files
+	if (!detectedPM) {
+		let currentDir = process.cwd();
+		const maxDepth = 5;
+		let depth = 0;
+
+		while (currentDir !== path.dirname(currentDir) && depth < maxDepth) {
+			try {
+				const files = await fs.promises.readdir(currentDir);
+
+				if (files.includes('yarn.lock')) {
+					preferredPM = 'yarn';
+					break;
+				} else if (files.includes('pnpm-lock.yaml')) {
+					preferredPM = 'pnpm';
+					break;
+				} else if (files.includes('package-lock.json')) {
+					preferredPM = 'npm';
+					break;
+				} else if (files.includes('bun.lockb')) {
+					preferredPM = 'bun';
+					break;
+				}
+
+				currentDir = path.dirname(currentDir);
+				depth++;
+			} catch {
+				break;
+			}
+		}
+	}
+
+	// Run the interactive flow
+	const result = await ask(
+		async () => {
+			await completedFields();
+
+			const answers = await group(
+				async () => {
+					// Type selection
+					let selectedType: string;
+					if (preSelectedType) {
+						selectedType = preSelectedType;
+					} else {
+						const availableTypes = Array.from(
+							new Set(visibleExamples.map((example) => example.metadata.type).filter(Boolean)),
+						).sort((a, b) => {
+							if (a === 'plugin') return -1;
+							if (b === 'plugin') return 1;
+							return a!.localeCompare(b!);
+						});
+
+						if (availableTypes.length === 0) {
+							throw new Error('No valid template types found.');
+						}
+
+						selectedType = await radio({
+							label: 'Choose a type:',
+							shortLabel: 'Type',
+							options: availableTypes.map((type) => ({
+								value: type!,
+								label: type!.charAt(0).toUpperCase() + type!.slice(1),
+							})),
+						});
+					}
+
+					// Filter templates by selected type
+					const typeFilteredExamples = visibleExamples.filter(
+						(example) => example.metadata.type === selectedType,
+					);
+
+					if (typeFilteredExamples.length === 0) {
+						throw new Error(`No templates available for ${selectedType}.`);
+					}
+
+					// Framework selection
+					let selectedFramework: string;
+					if (preSelectedFramework) {
+						selectedFramework = preSelectedFramework;
+					} else {
+						const availableFrameworks = getAvailableFrameworks(typeFilteredExamples);
+						const hasNoUIExamples = typeFilteredExamples.some((example) => !exampleHasUI(example.metadata));
+
+						const frameworkOptions = [
+							...availableFrameworks.map((framework) => {
+								const fwLower = framework.toLowerCase();
+								let color: string | undefined;
+								if (fwLower === 'react') color = 'red';
+								else if (fwLower === 'svelte') color = 'yellow';
+								else if (fwLower === 'vue') color = 'green';
+
+								return {
+									value: framework,
+									label: framework.charAt(0).toUpperCase() + framework.slice(1),
+									color,
+								};
+							}),
+							...(hasNoUIExamples ? [{ value: NO_UI_OPTION, label: NO_UI_OPTION }] : []),
+						];
+
+						if (frameworkOptions.length === 1) {
+							selectedFramework = frameworkOptions[0].value;
+						} else {
+							selectedFramework = await radio({
+								label: 'Choose a framework:',
+								shortLabel: 'Framework',
+								options: frameworkOptions,
+							});
+						}
+					}
+
+					// Filter templates by both type and framework preference
+					const needsUI = selectedFramework !== NO_UI_OPTION;
+					const filteredExamples = filterExamples(typeFilteredExamples, needsUI, selectedFramework);
+
+					if (filteredExamples.length === 0) {
+						throw new Error(
+							`No templates available for ${selectedType} with ${selectedFramework === NO_UI_OPTION ? 'no UI' : selectedFramework}.`,
+						);
+					}
+
+					// Sort templates by rank
+					const sortedExamples = filteredExamples.sort((a, b) => {
+						const aRank = a.metadata.rank ?? 0;
+						const bRank = b.metadata.rank ?? 0;
+						return bRank - aRank;
+					});
+
+					// Template selection - create mapping from value to Example
+					const templateMap = new Map<string, Example>();
+					const templateOptions = sortedExamples.map((example, index) => {
+						const displayName = getDisplayName(example);
+						const description = example.metadata.description || 'No description';
+						const frameworks = example.metadata.frameworks
+							? Array.isArray(example.metadata.frameworks)
+								? example.metadata.frameworks.join(', ')
+								: example.metadata.frameworks
+							: 'No UI';
+
+						const type = example.metadata.type || 'plugin';
+						const value = `template-${index}`;
+						templateMap.set(value, example);
+
+						return {
+							value,
+							label: displayName,
+							hint: `${description} (${frameworks})`,
+							color: type === 'plugin' ? 'blue' : 'green',
+						};
+					});
+
+					const selectedTemplateValue = await radio({
+						label: `Choose a ${selectedType} template:`,
+						shortLabel: 'Template',
+						hintPosition: 'inline-fixed' as const,
+						options: templateOptions,
+					});
+
+					const selectedTemplate = templateMap.get(selectedTemplateValue)!;
+
+					// Validate that the selected template supports the chosen framework
+					const templateNeedsUI = exampleHasUI(selectedTemplate.metadata);
+					if (templateNeedsUI && selectedFramework !== NO_UI_OPTION) {
+						const availableFrameworks = getFrameworksForExample(selectedTemplate);
+						const selectedFrameworkLower = selectedFramework.toLowerCase();
+						const supportsFramework = availableFrameworks.some(
+							(fw) => fw.toLowerCase() === selectedFrameworkLower,
+						);
+
+						if (!supportsFramework) {
+							throw new Error(
+								`Template "${getDisplayName(selectedTemplate)}" does not support ${selectedFramework}.`,
+							);
+						}
+					}
+
+					// Add-ons selection
+					let selectedAddOns: string[] = [];
+					if (preSelectedAddOns === false) {
+						selectedAddOns = [];
+					} else if (preSelectedAddOns === undefined) {
+						selectedAddOns = await multi({
+							label: 'Choose add-ons:',
+							shortLabel: 'Add-ons',
+							hintPosition: 'inline-fixed' as const,
+							options: [
+								{ value: 'tailwind', label: 'Tailwind CSS', hint: 'Utility-first CSS framework' },
+								{ value: 'eslint', label: 'ESLint', hint: 'JavaScript linting utility' },
+								{ value: 'vitest', label: 'Vitest', hint: 'Fast unit testing framework' },
+								{ value: 'playwright', label: 'Playwright', hint: 'End-to-end testing framework' },
+								{ value: 'shadcn', label: 'Shadcn/ui', hint: 'Re-usable UI components' },
+							],
+							noneOption: { label: 'None' },
+						});
+					}
+
+					// Collect add-on questions and answers (using nested groups if needed)
+					const addOnAnswers: Record<string, Record<string, any>> = {};
+					if (selectedAddOns.length > 0) {
+						// Import the integrations from the add command
+						const playwrightIntegration = await import('../integrations/playwright.js');
+						const tailwindIntegration = await import('../integrations/tailwind.js');
+						const shadcnIntegration = await import('../integrations/shadcn.js');
+						const vitestIntegration = await import('../integrations/vitest.js');
+						const eslintIntegration = await import('../integrations/eslint.js');
+						const { runIntegration } = await import('../integrations/define-integration.js');
+
+						const INTEGRATIONS = {
+							tailwind: tailwindIntegration.default,
+							shadcn: shadcnIntegration.default,
+							eslint: eslintIntegration.default,
+							vitest: vitestIntegration.default,
+							playwright: playwrightIntegration.default,
+						};
+
+						// Ask questions for each selected add-on (without running setup)
+						for (const addOnKey of selectedAddOns) {
+							if (addOnKey in INTEGRATIONS) {
+								const integration = INTEGRATIONS[addOnKey as keyof typeof INTEGRATIONS];
+
+								// Only ask questions if the integration has them
+								if (integration.questions && integration.questions.length > 0) {
+									// Create a temporary integration that only asks questions without setup
+									const questionOnlyIntegration = {
+										...integration,
+										setup: undefined, // Remove setup to prevent file operations
+										postSetup: undefined, // Remove postSetup to prevent file operations
+									};
+
+									const result = await runIntegration(questionOnlyIntegration, {
+										name: integration.name,
+										prefixPrompts: true, // Prefix prompts with add-on name
+									});
+
+									if (result) {
+										addOnAnswers[addOnKey] = result.answers;
+									}
+								}
+							}
+						}
+					}
+
+					// TypeScript confirmation
+					const typescript =
+						preSelectedTypescript !== undefined
+							? preSelectedTypescript
+							: await confirm({
+									label: 'Use TypeScript?',
+									shortLabel: 'TypeScript',
+									initialValue: true,
+								});
+
+					// Generate project name
+					const exampleName = selectedTemplate.metadata.name || selectedTemplate.name;
+					const normalizedExampleName = exampleName.toLowerCase().replace(/\s+/g, '-');
+					const type = selectedTemplate.metadata.type || 'plugin';
+					const frameworkPart = needsUI ? `-${selectedFramework.toLowerCase()}` : '';
+					const baseName = `${normalizedExampleName}${frameworkPart}-${type}`;
+
+					const projectName = await text({
+						label: `${type.charAt(0).toUpperCase() + type.slice(1)} name:`,
+						shortLabel: 'Name',
+						initialValue: options.name || baseName,
+						onValidate: async (value) => {
+							const error = validateProjectName(value);
+							return error || null;
+						},
+					});
+
+					return {
+						selectedType,
+						selectedFramework,
+						selectedTemplate,
+						selectedAddOns,
+						addOnAnswers,
+						typescript,
+						projectName,
+						needsUI,
+						type,
+					};
+				},
+				{ flow: 'phased', hideOnCompletion: true },
+			);
+
+			return answers;
+		},
+		{
+			onCancel: async () => {
+				const cancel = await spinner('Canceling...', {
+					color: 'yellow',
+					hideOnCompletion: true,
+				});
+
+				await cancel.start();
+				await sleep(800);
+				await cancel.stop('Cancelled');
+				// cleanup(); // Clean up UI first
+				// console.log("Results:", results);
+				process.exit(0); // User controls exit
+			},
+		},
+	);
+
+	// Determine package manager selection
+	let selectedPackageManager: string | null = null;
+	if (preSelectedInstall !== undefined) {
+		selectedPackageManager = preSelectedInstall ? preferredPM : null;
+	}
+
+	// Create the project with tasks
+	await createProjectFromOptions({
+		type: result.type,
+		framework: result.needsUI ? result.selectedFramework : NO_UI_OPTION,
+		typescript: result.typescript,
+		name: result.projectName,
+		selectedExample: result.selectedTemplate,
+		debug: options.debug || false,
+		installAddOns: result.selectedAddOns,
+		installDependencies: preSelectedInstall !== false,
+		selectedPackageManager: preSelectedInstall === false ? null : preferredPM,
+		addOnAnswers: result.addOnAnswers,
+	});
 }
 
 /**
@@ -1110,49 +933,52 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 		if (matchingTemplates.length > 1) {
 			console.log(chalk.yellow(`Multiple templates found for "${templateName}":`));
 
-			try {
-				const templateChoice = await select({
-					message: 'Which template do you want to use?',
-					options: matchingTemplates.map((template) => {
-						const displayName = getDisplayName(template);
-						const type = template.metadata.type || 'unknown';
-						const hasUI = exampleHasUI(template.metadata);
-						const frameworks = template.metadata.frameworks;
+			const templateMap = new Map<string, Example>();
+			const templateOptions = matchingTemplates.map((template, index) => {
+				const displayName = getDisplayName(template);
+				const type = template.metadata.type || 'unknown';
+				const hasUI = exampleHasUI(template.metadata);
+				const frameworks = template.metadata.frameworks;
 
-						// Build the framework part
-						let frameworkPart = '';
-						if (hasUI && frameworks) {
-							const frameworkList = Array.isArray(frameworks) ? frameworks : [frameworks];
-							frameworkPart = frameworkList.join('/');
-						} else if (!hasUI) {
-							frameworkPart = 'no ui';
-						}
+				// Build the framework part
+				let frameworkPart = '';
+				if (hasUI && frameworks) {
+					const frameworkList = Array.isArray(frameworks) ? frameworks : [frameworks];
+					frameworkPart = frameworkList.join('/');
+				} else if (!hasUI) {
+					frameworkPart = 'no ui';
+				}
 
-						// Build the label with square brackets and colors
-						const typeInfo = `${type}${frameworkPart ? `, ${frameworkPart}` : ''}`;
+				// Build the label with square brackets and colors
+				const typeInfo = `${type}${frameworkPart ? `, ${frameworkPart}` : ''}`;
+				const value = `template-${index}`;
+				templateMap.set(value, template);
 
-						// Color code the display name based on type
-						const coloredDisplayName =
-							type === 'plugin' ? chalk.blue(`${displayName}`) : chalk.green(`${displayName}`);
+				return {
+					value,
+					label: `${displayName} [${typeInfo}]`,
+					hint: template.metadata.description || 'No description',
+					color: type === 'plugin' ? 'blue' : 'green',
+				};
+			});
 
-						// Color code the type info
-						const coloredTypeInfo =
-							type === 'plugin' ? chalk.blue(`[${typeInfo}]`) : chalk.green(`[${typeInfo}]`);
-
-						const label = `${coloredDisplayName} ${coloredTypeInfo}`;
-
-						return {
-							label,
-							value: template,
-							hint: template.metadata.description || 'No description',
-						};
-					}),
-				});
-				selectedTemplate = templateChoice as Example;
-			} catch (error) {
-				outro(chalk.gray('Operation cancelled.'));
-				process.exit(0);
-			}
+			const templateChoice = await ask(
+				async () => {
+					return await radio({
+						label: 'Which template do you want to use?',
+						shortLabel: 'Template',
+						hintPosition: 'inline-fixed' as const,
+						options: templateOptions,
+					});
+				},
+				{
+					onCancel: async () => {
+						await note(chalk.gray('Operation cancelled.'));
+						process.exit(0);
+					},
+				},
+			);
+			selectedTemplate = templateMap.get(templateChoice)!;
 		} else {
 			selectedTemplate = matchingTemplates[0];
 		}
@@ -1214,12 +1040,6 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 			addOnAnswers: {}, // No add-ons in quick mode
 		});
 	} catch (error) {
-		// Handle user cancellation gracefully
-		if (error instanceof CancelError || (error instanceof Error && error.message === 'User cancelled')) {
-			outro('Operation cancelled');
-			process.exit(0);
-		}
-
 		console.error(
 			chalk.red('Error creating from template: ' + (error instanceof Error ? error.message : String(error))),
 		);
@@ -1265,246 +1085,226 @@ async function createProjectFromOptions(params: {
 		addOnAnswers = {},
 	} = params;
 
-	const s = spinner();
-	s.start('Creating project...');
+	const destDir = path.join(CURR_DIR, name);
+	let dependencyInstallationFailed = false;
+
+	// Create the task list for project setup
+	const tasksList: Task[] = [
+		{
+			label: `Creating ${type} from template`,
+			action: async () => {
+				const templatesPath = getTemplatesPath();
+				const versions = getVersions();
+				clearDirectory(destDir);
+
+				// Prepare template paths
+				const templates: string[] = [];
+
+				// Add example template if specified
+				if (selectedExample) {
+					const exampleTemplateDir = path.join(templatesPath, 'examples', selectedExample.name);
+					if (fs.existsSync(exampleTemplateDir)) {
+						templates.push(exampleTemplateDir);
+					}
+				} else {
+					// Use default based on type and framework
+					const defaultExample = framework === NO_UI_OPTION ? `${type}-blank` : `${type}-blank-w-ui`;
+					const exampleTemplateDir = path.join(templatesPath, 'examples', defaultExample);
+					if (fs.existsSync(exampleTemplateDir)) {
+						templates.push(exampleTemplateDir);
+					}
+				}
+
+				// Add framework template if needed
+				if (framework !== NO_UI_OPTION) {
+					const frameworkTemplateDir = path.join(templatesPath, 'frameworks', framework.toLowerCase());
+					if (fs.existsSync(frameworkTemplateDir)) {
+						templates.push(frameworkTemplateDir);
+					}
+				}
+
+				// Add TypeScript template if needed
+				if (typescript) {
+					const typescriptTemplateDir = path.join(templatesPath, 'typescript');
+					if (fs.existsSync(typescriptTemplateDir)) {
+						templates.push(typescriptTemplateDir);
+					}
+				}
+
+				// Create template data
+				const needsUI = framework !== NO_UI_OPTION;
+				const templateData: TemplateData = {
+					name,
+					type: type.toLowerCase(),
+					language: typescript ? 'typescript' : 'javascript',
+					framework: framework === NO_UI_OPTION ? null : framework.toLowerCase(),
+					example: selectedExample?.name.toLowerCase() || `${type}-blank`,
+					typescript,
+					hasUI: needsUI,
+					description: `A Figma ${type.toLowerCase()} with ${needsUI ? framework : NO_UI_DESCRIPTION} and ${typescript ? 'TypeScript' : 'JavaScript'}`,
+				};
+
+				// Generate project using Combino
+				const combino = new Combino();
+				await combino.build({
+					outputDir: destDir,
+					include: templates,
+					data: { ...templateData, versions },
+					plugins: [rebase(), ejsMate(), stripTS({ skip: typescript })],
+					configFileName: 'template.json',
+				});
+			},
+		},
+	];
+
+	// Add add-ons setup task if requested
+	if (installAddOns.length > 0) {
+		tasksList.push({
+			label: 'Integrating chosen add-ons',
+			concurrent: true,
+			action: async () => {},
+			tasks: installAddOns.map((addon) => ({
+				label: addon,
+				action: async () => {
+					// The actual setup will be done later, this is just for display
+					await sleep(100);
+				},
+			})),
+		});
+	}
+
+	// Run the tasks
+	try {
+		await tasks(tasksList, { concurrent: false });
+	} catch (error) {
+		await note(chalk.red('Error creating project: ' + (error instanceof Error ? error.message : String(error))));
+		process.exit(1);
+	}
+
+	// Change to the project directory for dependency installation and add-on setup
+	const originalCwd = process.cwd();
+	process.chdir(destDir);
 
 	try {
-		const templatesPath = getTemplatesPath();
-		const versions = getVersions();
+		// Handle add-ons installation if requested
+		let addOnDependencies: string[] = [];
+		let addOnDevDependencies: string[] = [];
 
-		// Define output directory
-		const destDir = path.join(CURR_DIR, name);
-		clearDirectory(destDir);
-
-		// Prepare template paths
-		const templates: string[] = [];
-
-		// Add example template if specified
-		if (selectedExample) {
-			const exampleTemplateDir = path.join(templatesPath, 'examples', selectedExample.name);
-			if (fs.existsSync(exampleTemplateDir)) {
-				templates.push(exampleTemplateDir);
-			}
-		} else {
-			// Use default based on type and framework
-			const defaultExample = framework === NO_UI_OPTION ? `${type}-blank` : `${type}-blank-w-ui`;
-			const exampleTemplateDir = path.join(templatesPath, 'examples', defaultExample);
-			if (fs.existsSync(exampleTemplateDir)) {
-				templates.push(exampleTemplateDir);
-			}
-		}
-
-		// Add framework template if needed
-		if (framework !== NO_UI_OPTION) {
-			const frameworkTemplateDir = path.join(templatesPath, 'frameworks', framework.toLowerCase());
-			if (fs.existsSync(frameworkTemplateDir)) {
-				templates.push(frameworkTemplateDir);
-			}
-		}
-
-		// Add TypeScript template if needed
-		if (typescript) {
-			const typescriptTemplateDir = path.join(templatesPath, 'typescript');
-			if (fs.existsSync(typescriptTemplateDir)) {
-				templates.push(typescriptTemplateDir);
-			}
-		}
-
-		// Create template data
-		const needsUI = framework !== NO_UI_OPTION;
-		const templateData: TemplateData = {
-			name,
-			type: type.toLowerCase(),
-			language: typescript ? 'typescript' : 'javascript',
-			framework: framework === NO_UI_OPTION ? null : framework.toLowerCase(),
-			example: selectedExample?.name.toLowerCase() || `${type}-blank`,
-			typescript,
-			hasUI: needsUI,
-			description: `A Figma ${type.toLowerCase()} with ${needsUI ? framework : NO_UI_DESCRIPTION} and ${typescript ? 'TypeScript' : 'JavaScript'}`,
-		};
-
-		// Generate project using Combino
-		const combino = new Combino();
-		await combino.build({
-			outputDir: destDir,
-			include: templates,
-			data: { ...templateData, versions },
-			plugins: [rebase(), ejsMate(), stripTS({ skip: typescript })],
-			configFileName: 'template.json',
-		});
-
-		// Clear spinner
-		s.stop();
-
-		// Change to the project directory for dependency installation
-		const originalCwd = process.cwd();
-		process.chdir(destDir);
-
-		// Track dependency installation status
-		let dependencyInstallationFailed = false;
-
-		try {
-			// Handle add-ons installation if requested
-			let addOnDependencies: string[] = [];
-			let addOnDevDependencies: string[] = [];
-
-			if (installAddOns.length > 0) {
-				try {
-					// Use the add command logic to install recommended add-ons
-					const { dependencies, devDependencies } = await installRecommendedAddOns(
-						installAddOns,
-						addOnAnswers,
-					);
-					addOnDependencies = dependencies;
-					addOnDevDependencies = devDependencies;
-				} catch (error) {
-					console.log(
-						createBox(undefined, {
-							type: 'error',
-							title: 'Add-ons Installation Error',
-						}),
-					);
-					console.error(
-						chalk.yellow('Warning: Failed to configure add-ons, but project was created successfully.'),
-					);
-					if (debug) {
-						console.error(error);
-					}
+		if (installAddOns.length > 0) {
+			try {
+				// Use the add command logic to install recommended add-ons
+				const { dependencies, devDependencies } = await installRecommendedAddOns(installAddOns, addOnAnswers);
+				addOnDependencies = dependencies;
+				addOnDevDependencies = devDependencies;
+			} catch (error) {
+				console.log(
+					createBox(undefined, {
+						type: 'error',
+						title: 'Add-ons Installation Error',
+					}),
+				);
+				console.error(
+					chalk.yellow('Warning: Failed to configure add-ons, but project was created successfully.'),
+				);
+				if (debug) {
+					console.error(error);
 				}
 			}
-
-			// Install dependencies if requested
-			if (installDependencies && selectedPackageManager) {
-				const installSpinner = createSpinner();
-				try {
-					if (addOnDependencies.length > 0 || addOnDevDependencies.length > 0) {
-						// Install template dependencies first, then add-on dependencies
-						installSpinner.start(`Installing template dependencies with ${selectedPackageManager}...`);
-						await installProjectDependencies(selectedPackageManager);
-						installSpinner.stop();
-
-						installSpinner.start(`Installing add-on dependencies with ${selectedPackageManager}...`);
-						await installSpecificDependencies(
-							addOnDependencies,
-							addOnDevDependencies,
-							selectedPackageManager,
-						);
-						installSpinner.stop();
-					} else {
-						// Only install template dependencies
-						installSpinner.start(`Installing dependencies with ${selectedPackageManager}...`);
-						await installProjectDependencies(selectedPackageManager);
-						installSpinner.stop();
-					}
-				} catch (error) {
-					installSpinner.stop(); // Stop the spinner on error
-					dependencyInstallationFailed = true;
-					// Store error details to show after success message
-					if (debug) {
-						console.error('Dependency installation error:', error);
-					}
-					// Don't re-throw the error, just continue to show success message
-				}
-			}
-		} catch (error) {
-			console.log(
-				createBox(undefined, {
-					type: 'error',
-					title: 'Project Creation Error',
-				}),
-			);
-			console.error(chalk.yellow('Warning: Failed to create project.'));
-			if (debug) {
-				console.error('Detailed error:', error);
-			} else {
-				console.error('Run with --debug flag for more details.');
-			}
-		} finally {
-			// Change back to original directory
-			process.chdir(originalCwd);
 		}
 
-		// Build success message with next steps
-		const nextSteps = ['Next steps:', `  ${chalk.cyan(`cd ${name}`)}`];
+		// Install dependencies if requested
+		if (installDependencies && selectedPackageManager) {
+			const installTask: Task = {
+				label: `Installing dependencies with ${selectedPackageManager}`,
+				action: async () => {
+					try {
+						if (addOnDependencies.length > 0 || addOnDevDependencies.length > 0) {
+							// Install template dependencies first, then add-on dependencies
+							await installProjectDependencies(selectedPackageManager);
+							await installSpecificDependencies(
+								addOnDependencies,
+								addOnDevDependencies,
+								selectedPackageManager,
+							);
+						} else {
+							// Only install template dependencies
+							await installProjectDependencies(selectedPackageManager);
+						}
+					} catch (error) {
+						dependencyInstallationFailed = true;
+						if (debug) {
+							console.error('Dependency installation error:', error);
+						}
+					}
+				},
+			};
 
-		// Use selected package manager for correct commands
-		const packageManager = selectedPackageManager || 'npm'; // Default to npm if none selected
-
-		// Only show install command if dependencies weren't already installed OR if installation failed
-		if (!installDependencies || dependencyInstallationFailed) {
-			const installCommand =
-				packageManager === 'npm'
-					? 'npm install'
-					: packageManager === 'yarn'
-						? 'yarn'
-						: packageManager === 'pnpm'
-							? 'pnpm install'
-							: packageManager === 'bun'
-								? 'bun install'
-								: packageManager === 'deno'
-									? 'deno install'
-									: 'npm install'; // fallback
-			nextSteps.push(`  ${chalk.cyan(installCommand)}`);
-		}
-
-		const devCommand =
-			packageManager === 'npm'
-				? 'npm run dev'
-				: packageManager === 'yarn'
-					? 'yarn dev'
-					: packageManager === 'pnpm'
-						? 'pnpm dev'
-						: packageManager === 'bun'
-							? 'bun run dev'
-							: packageManager === 'deno'
-								? 'deno run --allow-all dev'
-								: 'npm run dev'; // fallback
-		nextSteps.push(`  ${chalk.cyan(devCommand)}`);
-		nextSteps.push(`  Import ${chalk.cyan('dist/manifest.json')} in Figma`);
-		nextSteps.push(`  \n  Check out the docs at ${chalk.blue.underline('https://plugma.dev')}.`);
-
-		const successMessage = nextSteps.join('\n');
-
-		// Capitalize the first letter of the project type for the success message
-		const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
-
-		console.log(
-			createBox(successMessage, {
-				type: 'success',
-				title: `${capitalizedType} created!`,
-			}),
-		);
-
-		// Show dependency installation error after success message if installation failed
-		if (dependencyInstallationFailed) {
-			console.log(
-				createBox(undefined, {
-					type: 'error',
-					title: 'Dependency Installation Error',
-				}),
-			);
-			console.error(
-				chalk.yellow('Warning: Failed to install dependencies, but project was created successfully.'),
-			);
+			await tasks.add([installTask]);
 		}
 	} catch (error) {
-		// Handle user cancellation gracefully
-		if (error instanceof CancelError || (error instanceof Error && error.message === 'User cancelled')) {
-			s.stop();
-			outro('Operation cancelled');
-			process.exit(0);
-		}
-
-		s.fail('Failed to create project');
-
-		// Show error message in a nice box
 		console.log(
 			createBox(undefined, {
 				type: 'error',
 				title: 'Project Creation Error',
 			}),
 		);
+		console.error(chalk.yellow('Warning: Failed to create project.'));
+		if (debug) {
+			console.error('Detailed error:', error);
+		} else {
+			console.error('Run with --debug flag for more details.');
+		}
+	} finally {
+		// Change back to original directory
+		process.chdir(originalCwd);
+	}
 
-		throw error;
+	// Build success message with next steps
+	const packageManager = selectedPackageManager || 'npm';
+	const nextStepsLines: string[] = ['**Plugged in and ready to go!**\n'];
+
+	nextStepsLines.push(`1. \`cd ${name}\``);
+
+	// Only show install command if dependencies weren't already installed OR if installation failed
+	if (!installDependencies || dependencyInstallationFailed) {
+		const installCommand =
+			packageManager === 'npm'
+				? 'npm install'
+				: packageManager === 'yarn'
+					? 'yarn'
+					: packageManager === 'pnpm'
+						? 'pnpm install'
+						: packageManager === 'bun'
+							? 'bun install'
+							: packageManager === 'deno'
+								? 'deno install'
+								: 'npm install';
+		nextStepsLines.push(`2. \`${installCommand}\``);
+	}
+
+	const devCommand =
+		packageManager === 'npm'
+			? 'npm run dev'
+			: packageManager === 'yarn'
+				? 'yarn dev'
+				: packageManager === 'pnpm'
+					? 'pnpm dev'
+					: packageManager === 'bun'
+						? 'bun run dev'
+						: packageManager === 'deno'
+							? 'deno run --allow-all dev'
+							: 'npm run dev';
+	const stepNum = !installDependencies || dependencyInstallationFailed ? 3 : 2;
+	nextStepsLines.push(`${stepNum}. \`${devCommand}\``);
+	nextStepsLines.push(`${stepNum + 1}. Import \`dist/manifest.json\` in Figma`);
+	nextStepsLines.push(`\nCheck the docs out at https://plugma.dev.`);
+
+	const successMessage = nextStepsLines.join('\n');
+
+	await note(successMessage);
+
+	// Show dependency installation error after success message if installation failed
+	if (dependencyInstallationFailed) {
+		await note(chalk.yellow('Warning: Failed to install dependencies, but project was created successfully.'));
 	}
 }
