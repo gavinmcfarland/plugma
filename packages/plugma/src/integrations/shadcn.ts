@@ -158,7 +158,7 @@ export default defineIntegration({
 							};
 						});
 						updatedAny = true;
-						console.log(`Updated path aliases in ${configFile}`);
+						// console.log(`Updated path aliases in ${configFile}`);
 					}
 				} catch (error) {
 					// File doesn't exist, continue to next

@@ -266,130 +266,6 @@ function getVersions(): Record<string, string> {
 }
 
 /**
- * Install recommended add-ons for a specific project
- */
-async function installRecommendedAddOns(
-	selectedAddOns: string[],
-	addOnAnswers: Record<string, Record<string, any>> = {},
-): Promise<{ dependencies: string[]; devDependencies: string[] }> {
-	if (selectedAddOns.length === 0) {
-		console.log(chalk.blue('Skipping add-ons installation. You can install add-ons later using: plugma add'));
-		return { dependencies: [], devDependencies: [] };
-	}
-
-	// Import the integrations from the add command
-	const playwrightIntegration = await import('../integrations/playwright.js');
-	const tailwindIntegration = await import('../integrations/tailwind.js');
-	const shadcnIntegration = await import('../integrations/shadcn.js');
-	const vitestIntegration = await import('../integrations/vitest.js');
-	const eslintIntegration = await import('../integrations/eslint.js');
-	const { runIntegration } = await import('../integrations/define-integration.js');
-	const { createFileHelpers } = await import('../utils/file-helpers.js');
-
-	const INTEGRATIONS = {
-		tailwind: tailwindIntegration.default,
-		shadcn: shadcnIntegration.default,
-		eslint: eslintIntegration.default,
-		vitest: vitestIntegration.default,
-		playwright: playwrightIntegration.default,
-	};
-
-	// Collection for all dependencies
-	const allDeps = {
-		dependencies: new Set<string>(),
-		devDependencies: new Set<string>(),
-	};
-
-	// Store results for postSetup hooks
-	const integrationResults: Array<{ integration: any; answers: Record<string, any> }> = [];
-
-	for (const addOnKey of selectedAddOns) {
-		if (addOnKey in INTEGRATIONS) {
-			try {
-				const s = createSpinner();
-				s.start(`Setting up ${addOnKey}...`);
-
-				const integration = INTEGRATIONS[addOnKey as keyof typeof INTEGRATIONS];
-
-				// Use pre-collected answers if available, otherwise run integration normally
-				let result;
-				if (addOnAnswers[addOnKey]) {
-					// Use pre-collected answers and run the full integration setup
-					const helpers = createFileHelpers();
-					const typescript = await helpers.detectTypeScript();
-
-					// Run setup function if provided (now the project exists, so file operations are safe)
-					if (integration.setup) {
-						await integration.setup({ answers: addOnAnswers[addOnKey], helpers, typescript });
-					}
-
-					result = {
-						answers: addOnAnswers[addOnKey],
-						dependencies: integration.dependencies || [],
-						devDependencies: integration.devDependencies || [],
-						files: integration.files || [],
-						nextSteps: integration.nextSteps?.(addOnAnswers[addOnKey]) || [],
-					};
-				} else {
-					// No pre-collected answers, run integration normally (shouldn't happen in create flow)
-					result = await runIntegration(integration, {
-						name: integration.name,
-						prefixPrompts: false, // Don't prefix prompts since we're in the create flow
-					});
-				}
-
-				if (result) {
-					s.stop();
-					console.log(chalk.green(`✓ ${integration.name} configured successfully`));
-
-					// Collect dependencies
-					result.dependencies.forEach((dep) => allDeps.dependencies.add(dep));
-					result.devDependencies.forEach((dep) => allDeps.devDependencies.add(dep));
-
-					// Store for postSetup
-					integrationResults.push({ integration, answers: result.answers });
-				} else {
-					s.fail(`Failed to configure ${addOnKey}`);
-				}
-			} catch (error) {
-				console.error(
-					chalk.red(
-						`Failed to configure ${addOnKey}: ${error instanceof Error ? error.message : String(error)}`,
-					),
-				);
-			}
-		} else {
-			console.warn(chalk.yellow(`Unknown add-on: ${addOnKey}`));
-		}
-	}
-
-	// Run postSetup hooks for all integrations
-	if (integrationResults.length > 0) {
-		const helpers = createFileHelpers();
-		const typescript = await helpers.detectTypeScript();
-
-		for (const { integration, answers } of integrationResults) {
-			if (integration.postSetup) {
-				try {
-					await integration.postSetup({ answers, helpers, typescript });
-				} catch (error) {
-					console.warn(
-						chalk.yellow(
-							`Warning: PostSetup failed for ${integration.name}: ${error instanceof Error ? error.message : String(error)}`,
-						),
-					);
-				}
-			}
-		}
-	}
-
-	return {
-		dependencies: Array.from(allDeps.dependencies),
-		devDependencies: Array.from(allDeps.devDependencies),
-	};
-}
-
-/**
  * Install project dependencies from package.json
  */
 async function installProjectDependencies(packageManager: string): Promise<void> {
@@ -473,6 +349,8 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 			installDependencies: !options.noInstall,
 			selectedPackageManager: !options.noInstall ? defaultPM : null, // Use detected package manager
 			addOnAnswers: {}, // No add-ons in quick mode
+			preferredPM: defaultPM,
+			skipInstallPrompt: true, // Skip prompt in quick mode
 		});
 
 		return;
@@ -769,50 +647,49 @@ async function browseAndSelectTemplate(
 						});
 					}
 
-					// Collect add-on questions and answers (using nested groups if needed)
+					// Collect add-on questions and answers using askeroo
 					const addOnAnswers: Record<string, Record<string, any>> = {};
-					if (selectedAddOns.length > 0) {
-						// Import the integrations from the add command
-						const playwrightIntegration = await import('../integrations/playwright.js');
-						const tailwindIntegration = await import('../integrations/tailwind.js');
-						const shadcnIntegration = await import('../integrations/shadcn.js');
-						const vitestIntegration = await import('../integrations/vitest.js');
-						const eslintIntegration = await import('../integrations/eslint.js');
-						const { runIntegration } = await import('../integrations/define-integration.js');
 
-						const INTEGRATIONS = {
-							tailwind: tailwindIntegration.default,
-							shadcn: shadcnIntegration.default,
-							eslint: eslintIntegration.default,
-							vitest: vitestIntegration.default,
-							playwright: playwrightIntegration.default,
-						};
+					// Handle shadcn configuration if selected
+					if (selectedAddOns.includes('shadcn')) {
+						const shadcnConfig = await group(
+							async () => {
+								const style = await radio({
+									label: 'Choose a style',
+									shortLabel: 'Style',
+									options: [
+										{ value: 'default', label: 'Default', hint: 'Simple and clean' },
+										{ value: 'new-york', label: 'New York', hint: 'Elegant and professional' },
+									],
+									meta: {
+										depth: 1,
+										group: 'Shadcn',
+									},
+								});
 
-						// Ask questions for each selected add-on (without running setup)
-						for (const addOnKey of selectedAddOns) {
-							if (addOnKey in INTEGRATIONS) {
-								const integration = INTEGRATIONS[addOnKey as keyof typeof INTEGRATIONS];
+								const baseColor = await radio({
+									label: 'Choose a base color',
+									shortLabel: 'Color',
+									options: [
+										{ value: 'slate', label: 'Slate' },
+										{ value: 'zinc', label: 'Zinc' },
+										{ value: 'neutral', label: 'Neutral' },
+										{ value: 'gray', label: 'Gray' },
+									],
+									meta: {
+										depth: 1,
+										group: 'Shadcn',
+									},
+								});
 
-								// Only ask questions if the integration has them
-								if (integration.questions && integration.questions.length > 0) {
-									// Create a temporary integration that only asks questions without setup
-									const questionOnlyIntegration = {
-										...integration,
-										setup: undefined, // Remove setup to prevent file operations
-										postSetup: undefined, // Remove postSetup to prevent file operations
-									};
-
-									const result = await runIntegration(questionOnlyIntegration, {
-										name: integration.name,
-										prefixPrompts: true, // Prefix prompts with add-on name
-									});
-
-									if (result) {
-										addOnAnswers[addOnKey] = result.answers;
-									}
-								}
-							}
-						}
+								return { style, baseColor };
+							},
+							{
+								label: 'Shadcn',
+								flow: 'phased',
+							},
+						);
+						addOnAnswers.shadcn = shadcnConfig;
 					}
 
 					// TypeScript confirmation
@@ -857,7 +734,21 @@ async function browseAndSelectTemplate(
 				{ flow: 'phased', hideOnCompletion: true },
 			);
 
-			return answers;
+			// Create the project with tasks
+			await createProjectFromOptions({
+				type: answers.type,
+				framework: answers.needsUI ? answers.selectedFramework : NO_UI_OPTION,
+				typescript: answers.typescript,
+				name: answers.projectName,
+				selectedExample: answers.selectedTemplate,
+				debug: options.debug || false,
+				installAddOns: answers.selectedAddOns,
+				installDependencies: preSelectedInstall !== false,
+				selectedPackageManager: null, // Will be prompted after tasks
+				addOnAnswers: answers.addOnAnswers,
+				preferredPM,
+				skipInstallPrompt: preSelectedInstall === false,
+			});
 		},
 		{
 			onCancel: async () => {
@@ -869,32 +760,10 @@ async function browseAndSelectTemplate(
 				await cancel.start();
 				await sleep(800);
 				await cancel.stop('Cancelled');
-				// cleanup(); // Clean up UI first
-				// console.log("Results:", results);
-				process.exit(0); // User controls exit
+				process.exit(0);
 			},
 		},
 	);
-
-	// Determine package manager selection
-	let selectedPackageManager: string | null = null;
-	if (preSelectedInstall !== undefined) {
-		selectedPackageManager = preSelectedInstall ? preferredPM : null;
-	}
-
-	// Create the project with tasks
-	await createProjectFromOptions({
-		type: result.type,
-		framework: result.needsUI ? result.selectedFramework : NO_UI_OPTION,
-		typescript: result.typescript,
-		name: result.projectName,
-		selectedExample: result.selectedTemplate,
-		debug: options.debug || false,
-		installAddOns: result.selectedAddOns,
-		installDependencies: preSelectedInstall !== false,
-		selectedPackageManager: preSelectedInstall === false ? null : preferredPM,
-		addOnAnswers: result.addOnAnswers,
-	});
 }
 
 /**
@@ -1038,6 +907,8 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 			installDependencies: !options.noInstall,
 			selectedPackageManager: !options.noInstall ? defaultPM : null, // Use detected package manager
 			addOnAnswers: {}, // No add-ons in quick mode
+			preferredPM: defaultPM,
+			skipInstallPrompt: true, // Skip prompt when using --template
 		});
 	} catch (error) {
 		console.error(
@@ -1071,6 +942,8 @@ async function createProjectFromOptions(params: {
 	installDependencies?: boolean;
 	selectedPackageManager?: string | null;
 	addOnAnswers?: Record<string, Record<string, any>>;
+	preferredPM?: string;
+	skipInstallPrompt?: boolean;
 }): Promise<void> {
 	const {
 		type,
@@ -1083,10 +956,19 @@ async function createProjectFromOptions(params: {
 		installDependencies = true,
 		selectedPackageManager = null,
 		addOnAnswers = {},
+		preferredPM = 'npm',
+		skipInstallPrompt = false,
 	} = params;
 
 	const destDir = path.join(CURR_DIR, name);
 	let dependencyInstallationFailed = false;
+
+	// Shared state for add-on integration results
+	const allDeps = {
+		dependencies: new Set<string>(),
+		devDependencies: new Set<string>(),
+	};
+	const integrationResults: Array<{ integration: any; answers: Record<string, any> }> = [];
 
 	// Create the task list for project setup
 	const tasksList: Task[] = [
@@ -1157,23 +1039,83 @@ async function createProjectFromOptions(params: {
 		},
 	];
 
-	// Add add-ons setup task if requested
+	// Add the add-ons task if there are any add-ons selected
 	if (installAddOns.length > 0) {
 		tasksList.push({
 			label: 'Integrating chosen add-ons',
-			concurrent: true,
 			action: async () => {},
-			tasks: installAddOns.map((addon) => ({
-				label: addon,
+			concurrent: true,
+			tasks: installAddOns.map((addOnKey) => ({
+				label: addOnKey,
 				action: async () => {
-					// The actual setup will be done later, this is just for display
-					await sleep(100);
+					// Import the integrations
+					const playwrightIntegration = await import('../integrations/playwright.js');
+					const tailwindIntegration = await import('../integrations/tailwind.js');
+					const shadcnIntegration = await import('../integrations/shadcn.js');
+					const vitestIntegration = await import('../integrations/vitest.js');
+					const eslintIntegration = await import('../integrations/eslint.js');
+					const { runIntegration } = await import('../integrations/define-integration.js');
+					const { createFileHelpers } = await import('../utils/file-helpers.js');
+
+					const INTEGRATIONS = {
+						tailwind: tailwindIntegration.default,
+						shadcn: shadcnIntegration.default,
+						eslint: eslintIntegration.default,
+						vitest: vitestIntegration.default,
+						playwright: playwrightIntegration.default,
+					};
+
+					if (addOnKey in INTEGRATIONS) {
+						const integration = INTEGRATIONS[addOnKey as keyof typeof INTEGRATIONS];
+
+						// Use pre-collected answers if available
+						let result;
+						if (addOnAnswers[addOnKey]) {
+							// Change to project directory for file operations
+							process.chdir(destDir);
+
+							const helpers = createFileHelpers();
+							const typescript = await helpers.detectTypeScript();
+
+							// Run setup function if provided
+							if (integration.setup) {
+								await integration.setup({ answers: addOnAnswers[addOnKey], helpers, typescript });
+							}
+
+							result = {
+								answers: addOnAnswers[addOnKey],
+								dependencies: integration.dependencies || [],
+								devDependencies: integration.devDependencies || [],
+								files: integration.files || [],
+								nextSteps: integration.nextSteps?.(addOnAnswers[addOnKey]) || [],
+							};
+						} else {
+							// No pre-collected answers
+							result = await runIntegration(integration, {
+								name: integration.name,
+								prefixPrompts: false,
+							});
+						}
+
+						if (result) {
+							// Collect dependencies
+							result.dependencies.forEach((dep) => allDeps.dependencies.add(dep));
+							result.devDependencies.forEach((dep) => allDeps.devDependencies.add(dep));
+
+							// Store for postSetup
+							integrationResults.push({ integration, answers: result.answers });
+						} else {
+							throw new Error(`Failed to configure ${addOnKey}`);
+						}
+					} else {
+						throw new Error(`Unknown add-on: ${addOnKey}`);
+					}
 				},
 			})),
 		});
 	}
 
-	// Run the tasks
+	// Run the project creation and add-on tasks
 	try {
 		await tasks(tasksList, { concurrent: false });
 	} catch (error) {
@@ -1181,65 +1123,88 @@ async function createProjectFromOptions(params: {
 		process.exit(1);
 	}
 
-	// Change to the project directory for dependency installation and add-on setup
+	// Change to the project directory for dependency installation
 	const originalCwd = process.cwd();
 	process.chdir(destDir);
 
-	try {
-		// Handle add-ons installation if requested
-		let addOnDependencies: string[] = [];
-		let addOnDevDependencies: string[] = [];
+	// Run postSetup hooks for all integrations
+	if (integrationResults.length > 0) {
+		const { createFileHelpers } = await import('../utils/file-helpers.js');
+		const helpers = createFileHelpers();
+		const typescript = await helpers.detectTypeScript();
 
-		if (installAddOns.length > 0) {
-			try {
-				// Use the add command logic to install recommended add-ons
-				const { dependencies, devDependencies } = await installRecommendedAddOns(installAddOns, addOnAnswers);
-				addOnDependencies = dependencies;
-				addOnDevDependencies = devDependencies;
-			} catch (error) {
-				console.log(
-					createBox(undefined, {
-						type: 'error',
-						title: 'Add-ons Installation Error',
-					}),
-				);
-				console.error(
-					chalk.yellow('Warning: Failed to configure add-ons, but project was created successfully.'),
-				);
-				if (debug) {
-					console.error(error);
+		for (const { integration, answers } of integrationResults) {
+			if (integration.postSetup) {
+				try {
+					await integration.postSetup({ answers, helpers, typescript });
+				} catch (error) {
+					console.warn(
+						chalk.yellow(
+							`Warning: PostSetup failed for ${integration.name}: ${error instanceof Error ? error.message : String(error)}`,
+						),
+					);
 				}
 			}
 		}
+	}
 
-		// Install dependencies if requested
-		if (installDependencies && selectedPackageManager) {
-			const installTask: Task = {
-				label: `Installing dependencies with ${selectedPackageManager}`,
-				action: async () => {
-					try {
-						if (addOnDependencies.length > 0 || addOnDevDependencies.length > 0) {
-							// Install template dependencies first, then add-on dependencies
-							await installProjectDependencies(selectedPackageManager);
-							await installSpecificDependencies(
-								addOnDependencies,
-								addOnDevDependencies,
-								selectedPackageManager,
-							);
-						} else {
-							// Only install template dependencies
-							await installProjectDependencies(selectedPackageManager);
+	const addOnDependencies = Array.from(allDeps.dependencies);
+	const addOnDevDependencies = Array.from(allDeps.devDependencies);
+
+	// Prompt for package manager if not skipped
+	let pkgManager: string | null = null;
+
+	try {
+		if (!skipInstallPrompt && installDependencies) {
+			// Find the index of the preferred package manager for setting initial value
+			const packageManagerOptions = [
+				{ value: 'skip', label: 'Skip' },
+				{ value: 'npm', label: 'npm' },
+				{ value: 'pnpm', label: 'pnpm' },
+				{ value: 'yarn', label: 'yarn' },
+				{ value: 'bun', label: 'bun' },
+				{ value: 'deno', label: 'deno' },
+			];
+
+			const initialValue = packageManagerOptions.find((opt) => opt.value === preferredPM)?.value || 'npm';
+
+			pkgManager = await radio({
+				label: 'Install dependencies?',
+				shortLabel: 'Dependencies',
+				initialValue,
+				options: packageManagerOptions,
+				hideOnCompletion: true,
+			});
+		} else if (skipInstallPrompt) {
+			pkgManager = 'skip';
+		} else {
+			pkgManager = selectedPackageManager;
+		}
+
+		// Install dependencies if a package manager was selected
+		if (pkgManager && pkgManager !== 'skip') {
+			await tasks.add([
+				{
+					label: `Installing dependencies with ${pkgManager}`,
+					action: async () => {
+						try {
+							if (addOnDependencies.length > 0 || addOnDevDependencies.length > 0) {
+								// Install template dependencies first, then add-on dependencies
+								await installProjectDependencies(pkgManager!);
+								await installSpecificDependencies(addOnDependencies, addOnDevDependencies, pkgManager!);
+							} else {
+								// Only install template dependencies
+								await installProjectDependencies(pkgManager!);
+							}
+						} catch (error) {
+							dependencyInstallationFailed = true;
+							if (debug) {
+								console.error('Dependency installation error:', error);
+							}
 						}
-					} catch (error) {
-						dependencyInstallationFailed = true;
-						if (debug) {
-							console.error('Dependency installation error:', error);
-						}
-					}
+					},
 				},
-			};
-
-			await tasks.add([installTask]);
+			]);
 		}
 	} catch (error) {
 		console.log(
@@ -1260,13 +1225,13 @@ async function createProjectFromOptions(params: {
 	}
 
 	// Build success message with next steps
-	const packageManager = selectedPackageManager || 'npm';
+	const packageManager = pkgManager || selectedPackageManager || 'npm';
 	const nextStepsLines: string[] = ['**Plugged in and ready to go!**\n'];
 
 	nextStepsLines.push(`1. \`cd ${name}\``);
 
-	// Only show install command if dependencies weren't already installed OR if installation failed
-	if (!installDependencies || dependencyInstallationFailed) {
+	// Only show install command if dependencies weren't installed OR if installation failed
+	if (!pkgManager || pkgManager === 'skip' || dependencyInstallationFailed) {
 		const installCommand =
 			packageManager === 'npm'
 				? 'npm install'
@@ -1294,7 +1259,7 @@ async function createProjectFromOptions(params: {
 						: packageManager === 'deno'
 							? 'deno run --allow-all dev'
 							: 'npm run dev';
-	const stepNum = !installDependencies || dependencyInstallationFailed ? 3 : 2;
+	const stepNum = !pkgManager || pkgManager === 'skip' || dependencyInstallationFailed ? 3 : 2;
 	nextStepsLines.push(`${stepNum}. \`${devCommand}\``);
 	nextStepsLines.push(`${stepNum + 1}. Import \`dist/manifest.json\` in Figma`);
 	nextStepsLines.push(`\nCheck the docs out at https://plugma.dev.`);
