@@ -24,8 +24,10 @@ export default defineIntegration({
 		await helpers.writeTemplateFile('templates/integrations/playwright', `playwright/example.spec.${ext}`);
 	},
 
-	nextSteps: (answers) => dedent`
-		Run tests with ${chalk.cyan('npm run playwright')}
-		See Playwright docs for more information: ${chalk.cyan('https://playwright.dev/docs/intro')}
+	nextSteps: (answers) => `
+	**Plugged in and ready to go!**
+
+	1. Run tests with \`npm run playwright\`
+	2. Visit https://playwright.dev/ for more information
 	`,
 });

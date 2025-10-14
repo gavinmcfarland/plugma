@@ -30,8 +30,10 @@ export default defineIntegration({
 		await helpers.writeTemplateFile('templates/integrations/eslint', 'eslint.config.js');
 	},
 
-	nextSteps: () => dedent`
-		To run the linter, run \`npm run lint\`.
-		[Optional] Install ESLint extension for VSCode: ${chalk.cyan('https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint')}
+	nextSteps: () => `
+	**Plugged in and ready to go!**
+
+	1. To run the linter, run \`npm run lint\`.
+	2. [Optional] Install ESLint extension for VSCode: https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
 	`,
 });

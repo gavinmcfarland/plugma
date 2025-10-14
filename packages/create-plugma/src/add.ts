@@ -246,6 +246,7 @@ async function installRequiredIntegrations(
 
 	const shouldInstall = await confirm({
 		label: `Would you like to install the missing integrations (${needsInstallation.map((item) => item.integration.name).join(', ')})?`,
+		hideOnCompletion: true,
 		initialValue: true,
 	});
 
@@ -341,7 +342,7 @@ export async function add(options: AddCommandOptions): Promise<void> {
 											case 'select':
 												answer = await radio({
 													label: question.question,
-													shortLabel: question.id,
+													shortLabel: question.shortLabel || question.id,
 													options: question.options.map((opt) => ({
 														value: opt.value,
 														label: opt.label,
@@ -356,14 +357,14 @@ export async function add(options: AddCommandOptions): Promise<void> {
 											case 'confirm':
 												answer = await confirm({
 													label: question.question,
-													shortLabel: question.id,
+													shortLabel: question.shortLabel || question.id,
 													initialValue: question.default,
 												});
 												break;
 											case 'text':
 												answer = await text({
 													label: question.question,
-													shortLabel: question.id,
+													shortLabel: question.shortLabel || question.id,
 													initialValue: question.default || '',
 												});
 												break;

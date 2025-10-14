@@ -97,6 +97,7 @@ export type QuestionType = 'select' | 'confirm' | 'text';
 export interface BaseQuestion {
 	id: string;
 	question: string;
+	shortLabel?: string;
 	type: QuestionType;
 	condition?: (answers: Record<string, any>) => boolean;
 }

@@ -239,9 +239,10 @@ ${content}`;
 		const uiDir = answers.uiDir || 'src';
 		const relativeCssPath = answers.relativeCssPath || `${uiDir}/styles.css`;
 
-		return `**Plugged in and ready to go!**\n
-		1. The base Tailwind CSS file is at \`${relativeCssPath}\`
-		2. Start using Tailwind classes in your HTML!
+		return `**Plugged in and ready to go!**
+
+		1. Tailwind CSS file at \`${relativeCssPath}\`
+		2. Add Tailwind classes to your HTML
 		3. Example: \`<div class="flex items-center justify-center">\`
 		`;
 	},
