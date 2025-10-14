@@ -151,13 +151,22 @@ export function defineIntegration(integration: Integration): Integration {
 interface RunIntegrationOptions {
 	name: string;
 	prefixPrompts?: boolean;
+	providedAnswers?: Record<string, any>;
 }
 
 export async function runIntegration(integration: Integration, options?: RunIntegrationOptions) {
-	// Get answers to all questions
-	const answers = integration.questions
-		? await askQuestions(integration.questions, {}, options?.prefixPrompts ? options.name : undefined)
-		: {};
+	// Use provided answers if available, otherwise ask questions (legacy behavior)
+	let answers: Record<string, any> | null;
+
+	if (options?.providedAnswers) {
+		// Use answers that were already collected externally
+		answers = options.providedAnswers;
+	} else {
+		// Legacy behavior: ask questions directly (for backward compatibility)
+		answers = integration.questions
+			? await askQuestions(integration.questions, {}, options?.prefixPrompts ? options.name : undefined)
+			: {};
+	}
 
 	if (!answers) return null;
 

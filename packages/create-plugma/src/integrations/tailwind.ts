@@ -239,10 +239,10 @@ ${content}`;
 		const uiDir = answers.uiDir || 'src';
 		const relativeCssPath = answers.relativeCssPath || `${uiDir}/styles.css`;
 
-		return dedent`
-			The base Tailwind CSS file is at ${chalk.magenta(relativeCssPath)}
-			Start using Tailwind classes in your HTML!
-			Example: ${chalk.magenta('<div class="flex items-center justify-center">')}
+		return `**Plugged in and ready to go!**\n
+		1. The base Tailwind CSS file is at \`${relativeCssPath}\`
+		2. Start using Tailwind classes in your HTML!
+		3. Example: \`<div class="flex items-center justify-center">\`
 		`;
 	},
 });
