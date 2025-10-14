@@ -41,18 +41,65 @@ export function createFileHelpers(cwd = process.cwd()): FileHelpers {
 			// Create a temporary directory for Combino output
 			const tempDir = path.join(cwd, '.temp-template-' + Math.random().toString(36).substring(7));
 
-			try {
-				// Initialize Combino
-				const combino = new Combino();
+			// Create a temporary .prettierrc in cwd to prevent Prettier from finding parent configs
+			const tempPrettierRc = path.join(cwd, '.prettierrc');
+			const prettierConfig = {
+				useTabs: true,
+				semi: true,
+				singleQuote: true,
+				printWidth: 100,
+			};
 
-				// Build the template to a temporary directory
-				await combino.build({
-					outputDir: tempDir,
-					include: [absoluteTemplateDir],
-					data: { typescript: isTypeScript, ...data },
-					plugins: [rebase(), ejsMate(), stripTS({ skip: isTypeScript })],
-					configFileName: 'template.json',
-				});
+			// Check if .prettierrc already exists
+			let existingPrettierConfig: string | null = null;
+			try {
+				existingPrettierConfig = await fs.readFile(tempPrettierRc, 'utf-8');
+			} catch (error) {
+				// File doesn't exist, that's fine
+			}
+
+			try {
+				// Write temporary Prettier config only if one doesn't exist
+				if (!existingPrettierConfig) {
+					await fs.writeFile(tempPrettierRc, JSON.stringify(prettierConfig, null, 2));
+				}
+
+				// Suppress console warnings during Combino build
+				const originalWarn = console.warn;
+				const originalError = console.error;
+				console.warn = (...args: any[]) => {
+					// Suppress Prettier plugin warnings
+					const message = args.join(' ');
+					if (!message.includes('prettier-plugin-svelte') && !message.includes('Failed to format')) {
+						originalWarn.apply(console, args);
+					}
+				};
+				console.error = (...args: any[]) => {
+					// Suppress Prettier plugin errors
+					const message = args.join(' ');
+					if (!message.includes('prettier-plugin-svelte') && !message.includes('Failed to format')) {
+						originalError.apply(console, args);
+					}
+				};
+
+				try {
+					// Initialize Combino with explicit warnings disabled to avoid Prettier plugin conflicts
+					const combino = new Combino();
+
+					// Build the template to a temporary directory
+					await combino.build({
+						outputDir: tempDir,
+						include: [absoluteTemplateDir],
+						data: { typescript: isTypeScript, ...data },
+						plugins: [rebase(), ejsMate(), stripTS({ skip: isTypeScript })],
+						configFileName: 'template.json',
+						warnings: false, // Disable warnings to suppress Prettier plugin issues
+					});
+				} finally {
+					// Restore console methods
+					console.warn = originalWarn;
+					console.error = originalError;
+				}
 
 				// Read the generated file from temp directory
 				// The target path might include subdirectories, so we need to find the file in the same relative location
@@ -80,12 +127,21 @@ export function createFileHelpers(cwd = process.cwd()): FileHelpers {
 				// Write the processed content to the target location
 				await this.writeFile(targetPath, content);
 			} finally {
-				// Clean up temporary directory
+				// Clean up temporary directory and Prettier config
 				try {
 					await fs.rm(tempDir, { recursive: true, force: true });
 				} catch (error) {
 					// Ignore cleanup errors
 					console.warn(`Warning: Could not clean up temporary directory ${tempDir}:`, error);
+				}
+
+				// Remove temporary Prettier config only if we created it
+				if (!existingPrettierConfig) {
+					try {
+						await fs.unlink(tempPrettierRc);
+					} catch (error) {
+						// Ignore if file doesn't exist or can't be deleted
+					}
 				}
 			}
 		},

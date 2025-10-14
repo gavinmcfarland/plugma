@@ -427,55 +427,100 @@ export async function add(options: AddCommandOptions): Promise<void> {
 						});
 					}
 
-					// Install all collected dependencies
-					const depsArray = Array.from(allDeps.dependencies);
-					const devDepsArray = Array.from(allDeps.devDependencies);
-
-					// Detect preferred package manager
-					const detectedPM = await detect({ cwd: process.cwd() });
-					const preferredPM = detectedPM?.agent || 'npm';
-
-					const packageManager =
-						depsArray.length > 0 || devDepsArray.length > 0
-							? await radio({
-									label: 'Install dependencies?',
-									shortLabel: 'Dependencies',
-									initialValue: preferredPM,
-									options: [
-										{ value: 'skip', label: 'Skip' },
-										{ value: 'npm', label: 'npm' },
-										{ value: 'pnpm', label: 'pnpm' },
-										{ value: 'yarn', label: 'yarn' },
-										{ value: 'bun', label: 'bun' },
-										{ value: 'deno', label: 'deno' },
-									],
-									hideOnCompletion: true,
-								})
-							: 'skip';
-
 					return {
 						allResults,
-						packageManager,
-						depsArray,
-						devDepsArray,
+						allDeps,
 					};
 				},
 				{ flow: 'phased', hideOnCompletion: true },
 			);
 
-			// Build task list for integrations and dependencies
-			const tasksList: Task[] = [];
+			// Execute integration setup tasks BEFORE prompting for dependencies
+			const setupTasksList: Task[] = [];
 
 			// Add integration setup tasks
 			if (answers.allResults.length > 0) {
-				tasksList.push({
-					label: 'Integrating chosen add-ons',
+				setupTasksList.push({
+					label: 'Setting up integrations',
 					action: async () => {},
 					concurrent: true,
-					tasks: answers.allResults.map((result) => ({
-						label: result.integration.name,
+					tasks: answers.allResults.flatMap((result) => {
+						// If the integration has custom tasks, use those
+						if (result.integrationResult.tasks && result.integrationResult.tasks.length > 0) {
+							return {
+								label: result.integration.name,
+								action: async () => {},
+								concurrent: false,
+								tasks: result.integrationResult.tasks,
+							};
+						}
+
+						// For integrations without tasks, skip (they'll use postSetup later)
+						return [];
+					}),
+				});
+			}
+
+			// Run setup tasks before prompting for dependencies
+			if (setupTasksList.length > 0) {
+				await tasks(setupTasksList, { concurrent: false });
+			}
+
+			// NOW prompt for dependency installation
+			const depsArray = Array.from(answers.allDeps.dependencies) as string[];
+			const devDepsArray = Array.from(answers.allDeps.devDependencies) as string[];
+
+			// Detect preferred package manager
+			const detectedPM = await detect({ cwd: process.cwd() });
+			const preferredPM = detectedPM?.agent || 'npm';
+
+			const packageManager =
+				depsArray.length > 0 || devDepsArray.length > 0
+					? await radio({
+							label: 'Install dependencies?',
+							shortLabel: 'Dependencies',
+							initialValue: preferredPM,
+							options: [
+								{ value: 'skip', label: 'Skip' },
+								{ value: 'npm', label: 'npm' },
+								{ value: 'pnpm', label: 'pnpm' },
+								{ value: 'yarn', label: 'yarn' },
+								{ value: 'bun', label: 'bun' },
+								{ value: 'deno', label: 'deno' },
+							],
+							hideOnCompletion: true,
+						})
+					: 'skip';
+
+			// Build task list for dependency installation and postSetup
+			const installTasksList: Task[] = [];
+
+			// Add dependency installation task
+			if (packageManager && packageManager !== 'skip') {
+				installTasksList.push({
+					label: `Installing dependencies with ${packageManager}`,
+					action: async () => {
+						await installDependencies(depsArray, devDepsArray, packageManager);
+					},
+				});
+			}
+
+			// Add postSetup tasks (runs after dependency installation)
+			if (answers.allResults.length > 0) {
+				const postSetupTasks = answers.allResults.flatMap((result) => {
+					const helpers = createFileHelpers();
+
+					// Check if this integration has postSetup or required integrations with postSetup
+					const hasRequiredPostSetup = result.requiredResults.some((r) => r.integration.postSetup);
+					const hasMainPostSetup = result.integration.postSetup;
+
+					if (!hasRequiredPostSetup && !hasMainPostSetup) {
+						return [];
+					}
+
+					return {
+						label: `Finalizing ${result.integration.name}`,
 						action: async () => {
-							const helpers = createFileHelpers();
 							const typescript = await helpers.detectTypeScript();
 
 							// Run postSetup for required integrations first
@@ -498,41 +543,37 @@ export async function add(options: AddCommandOptions): Promise<void> {
 								});
 							}
 						},
-					})),
+					};
 				});
+
+				if (postSetupTasks.length > 0) {
+					installTasksList.push({
+						label: 'Finalizing setup',
+						action: async () => {},
+						concurrent: true,
+						tasks: postSetupTasks,
+					});
+				}
 			}
 
-			// Add dependency installation task
-			if (answers.packageManager && answers.packageManager !== 'skip') {
-				tasksList.push({
-					label: `Installing dependencies with ${answers.packageManager}`,
-					action: async () => {
-						await installDependencies(answers.depsArray, answers.devDepsArray, answers.packageManager);
-					},
-				});
-			}
-
-			// Run all tasks
-			if (tasksList.length > 0) {
-				await tasks(tasksList, { concurrent: false });
+			// Run installation and postSetup tasks
+			if (installTasksList.length > 0) {
+				await tasks(installTasksList, { concurrent: false });
 			}
 
 			// Show info box if user skipped dependency installation
-			if (
-				(answers.depsArray.length > 0 || answers.devDepsArray.length > 0) &&
-				answers.packageManager === 'skip'
-			) {
+			if ((depsArray.length > 0 || devDepsArray.length > 0) && packageManager === 'skip') {
 				const dependencySections = [];
 
-				if (answers.depsArray.length > 0) {
+				if (depsArray.length > 0) {
 					dependencySections.push(
-						`Dependencies:\n${answers.depsArray.map((dep) => `  • ${chalk.green(dep)}`).join('\n')}`,
+						`Dependencies:\n${depsArray.map((dep) => `  • ${chalk.green(dep)}`).join('\n')}`,
 					);
 				}
 
-				if (answers.devDepsArray.length > 0) {
+				if (devDepsArray.length > 0) {
 					dependencySections.push(
-						`Dev dependencies:\n${answers.devDepsArray.map((dep) => `  • ${chalk.green(dep)}`).join('\n')}`,
+						`Dev dependencies:\n${devDepsArray.map((dep) => `  • ${chalk.green(dep)}`).join('\n')}`,
 					);
 				}
 

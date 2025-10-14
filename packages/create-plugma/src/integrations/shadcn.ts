@@ -128,50 +128,58 @@ export default defineIntegration({
 		answers.uiFilePath = uiFilePath;
 		answers.cssFilePath = cssFilePath;
 		answers.manifestUiPath = manifestUiPath;
-	},
 
-	async postSetup({ answers, helpers, typescript }) {
-		const ext = answers.ext;
+		const tasks = [];
 
-		// Create components.json file using template
-		await helpers.writeTemplateFile('templates/integrations/shadcn', 'components.json', {
-			style: answers.style,
-			baseColor: answers.baseColor,
-			relativeCssPath: answers.relativeCssPath,
+		// Task 1: Create components.json
+		tasks.push({
+			label: 'Creating components.json',
+			action: async () => {
+				await helpers.writeTemplateFile('templates/integrations/shadcn', 'components.json', {
+					style: answers.style,
+					baseColor: answers.baseColor,
+					relativeCssPath: relativeCssPath,
+				});
+			},
 		});
 
-		// Update TypeScript config files
+		// Task 2: Update TypeScript config files (if TypeScript is being used)
 		if (typescript) {
-			// Update both tsconfig.json and tsconfig.ui.json if they exist
-			const tsConfigFiles = ['tsconfig.json', 'tsconfig.ui.json'];
-			let updatedAny = false;
+			tasks.push({
+				label: 'Configuring TypeScript path aliases',
+				action: async () => {
+					const tsConfigFiles = ['tsconfig.json', 'tsconfig.ui.json'];
+					let updatedAny = false;
 
-			for (const configFile of tsConfigFiles) {
-				try {
-					// Check if file exists
-					const content = await helpers.readFile(configFile);
-					if (content !== null) {
-						// Update existing config
-						await helpers.updateJson(configFile, (json) => {
-							json.compilerOptions = json.compilerOptions || {};
-							json.compilerOptions.baseUrl = '.';
-							json.compilerOptions.paths = {
-								'@/*': [`./${answers.uiDir}/*`],
-							};
-						});
-						updatedAny = true;
-						// console.log(`Updated path aliases in ${configFile}`);
+					for (const configFile of tsConfigFiles) {
+						try {
+							// Check if file exists
+							const content = await helpers.readFile(configFile);
+							if (content !== null) {
+								// Update existing config
+								await helpers.updateJson(configFile, (json) => {
+									json.compilerOptions = json.compilerOptions || {};
+									json.compilerOptions.baseUrl = '.';
+									json.compilerOptions.paths = {
+										'@/*': [`./${uiDir}/*`],
+									};
+								});
+								updatedAny = true;
+							}
+						} catch (error) {
+							// File doesn't exist, continue to next
+							continue;
+						}
 					}
-				} catch (error) {
-					// File doesn't exist, continue to next
-					continue;
-				}
-			}
 
-			if (!updatedAny) {
-				console.warn('No TypeScript config files found. Path aliases will not be configured.');
-			}
+					if (!updatedAny) {
+						console.warn('No TypeScript config files found. Path aliases will not be configured.');
+					}
+				},
+			});
 		}
+
+		return tasks;
 	},
 
 	nextSteps: (answers) => `

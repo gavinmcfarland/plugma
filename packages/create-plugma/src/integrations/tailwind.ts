@@ -100,139 +100,148 @@ export default defineIntegration({
 		answers.uiFilePath = uiFilePath;
 		answers.cssFilePath = cssFilePath;
 		answers.manifestUiPath = manifestUiPath;
-	},
 
-	async postSetup({ answers, helpers, typescript }) {
-		const ext = answers.ext;
-		const uiDir = answers.uiDir;
-		const relativeCssPath = answers.relativeCssPath;
-		const uiFilePath = answers.uiFilePath;
-		const cssFilePath = answers.cssFilePath;
-		const manifestUiPath = answers.manifestUiPath;
-		const targetCssPath = answers.targetCssPath;
+		const tasks = [];
 
-		// Create base CSS file
-		await helpers.updateFile(relativeCssPath, (content) => {
-			if (!content) return dedent`@import "tailwindcss";`;
-			if (!content.includes('@import "tailwindcss"')) {
-				return dedent`@import "tailwindcss";\n
+		// Task 1: Update CSS file
+		tasks.push({
+			label: `Adding Tailwind to ${relativeCssPath}`,
+			action: async () => {
+				await helpers.updateFile(relativeCssPath, (content) => {
+					if (!content) return dedent`@import "tailwindcss";`;
+					if (!content.includes('@import "tailwindcss"')) {
+						return dedent`@import "tailwindcss";\n
 ${content}`;
-			}
-			return content;
+					}
+					return content;
+				});
+			},
 		});
 
-		// Check for Vite config files in order of preference
-		const viteConfigFile = await helpers.detectViteConfigFile();
+		// Task 2: Update Vite config
+		tasks.push({
+			label: 'Configuring Vite for Tailwind',
+			action: async () => {
+				const viteConfigFile = await helpers.detectViteConfigFile();
 
-		if (!viteConfigFile) {
-			console.warn('No Vite config file found. Tailwind plugin will not be added to Vite config.');
-			return;
-		}
-
-		// Update Vite config to use Tailwind
-		await helpers.updateFile(viteConfigFile, (content) => {
-			const s = new MagicString(content);
-
-			// Add tailwind import if needed
-			if (!content.includes('@tailwindcss/vite')) {
-				// Find the last import
-				const importRegex = /import\s+.*?from\s+['"].*?['"];?/g;
-				const imports: RegExpExecArray[] = [];
-				let match;
-				while ((match = importRegex.exec(content)) !== null) {
-					imports.push(match);
+				if (!viteConfigFile) {
+					console.warn('No Vite config file found. Tailwind plugin will not be added to Vite config.');
+					return;
 				}
-				const lastImport = imports[imports.length - 1];
 
-				if (lastImport) {
-					s.appendLeft(
-						lastImport.index! + lastImport[0].length,
-						"\nimport tailwindcss from '@tailwindcss/vite'",
-					);
-				} else {
-					s.prepend("import tailwindcss from '@tailwindcss/vite'\n");
-				}
-			}
+				await helpers.updateFile(viteConfigFile, (content) => {
+					const s = new MagicString(content);
 
-			// Handle context-based plugin configuration
-			// Look for plugins: context === 'ui' ? [react()] : [] pattern
-			const contextBasedMatch = /plugins:\s*context\s*===\s*['"]ui['"]\s*\?\s*\[([\s\S]*?)\]\s*:\s*\[\]/.exec(
-				content,
-			);
-			if (contextBasedMatch) {
-				// Found context-based configuration
-				const existingUiPlugins = contextBasedMatch[1];
+					// Add tailwind import if needed
+					if (!content.includes('@tailwindcss/vite')) {
+						// Find the last import
+						const importRegex = /import\s+.*?from\s+['"].*?['"];?/g;
+						const imports: RegExpExecArray[] = [];
+						let match;
+						while ((match = importRegex.exec(content)) !== null) {
+							imports.push(match);
+						}
+						const lastImport = imports[imports.length - 1];
 
-				if (!existingUiPlugins.includes('tailwindcss')) {
-					// Use string replacement to add tailwindcss to the UI plugins array
-					const needsComma = existingUiPlugins.trim() !== '';
-					const newUiPlugins = needsComma ? `${existingUiPlugins}, tailwindcss()` : 'tailwindcss()';
-
-					// Replace the UI plugins array content using MagicString
-					const matchStart = contextBasedMatch.index;
-					const matchEnd = contextBasedMatch.index + contextBasedMatch[0].length;
-					const replacement = `plugins: context === 'ui' ? [${newUiPlugins}] : []`;
-
-					s.overwrite(matchStart, matchEnd, replacement);
-				}
-			} else {
-				// Fallback to simple plugins array
-				const pluginsMatch = /plugins:\s*\[([\s\S]*?)\]/.exec(content);
-				if (pluginsMatch) {
-					const pluginsStart = pluginsMatch.index! + pluginsMatch[0].indexOf('[') + 1;
-					const pluginsEnd = pluginsMatch.index! + pluginsMatch[0].lastIndexOf(']');
-					const existingPlugins = pluginsMatch[1];
-
-					if (!existingPlugins.includes('tailwindcss')) {
-						if (existingPlugins.trim() === '') {
-							s.appendLeft(pluginsStart, 'tailwindcss()');
+						if (lastImport) {
+							s.appendLeft(
+								lastImport.index! + lastImport[0].length,
+								"\nimport tailwindcss from '@tailwindcss/vite'",
+							);
 						} else {
-							const needsComma = !existingPlugins.trim().endsWith(',');
-							s.appendLeft(pluginsEnd, `${needsComma ? ', ' : ' '}tailwindcss()`);
+							s.prepend("import tailwindcss from '@tailwindcss/vite'\n");
 						}
 					}
-				}
-			}
 
-			return s.toString();
+					// Handle context-based plugin configuration
+					// Look for plugins: context === 'ui' ? [react()] : [] pattern
+					const contextBasedMatch =
+						/plugins:\s*context\s*===\s*['"]ui['"]\s*\?\s*\[([\s\S]*?)\]\s*:\s*\[\]/.exec(content);
+					if (contextBasedMatch) {
+						// Found context-based configuration
+						const existingUiPlugins = contextBasedMatch[1];
+
+						if (!existingUiPlugins.includes('tailwindcss')) {
+							// Use string replacement to add tailwindcss to the UI plugins array
+							const needsComma = existingUiPlugins.trim() !== '';
+							const newUiPlugins = needsComma ? `${existingUiPlugins}, tailwindcss()` : 'tailwindcss()';
+
+							// Replace the UI plugins array content using MagicString
+							const matchStart = contextBasedMatch.index;
+							const matchEnd = contextBasedMatch.index + contextBasedMatch[0].length;
+							const replacement = `plugins: context === 'ui' ? [${newUiPlugins}] : []`;
+
+							s.overwrite(matchStart, matchEnd, replacement);
+						}
+					} else {
+						// Fallback to simple plugins array
+						const pluginsMatch = /plugins:\s*\[([\s\S]*?)\]/.exec(content);
+						if (pluginsMatch) {
+							const pluginsStart = pluginsMatch.index! + pluginsMatch[0].indexOf('[') + 1;
+							const pluginsEnd = pluginsMatch.index! + pluginsMatch[0].lastIndexOf(']');
+							const existingPlugins = pluginsMatch[1];
+
+							if (!existingPlugins.includes('tailwindcss')) {
+								if (existingPlugins.trim() === '') {
+									s.appendLeft(pluginsStart, 'tailwindcss()');
+								} else {
+									const needsComma = !existingPlugins.trim().endsWith(',');
+									s.appendLeft(pluginsEnd, `${needsComma ? ', ' : ' '}tailwindcss()`);
+								}
+							}
+						}
+					}
+
+					return s.toString();
+				});
+			},
 		});
 
-		// Add CSS import to UI file if no CSS import was found
+		// Task 3: Add CSS import to UI file if needed
 		if (!cssFilePath && uiFilePath && manifestUiPath) {
-			// Calculate relative path from UI file to CSS file
-			const uiFileDir = dirname(uiFilePath);
-			const cssFileDir = dirname(targetCssPath);
-			const relativePath = relative(uiFileDir, cssFileDir);
 			const cssFileName = relativeCssPath.split('/').pop() || 'styles.css';
-			const importPath =
-				relativePath === '.' || relativePath === '' ? `./${cssFileName}` : `./${relativePath}/${cssFileName}`;
+			tasks.push({
+				label: `Adding CSS import to ${manifestUiPath}`,
+				action: async () => {
+					// Calculate relative path from UI file to CSS file
+					const uiFileDir = dirname(uiFilePath!);
+					const cssFileDir = dirname(targetCssPath);
+					const relativePath = relative(uiFileDir, cssFileDir);
+					const importPath =
+						relativePath === '.' || relativePath === ''
+							? `./${cssFileName}`
+							: `./${relativePath}/${cssFileName}`;
 
-			await helpers.updateFile(manifestUiPath, (content) => {
-				const s = new MagicString(content);
+					await helpers.updateFile(manifestUiPath!, (content) => {
+						const s = new MagicString(content);
 
-				// Check if CSS import already exists
-				if (!content.includes(cssFileName)) {
-					// Find the last import to add CSS import after it
-					const importRegex = /import\s+.*?from\s+['"].*?['"];?/g;
-					const imports: RegExpExecArray[] = [];
-					let match;
-					while ((match = importRegex.exec(content)) !== null) {
-						imports.push(match);
-					}
+						// Check if CSS import already exists
+						if (!content.includes(cssFileName)) {
+							// Find the last import to add CSS import after it
+							const importRegex = /import\s+.*?from\s+['"].*?['"];?/g;
+							const imports: RegExpExecArray[] = [];
+							let match;
+							while ((match = importRegex.exec(content)) !== null) {
+								imports.push(match);
+							}
 
-					if (imports.length > 0) {
-						// Add after the last import
-						const lastImport = imports[imports.length - 1];
-						s.appendLeft(lastImport.index! + lastImport[0].length, `\nimport '${importPath}';`);
-					} else {
-						// Add at the beginning if no imports exist
-						s.prepend(`import '${importPath}';\n`);
-					}
-				}
+							if (imports.length > 0) {
+								// Add after the last import
+								const lastImport = imports[imports.length - 1];
+								s.appendLeft(lastImport.index! + lastImport[0].length, `\nimport '${importPath}';`);
+							} else {
+								// Add at the beginning if no imports exist
+								s.prepend(`import '${importPath}';\n`);
+							}
+						}
 
-				return s.toString();
+						return s.toString();
+					});
+				},
 			});
 		}
+
+		return tasks;
 	},
 
 	nextSteps: (answers) => {

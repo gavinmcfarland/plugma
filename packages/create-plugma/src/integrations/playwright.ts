@@ -8,20 +8,35 @@ export default defineIntegration({
 	description: 'End to end testing (experimental)',
 	dependencies: ['@playwright/test'],
 
-	async postSetup({ helpers, typescript }) {
+	async setup({ helpers, typescript }) {
 		const ext = typescript ? 'ts' : 'js';
 
-		// Update package.json
-		await helpers.updateJson('package.json', (json) => {
-			json.scripts = json.scripts || {};
-			json.scripts['playwright'] = 'npx playwright test';
-		});
-
-		// Create Playwright config file using template
-		await helpers.writeTemplateFile('templates/integrations/playwright', `playwright.config.${ext}`);
-
-		// Create example test file using template
-		await helpers.writeTemplateFile('templates/integrations/playwright', `playwright/example.spec.${ext}`);
+		return [
+			{
+				label: 'Adding test script to package.json',
+				action: async () => {
+					await helpers.updateJson('package.json', (json) => {
+						json.scripts = json.scripts || {};
+						json.scripts['playwright'] = 'npx playwright test';
+					});
+				},
+			},
+			{
+				label: `Creating playwright.config.${ext}`,
+				action: async () => {
+					await helpers.writeTemplateFile('templates/integrations/playwright', `playwright.config.${ext}`);
+				},
+			},
+			{
+				label: `Creating example test file`,
+				action: async () => {
+					await helpers.writeTemplateFile(
+						'templates/integrations/playwright',
+						`playwright/example.spec.${ext}`,
+					);
+				},
+			},
+		];
 	},
 
 	nextSteps: (answers) => `

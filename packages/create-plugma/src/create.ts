@@ -1026,14 +1026,73 @@ async function createProjectFromOptions(params: {
 				};
 
 				// Generate project using Combino
-				const combino = new Combino();
-				await combino.build({
-					outputDir: destDir,
-					include: templates,
-					data: { ...templateData, versions },
-					plugins: [rebase(), ejsMate(), stripTS({ skip: typescript })],
-					configFileName: 'template.json',
-				});
+				// Create a temporary .prettierrc to prevent Prettier from finding parent configs
+				const tempPrettierRc = path.join(destDir, '.prettierrc');
+				const prettierConfig = {
+					useTabs: true,
+					semi: true,
+					singleQuote: true,
+					printWidth: 100,
+				};
+
+				// Check if .prettierrc already exists
+				let existingPrettierConfig: string | null = null;
+				try {
+					existingPrettierConfig = await fs.promises.readFile(tempPrettierRc, 'utf-8');
+				} catch (error) {
+					// File doesn't exist, that's fine
+				}
+
+				try {
+					// Write temporary Prettier config only if one doesn't exist
+					if (!existingPrettierConfig) {
+						await fs.promises.mkdir(destDir, { recursive: true });
+						await fs.promises.writeFile(tempPrettierRc, JSON.stringify(prettierConfig, null, 2));
+					}
+
+					// Suppress console warnings during Combino build
+					const originalWarn = console.warn;
+					const originalError = console.error;
+					console.warn = (...args: any[]) => {
+						// Suppress Prettier plugin warnings
+						const message = args.join(' ');
+						if (!message.includes('prettier-plugin-svelte') && !message.includes('Failed to format')) {
+							originalWarn.apply(console, args);
+						}
+					};
+					console.error = (...args: any[]) => {
+						// Suppress Prettier plugin errors
+						const message = args.join(' ');
+						if (!message.includes('prettier-plugin-svelte') && !message.includes('Failed to format')) {
+							originalError.apply(console, args);
+						}
+					};
+
+					try {
+						const combino = new Combino();
+						await combino.build({
+							outputDir: destDir,
+							include: templates,
+							data: { ...templateData, versions },
+							plugins: [rebase(), ejsMate(), stripTS({ skip: typescript })],
+							configFileName: 'template.json',
+							warnings: false, // Disable warnings to suppress Prettier plugin issues
+						});
+					} finally {
+						// Restore console methods
+						console.warn = originalWarn;
+						console.error = originalError;
+					}
+				} finally {
+					// Remove temporary Prettier config only if we created it
+					if (!existingPrettierConfig) {
+						try {
+							await fs.promises.unlink(tempPrettierRc);
+						} catch (error) {
+							// Ignore if file doesn't exist or can't be deleted
+						}
+					}
+				}
 			},
 		},
 	];

@@ -131,6 +131,11 @@ export interface SetupContext {
 	typescript: boolean;
 }
 
+export interface IntegrationTask {
+	label: string;
+	action: () => Promise<void>;
+}
+
 export interface Integration {
 	id: string;
 	name: string;
@@ -140,7 +145,7 @@ export interface Integration {
 	devDependencies?: string[];
 	requires?: string[];
 	files?: FileOperation[];
-	setup?: (context: SetupContext) => Promise<void>;
+	setup?: (context: SetupContext) => Promise<IntegrationTask[]>;
 	postSetup?: (context: SetupContext) => Promise<void>;
 	nextSteps?: (answers: Record<string, any>) => string | string[];
 }
@@ -174,9 +179,10 @@ export async function runIntegration(integration: Integration, options?: RunInte
 	const helpers = createFileHelpers();
 	const typescript = await helpers.detectTypeScript();
 
-	// Run setup function if provided
+	// Run setup function if provided and collect tasks
+	let tasks: IntegrationTask[] = [];
 	if (integration.setup) {
-		await integration.setup({ answers, helpers, typescript });
+		tasks = await integration.setup({ answers, helpers, typescript });
 	}
 
 	return {
@@ -185,6 +191,7 @@ export async function runIntegration(integration: Integration, options?: RunInte
 		devDependencies: integration.devDependencies || [],
 		files: integration.files || [],
 		nextSteps: integration.nextSteps?.(answers) || [],
+		tasks,
 	};
 }
 

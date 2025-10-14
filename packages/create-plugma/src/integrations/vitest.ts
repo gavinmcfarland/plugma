@@ -9,20 +9,32 @@ export default defineIntegration({
 	description: 'Unit testing (experimental)',
 	dependencies: ['vitest'],
 
-	async postSetup({ helpers, typescript }) {
+	async setup({ helpers, typescript }) {
 		const ext = typescript ? 'ts' : 'js';
 
-		// Update package.json
-		await helpers.updateJson('package.json', (json) => {
-			json.scripts = json.scripts || {};
-			json.scripts['vitest'] = 'npx vitest';
-		});
-
-		// Create Vitest config file using template
-		await helpers.writeTemplateFile('templates/integrations/vitest', `vitest.config.${ext}`);
-
-		// Create example test file using template
-		await helpers.writeTemplateFile('templates/integrations/vitest', `vitest/example.test.${ext}`);
+		return [
+			{
+				label: 'Adding test script to package.json',
+				action: async () => {
+					await helpers.updateJson('package.json', (json) => {
+						json.scripts = json.scripts || {};
+						json.scripts['vitest'] = 'npx vitest';
+					});
+				},
+			},
+			{
+				label: `Creating vitest.config.${ext}`,
+				action: async () => {
+					await helpers.writeTemplateFile('templates/integrations/vitest', `vitest.config.${ext}`);
+				},
+			},
+			{
+				label: `Creating example test file`,
+				action: async () => {
+					await helpers.writeTemplateFile('templates/integrations/vitest', `vitest/example.test.${ext}`);
+				},
+			},
+		];
 	},
 
 	nextSteps: (answers) => `
