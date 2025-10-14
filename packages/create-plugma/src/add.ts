@@ -311,6 +311,12 @@ export async function add(options: AddCommandOptions): Promise<void> {
 									label: integration.name,
 									hint: integration.description,
 								})),
+								onValidate: async (values) => {
+									if (values.length === 0) {
+										return 'Please select at least one add-on';
+									}
+									return null;
+								},
 							});
 
 					// Process each selected integration
