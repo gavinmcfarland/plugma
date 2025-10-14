@@ -461,16 +461,14 @@ export async function add(options: AddCommandOptions): Promise<void> {
 				});
 			}
 
-			// Run setup tasks before prompting for dependencies
-			if (setupTasksList.length > 0) {
-				await tasks(setupTasksList, { concurrent: false });
-			}
-
-			// NOW prompt for dependency installation
+			// Run setup tasks and dynamically add dependency installation
 			const depsArray = Array.from(answers.allDeps.dependencies) as string[];
 			const devDepsArray = Array.from(answers.allDeps.devDependencies) as string[];
 
-			// Detect preferred package manager
+			// Start with setup tasks
+			const tasksResult = await tasks(setupTasksList.length > 0 ? setupTasksList : [], { concurrent: false });
+
+			// Prompt for dependency installation
 			const detectedPM = await detect({ cwd: process.cwd() });
 			const preferredPM = detectedPM?.agent || 'npm';
 
@@ -492,17 +490,16 @@ export async function add(options: AddCommandOptions): Promise<void> {
 						})
 					: 'skip';
 
-			// Build task list for dependency installation and postSetup
-			const installTasksList: Task[] = [];
-
-			// Add dependency installation task
+			// Dynamically add dependency installation task if not skipped
 			if (packageManager && packageManager !== 'skip') {
-				installTasksList.push({
-					label: `Installing dependencies with ${packageManager}`,
-					action: async () => {
-						await installDependencies(depsArray, devDepsArray, packageManager);
+				await tasks.add([
+					{
+						label: `Installing dependencies with ${packageManager}`,
+						action: async () => {
+							await installDependencies(depsArray, devDepsArray, packageManager);
+						},
 					},
-				});
+				]);
 			}
 
 			// Add postSetup tasks (runs after dependency installation)
@@ -547,21 +544,18 @@ export async function add(options: AddCommandOptions): Promise<void> {
 				});
 
 				if (postSetupTasks.length > 0) {
-					installTasksList.push({
-						label: 'Finalizing setup',
-						action: async () => {},
-						concurrent: true,
-						tasks: postSetupTasks,
-					});
+					await tasks.add([
+						{
+							label: 'Finalizing setup',
+							action: async () => {},
+							concurrent: true,
+							tasks: postSetupTasks,
+						},
+					]);
 				}
 			}
 
-			// Run installation and postSetup tasks
-			if (installTasksList.length > 0) {
-				await tasks(installTasksList, { concurrent: false });
-			}
-
-			// Show info box if user skipped dependency installation
+			// Show note if user skipped dependency installation
 			if ((depsArray.length > 0 || devDepsArray.length > 0) && packageManager === 'skip') {
 				const dependencySections = [];
 
@@ -577,15 +571,7 @@ export async function add(options: AddCommandOptions): Promise<void> {
 					);
 				}
 
-				console.log(
-					createBox(
-						`You can install the dependencies later by running:\n\n${dependencySections.join('\n\n')}`,
-						{
-							type: 'info',
-							title: 'Info',
-						},
-					),
-				);
+				await note(`You can install the dependencies later by running:\n\n${dependencySections.join('\n\n')}`);
 			}
 
 			// Collect all next steps from all integrations
