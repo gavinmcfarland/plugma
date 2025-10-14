@@ -598,7 +598,6 @@ async function browseAndSelectTemplate(
 							value,
 							label: displayName,
 							hint: `${description} (${frameworks})`,
-							color: type === 'plugin' ? 'blue' : 'green',
 						};
 					});
 
