@@ -61,6 +61,9 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 		args.push('--debug');
 	}
 
+	// Skip showing prompt in create-plugma since plugma already showed it
+	args.push('--skip-prompt');
+
 	// Determine which create-plugma to use (local in dev, npx in production)
 	const currentDir = dirname(fileURLToPath(import.meta.url));
 	const localCreatePlugmaPath = join(currentDir, '..', '..', '..', 'create-plugma', 'dist', 'create-plugma.js');
@@ -84,6 +87,10 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 			stdio: 'inherit',
 			cwd: options.cwd || process.cwd(),
 			shell: true,
+			env: {
+				...process.env,
+				PLUGMA_DEVELOPING_LOCALLY: process.env.PLUGMA_DEVELOPING_LOCALLY || 'false',
+			},
 		});
 
 		child.on('close', (code) => {

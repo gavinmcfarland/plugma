@@ -12,6 +12,7 @@ import {
 	AddCommandOptions,
 	CreateCommandOptions,
 } from '../utils/create-options.js';
+import { parseCreateArgs, defineCreateCommand } from '../utils/parse-create-args.js';
 
 import { readPlugmaPackageJson } from '../utils/fs/read-json.js';
 
@@ -79,79 +80,20 @@ program
 	.addHelpText('beforeAll', `${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}`)}\n`);
 
 // Create Command - delegates to create-plugma
-program
-	.command('create')
-	.description('Create a new Figma plugin or widget project')
-	.argument('[type]', 'Project type: plugin or widget')
-	.argument('[framework]', 'UI framework: react, svelte, vue, or no-ui')
-	.option('--name <name>', 'Project name')
-	.option('--template <template>', 'Use a specific template')
-	.option('--no-typescript', 'Use JavaScript instead of TypeScript')
-	.option('--no-add-ons', 'Skip add-ons installation')
-	.option('--no-install', 'Skip dependency installation')
-	.option('-d, --debug', 'Enable debug mode', DEFAULT_OPTIONS.debug)
-	.action(async function (
-		this: Command,
-		type: string | undefined,
-		framework: string | undefined,
-		options: Partial<CreateCommandOptions>,
-	) {
-		// Convert positional arguments to options format
-		const enhancedOptions = { ...options };
-
-		// Handle type argument
-		if (type) {
-			const normalizedType = type.toLowerCase();
-			if (normalizedType === 'plugin') {
-				enhancedOptions.plugin = true;
-			} else if (normalizedType === 'widget') {
-				enhancedOptions.widget = true;
-			} else {
-				console.error(chalk.red(`Invalid project type: "${type}". Expected "plugin" or "widget".`));
-				process.exit(1);
-			}
-		}
-
-		// Handle framework argument
-		if (framework) {
-			const normalizedFramework = framework.toLowerCase();
-			if (normalizedFramework === 'react') {
-				enhancedOptions.react = true;
-				enhancedOptions.framework = 'React';
-			} else if (normalizedFramework === 'svelte') {
-				enhancedOptions.svelte = true;
-				enhancedOptions.framework = 'Svelte';
-			} else if (normalizedFramework === 'vue') {
-				enhancedOptions.vue = true;
-				enhancedOptions.framework = 'Vue';
-			} else if (normalizedFramework === 'no-ui') {
-				enhancedOptions.noUi = true;
-			} else {
-				console.error(
-					chalk.red(`Invalid framework: "${framework}". Expected "react", "svelte", "vue", or "no-ui".`),
-				);
-				process.exit(1);
-			}
-		}
+defineCreateCommand(program, {
+	debugDefault: DEFAULT_OPTIONS.debug,
+	commandName: 'plugma create',
+	onAction: async (type, framework, options) => {
+		// Parse and validate arguments using shared utility
+		const enhancedOptions = parseCreateArgs(type, framework, options);
 
 		await create(
 			createOptions<'create'>(enhancedOptions, {
 				command: 'create',
 			}),
 		);
-	})
-	.addHelpText(
-		'after',
-		`
-Examples:
-  plugma create plugin react
-  plugma create plugin no-ui
-  plugma create widget svelte
-  plugma create plugin react --name my-plugin
-  plugma create plugin --template rectangle-creator
-  plugma create
-`,
-	);
+	},
+});
 
 // Add a hook that runs before every command
 program.hook('preAction', async (thisCommand, actionCommand) => {
@@ -162,8 +104,10 @@ program.hook('preAction', async (thisCommand, actionCommand) => {
 	// // Required for Vite to use correct DEV and PROD env variables
 	if (commandName === 'build') {
 		process.env.NODE_ENV = 'production';
+		process.env.PLUGMA_DEVELOPING_LOCALLY = 'false';
 	} else {
 		process.env.NODE_ENV = 'development';
+		process.env.PLUGMA_DEVELOPING_LOCALLY = 'true';
 	}
 
 	// You can add your common functionality here
