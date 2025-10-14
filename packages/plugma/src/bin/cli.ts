@@ -78,93 +78,36 @@ program
 	.version(version, '-v, --version', 'Output the current version')
 	.addHelpText('beforeAll', `${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}`)}\n`);
 
-// Create Command
+// Create Command - delegates to create-plugma
 program
 	.command('create')
-	.description('Create a new Figma plugin or widget')
-	.argument('[type]', 'Project type: plugin or widget')
-	.argument('[framework]', 'UI framework: react, svelte, vue, or no-ui')
-
-	// Template Options
-	.option('--template <template>', 'Use a specific template (e.g., rectangle-creator, blank)')
-
-	// Framework Options (keep --framework for backward compatibility)
-	.option('--framework <framework>', 'UI framework (e.g., React, Svelte, Vue)')
-
-	// Project Configuration
-	.option('--name <name>', 'Project name')
+	.description('Create a new Figma plugin or widget project')
+	.argument('[name]', 'Project name')
+	.option('--plugin', 'Create a plugin project')
+	.option('--widget', 'Create a widget project')
+	.option('--framework <framework>', 'UI framework to use (react, svelte, vue)')
+	.option('--react', 'Use React framework')
+	.option('--svelte', 'Use Svelte framework')
+	.option('--vue', 'Use Vue framework')
+	.option('--template <template>', 'Use a specific template')
 	.option('--no-typescript', 'Use JavaScript instead of TypeScript')
-	.option('--no-ui', 'No UI (plugins only)')
-	.option('--no-add-ons', 'Skip installing add-ons')
-	.option('--no-install', 'Skip installing dependencies')
+	.option('--no-ui', 'Create a project without UI')
+	.option('--no-add-ons', 'Skip add-ons installation')
+	.option('--no-install', 'Skip dependency installation')
 	.option('-d, --debug', 'Enable debug mode', DEFAULT_OPTIONS.debug)
-
-	.action(async function (
-		this: Command,
-		type: string | undefined,
-		framework: string | undefined,
-		options: Partial<CreateCommandOptions>,
-	) {
-		// Convert positional arguments to options format for backward compatibility
-		const enhancedOptions = { ...options };
-
-		// Handle type argument
-		if (type) {
-			if (type === 'plugin') {
-				enhancedOptions.plugin = true;
-			} else if (type === 'widget') {
-				enhancedOptions.widget = true;
-			} else {
-				console.error(chalk.red(`Invalid project type: "${type}". Expected "plugin" or "widget".`));
-				process.exit(1);
-			}
-		}
-
-		// Handle framework argument
-		if (framework) {
-			const normalizedFramework = framework.toLowerCase();
-			if (normalizedFramework === 'react') {
-				enhancedOptions.react = true;
-				enhancedOptions.framework = 'React';
-			} else if (normalizedFramework === 'svelte') {
-				enhancedOptions.svelte = true;
-				enhancedOptions.framework = 'Svelte';
-			} else if (normalizedFramework === 'vue') {
-				enhancedOptions.vue = true;
-				enhancedOptions.framework = 'Vue';
-			} else if (normalizedFramework === 'no-ui') {
-				enhancedOptions.noUi = true;
-			} else {
-				console.error(
-					chalk.red(`Invalid framework: "${framework}". Expected "react", "svelte", "vue", or "no-ui".`),
-				);
-				process.exit(1);
-			}
-		}
-
+	.action(async function (this: Command, name: string | undefined, options: Partial<CreateCommandOptions>) {
 		await create(
-			createOptions<'create'>(enhancedOptions, {
-				command: 'create',
-			}),
+			createOptions<'create'>(
+				{
+					...options,
+					name,
+				},
+				{
+					command: 'create',
+				},
+			),
 		);
-	})
-	.addHelpText(
-		'after',
-		`
-Framework Options:
-  react                Use React framework
-  svelte               Use Svelte framework
-  vue                  Use Vue framework
-  no-ui                No UI (plugins only)
-
-Examples:
-  plugma create plugin react --name my-plugin
-  plugma create widget svelte --no-add-ons
-  plugma create plugin no-ui --name my-plugin
-  plugma create plugin --template rectangle-creator --framework svelte
-  plugma create
-  `,
-	);
+	});
 
 // Add a hook that runs before every command
 program.hook('preAction', async (thisCommand, actionCommand) => {
