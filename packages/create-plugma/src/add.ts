@@ -591,14 +591,15 @@ export async function add(options: AddCommandOptions): Promise<void> {
 			}
 
 			// Show success message with next steps
-			if (allNextSteps.length > 0) {
-				const successMessage = allNextSteps.join('\n');
-				await note(successMessage);
-			}
+			// if (allNextSteps.length > 0) {
+			// 	const successMessage = allNextSteps.join('\n');
+			// 	await note(successMessage);
+			// }
+			await note(`All done!`);
 		},
 		{
 			onCancel: async () => {
-				const cancel = await askerooSpinner('Cancelling...', {
+				const cancel = await askerooSpinner('Exiting...', {
 					color: 'yellow',
 					hideOnCompletion: true,
 				});
