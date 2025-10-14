@@ -31,7 +31,7 @@ const App = () => {
 			<div style={styles.banner}>
 				<Icon svg="plugma" size={38} />
 				<Icon svg="plus" size={24} />
-				<img src={reactLogo} width="44" height="44" alt="Svelte logo" />
+				<img src={reactLogo} width="44" height="44" alt="React logo" />
 			</div>
 			<Button href="https://plugma.dev/docs" target="_blank" style={styles.docsButton}>
 				Read the docs

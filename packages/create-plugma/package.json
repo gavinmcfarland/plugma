@@ -12,12 +12,13 @@
 		"format:templates": "prettier --write templates/**/*.{js,ts,jsx,tsx,json,md}"
 	},
 	"bin": {
-		"create-plugma": "./dist/create-plugma-wrapper.js"
+		"create-plugma": "./dist/create-plugma.js"
 	},
 	"files": [
 		"dist",
 		"templates",
-		"config"
+		"config",
+		"versions.json"
 	],
 	"author": "",
 	"license": "ISC",
@@ -26,10 +27,21 @@
 		"@combino/plugin-rebase": "^1.5.1",
 		"@combino/plugin-strip-ts": "^1.0.1",
 		"@sveltejs/vite-plugin-svelte": "^6.2.0",
+		"askeroo": "0.0.0-alpha.5",
+		"boxen": "^8.0.1",
 		"chalk": "^5.4.1",
+		"cli-spinners": "^3.2.0",
 		"combino": "^1.10.2",
+		"commander": "^12.1.0",
+		"comment-json": "^4.2.5",
+		"cross-dirname": "^0.1.0",
+		"dedent": "^1.5.3",
 		"enquirer": "^2.4.1",
+		"listr2": "^8.3.3",
 		"lodash": "^4.17.21",
+		"magic-string": "^0.30.17",
+		"nanoid": "^5.1.5",
+		"package-manager-detector": "^1.1.0",
 		"slugify": "^1.6.6",
 		"vite": "^6.0.0"
 	},
@@ -38,6 +50,7 @@
 		"@types/lodash": "^4.14.0",
 		"@types/node": "^20.0.0",
 		"prettier": "^3.3.3",
+		"type-fest": "^4.33.0",
 		"typescript": "^5.0.0"
 	}
 }

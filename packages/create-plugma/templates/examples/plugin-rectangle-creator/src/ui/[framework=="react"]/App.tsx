@@ -68,7 +68,7 @@ const App = () => {
 			<div style={styles.banner}>
 				<Icon svg="plugma" size={38} />
 				<Icon svg="plus" size={24} />
-				<img src={reactLogo} width="44" height="44" alt="Svelte logo" />
+				<img src={reactLogo} width="44" height="44" alt="React logo" />
 			</div>
 
 			<div style={styles.field}>

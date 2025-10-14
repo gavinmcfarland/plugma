@@ -42,18 +42,51 @@ importers:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^6.2.0
         version: 6.2.0(svelte@5.34.8)(vite@6.3.6(@types/node@20.19.4)(jiti@1.21.7)(terser@5.39.0)(tsx@4.19.4)(yaml@2.8.1))
+      askeroo:
+        specifier: 0.0.0-alpha.5
+        version: 0.0.0-alpha.5
+      boxen:
+        specifier: ^8.0.1
+        version: 8.0.1
       chalk:
         specifier: ^5.4.1
         version: 5.4.1
+      cli-spinners:
+        specifier: ^3.2.0
+        version: 3.2.0
       combino:
         specifier: ^1.10.2
         version: 1.10.2(svelte@5.34.8)
+      commander:
+        specifier: ^12.1.0
+        version: 12.1.0
+      comment-json:
+        specifier: ^4.2.5
+        version: 4.2.5
+      cross-dirname:
+        specifier: ^0.1.0
+        version: 0.1.0
+      dedent:
+        specifier: ^1.5.3
+        version: 1.5.3
       enquirer:
         specifier: ^2.4.1
         version: 2.4.1
+      listr2:
+        specifier: ^8.3.3
+        version: 8.3.3
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
+      magic-string:
+        specifier: ^0.30.17
+        version: 0.30.19
+      nanoid:
+        specifier: ^5.1.5
+        version: 5.1.5
+      package-manager-detector:
+        specifier: ^1.1.0
+        version: 1.2.0
       slugify:
         specifier: ^1.6.6
         version: 1.6.6
@@ -73,6 +106,9 @@ importers:
       prettier:
         specifier: ^3.3.3
         version: 3.5.3
+      type-fest:
+        specifier: ^4.33.0
+        version: 4.40.1
       typescript:
         specifier: ^5.0.0
         version: 5.8.3
@@ -6078,7 +6114,7 @@ snapshots:
   '@jridgewell/trace-mapping@0.3.25':
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
-      '@jridgewell/sourcemap-codec': 1.5.0
+      '@jridgewell/sourcemap-codec': 1.5.5
 
   '@lerna/create@8.2.4(@swc/core@1.11.24)(@types/node@22.15.3)(encoding@0.1.13)(typescript@5.9.2)':
     dependencies:
@@ -6472,7 +6508,7 @@ snapshots:
   '@rollup/plugin-replace@6.0.2(rollup@4.50.2)':
     dependencies:
       '@rollup/pluginutils': 5.1.4(rollup@4.50.2)
-      magic-string: 0.30.17
+      magic-string: 0.30.19
     optionalDependencies:
       rollup: 4.50.2
 
@@ -6648,7 +6684,7 @@ snapshots:
       esm-env: 1.2.2
       import-meta-resolve: 4.1.0
       kleur: 4.1.5
-      magic-string: 0.30.17
+      magic-string: 0.30.19
       mrmime: 2.0.1
       sade: 1.8.1
       set-cookie-parser: 2.7.1
@@ -6666,7 +6702,7 @@ snapshots:
       esm-env: 1.2.2
       import-meta-resolve: 4.1.0
       kleur: 4.1.5
-      magic-string: 0.30.17
+      magic-string: 0.30.19
       mrmime: 2.0.1
       sade: 1.8.1
       set-cookie-parser: 2.7.1
@@ -6937,7 +6973,7 @@ snapshots:
     dependencies:
       '@vitest/spy': 3.1.2
       estree-walker: 3.0.3
-      magic-string: 0.30.17
+      magic-string: 0.30.19
     optionalDependencies:
       vite: 5.4.12(@types/node@22.15.3)(terser@5.39.0)
 
@@ -6971,7 +7007,7 @@ snapshots:
   '@vitest/snapshot@3.1.2':
     dependencies:
       '@vitest/pretty-format': 3.1.2
-      magic-string: 0.30.17
+      magic-string: 0.30.19
       pathe: 2.0.3
 
   '@vitest/snapshot@3.2.4':
@@ -7261,7 +7297,7 @@ snapshots:
     dependencies:
       ansi-align: 3.0.1
       camelcase: 8.0.0
-      chalk: 5.4.1
+      chalk: 5.6.2
       cli-boxes: 3.0.0
       string-width: 7.2.0
       type-fest: 4.40.1
@@ -8030,7 +8066,7 @@ snapshots:
 
   esrap@1.4.9:
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.5.0
+      '@jridgewell/sourcemap-codec': 1.5.5
 
   estree-walker@2.0.2: {}
 
@@ -8679,7 +8715,7 @@ snapshots:
 
   jest-diff@29.7.0:
     dependencies:
-      chalk: 4.1.0
+      chalk: 4.1.2
       diff-sequences: 29.6.3
       jest-get-type: 29.6.3
       pretty-format: 29.7.0
@@ -9323,7 +9359,7 @@ snapshots:
       '@yarnpkg/parsers': 3.0.2
       '@zkochan/js-yaml': 0.0.7
       axios: 1.12.2
-      chalk: 4.1.0
+      chalk: 4.1.2
       cli-cursor: 3.1.0
       cli-spinners: 2.6.1
       cliui: 8.0.1
@@ -9406,7 +9442,7 @@ snapshots:
       bl: 4.1.0
       chalk: 4.1.2
       cli-cursor: 3.1.0
-      cli-spinners: 2.6.1
+      cli-spinners: 2.9.2
       is-interactive: 1.0.0
       log-symbols: 4.1.0
       strip-ansi: 6.0.1
@@ -10340,7 +10376,7 @@ snapshots:
       esrap: 1.4.9
       is-reference: 3.0.3
       locate-character: 3.0.0
-      magic-string: 0.30.17
+      magic-string: 0.30.19
       zimmerframe: 1.1.2
 
   tailwindcss@3.4.17:
@@ -10770,7 +10806,7 @@ snapshots:
       chai: 5.2.0
       debug: 4.4.0
       expect-type: 1.2.1
-      magic-string: 0.30.17
+      magic-string: 0.30.19
       pathe: 2.0.3
       std-env: 3.9.0
       tinybench: 2.9.0
