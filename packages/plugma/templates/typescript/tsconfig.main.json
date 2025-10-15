@@ -9,5 +9,5 @@
 		<% } %>,
 		"typeRoots": ["<%= rebase('node_modules/@figma') %>", "<%= rebase('node_modules/@types') %>"]
 	},
-	"include": ["**/*.ts", "<%= rebase('vite-env.d.ts', { locate: true }) %>"]
+	"include": ["./**/*.ts", "<%= rebase('vite-env.d.ts', { locate: true }) %>"]
 }

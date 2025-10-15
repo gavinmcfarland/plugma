@@ -23,5 +23,5 @@
         "noFallthroughCasesInSwitch": true,
         "noUncheckedSideEffectImports": true
     },
-    "include": ["**/*.ts", "**/*.tsx"]
+    "include": ["./**/*.ts", "./**/*.tsx"]
 }

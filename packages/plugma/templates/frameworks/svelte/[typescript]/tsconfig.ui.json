@@ -16,5 +16,5 @@
         "isolatedModules": true,
         "moduleDetection": "force"
     },
-    "include": ["**/*.ts", "**/*.svelte"]
+    "include": ["./**/*.ts", "./**/*.svelte"]
 }
