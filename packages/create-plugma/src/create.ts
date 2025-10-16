@@ -626,6 +626,16 @@ async function browseAndSelectTemplate(
 						}
 					}
 
+					// TypeScript confirmation
+					const typescript =
+						preSelectedTypescript !== undefined
+							? preSelectedTypescript
+							: await confirm({
+									label: 'Use TypeScript?',
+									shortLabel: 'TypeScript',
+									initialValue: true,
+								});
+
 					// Add-ons selection
 					let selectedAddOns: string[] = [];
 					if (preSelectedAddOns === false) {
@@ -690,16 +700,6 @@ async function browseAndSelectTemplate(
 						);
 						addOnAnswers.shadcn = shadcnConfig;
 					}
-
-					// TypeScript confirmation
-					const typescript =
-						preSelectedTypescript !== undefined
-							? preSelectedTypescript
-							: await confirm({
-									label: 'Use TypeScript?',
-									shortLabel: 'TypeScript',
-									initialValue: true,
-								});
 
 					// Generate project name
 					const exampleName = selectedTemplate.metadata.name || selectedTemplate.name;
