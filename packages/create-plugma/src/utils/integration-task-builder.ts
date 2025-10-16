@@ -44,7 +44,7 @@ export function createIntegrationSetupTask(options: IntegrationTaskOptions): Tas
 	return {
 		label: 'Integrating chosen add-ons',
 		action: async () => {},
-		concurrent: true,
+		concurrent: false,
 		tasks: integrationResults.map((result) => {
 			const task: any = {
 				label: result.integration.name,
@@ -115,7 +115,7 @@ export function createPostSetupTask(options: PostSetupTaskOptions): Task | null 
 	return {
 		label: 'Finalizing setup',
 		action: async () => {},
-		concurrent: true,
+		concurrent: false,
 		tasks: integrationsWithPostSetup.flatMap((result) => {
 			const postSetupTasks: Task[] = [];
 
