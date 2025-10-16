@@ -17,6 +17,7 @@ import { CreateCommandOptions } from './utils/create-options.js';
 import { createDebugAwareLogger } from './utils/debug-aware-logger.js';
 import { createSpinner, createBox } from './utils/cli/spinner.js';
 import { promptAndInstallDependencies } from './utils/dependency-installer.js';
+import { promptForIntegrations } from './utils/integration-prompter.js';
 
 // Import necessary modules for dependency installation
 import { exec } from 'node:child_process';
@@ -617,69 +618,15 @@ async function browseAndSelectTemplate(
 								});
 
 					// Add-ons selection
-					let selectedAddOns: string[] = [];
-					if (preSelectedAddOns === false) {
-						selectedAddOns = [];
-					} else if (preSelectedAddOns === undefined) {
-						selectedAddOns = await multi({
-							label: 'Choose add-ons:',
-							shortLabel: 'Add-ons',
-							hintPosition: 'inline-fixed' as const,
-							options: [
-								{ value: 'tailwind', label: 'Tailwind CSS', hint: 'Utility-first CSS framework' },
-								{ value: 'eslint', label: 'ESLint', hint: 'JavaScript linting utility' },
-								{ value: 'vitest', label: 'Vitest', hint: 'Fast unit testing framework' },
-								{ value: 'playwright', label: 'Playwright', hint: 'End-to-end testing framework' },
-								{ value: 'shadcn', label: 'Shadcn/ui', hint: 'Re-usable UI components' },
-							],
-							noneOption: { label: 'None' },
-						});
-					}
+					const integrationResult = await promptForIntegrations({
+						preSelectedIntegration: preSelectedAddOns,
+						showNoneOption: true,
+						requireSelection: false,
+						hintPosition: 'inline-fixed',
+					});
 
-					// Collect add-on questions and answers using askeroo
-					const addOnAnswers: Record<string, Record<string, any>> = {};
-
-					// Handle shadcn configuration if selected
-					if (selectedAddOns.includes('shadcn')) {
-						const shadcnConfig = await group(
-							async () => {
-								const style = await radio({
-									label: 'Choose a style',
-									shortLabel: 'Style',
-									options: [
-										{ value: 'default', label: 'Default', hint: 'Simple and clean' },
-										{ value: 'new-york', label: 'New York', hint: 'Elegant and professional' },
-									],
-									meta: {
-										depth: 1,
-										group: 'Shadcn',
-									},
-								});
-
-								const baseColor = await radio({
-									label: 'Choose a base color',
-									shortLabel: 'Color',
-									options: [
-										{ value: 'slate', label: 'Slate' },
-										{ value: 'zinc', label: 'Zinc' },
-										{ value: 'neutral', label: 'Neutral' },
-										{ value: 'gray', label: 'Gray' },
-									],
-									meta: {
-										depth: 1,
-										group: 'Shadcn',
-									},
-								});
-
-								return { style, baseColor };
-							},
-							{
-								label: 'Shadcn',
-								flow: 'phased',
-							},
-						);
-						addOnAnswers.shadcn = shadcnConfig;
-					}
+					const selectedAddOns = integrationResult.selectedIntegrations;
+					const addOnAnswers = integrationResult.integrationAnswers;
 
 					// Generate project name
 					const exampleName = selectedTemplate.metadata.name || selectedTemplate.name;
