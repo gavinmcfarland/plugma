@@ -150,7 +150,7 @@ export async function add(options: AddCommandOptions): Promise<void> {
 					);
 				}
 
-				message = `**Integration added successfully!**\n\nTo complete the setup, install the required dependencies:\n\n\`${installCommand}\`\n\n${dependencySections.join('\n\n')}`;
+				message = `**Integration added successfully!**\n\nTo complete the setup, install the required dependencies with \`${installCommand}\``;
 			} else {
 				message =
 					"**All set!**\n\nYour integration has been added and dependencies are installed. You're ready to go!";
