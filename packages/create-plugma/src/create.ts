@@ -751,7 +751,7 @@ async function browseAndSelectTemplate(
 		},
 		{
 			onCancel: async () => {
-				const cancel = await spinner('Canceling...', {
+				const cancel = await spinner('Exiting...', {
 					color: 'yellow',
 					hideOnCompletion: true,
 				});
