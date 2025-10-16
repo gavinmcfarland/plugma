@@ -16,6 +16,7 @@ import rebase from '@combino/plugin-rebase';
 import { CreateCommandOptions } from './utils/create-options.js';
 import { createDebugAwareLogger } from './utils/debug-aware-logger.js';
 import { createSpinner, createBox } from './utils/cli/spinner.js';
+import { promptAndInstallDependencies } from './utils/dependency-installer.js';
 
 // Import necessary modules for dependency installation
 import { exec } from 'node:child_process';
@@ -275,27 +276,6 @@ async function installProjectDependencies(packageManager: string): Promise<void>
 	}
 
 	return new Promise((resolve, reject) => {
-		exec(`${resolved.command} ${resolved.args.join(' ')}`, (error) => {
-			if (error) {
-				reject(error);
-			} else {
-				resolve();
-			}
-		});
-	});
-}
-
-/**
- * Install specific dependencies (borrowed from add command logic)
- */
-async function installSpecificDependencies(
-	dependencies: string[],
-	devDependencies: string[],
-	packageManager: string,
-): Promise<void> {
-	return new Promise((resolve, reject) => {
-		const resolved = resolveCommand(packageManager as any, 'add', [...dependencies, ...devDependencies]);
-		if (!resolved) throw new Error('Could not resolve package manager command');
 		exec(`${resolved.command} ${resolved.args.join(' ')}`, (error) => {
 			if (error) {
 				reject(error);
@@ -1213,57 +1193,20 @@ async function createProjectFromOptions(params: {
 	let pkgManager: string | null = null;
 
 	try {
-		if (!skipInstallPrompt && installDependencies) {
-			// Find the index of the preferred package manager for setting initial value
-			const packageManagerOptions = [
-				{ value: 'skip', label: 'Skip' },
-				{ value: 'npm', label: 'npm' },
-				{ value: 'pnpm', label: 'pnpm' },
-				{ value: 'yarn', label: 'yarn' },
-				{ value: 'bun', label: 'bun' },
-				{ value: 'deno', label: 'deno' },
-			];
+		const result = await promptAndInstallDependencies({
+			skipInstallPrompt,
+			installDependencies,
+			preferredPM,
+			selectedPackageManager,
+			projectDependencies: true,
+			addonDependencies: addOnDependencies,
+			addonDevDependencies: addOnDevDependencies,
+			debug,
+			installProjectDepsCallback: installProjectDependencies,
+		});
 
-			const initialValue = packageManagerOptions.find((opt) => opt.value === preferredPM)?.value || 'npm';
-
-			pkgManager = await radio({
-				label: 'Install dependencies?',
-				shortLabel: 'Dependencies',
-				initialValue,
-				options: packageManagerOptions,
-				hideOnCompletion: true,
-			});
-		} else if (skipInstallPrompt) {
-			pkgManager = 'skip';
-		} else {
-			pkgManager = selectedPackageManager;
-		}
-
-		// Install dependencies if a package manager was selected
-		if (pkgManager && pkgManager !== 'skip') {
-			await tasks.add([
-				{
-					label: `Installing dependencies with ${pkgManager}`,
-					action: async () => {
-						try {
-							if (addOnDependencies.length > 0 || addOnDevDependencies.length > 0) {
-								// Install template dependencies first, then add-on dependencies
-								await installProjectDependencies(pkgManager!);
-								await installSpecificDependencies(addOnDependencies, addOnDevDependencies, pkgManager!);
-							} else {
-								// Only install template dependencies
-								await installProjectDependencies(pkgManager!);
-							}
-						} catch (error) {
-							dependencyInstallationFailed = true;
-							if (debug) {
-								console.error('Dependency installation error:', error);
-							}
-						}
-					},
-				},
-			]);
-		}
+		pkgManager = result.packageManager;
+		dependencyInstallationFailed = result.installationFailed;
 	} catch (error) {
 		console.log(
 			createBox(undefined, {

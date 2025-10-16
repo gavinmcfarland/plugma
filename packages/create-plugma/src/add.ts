@@ -29,6 +29,7 @@ import vitestIntegration from './integrations/vitest.js';
 import eslintIntegration from './integrations/eslint.js';
 import { AddCommandOptions } from './utils/create-options.js';
 import { createSpinner, createBox } from './utils/cli/spinner.js';
+import { promptAndInstallDependencies } from './utils/dependency-installer.js';
 
 // Helper to sleep
 function sleep(ms: number): Promise<void> {
@@ -472,35 +473,13 @@ export async function add(options: AddCommandOptions): Promise<void> {
 			const detectedPM = await detect({ cwd: process.cwd() });
 			const preferredPM = detectedPM?.agent || 'npm';
 
-			const packageManager =
-				depsArray.length > 0 || devDepsArray.length > 0
-					? await radio({
-							label: 'Install dependencies?',
-							shortLabel: 'Dependencies',
-							initialValue: preferredPM,
-							options: [
-								{ value: 'skip', label: 'Skip' },
-								{ value: 'npm', label: 'npm' },
-								{ value: 'pnpm', label: 'pnpm' },
-								{ value: 'yarn', label: 'yarn' },
-								{ value: 'bun', label: 'bun' },
-								{ value: 'deno', label: 'deno' },
-							],
-							hideOnCompletion: true,
-						})
-					: 'skip';
-
-			// Dynamically add dependency installation task if not skipped
-			if (packageManager && packageManager !== 'skip') {
-				await tasks.add([
-					{
-						label: `Installing dependencies with ${packageManager}`,
-						action: async () => {
-							await installDependencies(depsArray, devDepsArray, packageManager);
-						},
-					},
-				]);
-			}
+			const { packageManager } = await promptAndInstallDependencies({
+				skipInstallPrompt: false,
+				installDependencies: true,
+				preferredPM,
+				addonDependencies: depsArray,
+				addonDevDependencies: devDepsArray,
+			});
 
 			// Add postSetup tasks (runs after dependency installation)
 			if (answers.allResults.length > 0) {
@@ -611,22 +590,4 @@ export async function add(options: AddCommandOptions): Promise<void> {
 			},
 		},
 	);
-}
-
-async function installDependencies(
-	dependencies: string[],
-	devDependencies: string[],
-	packageManager: string,
-): Promise<void> {
-	return new Promise((resolve, reject) => {
-		const resolved = resolveCommand(packageManager as any, 'add', [...dependencies, ...devDependencies]);
-		if (!resolved) throw new Error(`Could not resolve package manager command for ${packageManager}`);
-		exec(`${resolved.command} ${resolved.args.join(' ')}`, (error) => {
-			if (error) {
-				reject(error);
-			} else {
-				resolve();
-			}
-		});
-	});
 }
