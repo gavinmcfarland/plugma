@@ -18,6 +18,7 @@ import { createDebugAwareLogger } from './utils/debug-aware-logger.js';
 import { createSpinner, createBox } from './utils/cli/spinner.js';
 import { promptAndInstallDependencies } from './utils/dependency-installer.js';
 import { promptForIntegrations } from './utils/integration-prompter.js';
+import { createIntegrationSetupTask, createPostSetupTask } from './utils/integration-task-builder.js';
 
 // Import necessary modules for dependency installation
 import { exec } from 'node:child_process';
@@ -627,6 +628,8 @@ async function browseAndSelectTemplate(
 
 					const selectedAddOns = integrationResult.selectedIntegrations;
 					const addOnAnswers = integrationResult.integrationAnswers;
+					const addOnResults = integrationResult.allResults;
+					const addOnDeps = integrationResult.allDeps;
 
 					// Generate project name
 					const exampleName = selectedTemplate.metadata.name || selectedTemplate.name;
@@ -651,6 +654,8 @@ async function browseAndSelectTemplate(
 						selectedTemplate,
 						selectedAddOns,
 						addOnAnswers,
+						addOnResults,
+						addOnDeps,
 						typescript,
 						projectName,
 						needsUI,
@@ -669,6 +674,8 @@ async function browseAndSelectTemplate(
 				selectedExample: answers.selectedTemplate,
 				debug: options.debug || false,
 				installAddOns: answers.selectedAddOns,
+				addOnResults: answers.addOnResults,
+				addOnDeps: answers.addOnDeps,
 				installDependencies: preSelectedInstall !== false,
 				selectedPackageManager: null, // Will be prompted after tasks
 				addOnAnswers: answers.addOnAnswers,
@@ -865,6 +872,8 @@ async function createProjectFromOptions(params: {
 	selectedExample?: Example;
 	debug: boolean;
 	installAddOns?: string[];
+	addOnResults?: any[];
+	addOnDeps?: any;
 	installDependencies?: boolean;
 	selectedPackageManager?: string | null;
 	addOnAnswers?: Record<string, Record<string, any>>;
@@ -879,6 +888,8 @@ async function createProjectFromOptions(params: {
 		selectedExample,
 		debug,
 		installAddOns = [],
+		addOnResults = [],
+		addOnDeps,
 		installDependencies = true,
 		selectedPackageManager = null,
 		addOnAnswers = {},
@@ -890,10 +901,6 @@ async function createProjectFromOptions(params: {
 	let dependencyInstallationFailed = false;
 
 	// Shared state for add-on integration results
-	const allDeps = {
-		dependencies: new Set<string>(),
-		devDependencies: new Set<string>(),
-	};
 	const integrationResults: Array<{ integration: any; answers: Record<string, any> }> = [];
 
 	// Create the task list for project setup
@@ -1025,79 +1032,14 @@ async function createProjectFromOptions(params: {
 	];
 
 	// Add the add-ons task if there are any add-ons selected
-	if (installAddOns.length > 0) {
-		tasksList.push({
-			label: 'Integrating chosen add-ons',
-			action: async () => {},
-			concurrent: true,
-			tasks: installAddOns.map((addOnKey) => ({
-				label: addOnKey,
-				action: async () => {
-					// Import the integrations
-					const playwrightIntegration = await import('./integrations/playwright.js');
-					const tailwindIntegration = await import('./integrations/tailwind.js');
-					const shadcnIntegration = await import('./integrations/shadcn.js');
-					const vitestIntegration = await import('./integrations/vitest.js');
-					const eslintIntegration = await import('./integrations/eslint.js');
-					const { runIntegration } = await import('./integrations/define-integration.js');
-					const { createFileHelpers } = await import('./utils/file-helpers.js');
+	const integrationTask = createIntegrationSetupTask({
+		integrationResults: addOnResults,
+		workingDirectory: destDir,
+		collectResults: integrationResults,
+	});
 
-					const INTEGRATIONS = {
-						tailwind: tailwindIntegration.default,
-						shadcn: shadcnIntegration.default,
-						eslint: eslintIntegration.default,
-						vitest: vitestIntegration.default,
-						playwright: playwrightIntegration.default,
-					};
-
-					if (addOnKey in INTEGRATIONS) {
-						const integration = INTEGRATIONS[addOnKey as keyof typeof INTEGRATIONS];
-
-						// Use pre-collected answers if available
-						let result;
-						if (addOnAnswers[addOnKey]) {
-							// Change to project directory for file operations
-							process.chdir(destDir);
-
-							const helpers = createFileHelpers();
-							const typescript = await helpers.detectTypeScript();
-
-							// Run setup function if provided
-							if (integration.setup) {
-								await integration.setup({ answers: addOnAnswers[addOnKey], helpers, typescript });
-							}
-
-							result = {
-								answers: addOnAnswers[addOnKey],
-								dependencies: integration.dependencies || [],
-								devDependencies: integration.devDependencies || [],
-								files: integration.files || [],
-								nextSteps: integration.nextSteps?.(addOnAnswers[addOnKey]) || [],
-							};
-						} else {
-							// No pre-collected answers
-							result = await runIntegration(integration, {
-								name: integration.name,
-								prefixPrompts: false,
-							});
-						}
-
-						if (result) {
-							// Collect dependencies
-							result.dependencies.forEach((dep) => allDeps.dependencies.add(dep));
-							result.devDependencies.forEach((dep) => allDeps.devDependencies.add(dep));
-
-							// Store for postSetup
-							integrationResults.push({ integration, answers: result.answers });
-						} else {
-							throw new Error(`Failed to configure ${addOnKey}`);
-						}
-					} else {
-						throw new Error(`Unknown add-on: ${addOnKey}`);
-					}
-				},
-			})),
-		});
+	if (integrationTask) {
+		tasksList.push(integrationTask);
 	}
 
 	// Run the project creation and add-on tasks
@@ -1112,29 +1054,8 @@ async function createProjectFromOptions(params: {
 	const originalCwd = process.cwd();
 	process.chdir(destDir);
 
-	// Run postSetup hooks for all integrations
-	if (integrationResults.length > 0) {
-		const { createFileHelpers } = await import('./utils/file-helpers.js');
-		const helpers = createFileHelpers();
-		const typescript = await helpers.detectTypeScript();
-
-		for (const { integration, answers } of integrationResults) {
-			if (integration.postSetup) {
-				try {
-					await integration.postSetup({ answers, helpers, typescript });
-				} catch (error) {
-					console.warn(
-						chalk.yellow(
-							`Warning: PostSetup failed for ${integration.name}: ${error instanceof Error ? error.message : String(error)}`,
-						),
-					);
-				}
-			}
-		}
-	}
-
-	const addOnDependencies = Array.from(allDeps.dependencies);
-	const addOnDevDependencies = Array.from(allDeps.devDependencies);
+	const addOnDependencies = addOnDeps ? (Array.from(addOnDeps.dependencies) as string[]) : [];
+	const addOnDevDependencies = addOnDeps ? (Array.from(addOnDeps.devDependencies) as string[]) : [];
 
 	// Prompt for package manager if not skipped
 	let pkgManager: string | null = null;
@@ -1154,6 +1075,17 @@ async function createProjectFromOptions(params: {
 
 		pkgManager = result.packageManager;
 		dependencyInstallationFailed = result.installationFailed;
+
+		// Add postSetup tasks (runs after dependency installation)
+		if (addOnResults.length > 0) {
+			const postSetupTask = createPostSetupTask({
+				integrationResults: addOnResults,
+			});
+
+			if (postSetupTask) {
+				await tasks.add([postSetupTask]);
+			}
+		}
 	} catch (error) {
 		console.log(
 			createBox(undefined, {

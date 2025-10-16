@@ -12,6 +12,7 @@ import { AddCommandOptions } from './utils/create-options.js';
 import { createSpinner } from './utils/cli/spinner.js';
 import { promptAndInstallDependencies } from './utils/dependency-installer.js';
 import { promptForIntegrations, INTEGRATIONS } from './utils/integration-prompter.js';
+import { createIntegrationSetupTask, createPostSetupTask } from './utils/integration-task-builder.js';
 
 // Helper to sleep
 function sleep(ms: number): Promise<void> {
@@ -60,26 +61,12 @@ export async function add(options: AddCommandOptions): Promise<void> {
 			const setupTasksList: Task[] = [];
 
 			// Add integration setup tasks
-			if (answers.allResults.length > 0) {
-				setupTasksList.push({
-					label: 'Setting up integrations',
-					action: async () => {},
-					concurrent: true,
-					tasks: answers.allResults.flatMap((result) => {
-						// If the integration has custom tasks, use those
-						if (result.integrationResult.tasks && result.integrationResult.tasks.length > 0) {
-							return {
-								label: result.integration.name,
-								action: async () => {},
-								concurrent: false,
-								tasks: result.integrationResult.tasks,
-							};
-						}
+			const integrationTask = createIntegrationSetupTask({
+				integrationResults: answers.allResults,
+			});
 
-						// For integrations without tasks, skip (they'll use postSetup later)
-						return [];
-					}),
-				});
+			if (integrationTask) {
+				setupTasksList.push(integrationTask);
 			}
 
 			// Run setup tasks and dynamically add dependency installation
@@ -102,56 +89,12 @@ export async function add(options: AddCommandOptions): Promise<void> {
 			});
 
 			// Add postSetup tasks (runs after dependency installation)
-			if (answers.allResults.length > 0) {
-				const postSetupTasks = answers.allResults.flatMap((result) => {
-					const helpers = createFileHelpers();
+			const postSetupTask = createPostSetupTask({
+				integrationResults: answers.allResults,
+			});
 
-					// Check if this integration has postSetup or required integrations with postSetup
-					const hasRequiredPostSetup = result.requiredResults.some((r) => r.integration.postSetup);
-					const hasMainPostSetup = result.integration.postSetup;
-
-					if (!hasRequiredPostSetup && !hasMainPostSetup) {
-						return [];
-					}
-
-					return {
-						label: `Finalizing ${result.integration.name}`,
-						action: async () => {
-							const typescript = await helpers.detectTypeScript();
-
-							// Run postSetup for required integrations first
-							for (const requiredResult of result.requiredResults) {
-								if (requiredResult.integration.postSetup) {
-									await requiredResult.integration.postSetup({
-										answers: requiredResult.answers,
-										helpers,
-										typescript,
-									});
-								}
-							}
-
-							// Then run postSetup for the main integration
-							if (result.integration.postSetup) {
-								await result.integration.postSetup({
-									answers: result.integrationResult.answers,
-									helpers,
-									typescript,
-								});
-							}
-						},
-					};
-				});
-
-				if (postSetupTasks.length > 0) {
-					await tasks.add([
-						{
-							label: 'Finalizing setup',
-							action: async () => {},
-							concurrent: true,
-							tasks: postSetupTasks,
-						},
-					]);
-				}
+			if (postSetupTask) {
+				await tasks.add([postSetupTask]);
 			}
 
 			// Show note if user skipped dependency installation

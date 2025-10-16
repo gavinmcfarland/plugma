@@ -19,25 +19,23 @@ export default defineIntegration({
 		// '@figma/eslint-plugin-figma-plugins',
 	],
 
-	async setup({ helpers, typescript }) {
-		return [
-			{
-				label: 'Adding lint script to package.json',
-				action: async () => {
-					await helpers.updateJson('package.json', (json) => {
-						json.scripts = json.scripts || {};
-						json.scripts['lint'] = 'eslint .';
-					});
-				},
+	setup: [
+		{
+			label: 'Adding lint script to package.json',
+			action: async ({ helpers }) => {
+				await helpers.updateJson('package.json', (json) => {
+					json.scripts = json.scripts || {};
+					json.scripts['lint'] = 'eslint .';
+				});
 			},
-			{
-				label: 'Creating eslint.config.js',
-				action: async () => {
-					await helpers.writeTemplateFile('templates/integrations/eslint', 'eslint.config.js');
-				},
+		},
+		{
+			label: 'Creating eslint.config.js',
+			action: async ({ helpers }) => {
+				await helpers.writeTemplateFile('templates/integrations/eslint', 'eslint.config.js');
 			},
-		];
-	},
+		},
+	],
 
 	nextSteps: () => `
 	**Plugged in and ready to go!**

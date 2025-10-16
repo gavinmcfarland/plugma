@@ -54,59 +54,59 @@ export default defineIntegration({
 
 	dependencies: ['tailwindcss', '@tailwindcss/vite'],
 
-	async setup({ answers, helpers, typescript }) {
-		const ext = typescript ? 'ts' : 'js';
-		const cwd = process.cwd();
+	setup: [
+		{
+			label: 'Adding Tailwind to CSS file',
+			action: async ({ answers, helpers, typescript }) => {
+				const ext = typescript ? 'ts' : 'js';
+				const cwd = process.cwd();
 
-		// Get the UI directory and file from the manifest
-		let uiDir = 'src';
-		let uiFilePath: string | null = null;
-		let cssFilePath: string | null = null;
-		let manifestUiPath: string | null = null;
+				// Get the UI directory and file from the manifest
+				let uiDir = 'src';
+				let uiFilePath: string | null = null;
+				let cssFilePath: string | null = null;
+				let manifestUiPath: string | null = null;
 
-		try {
-			const files = await getUserFiles({ cwd });
-			if (files.manifest.ui) {
-				uiDir = dirname(files.manifest.ui);
-				uiFilePath = resolve(cwd, files.manifest.ui);
-				manifestUiPath = files.manifest.ui;
+				try {
+					const files = await getUserFiles({ cwd });
+					if (files.manifest.ui) {
+						uiDir = dirname(files.manifest.ui);
+						uiFilePath = resolve(cwd, files.manifest.ui);
+						manifestUiPath = files.manifest.ui;
 
-				// Try to find existing CSS import in the UI file
-				cssFilePath = await findCssImportPath(uiFilePath, cwd);
-			}
-		} catch (error) {
-			// Fallback to 'src' if manifest cannot be read
-			console.warn('Could not read manifest, using default src directory for styles');
-		}
+						// Try to find existing CSS import in the UI file
+						cssFilePath = await findCssImportPath(uiFilePath, cwd);
+					}
+				} catch (error) {
+					// Fallback to 'src' if manifest cannot be read
+					console.warn('Could not read manifest, using default src directory for styles');
+				}
 
-		// Determine where to create the CSS file
-		let targetCssPath: string;
-		if (cssFilePath) {
-			// Use the existing CSS file location
-			targetCssPath = cssFilePath;
-		} else {
-			// Fallback to UI directory + styles.css
-			targetCssPath = join(cwd, uiDir, 'styles.css');
-		}
+				// Determine where to create the CSS file
+				let targetCssPath: string;
+				if (cssFilePath) {
+					// Use the existing CSS file location
+					targetCssPath = cssFilePath;
+				} else {
+					// Fallback to UI directory + styles.css
+					targetCssPath = join(cwd, uiDir, 'styles.css');
+				}
 
-		// Convert absolute path to relative path for helpers.updateFile
-		const relativeCssPath = targetCssPath.startsWith(cwd) ? targetCssPath.substring(cwd.length + 1) : targetCssPath;
+				// Convert absolute path to relative path for helpers.updateFile
+				const relativeCssPath = targetCssPath.startsWith(cwd)
+					? targetCssPath.substring(cwd.length + 1)
+					: targetCssPath;
 
-		// Store the paths in answers for nextSteps to use
-		answers.uiDir = uiDir;
-		answers.targetCssPath = targetCssPath;
-		answers.relativeCssPath = relativeCssPath;
-		answers.ext = ext;
-		answers.uiFilePath = uiFilePath;
-		answers.cssFilePath = cssFilePath;
-		answers.manifestUiPath = manifestUiPath;
+				// Store the paths in answers for other tasks and nextSteps to use
+				answers.uiDir = uiDir;
+				answers.targetCssPath = targetCssPath;
+				answers.relativeCssPath = relativeCssPath;
+				answers.ext = ext;
+				answers.uiFilePath = uiFilePath;
+				answers.cssFilePath = cssFilePath;
+				answers.manifestUiPath = manifestUiPath;
 
-		const tasks = [];
-
-		// Task 1: Update CSS file
-		tasks.push({
-			label: `Adding Tailwind to ${relativeCssPath}`,
-			action: async () => {
+				// Update CSS file
 				await helpers.updateFile(relativeCssPath, (content) => {
 					if (!content) return dedent`@import "tailwindcss";`;
 					if (!content.includes('@import "tailwindcss"')) {
@@ -116,12 +116,10 @@ ${content}`;
 					return content;
 				});
 			},
-		});
-
-		// Task 2: Update Vite config
-		tasks.push({
+		},
+		{
 			label: 'Configuring Vite for Tailwind',
-			action: async () => {
+			action: async ({ helpers }) => {
 				const viteConfigFile = await helpers.detectViteConfigFile();
 
 				if (!viteConfigFile) {
@@ -195,54 +193,52 @@ ${content}`;
 					return s.toString();
 				});
 			},
-		});
+		},
+		{
+			label: 'Adding CSS import to UI file',
+			action: async ({ answers, helpers }) => {
+				// Only run if we need to add the CSS import
+				if (answers.cssFilePath || !answers.uiFilePath || !answers.manifestUiPath) {
+					return;
+				}
 
-		// Task 3: Add CSS import to UI file if needed
-		if (!cssFilePath && uiFilePath && manifestUiPath) {
-			const cssFileName = relativeCssPath.split('/').pop() || 'styles.css';
-			tasks.push({
-				label: `Adding CSS import to ${manifestUiPath}`,
-				action: async () => {
-					// Calculate relative path from UI file to CSS file
-					const uiFileDir = dirname(uiFilePath!);
-					const cssFileDir = dirname(targetCssPath);
-					const relativePath = relative(uiFileDir, cssFileDir);
-					const importPath =
-						relativePath === '.' || relativePath === ''
-							? `./${cssFileName}`
-							: `./${relativePath}/${cssFileName}`;
+				const cssFileName = answers.relativeCssPath.split('/').pop() || 'styles.css';
+				const uiFileDir = dirname(answers.uiFilePath);
+				const cssFileDir = dirname(answers.targetCssPath);
+				const relativePath = relative(uiFileDir, cssFileDir);
+				const importPath =
+					relativePath === '.' || relativePath === ''
+						? `./${cssFileName}`
+						: `./${relativePath}/${cssFileName}`;
 
-					await helpers.updateFile(manifestUiPath!, (content) => {
-						const s = new MagicString(content);
+				await helpers.updateFile(answers.manifestUiPath, (content) => {
+					const s = new MagicString(content);
 
-						// Check if CSS import already exists
-						if (!content.includes(cssFileName)) {
-							// Find the last import to add CSS import after it
-							const importRegex = /import\s+.*?from\s+['"].*?['"];?/g;
-							const imports: RegExpExecArray[] = [];
-							let match;
-							while ((match = importRegex.exec(content)) !== null) {
-								imports.push(match);
-							}
-
-							if (imports.length > 0) {
-								// Add after the last import
-								const lastImport = imports[imports.length - 1];
-								s.appendLeft(lastImport.index! + lastImport[0].length, `\nimport '${importPath}';`);
-							} else {
-								// Add at the beginning if no imports exist
-								s.prepend(`import '${importPath}';\n`);
-							}
+					// Check if CSS import already exists
+					if (!content.includes(cssFileName)) {
+						// Find the last import to add CSS import after it
+						const importRegex = /import\s+.*?from\s+['"].*?['"];?/g;
+						const imports: RegExpExecArray[] = [];
+						let match;
+						while ((match = importRegex.exec(content)) !== null) {
+							imports.push(match);
 						}
 
-						return s.toString();
-					});
-				},
-			});
-		}
+						if (imports.length > 0) {
+							// Add after the last import
+							const lastImport = imports[imports.length - 1];
+							s.appendLeft(lastImport.index! + lastImport[0].length, `\nimport '${importPath}';`);
+						} else {
+							// Add at the beginning if no imports exist
+							s.prepend(`import '${importPath}';\n`);
+						}
+					}
 
-		return tasks;
-	},
+					return s.toString();
+				});
+			},
+		},
+	],
 
 	nextSteps: (answers) => {
 		const uiDir = answers.uiDir || 'src';
