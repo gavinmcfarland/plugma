@@ -97,8 +97,45 @@ export async function add(options: AddCommandOptions): Promise<void> {
 				await tasks.add([postSetupTask]);
 			}
 
-			// Show note if user skipped dependency installation
+			// Collect all next steps from all integrations
+			// const allNextSteps: string[] = [];
+			// for (const result of answers.allResults) {
+			// 	if (result.integrationResult.nextSteps) {
+			// 		const steps = Array.isArray(result.integrationResult.nextSteps)
+			// 			? result.integrationResult.nextSteps
+			// 			: [result.integrationResult.nextSteps];
+
+			// 		if (answers.allResults.length > 1) {
+			// 			// Add integration name if multiple integrations were installed
+			// 			allNextSteps.push(`\n**${result.integration.name}:**`);
+			// 		}
+			// 		allNextSteps.push(...steps);
+			// 	}
+			// }
+
+			// Show success message with next steps
+			// if (allNextSteps.length > 0) {
+			// 	const successMessage = allNextSteps.join('\n');
+			// 	await note(successMessage);
+			// }
+
+			// Show completion message with optional dependency installation reminder
+			let message = '';
+
 			if ((depsArray.length > 0 || devDepsArray.length > 0) && packageManager === 'skip') {
+				const installCommand =
+					preferredPM === 'npm'
+						? 'npm install'
+						: preferredPM === 'yarn'
+							? 'yarn'
+							: preferredPM === 'pnpm'
+								? 'pnpm install'
+								: preferredPM === 'bun'
+									? 'bun install'
+									: preferredPM === 'deno'
+										? 'deno install'
+										: 'npm install';
+
 				const dependencySections = [];
 
 				if (depsArray.length > 0) {
@@ -113,31 +150,13 @@ export async function add(options: AddCommandOptions): Promise<void> {
 					);
 				}
 
-				await note(`You can install the dependencies later by running:\n\n${dependencySections.join('\n\n')}`);
+				message = `**Integration added successfully!**\n\nTo complete the setup, install the required dependencies:\n\n\`${installCommand}\`\n\n${dependencySections.join('\n\n')}`;
+			} else {
+				message =
+					"**All set!**\n\nYour integration has been added and dependencies are installed. You're ready to go!";
 			}
 
-			// Collect all next steps from all integrations
-			const allNextSteps: string[] = [];
-			for (const result of answers.allResults) {
-				if (result.integrationResult.nextSteps) {
-					const steps = Array.isArray(result.integrationResult.nextSteps)
-						? result.integrationResult.nextSteps
-						: [result.integrationResult.nextSteps];
-
-					if (answers.allResults.length > 1) {
-						// Add integration name if multiple integrations were installed
-						allNextSteps.push(`\n**${result.integration.name}:**`);
-					}
-					allNextSteps.push(...steps);
-				}
-			}
-
-			// Show success message with next steps
-			// if (allNextSteps.length > 0) {
-			// 	const successMessage = allNextSteps.join('\n');
-			// 	await note(successMessage);
-			// }
-			await note(`All done!`);
+			await note(message);
 		},
 		{
 			onCancel: async () => {
