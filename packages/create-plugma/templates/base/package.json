@@ -7,8 +7,10 @@
 		"release": "plugma release"
 	},
 	"devDependencies": {
-		"vite": "^6.4.0",
-		"@figma/plugin-typings": "^1.100.2",
+		"vite": "^5.4.10"<% if (type === 'plugin') { %>,
+        "@figma/plugin-typings": "^1.100.2"
+        <% } else { %>,
+        "@figma/widget-typings": "^1.12.1"<% } %>,
 		"plugma": "^<%- versions.plugma %>"
 	}
 }
