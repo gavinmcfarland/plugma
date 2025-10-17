@@ -12,7 +12,7 @@ import {
 	AddCommandOptions,
 	CreateCommandOptions,
 } from '../utils/create-options.js';
-import { parseCreateArgs, defineCreateCommand } from '../utils/parse-create-args.js';
+import { defineCreateCommand, parseCreateArgs, defineAddCommand, parseAddArgs } from 'create-plugma';
 
 import { readPlugmaPackageJson } from '../utils/fs/read-json.js';
 
@@ -79,21 +79,25 @@ program
 	.version(version, '-v, --version', 'Output the current version')
 	.addHelpText('beforeAll', `${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}`)}\n`);
 
-// Create Command - delegates to create-plugma
-defineCreateCommand(program, {
-	debugDefault: DEFAULT_OPTIONS.debug,
-	commandName: 'plugma create',
-	onAction: async (type, framework, options) => {
-		// Parse and validate arguments using shared utility
-		const enhancedOptions = parseCreateArgs(type, framework, options);
+// Create Command - uses create-plugma's defineCreateCommand
+defineCreateCommand(
+	program,
+	{
+		debugDefault: DEFAULT_OPTIONS.debug,
+		commandName: 'plugma create',
+		onAction: async (type: string | undefined, framework: string | undefined, options: any) => {
+			// Parse and validate arguments using shared utility
+			const enhancedOptions = parseCreateArgs(type, framework, options);
 
-		await create(
-			createOptions<'create'>(enhancedOptions, {
-				command: 'create',
-			}),
-		);
+			await create(
+				createOptions<'create'>(enhancedOptions, {
+					command: 'create',
+				}),
+			);
+		},
 	},
-});
+	true,
+); // true = create as subcommand
 
 // Add a hook that runs before every command
 program.hook('preAction', async (thisCommand, actionCommand) => {
@@ -247,34 +251,25 @@ Examples:
   `,
 	);
 
-// Add Command
-program
-	.command('add')
-	.argument('[integration]', 'Integration to add')
-	.description('Add external integrations to your plugin')
-	.option(
-		'-c, --config <json>',
-		'Specify a JSON configuration object for testing and debugging',
-		DEFAULT_OPTIONS.configParser,
-	)
-	.action(async function (this: Command, integration: string, options: Partial<AddCommandOptions>) {
-		await add(
-			createOptions<'add'>(
-				{ ...options, integration },
-				{
+// Add Command - uses create-plugma's defineAddCommand
+defineAddCommand(
+	program,
+	{
+		debugDefault: DEFAULT_OPTIONS.debug,
+		commandName: 'plugma add',
+		onAction: async (integration: string | undefined, options: any) => {
+			// Parse and validate arguments using shared utility
+			const enhancedOptions = parseAddArgs(integration, options);
+
+			await add(
+				createOptions<'add'>(enhancedOptions, {
 					command: 'add',
-				},
-			),
-		);
-	})
-	.addHelpText(
-		'after',
-		`
-Examples:
-  plugma add
-  plugma add playwright
-  `,
-	);
+				}),
+			);
+		},
+	},
+	true,
+); // true = create as subcommand
 
 // Parse arguments
 program.parse(process.argv);

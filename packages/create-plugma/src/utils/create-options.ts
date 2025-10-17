@@ -85,6 +85,7 @@ export interface CommandOptions {
 		noUi?: boolean;
 		noAddOns?: boolean;
 		noInstall?: boolean;
+		skipPrompt?: boolean;
 	};
 }
 

@@ -2,8 +2,15 @@
 	"name": "create-plugma",
 	"version": "2.0.15",
 	"description": "",
-	"main": "dist/create-plugma.js",
+	"main": "dist/index.js",
 	"type": "module",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		},
+		"./cli": "./dist/create-plugma.js"
+	},
 	"scripts": {
 		"build": "tsc -p tsconfig.build.json",
 		"dev": "tsc -p tsconfig.build.json --watch",
