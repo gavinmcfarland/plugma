@@ -43,8 +43,8 @@ importers:
         specifier: ^6.2.0
         version: 6.2.0(svelte@5.34.8)(vite@6.3.6(@types/node@20.19.4)(jiti@1.21.7)(terser@5.39.0)(tsx@4.19.4)(yaml@2.8.1))
       askeroo:
-        specifier: 0.0.0-alpha.8
-        version: 0.0.0-alpha.8
+        specifier: 0.0.0-alpha.9
+        version: 0.0.0-alpha.9
       boxen:
         specifier: ^8.0.1
         version: 8.0.1
@@ -2120,8 +2120,8 @@ packages:
     resolution: {integrity: sha512-gz91Im0a1L3oVvAEyAipiMn7x/N07Pb+9aKQCWxpMw9VMQEhNnAHjuykj1V2DV6Jtxl6g+YIt7YJCIHvYxX6xQ==}
     engines: {node: '>=18.0.0'}
 
-  askeroo@0.0.0-alpha.8:
-    resolution: {integrity: sha512-CsAYSPhF9SiVwbg/pbRM7uWnWb1lnwRhvDVXSta9cgs/FUqrQyG8SZXPO7PKgfxgfqmmhvDXTOPEAB63lbQ3gw==}
+  askeroo@0.0.0-alpha.9:
+    resolution: {integrity: sha512-uKDXp7OkavJl8n3M5SnSWQFYbm4+O4j6VQnjnMC+FrYnVStSFiIURg8oeWvcYioAEnMXSRwsyMOJ0f3QSUlT3g==}
     engines: {node: '>=18.0.0'}
 
   asn1@0.2.6:
@@ -7290,7 +7290,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  askeroo@0.0.0-alpha.8:
+  askeroo@0.0.0-alpha.9:
     dependencies:
       chalk: 5.6.2
       ink: 4.4.1(react-devtools-core@4.28.5)(react@18.3.1)

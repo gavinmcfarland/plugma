@@ -32,12 +32,21 @@ export interface DependencyInstallationOptions {
 	 * Enable debug output
 	 */
 	debug?: boolean;
+
+	/**
+	 * Show detailed installation output
+	 */
+	verbose?: boolean;
 }
 
 /**
  * Install dependencies using the specified package manager
  */
-async function installAllDependencies(packageManager: string, dependencies: string[]): Promise<void> {
+async function installAllDependencies(
+	packageManager: string,
+	dependencies: string[],
+	verbose: boolean = false,
+): Promise<void> {
 	const output = await stream(`Installing dependencies with ${packageManager}...`, {
 		maxLines: 15,
 		prefixSymbol: '│',
@@ -53,8 +62,16 @@ async function installAllDependencies(packageManager: string, dependencies: stri
 	await new Promise<void>((resolve, reject) => {
 		const proc = spawnWithColors(resolved.command, resolved.args);
 
-		proc.stdout.on('data', (data) => output.write(data.toString()));
-		proc.stderr.on('data', (data) => output.write(data.toString()));
+		proc.stdout.on('data', (data) => {
+			if (verbose) {
+				output.write(data.toString());
+			}
+		});
+		proc.stderr.on('data', (data) => {
+			if (verbose) {
+				output.write(data.toString());
+			}
+		});
 		proc.on('error', (err) => {
 			output.error(`Failed to start ${packageManager}: ${err.message}`);
 			reject(err);
@@ -104,6 +121,7 @@ export async function promptAndInstallDependencies(
 		selectedPackageManager = null,
 		dependencies = [],
 		debug = false,
+		verbose = false,
 	} = options;
 
 	let installationFailed = false;
@@ -155,7 +173,7 @@ export async function promptAndInstallDependencies(
 	// Install dependencies if a package manager was selected
 	if (packageManager && packageManager !== 'skip') {
 		try {
-			await installAllDependencies(packageManager, dependencies);
+			await installAllDependencies(packageManager, dependencies, verbose);
 		} catch (error) {
 			installationFailed = true;
 			if (debug) {

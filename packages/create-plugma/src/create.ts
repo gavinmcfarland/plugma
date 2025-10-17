@@ -1052,6 +1052,7 @@ async function createProjectFromOptions(params: {
 			selectedPackageManager,
 			dependencies: [...addOnDependencies, ...addOnDevDependencies],
 			debug,
+			verbose,
 		});
 
 		pkgManager = result.packageManager;
