@@ -84,8 +84,7 @@ export async function add(options: AddCommandOptions): Promise<void> {
 				skipInstallPrompt: false,
 				installDependencies: true,
 				preferredPM,
-				addonDependencies: depsArray,
-				addonDevDependencies: devDepsArray,
+				dependencies: [...depsArray, ...devDepsArray],
 			});
 
 			// Add postSetup tasks (runs after dependency installation)

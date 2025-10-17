@@ -1,7 +1,6 @@
-import { exec } from 'node:child_process';
 import { detect } from 'package-manager-detector/detect';
 import { resolveCommand } from 'package-manager-detector/commands';
-import { radio, tasks } from 'askeroo';
+import { radio, spawnWithColors, stream } from 'askeroo';
 
 export interface DependencyInstallationOptions {
 	/**
@@ -25,69 +24,48 @@ export interface DependencyInstallationOptions {
 	selectedPackageManager?: string | null;
 
 	/**
-	 * Project dependencies to install from package.json
+	 * Dependencies to install (package names). Pass empty array to install from package.json
 	 */
-	projectDependencies?: boolean;
-
-	/**
-	 * Add-on/addon specific dependencies
-	 */
-	addonDependencies?: string[];
-
-	/**
-	 * Add-on/addon specific dev dependencies
-	 */
-	addonDevDependencies?: string[];
+	dependencies?: string[];
 
 	/**
 	 * Enable debug output
 	 */
 	debug?: boolean;
-
-	/**
-	 * Custom callback for installing project dependencies
-	 */
-	installProjectDepsCallback?: (packageManager: string) => Promise<void>;
 }
 
 /**
- * Install specific dependencies using the package manager
+ * Install dependencies using the specified package manager
  */
-async function installSpecificDependencies(
-	dependencies: string[],
-	devDependencies: string[],
-	packageManager: string,
-): Promise<void> {
-	return new Promise((resolve, reject) => {
-		const resolved = resolveCommand(packageManager as any, 'add', [...dependencies, ...devDependencies]);
-		if (!resolved) {
-			throw new Error(`Could not resolve package manager command for ${packageManager}`);
-		}
-		exec(`${resolved.command} ${resolved.args.join(' ')}`, (error) => {
-			if (error) {
-				reject(error);
-			} else {
-				resolve();
-			}
-		});
+async function installAllDependencies(packageManager: string, dependencies: string[]): Promise<void> {
+	const output = await stream(`Installing dependencies with ${packageManager}...`, {
+		maxLines: 20,
+		prefixSymbol: '│',
 	});
-}
 
-/**
- * Install project dependencies from package.json
- */
-async function installProjectDependencies(packageManager: string): Promise<void> {
-	const resolved = resolveCommand(packageManager as any, 'install', []);
+	// Install all packages - if we have specific packages, add them; otherwise just install from package.json
+	const command = dependencies.length > 0 ? 'add' : 'install';
+	const resolved = resolveCommand(packageManager as any, command, dependencies);
 	if (!resolved) {
 		throw new Error(`Could not resolve package manager command for ${packageManager}`);
 	}
 
-	return new Promise((resolve, reject) => {
-		exec(`${resolved.command} ${resolved.args.join(' ')}`, (error) => {
-			if (error) {
-				reject(error);
-			} else {
+	await new Promise<void>((resolve, reject) => {
+		const proc = spawnWithColors(resolved.command, resolved.args);
+
+		proc.stdout.on('data', (data) => output.write(data.toString()));
+		proc.stderr.on('data', (data) => output.write(data.toString()));
+		proc.on('error', (err) => {
+			output.error(`Failed to start ${packageManager}: ${err.message}`);
+			reject(err);
+		});
+		proc.on('close', (code) => {
+			if (code === 0) {
+				output.complete();
 				resolve();
+			} else {
+				output.error();
+				reject(new Error(`${packageManager} install failed with code ${code}`));
 			}
 		});
 	});
@@ -99,7 +77,7 @@ export interface DependencyInstallationResult {
 }
 
 /**
- * Prompts the user for dependency installation and dynamically adds installation tasks
+ * Prompts the user for dependency installation and installs dependencies
  * Returns the selected package manager and whether installation failed
  */
 export async function promptAndInstallDependencies(
@@ -110,11 +88,8 @@ export async function promptAndInstallDependencies(
 		installDependencies = true,
 		preferredPM = 'npm',
 		selectedPackageManager = null,
-		projectDependencies = false,
-		addonDependencies = [],
-		addonDevDependencies = [],
+		dependencies = [],
 		debug = false,
-		installProjectDepsCallback,
 	} = options;
 
 	let installationFailed = false;
@@ -122,15 +97,6 @@ export async function promptAndInstallDependencies(
 	// Detect package manager if not provided
 	const detectedPM = await detect({ cwd: process.cwd() });
 	const defaultPM = detectedPM?.agent || preferredPM;
-
-	// Determine if we have any dependencies to install
-	const hasAddonDeps = addonDependencies.length > 0 || addonDevDependencies.length > 0;
-	const hasDepsToInstall = projectDependencies || hasAddonDeps;
-
-	// If no dependencies to install, return early
-	if (!hasDepsToInstall) {
-		return { packageManager: 'skip', installationFailed: false };
-	}
 
 	let packageManager: string | null = null;
 
@@ -163,39 +129,14 @@ export async function promptAndInstallDependencies(
 
 	// Install dependencies if a package manager was selected
 	if (packageManager && packageManager !== 'skip') {
-		await tasks.add([
-			{
-				label: `Installing dependencies with ${packageManager}`,
-				action: async () => {
-					try {
-						if (projectDependencies && hasAddonDeps) {
-							// Install project dependencies first, then addon dependencies
-							if (installProjectDepsCallback) {
-								await installProjectDepsCallback(packageManager!);
-							} else {
-								await installProjectDependencies(packageManager!);
-							}
-							await installSpecificDependencies(addonDependencies, addonDevDependencies, packageManager!);
-						} else if (projectDependencies) {
-							// Only install project dependencies
-							if (installProjectDepsCallback) {
-								await installProjectDepsCallback(packageManager!);
-							} else {
-								await installProjectDependencies(packageManager!);
-							}
-						} else if (hasAddonDeps) {
-							// Only install addon dependencies
-							await installSpecificDependencies(addonDependencies, addonDevDependencies, packageManager!);
-						}
-					} catch (error) {
-						installationFailed = true;
-						if (debug) {
-							console.error('Dependency installation error:', error);
-						}
-					}
-				},
-			},
-		]);
+		try {
+			await installAllDependencies(packageManager, dependencies);
+		} catch (error) {
+			installationFailed = true;
+			if (debug) {
+				console.error('Dependency installation error:', error);
+			}
+		}
 	}
 
 	return { packageManager, installationFailed };

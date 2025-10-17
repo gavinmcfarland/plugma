@@ -21,9 +21,7 @@ import { promptForIntegrations } from './utils/integration-prompter.js';
 import { createIntegrationSetupTask, createPostSetupTask } from './utils/integration-task-builder.js';
 
 // Import necessary modules for dependency installation
-import { exec } from 'node:child_process';
 import { detect } from 'package-manager-detector/detect';
-import { resolveCommand } from 'package-manager-detector/commands';
 
 const CURR_DIR = process.cwd();
 
@@ -266,26 +264,6 @@ function getVersions(): Record<string, string> {
 	}
 
 	return {};
-}
-
-/**
- * Install project dependencies from package.json
- */
-async function installProjectDependencies(packageManager: string): Promise<void> {
-	const resolved = resolveCommand(packageManager as any, 'install', []);
-	if (!resolved) {
-		throw new Error(`Could not resolve package manager command for ${packageManager}`);
-	}
-
-	return new Promise((resolve, reject) => {
-		exec(`${resolved.command} ${resolved.args.join(' ')}`, (error) => {
-			if (error) {
-				reject(error);
-			} else {
-				resolve();
-			}
-		});
-	});
 }
 
 /**
@@ -1066,11 +1044,8 @@ async function createProjectFromOptions(params: {
 			installDependencies,
 			preferredPM,
 			selectedPackageManager,
-			projectDependencies: true,
-			addonDependencies: addOnDependencies,
-			addonDevDependencies: addOnDevDependencies,
+			dependencies: [...addOnDependencies, ...addOnDevDependencies],
 			debug,
-			installProjectDepsCallback: installProjectDependencies,
 		});
 
 		pkgManager = result.packageManager;
