@@ -17,11 +17,11 @@ const program = new Command();
 
 program.name('create-plugma').description('Create Figma plugins and widgets, and manage integrations');
 
-// Create command (root command)
+// Create command (as subcommand)
 defineCreateCommand(
 	program,
 	{
-		commandName: 'create-plugma',
+		commandName: 'create-plugma create',
 		onAction: async (type, framework, options) => {
 			try {
 				// Show Create Plugma prompt unless --skip-prompt is passed
@@ -49,7 +49,7 @@ defineCreateCommand(
 			}
 		},
 	},
-	false, // Use as root command, not subcommand
+	true, // Use as subcommand
 );
 
 // Add command (subcommand)
@@ -85,4 +85,21 @@ defineAddCommand(
 	true, // Use as subcommand
 );
 
-program.parse();
+// Auto-insert 'create' command when no subcommand is specified
+// This allows 'create-plugma plugin react' to work as 'create-plugma create plugin react'
+// And 'create-plugma' with no args to start the interactive create flow
+const args = process.argv.slice(2); // Get args after 'node' and script path
+const knownCommands = ['create', 'add', 'help'];
+const helpFlags = ['-h', '--help', '-V', '--version'];
+
+// Check if we should auto-insert 'create':
+// 1. No arguments at all, OR
+// 2. First arg is not a known command and not a help/version flag
+const shouldInsertCreate = args.length === 0 || (!knownCommands.includes(args[0]) && !helpFlags.includes(args[0]));
+
+if (shouldInsertCreate) {
+	// Insert 'create' as the first argument
+	process.argv.splice(2, 0, 'create');
+}
+
+program.parse(process.argv);

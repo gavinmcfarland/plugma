@@ -7,6 +7,7 @@ import { Command } from 'commander';
 export interface ParsedAddArgs {
 	integration?: string;
 	debug?: boolean;
+	verbose?: boolean;
 }
 
 export interface AddCommandConfig {
@@ -53,13 +54,17 @@ Examples:
 export function defineAddCommand(program: Command, config: AddCommandConfig, asSubcommand: boolean = true): Command {
 	const { debugDefault = false, commandName = 'create-plugma add', onAction } = config;
 
-	const cmd = asSubcommand ? program.command('add') : program;
+	// For subcommands, define the argument in the command() call
+	const cmd = asSubcommand ? program.command('add [integration]') : program;
 
-	return cmd
+	return (
+		asSubcommand
+			? cmd
+			: cmd.argument('[integration]', 'Integration to add: tailwind, eslint, playwright, vitest, shadcn')
+	)
 		.description('Add integrations to your Figma plugin project')
-		.argument('[integration]', 'Integration to add: tailwind, eslint, playwright, vitest, shadcn')
 		.option('-d, --debug', 'Enable debug mode', debugDefault)
-		.option('-v, --verbose', 'Show detailed integration subtasks', false)
+		.option('--verbose', 'Show detailed integration subtasks')
 		.action(onAction)
 		.addHelpText('after', getAddExamplesText(commandName));
 }

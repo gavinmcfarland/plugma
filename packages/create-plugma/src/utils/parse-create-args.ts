@@ -13,6 +13,7 @@ export interface ParsedCreateArgs {
 	vue?: boolean;
 	noUi?: boolean;
 	framework?: string;
+	verbose?: boolean;
 }
 
 export interface CreateCommandConfig {
@@ -73,14 +74,17 @@ export function parseCreateArgs(
  * Get example help text for create command
  */
 export function getCreateExamplesText(commandName: string = 'create-plugma'): string {
+	// Remove 'create' from command name if present for cleaner examples
+	const baseCommand = commandName.replace(' create', '');
+
 	return `
 Examples:
-  ${commandName} plugin react
-  ${commandName} plugin no-ui
-  ${commandName} widget svelte
-  ${commandName} plugin react --name my-plugin
-  ${commandName} plugin --template rectangle-creator
-  ${commandName}
+  ${baseCommand} plugin react
+  ${baseCommand} plugin no-ui
+  ${baseCommand} widget svelte
+  ${baseCommand} plugin react --name my-plugin
+  ${baseCommand} plugin --template rectangle-creator
+  ${baseCommand}
 `;
 }
 
@@ -97,12 +101,17 @@ export function defineCreateCommand(
 ): Command {
 	const { debugDefault = false, commandName = 'create-plugma', onAction } = config;
 
-	const cmd = asSubcommand ? program.command('create') : program;
+	// For subcommands, define the arguments in the command() call
+	const cmd = asSubcommand ? program.command('create [type] [framework]') : program;
 
-	return cmd
+	return (
+		asSubcommand
+			? cmd
+			: cmd
+					.argument('[type]', 'Project type: plugin or widget')
+					.argument('[framework]', 'UI framework: react, svelte, vue, or no-ui')
+	)
 		.description('Create a new Figma plugin or widget project')
-		.argument('[type]', 'Project type: plugin or widget')
-		.argument('[framework]', 'UI framework: react, svelte, vue, or no-ui')
 		.option('--name <name>', 'Project name')
 		.option('--template <template>', 'Use a specific template')
 		.option('--no-typescript', 'Use JavaScript instead of TypeScript')
@@ -110,7 +119,7 @@ export function defineCreateCommand(
 		.option('--no-install', 'Skip dependency installation')
 		.option('--skip-prompt', 'Skip showing the Plugma prompt (used internally)')
 		.option('-d, --debug', 'Enable debug mode', debugDefault)
-		.option('-v, --verbose', 'Show detailed integration subtasks', false)
+		.option('--verbose', 'Show detailed integration subtasks')
 		.action(onAction)
 		.addHelpText('after', getCreateExamplesText(commandName));
 }
