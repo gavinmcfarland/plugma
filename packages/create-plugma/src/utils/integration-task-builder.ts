@@ -69,6 +69,7 @@ export function createIntegrationSetupTask(options: IntegrationTaskOptions): Tas
 				task.concurrent = false;
 				task.tasks = result.integrationResult.tasks.map((integrationTask) => ({
 					label: integrationTask.label,
+					dimmed: true,
 					action: async () => {
 						// Create context for the task
 						const helpers = createFileHelpers();
