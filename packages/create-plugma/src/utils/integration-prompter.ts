@@ -28,7 +28,7 @@ export interface DependencyCollection {
 export interface IntegrationResult {
 	integration: Integration;
 	integrationResult: any;
-	requiredResults: RequiredIntegrationResult[];
+	requiredIntegrationSetups: RequiredIntegrationResult[];
 }
 
 export interface RequiredIntegrationResult {
@@ -203,15 +203,15 @@ async function isIntegrationInstalled(integrationId: string): Promise<boolean> {
 }
 
 /**
- * Handles installation of required integrations for a given integration
+ * Handles setup of required integrations for a given integration
  */
-async function installRequiredIntegrations(
+async function setupRequiredIntegrations(
 	integration: Integration,
 	allDeps: DependencyCollection,
 ): Promise<RequiredIntegrationResult[]> {
 	if (!integration.requires?.length) return [];
 
-	// Check which required integrations are already installed
+	// Check which required integrations are already set up
 	const requiredIntegrations = integration.requires.map((id) => INTEGRATIONS[id as IntegrationKey]);
 	const installationStatus = await Promise.all(
 		integration.requires.map(async (id) => ({
@@ -221,44 +221,17 @@ async function installRequiredIntegrations(
 		})),
 	);
 
-	const alreadyInstalled = installationStatus.filter((item) => item.isInstalled);
-	const needsInstallation = installationStatus.filter((item) => !item.isInstalled);
+	const needsSetup = installationStatus.filter((item) => !item.isInstalled);
 
-	// Only show status if there are integrations that need to be installed
-	if (needsInstallation.length > 0) {
-		// Show status of required integrations
-		if (alreadyInstalled.length > 0) {
-			await note(
-				`${integration.name} requires the following integrations:\n` +
-					alreadyInstalled.map((item) => `  ✓ ${item.integration.name} (already installed)`).join('\n') +
-					'\n' +
-					needsInstallation.map((item) => `  • ${item.integration.name}`).join('\n'),
-			);
-		} else {
-			await note(
-				`${integration.name} requires the following integrations:\n` +
-					needsInstallation.map((item) => `  • ${item.integration.name}`).join('\n'),
-			);
-		}
-	} else {
-		// If all required integrations are already installed, don't show any messages
+	// If all required integrations are already set up, return early
+	if (needsSetup.length === 0) {
 		return [];
 	}
 
-	const shouldInstall = await confirm({
-		label: `Would you like to install the missing integrations (${needsInstallation.map((item) => item.integration.name).join(', ')})?`,
-		hideOnCompletion: true,
-		initialValue: true,
-	});
+	const setupResults: RequiredIntegrationResult[] = [];
 
-	if (!shouldInstall) {
-		return [];
-	}
-
-	const requiredResults: RequiredIntegrationResult[] = [];
-
-	// Setup each required integration that needs installation (but don't run postSetup yet)
-	for (const item of needsInstallation) {
+	// Setup each required integration that needs setup (but don't run postSetup yet)
+	for (const item of needsSetup) {
 		const result = await runIntegration(item.integration, {
 			name: item.integration.name,
 			prefixPrompts: true,
@@ -266,7 +239,7 @@ async function installRequiredIntegrations(
 
 		if (result) {
 			// Store the result for later postSetup execution
-			requiredResults.push({
+			setupResults.push({
 				integration: item.integration,
 				answers: result.answers,
 			});
@@ -277,7 +250,7 @@ async function installRequiredIntegrations(
 		}
 	}
 
-	return requiredResults;
+	return setupResults;
 }
 
 /**
@@ -424,8 +397,8 @@ export async function promptForIntegrations(
 
 	// Process each selected integration with their collected answers
 	for (const integration of integrations) {
-		// Handle required integrations first
-		const requiredResults = await installRequiredIntegrations(integration, allDeps);
+		// Set up any required integrations first
+		const requiredIntegrationSetups = await setupRequiredIntegrations(integration, allDeps);
 
 		// Pass the collected answers to runIntegration
 		const integrationResult = await runIntegration(integration, {
@@ -442,7 +415,7 @@ export async function promptForIntegrations(
 			allResults.push({
 				integration,
 				integrationResult,
-				requiredResults,
+				requiredIntegrationSetups,
 			});
 		}
 	}

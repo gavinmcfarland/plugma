@@ -102,7 +102,7 @@ export function createPostSetupTask(options: PostSetupTaskOptions): Task | null 
 		// Check main integration
 		const hasMainPostSetup = result.integration.postSetup && result.integration.postSetup.length > 0;
 		// Check required integrations
-		const hasRequiredPostSetup = result.requiredResults.some(
+		const hasRequiredPostSetup = result.requiredIntegrationSetups.some(
 			(r) => r.integration.postSetup && r.integration.postSetup.length > 0,
 		);
 		return hasMainPostSetup || hasRequiredPostSetup;
@@ -121,7 +121,7 @@ export function createPostSetupTask(options: PostSetupTaskOptions): Task | null 
 			const postSetupTasks: Task[] = [];
 
 			// Process required integrations postSetup first
-			for (const requiredResult of result.requiredResults) {
+			for (const requiredResult of result.requiredIntegrationSetups) {
 				if (requiredResult.integration.postSetup && requiredResult.integration.postSetup.length > 0) {
 					postSetupTasks.push({
 						label: `Finalizing ${requiredResult.integration.name}`,
