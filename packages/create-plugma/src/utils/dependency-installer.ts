@@ -77,6 +77,20 @@ export interface DependencyInstallationResult {
 }
 
 /**
+ * Check if a command is available in the system PATH
+ */
+async function isCommandAvailable(command: string): Promise<boolean> {
+	try {
+		const { execSync } = await import('node:child_process');
+		const which = process.platform === 'win32' ? 'where' : 'which';
+		execSync(`${which} ${command}`, { stdio: 'ignore' });
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+/**
  * Prompts the user for dependency installation and installs dependencies
  * Returns the selected package manager and whether installation failed
  */
@@ -102,14 +116,25 @@ export async function promptAndInstallDependencies(
 
 	// Determine package manager based on options
 	if (!skipInstallPrompt && installDependencies) {
-		// Prompt user for package manager selection
-		const packageManagerOptions = [
-			{ value: 'skip', label: 'Skip' },
+		// Check which package managers are available
+		const allOptions = [
 			{ value: 'npm', label: 'npm' },
 			{ value: 'pnpm', label: 'pnpm' },
 			{ value: 'yarn', label: 'yarn' },
 			{ value: 'bun', label: 'bun' },
 			{ value: 'deno', label: 'deno' },
+		];
+
+		const availableOptions = await Promise.all(
+			allOptions.map(async (opt) => ({
+				...opt,
+				available: await isCommandAvailable(opt.value),
+			})),
+		);
+
+		const packageManagerOptions = [
+			{ value: 'skip', label: 'Skip' },
+			...availableOptions.filter((opt) => opt.available),
 		];
 
 		const initialValue = packageManagerOptions.find((opt) => opt.value === defaultPM)?.value || 'npm';
