@@ -41,6 +41,7 @@
 		"lodash": "^4.17.21",
 		"magic-string": "^0.30.17",
 		"nanoid": "^5.1.5",
+		"node-pty": "^1.0.0",
 		"package-manager-detector": "^1.1.0",
 		"slugify": "^1.6.6",
 		"vite": "^6.0.0"

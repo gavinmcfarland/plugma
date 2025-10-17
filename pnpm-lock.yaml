@@ -84,6 +84,9 @@ importers:
       nanoid:
         specifier: ^5.1.5
         version: 5.1.5
+      node-pty:
+        specifier: ^1.0.0
+        version: 1.0.0
       package-manager-detector:
         specifier: ^1.1.0
         version: 1.2.0
@@ -3913,6 +3916,9 @@ packages:
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
 
+  nan@2.23.0:
+    resolution: {integrity: sha512-1UxuyYGdoQHcGg87Lkqm3FzefucTa0NAiOcuRsDmysep3c1LVCRK2krrUDafMWtjSG04htvAmvg96+SDknOmgQ==}
+
   nanoid@3.3.11:
     resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
@@ -3963,6 +3969,9 @@ packages:
 
   node-machine-id@1.1.12:
     resolution: {integrity: sha512-QNABxbrPa3qEIfrE6GOJ7BYIuignnJw7iQ2YPbc3Nla1HzRJjXzZOiikfF8m7eAMfichLt3M4VgLOetqgDmgGQ==}
+
+  node-pty@1.0.0:
+    resolution: {integrity: sha512-wtBMWWS7dFZm/VgqElrTvtfMq4GzJ6+edFI0Y0zyzygUSZMgZdraDUMUhCIvkjhJjme15qWmbyJbtAx4ot4uZA==}
 
   node-releases@2.0.19:
     resolution: {integrity: sha512-xxOWJsBKtzAq7DY0J+DTzuz58K8e7sJbdgwkbMWQe8UYB6ekmsQ45q0M/tJDsGaZmbC+l7n57UV8Hl5tHxO9uw==}
@@ -9315,6 +9324,8 @@ snapshots:
       object-assign: 4.1.1
       thenify-all: 1.6.0
 
+  nan@2.23.0: {}
+
   nanoid@3.3.11: {}
 
   nanoid@5.1.5: {}
@@ -9355,6 +9366,10 @@ snapshots:
       - supports-color
 
   node-machine-id@1.1.12: {}
+
+  node-pty@1.0.0:
+    dependencies:
+      nan: 2.23.0
 
   node-releases@2.0.19: {}
 

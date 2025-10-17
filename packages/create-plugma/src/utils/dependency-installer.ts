@@ -39,7 +39,7 @@ export interface DependencyInstallationOptions {
  */
 async function installAllDependencies(packageManager: string, dependencies: string[]): Promise<void> {
 	const output = await stream(`Installing dependencies with ${packageManager}...`, {
-		maxLines: 20,
+		maxLines: 15,
 		prefixSymbol: '│',
 	});
 
