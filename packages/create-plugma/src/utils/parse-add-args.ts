@@ -59,6 +59,7 @@ export function defineAddCommand(program: Command, config: AddCommandConfig, asS
 		.description('Add integrations to your Figma plugin project')
 		.argument('[integration]', 'Integration to add: tailwind, eslint, playwright, vitest, shadcn')
 		.option('-d, --debug', 'Enable debug mode', debugDefault)
+		.option('-v, --verbose', 'Show detailed integration subtasks', false)
 		.action(onAction)
 		.addHelpText('after', getAddExamplesText(commandName));
 }

@@ -311,6 +311,7 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 			addOnAnswers: {}, // No add-ons in quick mode
 			preferredPM: defaultPM,
 			skipInstallPrompt: true, // Skip prompt in quick mode
+			verbose: options.verbose,
 		});
 
 		return;
@@ -659,6 +660,7 @@ async function browseAndSelectTemplate(
 				addOnAnswers: answers.addOnAnswers,
 				preferredPM,
 				skipInstallPrompt: preSelectedInstall === false,
+				verbose: options.verbose,
 			});
 		},
 		{
@@ -820,6 +822,7 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 			addOnAnswers: {}, // No add-ons in quick mode
 			preferredPM: defaultPM,
 			skipInstallPrompt: true, // Skip prompt when using --template
+			verbose: options.verbose,
 		});
 	} catch (error) {
 		console.error(
@@ -857,6 +860,7 @@ async function createProjectFromOptions(params: {
 	addOnAnswers?: Record<string, Record<string, any>>;
 	preferredPM?: string;
 	skipInstallPrompt?: boolean;
+	verbose?: boolean;
 }): Promise<void> {
 	const {
 		type,
@@ -873,6 +877,7 @@ async function createProjectFromOptions(params: {
 		addOnAnswers = {},
 		preferredPM = 'npm',
 		skipInstallPrompt = false,
+		verbose = false,
 	} = params;
 
 	const destDir = path.join(CURR_DIR, name);
@@ -1014,6 +1019,7 @@ async function createProjectFromOptions(params: {
 		integrationResults: addOnResults,
 		workingDirectory: destDir,
 		collectResults: integrationResults,
+		verbose,
 	});
 
 	if (integrationTask) {
@@ -1055,6 +1061,7 @@ async function createProjectFromOptions(params: {
 		if (addOnResults.length > 0) {
 			const postSetupTask = createPostSetupTask({
 				integrationResults: addOnResults,
+				verbose,
 			});
 
 			if (postSetupTask) {

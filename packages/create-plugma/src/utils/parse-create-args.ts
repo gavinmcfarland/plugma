@@ -110,6 +110,7 @@ export function defineCreateCommand(
 		.option('--no-install', 'Skip dependency installation')
 		.option('--skip-prompt', 'Skip showing the Plugma prompt (used internally)')
 		.option('-d, --debug', 'Enable debug mode', debugDefault)
+		.option('-v, --verbose', 'Show detailed integration subtasks', false)
 		.action(onAction)
 		.addHelpText('after', getCreateExamplesText(commandName));
 }

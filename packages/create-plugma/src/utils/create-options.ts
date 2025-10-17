@@ -70,6 +70,7 @@ export interface CommandOptions {
 	add: MinimalBaseOptions & {
 		command: 'add';
 		integration?: string;
+		verbose?: boolean;
 	};
 	create: MinimalBaseOptions & {
 		command: 'create';
@@ -86,6 +87,7 @@ export interface CommandOptions {
 		noAddOns?: boolean;
 		noInstall?: boolean;
 		skipPrompt?: boolean;
+		verbose?: boolean;
 	};
 }
 

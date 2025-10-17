@@ -63,6 +63,7 @@ export async function add(options: AddCommandOptions): Promise<void> {
 			// Add integration setup tasks
 			const integrationTask = createIntegrationSetupTask({
 				integrationResults: answers.allResults,
+				verbose: options.verbose,
 			});
 
 			if (integrationTask) {
@@ -90,6 +91,7 @@ export async function add(options: AddCommandOptions): Promise<void> {
 			// Add postSetup tasks (runs after dependency installation)
 			const postSetupTask = createPostSetupTask({
 				integrationResults: answers.allResults,
+				verbose: options.verbose,
 			});
 
 			if (postSetupTask) {

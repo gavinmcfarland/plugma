@@ -17,6 +17,11 @@ export interface IntegrationTaskOptions {
 	 * Optional array to collect integration results for postSetup execution
 	 */
 	collectResults?: Array<{ integration: any; answers: Record<string, any> }>;
+
+	/**
+	 * Whether to show integration subtasks (verbose mode)
+	 */
+	verbose?: boolean;
 }
 
 export interface PostSetupTaskOptions {
@@ -24,6 +29,11 @@ export interface PostSetupTaskOptions {
 	 * Integration results from promptForIntegrations
 	 */
 	integrationResults: IntegrationResult[];
+
+	/**
+	 * Whether to show integration subtasks (verbose mode)
+	 */
+	verbose?: boolean;
 }
 
 /**
@@ -34,7 +44,7 @@ export interface PostSetupTaskOptions {
  * Each task receives context (answers, helpers, typescript) when executed.
  */
 export function createIntegrationSetupTask(options: IntegrationTaskOptions): Task | null {
-	const { integrationResults, workingDirectory, collectResults } = options;
+	const { integrationResults, workingDirectory, collectResults, verbose = false } = options;
 
 	// Return null if there are no integrations to set up
 	if (integrationResults.length === 0) {
@@ -70,6 +80,7 @@ export function createIntegrationSetupTask(options: IntegrationTaskOptions): Tas
 				task.tasks = result.integrationResult.tasks.map((integrationTask) => ({
 					label: integrationTask.label,
 					dimmed: true,
+					visible: verbose,
 					action: async () => {
 						// Create context for the task
 						const helpers = createFileHelpers();
@@ -95,7 +106,7 @@ export function createIntegrationSetupTask(options: IntegrationTaskOptions): Tas
  * This is used by both the add and create commands
  */
 export function createPostSetupTask(options: PostSetupTaskOptions): Task | null {
-	const { integrationResults } = options;
+	const { integrationResults, verbose = false } = options;
 
 	// Filter integrations that have postSetup tasks
 	const integrationsWithPostSetup = integrationResults.filter((result) => {
@@ -129,6 +140,7 @@ export function createPostSetupTask(options: PostSetupTaskOptions): Task | null 
 						concurrent: false,
 						tasks: requiredResult.integration.postSetup!.map((integrationTask) => ({
 							label: integrationTask.label,
+							visible: verbose,
 							action: async () => {
 								// Create context for the task
 								const helpers = createFileHelpers();
@@ -154,6 +166,7 @@ export function createPostSetupTask(options: PostSetupTaskOptions): Task | null 
 					concurrent: false,
 					tasks: result.integration.postSetup!.map((integrationTask) => ({
 						label: integrationTask.label,
+						visible: verbose,
 						action: async () => {
 							// Create context for the task
 							const helpers = createFileHelpers();
