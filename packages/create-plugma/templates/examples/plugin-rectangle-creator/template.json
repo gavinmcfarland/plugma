@@ -3,7 +3,7 @@
 		"name": "Rectangle Creator",
 		"description": "A plugin that creates rectangles",
 		"type": "plugin",
-		"uiFrameworks": ["svelte", "vue", "react"],
+		"frameworks": ["svelte", "vue", "react"],
 		"rank": 100
 	},
 	"include": [
