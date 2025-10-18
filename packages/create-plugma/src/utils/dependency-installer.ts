@@ -62,14 +62,22 @@ async function installAllDependencies(
 	await new Promise<void>((resolve, reject) => {
 		const proc = spawnWithColors(resolved.command, resolved.args);
 
+		// Capture all output for error reporting
+		let capturedOutput = '';
+		let capturedErrors = '';
+
 		proc.stdout.on('data', (data) => {
+			const text = data.toString();
+			capturedOutput += text;
 			if (verbose) {
-				output.write(data.toString());
+				output.write(text);
 			}
 		});
 		proc.stderr.on('data', (data) => {
+			const text = data.toString();
+			capturedErrors += text;
 			if (verbose) {
-				output.write(data.toString());
+				output.write(text);
 			}
 		});
 		proc.on('error', (err) => {
@@ -81,7 +89,13 @@ async function installAllDependencies(
 				output.complete();
 				resolve();
 			} else {
-				output.error();
+				// Show captured output on error, even if verbose is disabled
+				if (!verbose && (capturedOutput || capturedErrors)) {
+					output.write('\nInstallation output:\n');
+					if (capturedOutput) output.write(capturedOutput);
+					if (capturedErrors) output.write(capturedErrors);
+				}
+				output.error(`${packageManager} install failed with code ${code}`);
 				reject(new Error(`${packageManager} install failed with code ${code}`));
 			}
 		});

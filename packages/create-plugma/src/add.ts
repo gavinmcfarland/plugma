@@ -85,7 +85,6 @@ export async function add(options: AddCommandOptions): Promise<void> {
 				skipInstallPrompt: false,
 				installDependencies: true,
 				preferredPM,
-				dependencies: [...depsArray, ...devDepsArray],
 				verbose: options.verbose,
 			});
 

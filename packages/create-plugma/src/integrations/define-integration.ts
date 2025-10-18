@@ -141,8 +141,8 @@ export interface Integration {
 	name: string;
 	description: string;
 	questions?: Question[];
-	dependencies?: string[];
-	devDependencies?: string[];
+	dependencies?: Record<string, string>;
+	devDependencies?: Record<string, string>;
 	requires?: string[];
 	files?: FileOperation[];
 	setup?: IntegrationTask[];
@@ -181,8 +181,8 @@ export async function runIntegration(integration: Integration, options?: RunInte
 
 	return {
 		answers,
-		dependencies: integration.dependencies || [],
-		devDependencies: integration.devDependencies || [],
+		dependencies: integration.dependencies || {},
+		devDependencies: integration.devDependencies || {},
 		files: integration.files || [],
 		nextSteps: integration.nextSteps?.(answers) || [],
 		tasks,

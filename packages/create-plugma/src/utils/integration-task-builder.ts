@@ -76,11 +76,11 @@ export function createIntegrationSetupTask(options: IntegrationTaskOptions): Tas
 
 			// If the integration has setup tasks, convert them to askeroo tasks
 			if (result.integrationResult.tasks && result.integrationResult.tasks.length > 0) {
-				task.concurrent = false;
 				task.tasks = result.integrationResult.tasks.map((integrationTask) => ({
 					label: integrationTask.label,
 					dimmed: true,
 					visible: verbose,
+					concurrent: false,
 					action: async () => {
 						// Create context for the task
 						const helpers = createFileHelpers();

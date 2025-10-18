@@ -4,22 +4,35 @@ import dedent from 'dedent';
 
 // TODO: Update tsconfig.json to include tests
 
+const dependencies = {
+	typescript: 'latest',
+	eslint: '9',
+	// '@typescript-eslint/parser': '8',
+	// '@typescript-eslint/eslint-plugin': '8',
+	'typescript-eslint': '8',
+	// NOTE: Disabled for now because they are not compatible with the latest version of ESLint
+	// '@figma/plugin-typings': 'latest',
+	// '@figma/eslint-plugin-figma-plugins': 'latest',
+};
+
 export default defineIntegration({
 	id: 'eslint',
 	name: 'ESLint',
 	description: 'Linting',
-	dependencies: [
-		'typescript',
-		'eslint@9',
-		// '@typescript-eslint/parser@8',
-		// '@typescript-eslint/eslint-plugin@8',
-		'typescript-eslint@8',
-		// NOTE: Disabled for now because they are not compatible with the latest version of ESLint
-		// '@figma/plugin-typings',
-		// '@figma/eslint-plugin-figma-plugins',
-	],
+	dependencies,
 
 	setup: [
+		{
+			label: 'Adding dependencies to package.json',
+			action: async ({ helpers }) => {
+				await helpers.updateJson('package.json', (json) => {
+					json.dependencies = json.dependencies || {};
+					Object.entries(dependencies).forEach(([name, version]) => {
+						json.dependencies[name] = version;
+					});
+				});
+			},
+		},
 		{
 			label: 'Adding lint script to package.json',
 			action: async ({ helpers }) => {

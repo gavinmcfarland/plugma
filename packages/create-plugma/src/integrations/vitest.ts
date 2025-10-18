@@ -3,13 +3,28 @@ import { defineIntegration } from './define-integration.js';
 
 // TODO: Update tsconfig.json to include tests
 
+const dependencies = {
+	vitest: 'latest',
+};
+
 export default defineIntegration({
 	id: 'vitest',
 	name: 'Vitest',
 	description: 'Unit testing (experimental)',
-	dependencies: ['vitest'],
+	dependencies,
 
 	setup: [
+		{
+			label: 'Adding dependencies to package.json',
+			action: async ({ helpers }) => {
+				await helpers.updateJson('package.json', (json) => {
+					json.dependencies = json.dependencies || {};
+					Object.entries(dependencies).forEach(([name, version]) => {
+						json.dependencies[name] = version;
+					});
+				});
+			},
+		},
 		{
 			label: 'Adding test script to package.json',
 			action: async ({ helpers }) => {

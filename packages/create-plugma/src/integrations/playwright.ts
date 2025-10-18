@@ -2,13 +2,28 @@ import chalk from 'chalk';
 import { defineIntegration } from './define-integration.js';
 import dedent from 'dedent';
 
+const dependencies = {
+	'@playwright/test': 'latest',
+};
+
 export default defineIntegration({
 	id: 'playwright',
 	name: 'Playwright',
 	description: 'End to end testing (experimental)',
-	dependencies: ['@playwright/test'],
+	dependencies,
 
 	setup: [
+		{
+			label: 'Adding dependencies to package.json',
+			action: async ({ helpers }) => {
+				await helpers.updateJson('package.json', (json) => {
+					json.dependencies = json.dependencies || {};
+					Object.entries(dependencies).forEach(([name, version]) => {
+						json.dependencies[name] = version;
+					});
+				});
+			},
+		},
 		{
 			label: 'Adding test script to package.json',
 			action: async ({ helpers }) => {

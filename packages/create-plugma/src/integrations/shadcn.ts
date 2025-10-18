@@ -46,6 +46,10 @@ async function findCssImportPath(filePath: string, cwd: string): Promise<string 
  *
  * @see https://ui.shadcn.com/docs/installation/nextjs
  */
+const devDependencies = {
+	'shadcn-ui': 'latest',
+};
+
 export default defineIntegration({
 	id: 'shadcn',
 	name: 'Shadcn',
@@ -81,9 +85,20 @@ export default defineIntegration({
 		},
 	],
 
-	devDependencies: ['shadcn-ui'],
+	devDependencies,
 
 	setup: [
+		{
+			label: 'Adding dependencies to package.json',
+			action: async ({ helpers }) => {
+				await helpers.updateJson('package.json', (json) => {
+					json.devDependencies = json.devDependencies || {};
+					Object.entries(devDependencies).forEach(([name, version]) => {
+						json.devDependencies[name] = version;
+					});
+				});
+			},
+		},
 		{
 			label: 'Creating components.json',
 			action: async ({ answers, helpers, typescript }) => {

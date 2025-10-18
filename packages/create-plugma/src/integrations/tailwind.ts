@@ -47,14 +47,30 @@ async function findCssImportPath(filePath: string, cwd: string): Promise<string 
 	}
 }
 
+const dependencies = {
+	tailwindcss: 'latest',
+	'@tailwindcss/vite': 'latest',
+};
+
 export default defineIntegration({
 	id: 'tailwind',
 	name: 'Tailwind',
 	description: 'CSS framework',
 
-	dependencies: ['tailwindcss', '@tailwindcss/vite'],
+	dependencies,
 
 	setup: [
+		{
+			label: 'Adding dependencies to package.json',
+			action: async ({ helpers }) => {
+				await helpers.updateJson('package.json', (json) => {
+					json.dependencies = json.dependencies || {};
+					Object.entries(dependencies).forEach(([name, version]) => {
+						json.dependencies[name] = version;
+					});
+				});
+			},
+		},
 		{
 			label: 'Adding Tailwind to CSS file',
 			action: async ({ answers, helpers, typescript }) => {

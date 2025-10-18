@@ -1050,7 +1050,6 @@ async function createProjectFromOptions(params: {
 			installDependencies,
 			preferredPM,
 			selectedPackageManager,
-			dependencies: [...addOnDependencies, ...addOnDevDependencies],
 			debug,
 			verbose,
 		});

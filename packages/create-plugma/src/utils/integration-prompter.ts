@@ -5,12 +5,14 @@ import { createFileHelpers, type FileHelpers } from './file-helpers.js';
 
 // Import integrations
 import playwrightIntegration from '../integrations/playwright.js';
+import prettierIntegration from '../integrations/prettier.js';
 import tailwindIntegration from '../integrations/tailwind.js';
 import shadcnIntegration from '../integrations/shadcn.js';
 import vitestIntegration from '../integrations/vitest.js';
 import eslintIntegration from '../integrations/eslint.js';
 
 export const INTEGRATIONS = {
+	prettier: prettierIntegration,
 	tailwind: tailwindIntegration,
 	shadcn: shadcnIntegration,
 	eslint: eslintIntegration,
@@ -245,8 +247,8 @@ async function setupRequiredIntegrations(
 			});
 
 			// Collect dependencies from required integration
-			result.dependencies.forEach((dep) => allDeps.dependencies.add(dep));
-			result.devDependencies.forEach((dep) => allDeps.devDependencies.add(dep));
+			Object.keys(result.dependencies).forEach((dep) => allDeps.dependencies.add(dep));
+			Object.keys(result.devDependencies).forEach((dep) => allDeps.devDependencies.add(dep));
 		}
 	}
 
@@ -409,8 +411,8 @@ export async function promptForIntegrations(
 
 		if (integrationResult) {
 			// Add main integration dependencies to collection
-			integrationResult.dependencies.forEach((dep) => allDeps.dependencies.add(dep));
-			integrationResult.devDependencies.forEach((dep) => allDeps.devDependencies.add(dep));
+			Object.keys(integrationResult.dependencies).forEach((dep) => allDeps.dependencies.add(dep));
+			Object.keys(integrationResult.devDependencies).forEach((dep) => allDeps.devDependencies.add(dep));
 
 			allResults.push({
 				integration,
