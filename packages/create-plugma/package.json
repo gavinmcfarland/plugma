@@ -34,7 +34,7 @@
 		"@combino/plugin-rebase": "^1.5.1",
 		"@combino/plugin-strip-ts": "^1.0.1",
 		"@sveltejs/vite-plugin-svelte": "^6.2.0",
-		"askeroo": "0.0.0-alpha.10",
+		"askeroo": "0.0.0-alpha.11",
 		"boxen": "^8.0.1",
 		"chalk": "^5.4.1",
 		"cli-spinners": "^3.2.0",

@@ -544,12 +544,13 @@ async function browseAndSelectTemplate(
 					const templateMap = new Map<string, Example>();
 					const templateOptions = sortedExamples.map((example, index) => {
 						const displayName = getDisplayName(example);
-						const description = example.metadata.description || 'No description';
-						const frameworks = example.metadata.frameworks
-							? Array.isArray(example.metadata.frameworks)
-								? example.metadata.frameworks.join(', ')
-								: example.metadata.frameworks
-							: 'No UI';
+						const description = example.metadata.description || '';
+						// NOTE: Not used currently
+						// const frameworks = example.metadata.frameworks
+						// 	? Array.isArray(example.metadata.frameworks)
+						// 		? example.metadata.frameworks.join(', ')
+						// 		: example.metadata.frameworks
+						// 	: 'No UI';
 
 						const type = example.metadata.type || 'plugin';
 						const value = `template-${index}`;
@@ -558,7 +559,7 @@ async function browseAndSelectTemplate(
 						return {
 							value,
 							label: displayName,
-							hint: `${description} (${frameworks})`,
+							hint: `${description}`,
 						};
 					});
 
