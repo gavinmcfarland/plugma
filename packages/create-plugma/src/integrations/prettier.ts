@@ -41,11 +41,10 @@ export default defineIntegration({
 				// await helpers.writeTemplateFile('templates/integrations/prettier', '.prettierrc');
 				const prettierConfig = {
 					semi: true,
-					trailingComma: 'es5',
 					singleQuote: true,
-					printWidth: 100,
-					tabWidth: 2,
-					useTabs: false,
+					printWidth: 120,
+					tabWidth: 4,
+					useTabs: true,
 				};
 				await helpers.writeFile('.prettierrc', JSON.stringify(prettierConfig, null, 4));
 			},

@@ -1,4 +1,3 @@
-import React from 'react';
 import reactLogo from './assets/react.svg';
 import Icon from './components/Icon';
 import Button from './components/Button';
