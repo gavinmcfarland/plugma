@@ -74,7 +74,7 @@
 		"combino": "^1.10.3",
 		"commander": "^12.1.0",
 		"comment-json": "^4.2.5",
-		"create-plugma": "next",
+		"create-plugma": "workspace:*",
 		"cross-dirname": "^0.1.0",
 		"debug": "^4.4.0",
 		"dedent": "^1.5.3",
@@ -116,5 +116,5 @@
 	"peerDependencies": {
 		"@playwright/test": "^1.51.1"
 	},
-	"gitHead": "7f7e4a7c41a750aed953710b5a88c90fb7d69ed8"
+	"gitHead": "e296eafdd1f6143f856218970b4752530556e242"
 }
