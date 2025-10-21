@@ -7,6 +7,8 @@ import dedent from 'dedent';
 const dependencies = {
 	typescript: 'latest',
 	eslint: '9',
+	'@eslint/js': '^9.38.0',
+	'@typescript-eslint/parser': '^8.46.2',
 	// '@typescript-eslint/parser': '8',
 	// '@typescript-eslint/eslint-plugin': '8',
 	'typescript-eslint': '8',

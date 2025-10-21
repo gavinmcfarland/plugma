@@ -5,11 +5,11 @@ const Button = ({
 	style,
 	onClick,
 }: {
-	children: any;
-	href?: any;
-	target?: any;
-	style?: any;
-	onClick?: any;
+	children: React.ReactNode;
+	href?: string;
+	target?: string;
+	style?: React.CSSProperties;
+	onClick?: () => void;
 }) => {
 	const buttonStyle = {
 		display: "block",
