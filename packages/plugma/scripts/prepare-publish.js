@@ -80,8 +80,21 @@ async function updateCreatePlugmaDependency(distTag) {
 }
 
 async function main() {
+	console.log('='.repeat(80));
+	console.log('📦 PREPARE-PUBLISH SCRIPT STARTED');
+	console.log('   Script location:', __filename);
+	console.log('   Working directory:', process.cwd());
+	console.log('   Package.json path:', packageJsonPath);
+	console.log('   Environment variables:');
+	console.log('   - DIST_TAG:', process.env.DIST_TAG);
+	console.log('   - LERNA_DIST_TAG:', process.env.LERNA_DIST_TAG);
+	console.log('   - npm_lifecycle_event:', process.env.npm_lifecycle_event);
+	console.log('   Arguments:', process.argv.slice(2));
+
 	const distTag = await getDistTag();
-	console.log(`📦 Preparing for publish with dist-tag: ${distTag}`);
+	console.log(`   Detected dist-tag: ${distTag}`);
+	console.log('='.repeat(80));
+
 	await updateCreatePlugmaDependency(distTag);
 }
 
