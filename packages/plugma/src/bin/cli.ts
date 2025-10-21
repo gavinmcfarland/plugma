@@ -119,7 +119,7 @@ program.hook('preAction', async (thisCommand, actionCommand) => {
 	if (options.output) {
 		suppressLogs(options);
 	}
-	await showPlugmaPrompt();
+	// await showPlugmaPrompt();
 	checkDeprecatedFlags();
 });
 

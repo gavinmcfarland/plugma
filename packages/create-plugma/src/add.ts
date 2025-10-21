@@ -2,26 +2,18 @@
  * Add new integrations to Plugma
  */
 
-import { exec } from 'child_process';
 import { detect } from 'package-manager-detector/detect';
-import { resolveCommand } from 'package-manager-detector/commands';
 import chalk from 'chalk';
-import { ask, spinner as askerooSpinner, note, completedFields, group, tasks, type Task } from 'askeroo';
-import { createFileHelpers } from './utils/file-helpers.js';
+import { ask, spinner, note, completedFields, group, tasks, type Task } from 'askeroo';
 import { AddCommandOptions } from './utils/create-options.js';
-import { createSpinner } from './utils/cli/spinner.js';
 import { promptAndInstallDependencies } from './utils/dependency-installer.js';
 import { promptForIntegrations, INTEGRATIONS } from './utils/integration-prompter.js';
 import { createIntegrationSetupTask, createPostSetupTask } from './utils/integration-task-builder.js';
+import { showCreatePlugmaPrompt } from './utils/show-prompt.js';
 
 // Helper to sleep
 function sleep(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-// Legacy spinner function for compatibility with existing code
-function spinner() {
-	return createSpinner();
 }
 
 export async function add(options: AddCommandOptions): Promise<void> {
@@ -39,6 +31,8 @@ export async function add(options: AddCommandOptions): Promise<void> {
 
 	await ask(
 		async () => {
+			await showCreatePlugmaPrompt();
+
 			await completedFields();
 
 			const answers = await group(
@@ -161,14 +155,16 @@ export async function add(options: AddCommandOptions): Promise<void> {
 		},
 		{
 			onCancel: async () => {
-				const cancel = await askerooSpinner('Exiting...', {
-					color: 'yellow',
+				const cancel = await spinner('Exiting...', {
 					hideOnCompletion: true,
+					style: {
+						color: 'magenta',
+					},
 				});
 
 				await cancel.start();
 				await sleep(800);
-				await cancel.stop('Cancelled');
+				await cancel.stop();
 				process.exit(0);
 			},
 		},

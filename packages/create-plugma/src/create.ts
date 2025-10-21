@@ -15,13 +15,13 @@ import ejsMate from '@combino/plugin-ejs-mate';
 import rebase from '@combino/plugin-rebase';
 import { CreateCommandOptions } from './utils/create-options.js';
 import { createDebugAwareLogger } from './utils/debug-aware-logger.js';
-import { createSpinner, createBox } from './utils/cli/spinner.js';
 import { promptAndInstallDependencies } from './utils/dependency-installer.js';
 import { promptForIntegrations } from './utils/integration-prompter.js';
 import { createIntegrationSetupTask, createPostSetupTask } from './utils/integration-task-builder.js';
 
 // Import necessary modules for dependency installation
 import { detect } from 'package-manager-detector/detect';
+import { showCreatePlugmaPrompt } from './utils/show-prompt.js';
 
 const CURR_DIR = process.cwd();
 
@@ -447,6 +447,8 @@ async function browseAndSelectTemplate(
 	// Run the interactive flow
 	const result = await ask(
 		async () => {
+			await showCreatePlugmaPrompt();
+
 			await completedFields();
 
 			const answers = await group(
@@ -667,13 +669,15 @@ async function browseAndSelectTemplate(
 		{
 			onCancel: async () => {
 				const cancel = await spinner('Exiting...', {
-					color: 'yellow',
 					hideOnCompletion: true,
+					style: {
+						color: 'magenta',
+					},
 				});
 
 				await cancel.start();
 				await sleep(800);
-				await cancel.stop('Cancelled');
+				await cancel.stop();
 				process.exit(0);
 			},
 		},
@@ -890,7 +894,10 @@ async function createProjectFromOptions(params: {
 	// Create the task list for project setup
 	const tasksList: Task[] = [
 		{
-			label: `Creating ${type} from template`,
+			label: {
+				idle: `Creating ${type} from template...`,
+				success: `${type.charAt(0).toUpperCase() + type.slice(1)} created successfully`,
+			},
 			action: async () => {
 				const templatesPath = getTemplatesPath();
 				const versions = getVersions();
@@ -1070,12 +1077,6 @@ async function createProjectFromOptions(params: {
 			}
 		}
 	} catch (error) {
-		console.log(
-			createBox(undefined, {
-				type: 'error',
-				title: 'Project Creation Error',
-			}),
-		);
 		console.error(chalk.yellow('Warning: Failed to create project.'));
 		if (debug) {
 			console.error('Detailed error:', error);

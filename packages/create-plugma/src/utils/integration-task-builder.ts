@@ -52,7 +52,10 @@ export function createIntegrationSetupTask(options: IntegrationTaskOptions): Tas
 	}
 
 	return {
-		label: 'Integrating chosen add-ons',
+		label: {
+			idle: `Integrating chosen add-ons...`,
+			success: `Add-ons integrated successfully`,
+		},
 		action: async () => {},
 		concurrent: false,
 		tasks: integrationResults.map((result) => {

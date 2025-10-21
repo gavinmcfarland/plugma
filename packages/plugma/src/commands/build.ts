@@ -3,25 +3,24 @@
  * Handles production builds and watch mode for plugin development
  */
 
-import { type ManifestFile } from '../core/types.js'
-import { createBuildMainTask } from '../tasks/build-main.js'
-import { createBuildManifestTask, BuildManifestResult } from '../tasks/build-manifest.js'
-import { createBuildUiTask } from '../tasks/build-ui.js'
-import { Listr, ListrLogger, ListrLogLevels } from 'listr2'
-import { BuildCommandOptions } from '../utils/create-options.js'
-import { Timer } from '../utils/timer.js'
-import { showPlugmaPrompt } from '../utils/show-plugma-prompt.js'
-import { DEFAULT_RENDERER_OPTIONS, SILENT_RENDERER_OPTIONS } from '../constants.js'
-import { createDebugAwareLogger } from '../utils/debug-aware-logger.js'
-import chalk from 'chalk'
+import { type ManifestFile } from '../core/types.js';
+import { createBuildMainTask } from '../tasks/build-main.js';
+import { createBuildManifestTask, BuildManifestResult } from '../tasks/build-manifest.js';
+import { createBuildUiTask } from '../tasks/build-ui.js';
+import { Listr, ListrLogger, ListrLogLevels } from 'listr2';
+import { BuildCommandOptions } from '../utils/create-options.js';
+import { Timer } from '../utils/timer.js';
+import { DEFAULT_RENDERER_OPTIONS, SILENT_RENDERER_OPTIONS } from '../constants.js';
+import { createDebugAwareLogger } from '../utils/debug-aware-logger.js';
+import chalk from 'chalk';
 
 interface BuildContext {
-	shown?: boolean
-	raw?: ManifestFile
-	processed?: ManifestFile
-	manifestDuration?: number
-	mainDuration?: number
-	uiDuration?: number
+	shown?: boolean;
+	raw?: ManifestFile;
+	processed?: ManifestFile;
+	manifestDuration?: number;
+	mainDuration?: number;
+	uiDuration?: number;
 }
 
 /**
@@ -37,10 +36,10 @@ interface BuildContext {
  * - Optional watch mode for development
  */
 export async function build(options: BuildCommandOptions): Promise<void> {
-	const logger = createDebugAwareLogger(options.debug)
+	const logger = createDebugAwareLogger(options.debug);
 
-	const timer = new Timer()
-	timer.start()
+	const timer = new Timer();
+	timer.start();
 
 	const tasks = new Listr(
 		[
@@ -52,22 +51,22 @@ export async function build(options: BuildCommandOptions): Promise<void> {
 			concurrent: true,
 			...(options.debug ? DEFAULT_RENDERER_OPTIONS : SILENT_RENDERER_OPTIONS),
 		},
-	)
+	);
 
 	try {
-		await tasks.run()
+		await tasks.run();
 
 		if (options.watch) {
-			console.log(`${chalk.green('✔ Watching for changes...')}\n`)
+			console.log(`${chalk.green('✔ Watching for changes...')}\n`);
 		}
 		if (!options.watch) {
-			timer.stop()
-			console.log(`\n${chalk.green('✔ Plugin built in ' + timer.getDuration() + 'ms')}\n`)
-			process.exit(0)
+			timer.stop();
+			console.log(`\n${chalk.green('✔ Plugin built in ' + timer.getDuration() + 'ms')}\n`);
+			process.exit(0);
 		}
 	} catch (error) {
-		const err = error instanceof Error ? error : new Error(String(error))
-		logger.log(ListrLogLevels.FAILED, err.message)
-		process.exit(1)
+		const err = error instanceof Error ? error : new Error(String(error));
+		logger.log(ListrLogLevels.FAILED, err.message);
+		process.exit(1);
 	}
 }

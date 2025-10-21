@@ -24,11 +24,6 @@ defineCreateCommand(
 		commandName: 'create-plugma create',
 		onAction: async (type, framework, options) => {
 			try {
-				// Show Create Plugma prompt unless --skip-prompt is passed
-				if (!options.skipPrompt) {
-					showCreatePlugmaPrompt();
-				}
-
 				// Parse and validate arguments using shared utility
 				const enhancedOptions = parseCreateArgs(type, framework, options);
 
@@ -60,7 +55,6 @@ defineAddCommand(
 		onAction: async (integration, options) => {
 			try {
 				// Show Create Plugma prompt
-				showCreatePlugmaPrompt();
 
 				// Parse and validate arguments using shared utility
 				const enhancedOptions = parseAddArgs(integration, options);
