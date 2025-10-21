@@ -38,10 +38,7 @@
 		"test:watch": "vitest",
 		"test": "vitest run",
 		"start:websocket-server": "tsx src/tasks/server/websocket.ts",
-		"preversion": "node scripts/prepare-publish.js",
-		"version": "node scripts/bump-plugma-version.js",
-		"postversion": "git add package.json",
-		"postpublish": "node scripts/restore-workspace-deps.js"
+		"version": "node scripts/bump-plugma-version.js"
 	},
 	"exports": {
 		"./utils": {
@@ -116,5 +113,5 @@
 	"peerDependencies": {
 		"@playwright/test": "^1.51.1"
 	},
-	"gitHead": "e296eafdd1f6143f856218970b4752530556e242"
+	"gitHead": "91734c7d14584594176d473c11df7589118217e8"
 }

@@ -9,7 +9,7 @@
 		"test:watch": "vitest",
 		"test": "vitest --run",
 		"publish": "npx lerna publish",
-		"publish:next": "DIST_TAG=next npx lerna publish --dist-tag=next",
+		"publish:next": "npx lerna publish --dist-tag=next",
 		"pre-release-check": "./pre-release-check.sh"
 	},
 	"devDependencies": {
