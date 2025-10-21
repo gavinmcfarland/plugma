@@ -670,13 +670,10 @@ async function browseAndSelectTemplate(
 			onCancel: async () => {
 				const cancel = await spinner('Exiting...', {
 					hideOnCompletion: true,
-					style: {
-						color: 'yellow',
-					},
 				});
 
 				await cancel.start();
-				await sleep(800);
+				await sleep(500);
 				await cancel.stop();
 				process.exit(0);
 			},

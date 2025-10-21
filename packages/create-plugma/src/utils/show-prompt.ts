@@ -15,7 +15,7 @@ export async function showCreatePlugmaPrompt() {
 
 		// Display prompt using note() to make it part of the flow
 		await note(
-			`\n${chalk.bgMagenta(' Plugma ')} ${chalk.grey(`v${version}${DEVELOPING_LOCALLY ? ' [development]' : ''}`)}`,
+			`\n [ Plugma ]{bg#883AE2} ${chalk.grey(`v${version}${DEVELOPING_LOCALLY ? ' [development]' : ''}`)}`,
 		);
 	} catch (error) {
 		// Fallback if versions.json can't be read
