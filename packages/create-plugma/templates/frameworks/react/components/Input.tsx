@@ -1,6 +1,11 @@
-import React from 'react';
-
-const Input = ({ value = '', type = 'text', showIcon = false, onChange, style }) => {
+const Input = ({ value = '', type = 'text', showIcon = false, onChange, style,
+}: {
+	value?: string;
+	type?: string;
+	showIcon?: boolean;
+	onChange?: (value: string) => void;
+	style?: any;
+}) => {
 	const containerStyle = {
 		...style,
 	};
