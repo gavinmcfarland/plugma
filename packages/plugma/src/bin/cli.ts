@@ -119,7 +119,10 @@ program.hook('preAction', async (thisCommand, actionCommand) => {
 	if (options.output) {
 		suppressLogs(options);
 	}
-	// await showPlugmaPrompt();
+	// Skip prompt for create and add commands
+	if (commandName !== 'create' && commandName !== 'add') {
+		await showPlugmaPrompt();
+	}
 	checkDeprecatedFlags();
 });
 
