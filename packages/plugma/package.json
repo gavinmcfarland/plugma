@@ -1,6 +1,6 @@
 {
 	"name": "plugma",
-	"version": "2.0.29",
+	"version": "2.0.30",
 	"description": "",
 	"main": "index.js",
 	"type": "module",
@@ -72,7 +72,7 @@
 		"combino": "^1.10.3",
 		"commander": "^12.1.0",
 		"comment-json": "^4.2.5",
-		"create-plugma": "workspace:*",
+		"create-plugma": "next",
 		"cross-dirname": "^0.1.0",
 		"debug": "^4.4.0",
 		"dedent": "^1.5.3",
