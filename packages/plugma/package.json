@@ -34,6 +34,8 @@
 		"lint:unsafe-fix": "biome check --unsafe-fix .",
 		"lint": "biome check .",
 		"prepublishOnly": "nr clean && nr build",
+		"prepack": "node scripts/prepare-publish.js",
+		"postpack": "node scripts/restore-workspace-deps.js",
 		"test:coverage": "vitest --run --coverage",
 		"test:watch": "vitest",
 		"test": "vitest run",
