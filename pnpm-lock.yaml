@@ -160,8 +160,8 @@ importers:
         specifier: ^4.2.5
         version: 4.2.5
       create-plugma:
-        specifier: next
-        version: 2.0.19(@types/node@22.15.3)(jiti@1.21.7)(postcss-load-config@4.0.2(postcss@8.5.6))(postcss@8.5.6)(svelte@5.34.8)(terser@5.39.0)(tsx@4.19.4)(yaml@2.8.1)
+        specifier: workspace:*
+        version: link:../create-plugma
       cross-dirname:
         specifier: ^0.1.0
         version: 0.1.0
@@ -3058,11 +3058,6 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
-
-  create-plugma@2.0.19:
-    resolution:
-      { integrity: sha512-Ra45E8olCZjaQs6GpNORy+nYNaQOalzxuk8M7a4g8d3eXpQYMUhxbKZLCgVeJ0wov7Y6oU8RMC0NQAcRqnFTBQ== }
-    hasBin: true
 
   cross-dirname@0.1.0:
     resolution:
@@ -9009,54 +9004,6 @@ snapshots:
       parse-json: 5.2.0
     optionalDependencies:
       typescript: 5.9.2
-
-  create-plugma@2.0.19(@types/node@22.15.3)(jiti@1.21.7)(postcss-load-config@4.0.2(postcss@8.5.6))(postcss@8.5.6)(svelte@5.34.8)(terser@5.39.0)(tsx@4.19.4)(yaml@2.8.1):
-    dependencies:
-      '@combino/plugin-ejs-mate': 1.10.0(combino@1.10.3(svelte@5.34.8))
-      '@combino/plugin-rebase': 1.5.1(combino@1.10.3(svelte@5.34.8))
-      '@combino/plugin-strip-ts': 1.0.1(combino@1.10.3(svelte@5.34.8))(postcss-load-config@4.0.2(postcss@8.5.6))(postcss@8.5.6)
-      '@sveltejs/vite-plugin-svelte': 6.2.1(svelte@5.34.8)(vite@6.4.0(@types/node@22.15.3)(jiti@1.21.7)(terser@5.39.0)(tsx@4.19.4)(yaml@2.8.1))
-      askeroo: 0.0.0-alpha.12
-      boxen: 8.0.1
-      chalk: 5.6.2
-      cli-spinners: 3.2.0
-      combino: 1.10.3(svelte@5.34.8)
-      commander: 12.1.0
-      comment-json: 4.2.5
-      cross-dirname: 0.1.0
-      dedent: 1.5.3
-      enquirer: 2.4.1
-      listr2: 8.3.3
-      lodash: 4.17.21
-      magic-string: 0.30.19
-      nanoid: 5.1.5
-      node-pty: 1.0.0
-      package-manager-detector: 1.2.0
-      slugify: 1.6.6
-      vite: 6.4.0(@types/node@22.15.3)(jiti@1.21.7)(terser@5.39.0)(tsx@4.19.4)(yaml@2.8.1)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@types/node'
-      - '@types/react'
-      - babel-plugin-macros
-      - bufferutil
-      - coffeescript
-      - jiti
-      - less
-      - lightningcss
-      - postcss
-      - postcss-load-config
-      - pug
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - svelte
-      - terser
-      - tsx
-      - utf-8-validate
-      - yaml
 
   cross-dirname@0.1.0: {}
 
