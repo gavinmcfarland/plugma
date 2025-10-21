@@ -158,7 +158,7 @@ export async function add(options: AddCommandOptions): Promise<void> {
 				const cancel = await spinner('Exiting...', {
 					hideOnCompletion: true,
 					style: {
-						color: 'magenta',
+						color: 'yellow',
 					},
 				});
 

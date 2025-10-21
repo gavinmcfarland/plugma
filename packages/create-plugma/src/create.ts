@@ -597,7 +597,6 @@ async function browseAndSelectTemplate(
 							: await confirm({
 									label: 'Use TypeScript?',
 									shortLabel: 'TypeScript',
-									initialValue: true,
 								});
 
 					// Add-ons selection
@@ -671,7 +670,7 @@ async function browseAndSelectTemplate(
 				const cancel = await spinner('Exiting...', {
 					hideOnCompletion: true,
 					style: {
-						color: 'magenta',
+						color: 'yellow',
 					},
 				});
 
