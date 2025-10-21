@@ -6,7 +6,6 @@ export * from './start-websocket-server.js';
 export * from './wrap-plugin-ui.js';
 
 export * from './get-files.js';
-export * from './show-plugma-prompt.js';
 export * from './release/copy-github-workflow-template.js';
 export * from './release/push-to-github.js';
 export * from './release/git-status.js';
