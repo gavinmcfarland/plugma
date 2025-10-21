@@ -597,6 +597,7 @@ async function browseAndSelectTemplate(
 							: await confirm({
 									label: 'Use TypeScript?',
 									shortLabel: 'TypeScript',
+									initialValue: true,
 								});
 
 					// Add-ons selection
