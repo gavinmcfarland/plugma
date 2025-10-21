@@ -67,9 +67,42 @@ This repository uses Lerna for managing and publishing packages. Follow these st
 
 ## Troubleshooting
 
+### Publishing Issues
+
 - If you encounter permission issues, ensure you're logged in to npm
 - For package-specific issues, check the individual package's `package.json`
 - If publishing fails, check the npm registry status and your network connection
+
+### User-Facing Issues
+
+**"No matching version found" errors after publishing:**
+
+After publishing a new `@next` release, users may encounter errors like:
+
+```
+npm error notarget No matching version found for plugma@2.0.30
+```
+
+This is an npm cache issue. The packages are correctly published, but npm has stale metadata cached.
+
+**Solution for users:**
+
+```bash
+npm cache clean --force
+npx plugma@next create
+```
+
+**Verification after publishing:**
+
+```bash
+# Verify packages are published with correct dist-tags
+npm view plugma versions dist-tags --json
+npm view create-plugma versions dist-tags --json
+
+# Verify the published plugma package has correct dependency
+npm view plugma@next dependencies.create-plugma
+# Should output: "next" (not a version number like "2.0.21")
+```
 
 ## How It Works
 
@@ -91,10 +124,14 @@ The `plugma` package depends on `create-plugma`. To ensure compatibility between
 
 These transformations happen automatically via lifecycle hooks:
 
-- `version`: Runs during version bumping to update the `create-plugma` dependency based on the dist-tag
+- `preversion`: Runs BEFORE version bumping to update the `create-plugma` dependency based on the dist-tag
+- `version`: Runs during version bumping to update versions.json
+- `postversion`: Stages package.json changes to be included in the version commit
 - `postpublish`: Runs after publishing to restore the `workspace:*` reference for local development
 
 **Important:** The dependency changes are committed to git. The version commit contains the updated dependency (e.g., `"create-plugma": "next"`), which is what gets published to npm. A second commit immediately after restores `workspace:*` for local development.
+
+**Why this matters:** pnpm automatically converts `workspace:*` to exact versions during publishing. By updating the dependency before the version commit, we ensure the published package references the `next` dist-tag instead of a specific version number.
 
 ## Notes
 
