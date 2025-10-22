@@ -45,6 +45,8 @@ plugma create plugin react --yes
 plugma create widget --yes --no-ts
 ```
 
+</details>
+
 <details>
 
 <summary>
@@ -186,7 +188,13 @@ plugma release alpha --prefix "plugin" --title "Alpha Release"
 
 </details>
 
+<details>
+
+<summary>
+
 ### add
+
+</summary>
 
 Adds support for various integrations to your project, including testing frameworks, UI libraries, and other development tools.
 
@@ -206,6 +214,8 @@ plugma add
 <!-- ##### Options
 
 - `--no-install` - prevents installing dependencies -->
+
+</details>
 
 ## Installing globally
 
