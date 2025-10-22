@@ -586,6 +586,7 @@ async function browseAndSelectTemplate(
 						showNoneOption: true,
 						requireSelection: false,
 						hintPosition: 'inline-fixed',
+						framework: selectedFramework,
 					});
 
 					const selectedAddOns = integrationResult.selectedIntegrations;

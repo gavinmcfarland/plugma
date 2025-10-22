@@ -58,6 +58,11 @@ export interface IntegrationPrompterOptions {
 	 * Hint position for the multi-select prompt
 	 */
 	hintPosition?: 'inline' | 'inline-fixed';
+
+	/**
+	 * Framework selected by the user (used to filter UI-dependent integrations)
+	 */
+	framework?: string;
 }
 
 export interface IntegrationPrompterResult {
@@ -261,7 +266,22 @@ async function setupRequiredIntegrations(
 export async function promptForIntegrations(
 	options: IntegrationPrompterOptions = {},
 ): Promise<IntegrationPrompterResult> {
-	const { preSelectedIntegration, showNoneOption = false, requireSelection = false, hintPosition } = options;
+	const {
+		preSelectedIntegration,
+		showNoneOption = false,
+		requireSelection = false,
+		hintPosition,
+		framework,
+	} = options;
+
+	// Filter integrations based on framework selection
+	const availableIntegrations = Object.entries(INTEGRATIONS).filter(([id, integration]) => {
+		// If framework is "No UI" and integration requires UI, exclude it
+		if (framework === 'No UI' && integration.requiresUI === true) {
+			return false;
+		}
+		return true;
+	});
 
 	// Determine selected integrations
 	let selectedIntegrations: string[] = [];
@@ -271,16 +291,22 @@ export async function promptForIntegrations(
 		selectedIntegrations = [];
 	} else if (typeof preSelectedIntegration === 'string') {
 		// Single pre-selected integration (from CLI)
-		selectedIntegrations = [preSelectedIntegration];
+		// Check if the pre-selected integration is still available after filtering
+		if (availableIntegrations.some(([id]) => id === preSelectedIntegration)) {
+			selectedIntegrations = [preSelectedIntegration];
+		}
 	} else if (Array.isArray(preSelectedIntegration)) {
 		// Multiple pre-selected integrations (from CLI)
-		selectedIntegrations = preSelectedIntegration;
+		// Filter to only include available integrations
+		selectedIntegrations = preSelectedIntegration.filter((id) =>
+			availableIntegrations.some(([availableId]) => availableId === id),
+		);
 	} else if (preSelectedIntegration === undefined) {
 		// No pre-selection, prompt the user
 		const multiOptions: any = {
 			label: 'Choose add-ons:',
 			shortLabel: 'Add-ons',
-			options: Object.entries(INTEGRATIONS).map(([value, integration]) => ({
+			options: availableIntegrations.map(([value, integration]) => ({
 				value,
 				label: integration.name,
 				hint: integration.description,

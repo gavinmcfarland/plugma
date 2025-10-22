@@ -144,6 +144,7 @@ export interface Integration {
 	dependencies?: Record<string, string>;
 	devDependencies?: Record<string, string>;
 	requires?: string[];
+	requiresUI?: boolean;
 	files?: FileOperation[];
 	setup?: IntegrationTask[];
 	postSetup?: IntegrationTask[];

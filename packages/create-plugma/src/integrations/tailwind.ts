@@ -56,6 +56,7 @@ export default defineIntegration({
 	id: 'tailwind',
 	name: 'Tailwind',
 	description: 'CSS framework',
+	requiresUI: true,
 
 	dependencies,
 

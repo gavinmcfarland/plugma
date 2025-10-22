@@ -54,6 +54,7 @@ export default defineIntegration({
 	id: 'shadcn',
 	name: 'Shadcn',
 	description: 'UI components',
+	requiresUI: true,
 
 	// Add required integrations - this will ensure tailwind is set up first
 	requires: ['tailwind'],
