@@ -10,6 +10,7 @@ import { promptAndInstallDependencies } from './utils/dependency-installer.js';
 import { promptForIntegrations, INTEGRATIONS } from './utils/integration-prompter.js';
 import { createIntegrationSetupTask, createPostSetupTask } from './utils/integration-task-builder.js';
 import { showCreatePlugmaPrompt } from './utils/show-prompt.js';
+import { getUserFiles } from './utils/get-user-files.js';
 
 // Helper to sleep
 function sleep(ms: number): Promise<void> {
@@ -29,6 +30,16 @@ export async function add(options: AddCommandOptions): Promise<void> {
 		}
 	}
 
+	// Get manifest data to check UI field
+	let manifest: { ui?: string } | undefined;
+	try {
+		const userFiles = await getUserFiles({ cwd: options.cwd });
+		manifest = { ui: userFiles.manifest.ui };
+	} catch (error) {
+		// If no manifest is found, continue without manifest data
+		// This allows the add command to work even without a manifest
+	}
+
 	await ask(
 		async () => {
 			await showCreatePlugmaPrompt();
@@ -41,6 +52,7 @@ export async function add(options: AddCommandOptions): Promise<void> {
 						preSelectedIntegration: options.integration,
 						showNoneOption: false,
 						requireSelection: true,
+						manifest,
 					});
 
 					return {

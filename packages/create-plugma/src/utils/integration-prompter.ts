@@ -63,6 +63,11 @@ export interface IntegrationPrompterOptions {
 	 * Framework selected by the user (used to filter UI-dependent integrations)
 	 */
 	framework?: string;
+
+	/**
+	 * Manifest data to check UI field for filtering integrations
+	 */
+	manifest?: { ui?: string };
 }
 
 export interface IntegrationPrompterResult {
@@ -272,14 +277,21 @@ export async function promptForIntegrations(
 		requireSelection = false,
 		hintPosition,
 		framework,
+		manifest,
 	} = options;
 
-	// Filter integrations based on framework selection
+	// Filter integrations based on framework selection and manifest UI field
 	const availableIntegrations = Object.entries(INTEGRATIONS).filter(([id, integration]) => {
 		// If framework is "No UI" and integration requires UI, exclude it
 		if (framework === 'No UI' && integration.requiresUI === true) {
 			return false;
 		}
+
+		// If manifest has no UI field and integration requires UI, exclude it
+		if (manifest && !manifest.ui && integration.requiresUI === true) {
+			return false;
+		}
+
 		return true;
 	});
 
