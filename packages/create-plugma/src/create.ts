@@ -450,7 +450,7 @@ async function browseAndSelectTemplate(
 						}
 
 						selectedType = await radio({
-							label: 'Choose a type:',
+							label: 'Choose what to create:',
 							shortLabel: 'Type',
 							options: availableTypes.map((type) => ({
 								value: type!,
@@ -497,7 +497,7 @@ async function browseAndSelectTemplate(
 							selectedFramework = frameworkOptions[0].value;
 						} else {
 							selectedFramework = await radio({
-								label: 'Choose a framework:',
+								label: 'Select a framework for your UI:',
 								shortLabel: 'Framework',
 								options: frameworkOptions,
 							});
@@ -545,7 +545,7 @@ async function browseAndSelectTemplate(
 					});
 
 					const selectedTemplateValue = await radio({
-						label: `Choose a ${selectedType} template:`,
+						label: `Pick a starting template:`,
 						shortLabel: 'Template',
 						hintPosition: 'inline-fixed' as const,
 						options: templateOptions,
@@ -604,7 +604,7 @@ async function browseAndSelectTemplate(
 					const prefixedInitialValue = initialValue.startsWith('./') ? initialValue : `./${initialValue}`;
 
 					const projectPath = await text({
-						label: `Where should the ${type} be created?`,
+						label: `Enter a path to create the ${type}:`,
 						shortLabel: 'Path',
 						initialValue: prefixedInitialValue,
 						onValidate: async (value) => {
