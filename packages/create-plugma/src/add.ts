@@ -80,6 +80,7 @@ export async function add(options: AddCommandOptions): Promise<void> {
 				installDependencies: true,
 				preferredPM,
 				verbose: options.verbose,
+				projectPath: process.cwd(),
 			});
 
 			// Add postSetup tasks (runs after dependency installation)

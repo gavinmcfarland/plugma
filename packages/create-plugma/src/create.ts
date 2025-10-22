@@ -18,6 +18,7 @@ import { createDebugAwareLogger } from './utils/debug-aware-logger.js';
 import { promptAndInstallDependencies } from './utils/dependency-installer.js';
 import { promptForIntegrations } from './utils/integration-prompter.js';
 import { createIntegrationSetupTask, createPostSetupTask } from './utils/integration-task-builder.js';
+import { getCommand, type PackageManager } from './utils/package-manager-commands.js';
 
 // Import necessary modules for dependency installation
 import { detect } from 'package-manager-detector/detect';
@@ -1104,6 +1105,7 @@ async function createProjectFromOptions(params: {
 			selectedPackageManager,
 			debug,
 			verbose,
+			projectPath: destDir,
 		});
 
 		pkgManager = result.packageManager;
@@ -1140,33 +1142,11 @@ async function createProjectFromOptions(params: {
 
 	// Only show install command if dependencies weren't installed OR if installation failed
 	if (!pkgManager || pkgManager === 'skip' || dependencyInstallationFailed) {
-		const installCommand =
-			packageManager === 'npm'
-				? 'npm install'
-				: packageManager === 'yarn'
-					? 'yarn'
-					: packageManager === 'pnpm'
-						? 'pnpm install'
-						: packageManager === 'bun'
-							? 'bun install'
-							: packageManager === 'deno'
-								? 'deno install'
-								: 'npm install';
+		const installCommand = getCommand(packageManager as PackageManager, 'install');
 		nextStepsLines.push(`2. \`${installCommand}\``);
 	}
 
-	const devCommand =
-		packageManager === 'npm'
-			? 'npm run dev'
-			: packageManager === 'yarn'
-				? 'yarn dev'
-				: packageManager === 'pnpm'
-					? 'pnpm dev'
-					: packageManager === 'bun'
-						? 'bun run dev'
-						: packageManager === 'deno'
-							? 'deno run --allow-all dev'
-							: 'npm run dev';
+	const devCommand = getCommand(packageManager as PackageManager, 'dev');
 	const stepNum = !pkgManager || pkgManager === 'skip' || dependencyInstallationFailed ? 3 : 2;
 	nextStepsLines.push(`${stepNum}. \`${devCommand}\``);
 	nextStepsLines.push(`${stepNum + 1}. Import \`dist/manifest.json\` in Figma`);

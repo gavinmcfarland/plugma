@@ -1,6 +1,9 @@
 import { detect } from 'package-manager-detector/detect';
 import { resolveCommand } from 'package-manager-detector/commands';
 import { radio, spawnWithColors, stream } from 'askeroo';
+import * as fs from 'fs';
+import * as path from 'path';
+import { getCommand, type PackageManager } from './package-manager-commands.js';
 
 export interface DependencyInstallationOptions {
 	/**
@@ -37,6 +40,11 @@ export interface DependencyInstallationOptions {
 	 * Show detailed installation output
 	 */
 	verbose?: boolean;
+
+	/**
+	 * Project path for updating README with package manager commands
+	 */
+	projectPath?: string;
 }
 
 /**
@@ -108,6 +116,73 @@ export interface DependencyInstallationResult {
 }
 
 /**
+ * Update README file with package manager-specific commands
+ */
+export function updateReadmeWithPackageManager(
+	projectPath: string,
+	packageManager: string | null,
+	debug: boolean = false,
+): void {
+	if (!packageManager || packageManager === 'skip') {
+		if (debug) {
+			console.log(`Skipping README update: packageManager=${packageManager}`);
+		}
+		return;
+	}
+
+	const readmePath = path.join(projectPath, 'README.md');
+
+	if (!fs.existsSync(readmePath)) {
+		if (debug) {
+			console.log(`README not found at: ${readmePath}`);
+		}
+		return;
+	}
+
+	let readmeContent = fs.readFileSync(readmePath, 'utf8');
+	const originalContent = readmeContent;
+
+	// Replace npm commands with package manager-specific commands
+	const installCommand = getCommand(packageManager as PackageManager, 'install');
+	const devCommand = getCommand(packageManager as PackageManager, 'dev');
+	const buildCommand = getCommand(packageManager as PackageManager, 'build');
+
+	if (debug) {
+		console.log(
+			`Updating README with commands: install=${installCommand}, dev=${devCommand}, build=${buildCommand}`,
+		);
+	}
+
+	// Replace the install command while preserving indentation
+	readmeContent = readmeContent.replace(
+		/(\s*)```bash\s*\n(\s*)npm install\s*\n(\s*)npm run dev\s*\n(\s*)```/g,
+		(match, indent1, indent2, indent3, indent4) => {
+			// Use the indentation from the first line (```bash)
+			return `${indent1}\`\`\`bash\n${indent2}${installCommand}\n${indent3}${devCommand}\n${indent4}\`\`\``;
+		},
+	);
+
+	// Replace the build command while preserving indentation
+	readmeContent = readmeContent.replace(
+		/(\s*)```bash\s*\n(\s*)npm run build\s*\n(\s*)```/g,
+		(match, indent1, indent2, indent3) => {
+			// Use the indentation from the first line (```bash)
+			return `${indent1}\`\`\`bash\n${indent2}${buildCommand}\n${indent3}\`\`\``;
+		},
+	);
+
+	// Only write if content changed
+	if (readmeContent !== originalContent) {
+		fs.writeFileSync(readmePath, readmeContent, 'utf8');
+		if (debug) {
+			console.log(`README updated successfully`);
+		}
+	} else if (debug) {
+		console.log(`No changes needed in README`);
+	}
+}
+
+/**
  * Check if a command is available in the system PATH
  */
 async function isCommandAvailable(command: string): Promise<boolean> {
@@ -136,6 +211,7 @@ export async function promptAndInstallDependencies(
 		dependencies = [],
 		debug = false,
 		verbose = false,
+		projectPath,
 	} = options;
 
 	let installationFailed = false;
@@ -194,6 +270,11 @@ export async function promptAndInstallDependencies(
 				console.error('Dependency installation error:', error);
 			}
 		}
+	}
+
+	// Update README with package manager-specific commands
+	if (projectPath) {
+		updateReadmeWithPackageManager(projectPath, packageManager, debug);
 	}
 
 	return { packageManager, installationFailed };

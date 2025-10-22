@@ -16,8 +16,8 @@ This <%- type %> was created with [Plugma](https://github.com/gavinmcfarland/plu
 1. Install the dependencies and watch for changes while developing:
 
     ```bash
-    npm install
-    npm run dev
+    <%- installCommand || 'npm install' %>
+    <%- devCommand || 'npm run dev' %>
     ```
 
 2. Open the Figma desktop app and import the plugin:
@@ -33,7 +33,7 @@ This <%- type %> was created with [Plugma](https://github.com/gavinmcfarland/plu
 Before publishing your plugin, make sure to create a build. If not, it will still point to the dev server and won't work properly for users.
 
 ```bash
-npm run build
+<%- buildCommand || 'npm run build' %>
 ```
 
 Now you can publish the plugin from the Figma desktop app.
