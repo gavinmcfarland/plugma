@@ -102,5 +102,5 @@
 	"peerDependencies": {
 		"@playwright/test": "^1.51.1"
 	},
-	"gitHead": "91734c7d14584594176d473c11df7589118217e8"
+	"gitHead": "5d408156f91d2857618ec7fa647b7d3848c17114"
 }
