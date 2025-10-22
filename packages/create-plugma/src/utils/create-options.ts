@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { getRandomPort } from './get-random-port.js';
+import { getRandomPort } from '@plugma/shared';
 import { ManifestFile } from '../core/types.js';
 
 export const DEFAULT_OPTIONS = {

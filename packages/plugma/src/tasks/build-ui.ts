@@ -6,7 +6,7 @@ import { join, resolve } from 'node:path';
 import { type InlineConfig, build, mergeConfig } from 'vite';
 import { viteState } from '../utils/vite-state-manager.js';
 import { loadConfig } from '../utils/config/load-config.js';
-import { getUserFiles } from '../utils/get-user-files.js';
+import { getUserFiles } from '@plugma/shared';
 import { renameIndexHtml } from '../vite-plugins/rename-index-html.js';
 import { Timer } from '../utils/timer.js';
 import { ListrLogLevels, ListrTask } from 'listr2';

@@ -2,6 +2,6 @@
 export * from './create-file-with-directory.js';
 export * from './get-files-recursively.js';
 export * from './map-to-source.js';
-export * from './read-json.js';
+export { readJson, readModule, readUserPackageJson } from '@plugma/shared';
 export * from './write-temp-file.js';
 //@endindex

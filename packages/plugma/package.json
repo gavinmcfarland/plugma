@@ -58,6 +58,7 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"@plugma/shared": "file:../shared",
 		"chalk": "^5.4.1",
 		"chokidar": "^4.0.3",
 		"commander": "^12.1.0",
@@ -77,6 +78,7 @@
 		"vitest": "^3.1.1",
 		"ws": "^8.18.1"
 	},
+	"bundledDependencies": ["@plugma/shared"],
 	"devDependencies": {
 		"@antfu/ni": "^23.2.0",
 		"@figma/plugin-typings": "^1.107.0-beta.1",

@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import { defineIntegration } from './define-integration.js';
 import MagicString from 'magic-string';
 import { dirname, resolve, join, relative } from 'node:path';
-import { getUserFiles } from '../utils/get-user-files.js';
+import { getUserFiles } from '@plugma/shared';
 import { readFile } from 'node:fs/promises';
 
 /**

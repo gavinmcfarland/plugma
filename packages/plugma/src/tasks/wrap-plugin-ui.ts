@@ -1,5 +1,5 @@
 import { getDirName } from '../utils/index.js';
-import { getUserFiles } from '../utils/get-user-files.js';
+import { getUserFiles } from '@plugma/shared';
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { ListrLogLevels, ListrTask, Listr } from 'listr2';

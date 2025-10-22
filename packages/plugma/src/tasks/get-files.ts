@@ -1,7 +1,15 @@
 import type { PluginOptions, PlugmaPackageJson, UserFiles } from '../core/types.js';
 import { createViteConfigs } from '../utils/config/create-vite-configs.js';
-import { getUserFiles } from '../utils/get-user-files.js';
-import { readPlugmaPackageJson } from '../utils/fs/read-json.js';
+import { getUserFiles } from '@plugma/shared';
+import { readJson } from '@plugma/shared';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+async function readPlugmaPackageJson(): Promise<PlugmaPackageJson> {
+	const __filename = fileURLToPath(import.meta.url);
+	const __dirname = dirname(__filename);
+	return readJson<PlugmaPackageJson>(join(__dirname, '..', '..', 'package.json'));
+}
 import { Logger } from '../utils/log/logger.js';
 // import { task } from './runner.js' // Temporarily disabled - old task runner pattern
 import { ListrLogger, ListrLogLevels, ListrLoggerOptions } from 'listr2';

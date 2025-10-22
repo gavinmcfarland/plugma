@@ -30,25 +30,25 @@
  *   - Initialization
  */
 
-import type { PluginOptions, UserFiles } from '../../core/types.js'
-import chalk from 'chalk'
-import { access, lstat, rm, unlink } from 'node:fs/promises'
-import { join, resolve } from 'node:path'
-import { formatTime } from '../time.js'
-import { getUserFiles } from '../get-user-files.js'
+import type { PluginOptions, UserFiles } from '../../core/types.js';
+import chalk from 'chalk';
+import { access, lstat, rm, unlink } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
+import { formatTime } from '../time.js';
+import { getUserFiles } from '@plugma/shared';
 
-type ValidationEventType = 'manifest-changed' | 'file-added' | 'plugin-built' | 'on-initialisation'
+type ValidationEventType = 'manifest-changed' | 'file-added' | 'plugin-built' | 'on-initialisation';
 
 /**
  * Handles terminal scrolling and status message display.
  * Used to provide visual feedback about file system changes.
  */
 async function displayStatusChange(message: string, type: ValidationEventType): Promise<void> {
-	if (type === 'on-initialisation') return
+	if (type === 'on-initialisation') return;
 
-	console.log('\n'.repeat(process.stdout.rows - 2))
-	process.stdout.write('\x1B[H')
-	console.log(`${chalk.grey(formatTime())}${chalk.cyan(chalk.bold(' [plugma]'))}${chalk.green(` ${message}`)}`)
+	console.log('\n'.repeat(process.stdout.rows - 2));
+	process.stdout.write('\x1B[H');
+	console.log(`${chalk.grey(formatTime())}${chalk.cyan(chalk.bold(' [plugma]'))}${chalk.green(` ${message}`)}`);
 }
 
 /**
@@ -57,17 +57,17 @@ async function displayStatusChange(message: string, type: ValidationEventType): 
  */
 async function safelyRemoveFile(filePath: string): Promise<boolean> {
 	try {
-		await access(filePath)
-		const stats = await lstat(filePath)
+		await access(filePath);
+		const stats = await lstat(filePath);
 
 		if (stats.isDirectory()) {
-			await rm(filePath, { recursive: true, force: true })
+			await rm(filePath, { recursive: true, force: true });
 		} else {
-			await unlink(filePath)
+			await unlink(filePath);
 		}
-		return true
+		return true;
 	} catch {
-		return false
+		return false;
 	}
 }
 
@@ -81,20 +81,20 @@ async function validateManifestEntry(
 	files: UserFiles,
 	type: ValidationEventType,
 ): Promise<boolean> {
-	if (!filePath) return false
+	if (!filePath) return false;
 
 	try {
-		await access(resolve(filePath))
-		return true
+		await access(resolve(filePath));
+		return true;
 	} catch {
 		if (type !== 'plugin-built') {
-			await displayStatusChange(type === 'manifest-changed' ? 'manifest changed' : 'file changed', type)
+			await displayStatusChange(type === 'manifest-changed' ? 'manifest changed' : 'file changed', type);
 		}
 
 		console.error(
 			`[plugma] Error: The file specified in the manifest's '${fieldName}' field could not be found at path: ${files.manifest[fieldName]}. Please ensure the file path is correct and that the file exists.`,
-		)
-		return false
+		);
+		return false;
 	}
 }
 
@@ -112,46 +112,46 @@ async function validateManifestEntry(
  */
 export async function cleanPluginOutputFiles(options: any, files: UserFiles, type: ValidationEventType): Promise<void> {
 	// Get the latest manifest data using existing function
-	const currentFiles = await getUserFiles(options)
+	const currentFiles = await getUserFiles(options);
 
 	// TODO: Build manifest when it changes
 
 	// Show initial status for non-build events
 	if (type !== 'plugin-built') {
-		await displayStatusChange(type === 'manifest-changed' ? 'manifest changed' : 'file changed', type)
+		await displayStatusChange(type === 'manifest-changed' ? 'manifest changed' : 'file changed', type);
 	}
 
 	// Resolve paths based on current manifest entries
-	const mainFilePath = currentFiles.manifest.main && resolve(join(process.cwd(), currentFiles.manifest.main))
-	const uiFilePath = currentFiles.manifest.ui && resolve(join(process.cwd(), currentFiles.manifest.ui))
+	const mainFilePath = currentFiles.manifest.main && resolve(join(process.cwd(), currentFiles.manifest.main));
+	const uiFilePath = currentFiles.manifest.ui && resolve(join(process.cwd(), currentFiles.manifest.ui));
 
 	// Handle main entry
 	if (currentFiles.manifest.main) {
-		await validateManifestEntry(mainFilePath, 'main', currentFiles, type)
+		await validateManifestEntry(mainFilePath, 'main', currentFiles, type);
 	} else {
 		if (type !== 'plugin-built') {
-			await displayStatusChange('manifest changed', type)
+			await displayStatusChange('manifest changed', type);
 		}
 		console.error(
 			"[plugma] Error: The 'main' field is missing in the manifest. Please specify the 'main' entry point.",
-		)
+		);
 	}
 
 	// Clean up main output if needed
 	if (!currentFiles.manifest.main || !(await validateManifestEntry(mainFilePath, 'main', currentFiles, type))) {
-		await safelyRemoveFile(resolve(join(process.cwd(), options.output, 'main.js')))
+		await safelyRemoveFile(resolve(join(process.cwd(), options.output, 'main.js')));
 	}
 
 	// Handle UI entry
 	if (currentFiles.manifest.ui) {
-		await validateManifestEntry(uiFilePath, 'ui', currentFiles, type)
+		await validateManifestEntry(uiFilePath, 'ui', currentFiles, type);
 	}
 
 	// Clean up UI output if needed
 	if (!currentFiles.manifest.ui || !(await validateManifestEntry(uiFilePath, 'ui', currentFiles, type))) {
-		await safelyRemoveFile(resolve(join(process.cwd(), options.output, 'ui.html')))
+		await safelyRemoveFile(resolve(join(process.cwd(), options.output, 'ui.html')));
 	}
 }
 
 // Re-export with the old name for backward compatibility
-export const notifyInvalidManifestOptions = cleanPluginOutputFiles
+export const notifyInvalidManifestOptions = cleanPluginOutputFiles;

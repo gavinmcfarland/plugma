@@ -1,6 +1,6 @@
 //@index('./**/types.ts', f => `export * from '${f.path}.js';`)
 import type { PackageJson } from 'type-fest';
-import type { BaseOptions } from '../utils/create-options.js';
+import type { BaseOptions } from '@plugma/shared';
 //@endindex
 
 import type { UserConfig } from 'vite';

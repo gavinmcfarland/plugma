@@ -3,7 +3,7 @@ import { Logger } from '../utils/log/logger.js';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import { createServer } from 'vite';
 import { viteState } from '../utils/vite-state-manager.js';
-import { getUserFiles } from '../utils/get-user-files.js';
+import { getUserFiles } from '@plugma/shared';
 import { createViteConfigs } from '../utils/config/create-vite-configs.js';
 import { createViteServerConfig } from '../utils/config/create-server-config.js';
 import { DevCommandOptions } from '../utils/create-options.js';

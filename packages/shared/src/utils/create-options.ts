@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { getRandomPort } from '@plugma/shared';
+import { getRandomPort } from './get-random-port.js';
 import { ManifestFile } from '../core/types.js';
 
 export const DEFAULT_OPTIONS = {
@@ -70,6 +70,7 @@ export interface CommandOptions {
 	add: MinimalBaseOptions & {
 		command: 'add';
 		integration?: string;
+		verbose?: boolean;
 	};
 	create: MinimalBaseOptions & {
 		command: 'create';
@@ -85,6 +86,8 @@ export interface CommandOptions {
 		noUi?: boolean;
 		noAddOns?: boolean;
 		noInstall?: boolean;
+		skipPrompt?: boolean;
+		verbose?: boolean;
 	};
 }
 
