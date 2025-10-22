@@ -6,7 +6,18 @@ You can see the full list of available fields in Figma's [plugin manifest docume
 
 ## Manifest location
 
-The manifest can be configured in a few different ways, either by placing a `manifest.ts`, `manifest.js` or `manifest.json` file in your project root, or by adding a `plugma.manifest` field to your package.json.
+Plugma looks for your plugin manifest in several locations, checking them in a specific order. The first valid manifest found will be used.
+
+### Manifest file priority
+
+Plugma checks for manifest files in the project root directory in the following order:
+
+1. **`manifest.ts`** - TypeScript manifest file (supports type safety)
+2. **`manifest.js`** - JavaScript manifest file
+3. **`manifest.json`** - JSON manifest file
+4. **`package.json`** - Uses the `plugma.manifest` field
+
+If no manifest is found in any of these locations in the project root, Plugma will throw an error.
 
 #### Example using `package.json`
 
@@ -29,10 +40,46 @@ The manifest can be configured in a few different ways, either by placing a `man
 }
 ```
 
+#### Example using `manifest.json`
+
+```json
+{
+	"id": "com.myplugin",
+	"name": "My Plugin",
+	"api": "1.0.0",
+	"main": "src/code.js",
+	"ui": "src/ui.js",
+	"editorType": ["figma", "figjam"],
+	"networkAccess": {
+		"allowedDomains": ["none"]
+	}
+}
+```
+
+#### Example using `manifest.js`
+
+```js
+import { defineManifest } from 'plugma/utils';
+
+export default defineManifest(() => {
+	return {
+		id: 'com.my-plugin',
+		name: 'My Plugin',
+		api: '1.0.0',
+		main: 'src/main.js',
+		ui: 'src/ui.js',
+		editorType: ['figma', 'figjam'],
+		networkAccess: {
+			allowedDomains: ['none']
+		}
+	};
+});
+```
+
 #### Example using `manifest.ts`
 
 <blockquote class="warning">
-Support for type-safe files is still a work in progress, so changes may not trigger a plugin reload while it’s running.
+Support for type-safe files is still a work in progress, so changes may not trigger a plugin reload while it's running.
 </blockquote>
 
 ```ts
