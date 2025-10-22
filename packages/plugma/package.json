@@ -1,6 +1,6 @@
 {
 	"name": "plugma",
-	"version": "2.0.34",
+	"version": "2.0.35",
 	"description": "",
 	"main": "index.js",
 	"type": "module",
@@ -78,7 +78,9 @@
 		"vitest": "^3.1.1",
 		"ws": "^8.18.1"
 	},
-	"bundledDependencies": ["@plugma/shared"],
+	"bundledDependencies": [
+		"@plugma/shared"
+	],
 	"devDependencies": {
 		"@antfu/ni": "^23.2.0",
 		"@figma/plugin-typings": "^1.107.0-beta.1",

@@ -1,6 +1,6 @@
 {
 	"name": "@plugma/shared",
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"private": true,
 	"type": "module",
 	"main": "dist/index.js",
@@ -13,8 +13,8 @@
 		"dev": "tsc -p tsconfig.build.json --watch"
 	},
 	"dependencies": {
-		"type-fest": "^4.33.0",
-		"nanoid": "^5.1.5"
+		"nanoid": "^5.1.5",
+		"type-fest": "^4.33.0"
 	},
 	"devDependencies": {
 		"@types/node": "^22.12.0",
