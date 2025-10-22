@@ -227,28 +227,6 @@ function clearDirectory(dirPath: string): void {
 }
 
 /**
- * Validate project name
- */
-function validateProjectName(name: string): string | undefined {
-	if (!name.trim()) {
-		return 'Project name is required';
-	}
-
-	// Check for invalid characters
-	if (!/^[a-zA-Z0-9_-]+$/.test(name)) {
-		return 'Project name can only contain letters, numbers, hyphens, and underscores';
-	}
-
-	// Check if directory already exists
-	const projectPath = path.join(CURR_DIR, name);
-	if (fs.existsSync(projectPath)) {
-		return `Directory "${name}" already exists`;
-	}
-
-	return undefined;
-}
-
-/**
  * Get versions from create-plugma package
  */
 function getVersions(): Record<string, string> {
@@ -304,6 +282,7 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 			framework: options.noUi ? NO_UI_OPTION : framework,
 			typescript,
 			name: options.name,
+			directory: CURR_DIR, // Use current directory for quick mode
 			debug: options.debug || false,
 			installAddOns: options.noAddOns ? [] : [], // Skip add-ons in quick mode
 			installDependencies: !options.noInstall,
@@ -620,15 +599,78 @@ async function browseAndSelectTemplate(
 					const frameworkPart = needsUI ? `-${selectedFramework.toLowerCase()}` : '';
 					const baseName = `${normalizedExampleName}${frameworkPart}-${type}`;
 
-					const projectName = await text({
-						label: `${type.charAt(0).toUpperCase() + type.slice(1)} name:`,
-						shortLabel: 'Name',
-						initialValue: options.name || baseName,
+					// Ensure initial value is prefixed with ./
+					const initialValue = options.name || baseName;
+					const prefixedInitialValue = initialValue.startsWith('./') ? initialValue : `./${initialValue}`;
+
+					const projectPath = await text({
+						label: `Where should the ${type} be created?`,
+						shortLabel: 'Path',
+						initialValue: prefixedInitialValue,
 						onValidate: async (value) => {
-							const error = validateProjectName(value);
-							return error || null;
+							if (!value || value.trim() === '') {
+								return 'Project path is required';
+							}
+
+							// Ensure value is prefixed with ./ if it's a relative path
+							let normalizedValue = value.trim();
+							if (
+								!normalizedValue.startsWith('./') &&
+								!normalizedValue.startsWith('/') &&
+								!normalizedValue.match(/^[A-Za-z]:/)
+							) {
+								normalizedValue = `./${normalizedValue}`;
+							}
+
+							// Normalize the path
+							const normalizedPath = path.resolve(normalizedValue);
+							const projectName = path.basename(normalizedPath);
+							const parentDir = path.dirname(normalizedPath);
+
+							// Validate project name
+							if (!/^[a-zA-Z0-9_-]+$/.test(projectName)) {
+								return 'Project name can only contain letters, numbers, hyphens, and underscores';
+							}
+
+							// Create parent directory if it doesn't exist
+							if (!fs.existsSync(parentDir)) {
+								try {
+									fs.mkdirSync(parentDir, { recursive: true });
+								} catch (error) {
+									return `Failed to create parent directory "${parentDir}": ${error instanceof Error ? error.message : String(error)}`;
+								}
+							}
+
+							// Check if parent directory is writable
+							try {
+								fs.accessSync(parentDir, fs.constants.W_OK);
+							} catch {
+								return `Parent directory "${parentDir}" is not writable`;
+							}
+
+							// Check if project directory already exists
+							if (fs.existsSync(normalizedPath)) {
+								return `Directory "${projectName}" already exists`;
+							}
+
+							return null;
 						},
 					});
+
+					// Ensure the submitted value is prefixed with ./ if it's a relative path
+					let finalProjectPath = projectPath.trim();
+					if (
+						!finalProjectPath.startsWith('./') &&
+						!finalProjectPath.startsWith('/') &&
+						!finalProjectPath.match(/^[A-Za-z]:/)
+					) {
+						finalProjectPath = `./${finalProjectPath}`;
+					}
+
+					// Extract name and directory from the path
+					const normalizedPath = path.resolve(finalProjectPath);
+					const projectName = path.basename(normalizedPath);
+					const projectDirectory = path.dirname(normalizedPath);
 
 					return {
 						selectedType,
@@ -640,6 +682,7 @@ async function browseAndSelectTemplate(
 						addOnDeps,
 						typescript,
 						projectName,
+						projectDirectory,
 						needsUI,
 						type,
 					};
@@ -653,6 +696,7 @@ async function browseAndSelectTemplate(
 				framework: answers.needsUI ? answers.selectedFramework : NO_UI_OPTION,
 				typescript: answers.typescript,
 				name: answers.projectName,
+				directory: answers.projectDirectory,
 				selectedExample: answers.selectedTemplate,
 				debug: options.debug || false,
 				installAddOns: answers.selectedAddOns,
@@ -816,6 +860,7 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 			framework,
 			typescript,
 			name: defaultName,
+			directory: CURR_DIR, // Use current directory for quick mode
 			selectedExample: selectedTemplate,
 			debug: options.debug || false,
 			installAddOns: options.noAddOns ? [] : [], // Skip add-ons in quick mode
@@ -852,6 +897,7 @@ async function createProjectFromOptions(params: {
 	framework: string;
 	typescript: boolean;
 	name: string;
+	directory?: string;
 	selectedExample?: Example;
 	debug: boolean;
 	installAddOns?: string[];
@@ -869,6 +915,7 @@ async function createProjectFromOptions(params: {
 		framework,
 		typescript,
 		name,
+		directory = CURR_DIR,
 		selectedExample,
 		debug,
 		installAddOns = [],
@@ -882,7 +929,7 @@ async function createProjectFromOptions(params: {
 		verbose = false,
 	} = params;
 
-	const destDir = path.join(CURR_DIR, name);
+	const destDir = path.join(directory, name);
 	let dependencyInstallationFailed = false;
 
 	// Shared state for add-on integration results
