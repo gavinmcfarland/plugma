@@ -14,6 +14,7 @@ export interface ParsedCreateArgs {
 	noUi?: boolean;
 	framework?: string;
 	verbose?: boolean;
+	addOns?: string[];
 }
 
 export interface CreateCommandConfig {
@@ -105,6 +106,8 @@ Examples:
   ${baseCommand} svelte
   ${baseCommand} plugin react --name my-plugin
   ${baseCommand} plugin --template rectangle-creator
+  ${baseCommand} plugin react --add tailwind shadcn vitest
+  ${baseCommand} widget svelte --add prettier eslint
   ${baseCommand}
 `;
 }
@@ -137,6 +140,7 @@ export function defineCreateCommand(
 		.option('--template <name>', 'Use a specific template')
 		.option('--no-ts', 'Use JavaScript instead of TypeScript')
 		.option('--no-add', 'Skip add integrations')
+		.option('--add <integrations...>', 'Add specific integrations (e.g., --add tailwind shadcn vitest)')
 		.option('--no-install', 'Skip dependency installation')
 		.option('--install <pkg-manager>', 'Install dependencies using a specific package manager (npm, yarn, pnpm)')
 		.option('-y, --yes', 'Skip all prompts by accepting defaults')

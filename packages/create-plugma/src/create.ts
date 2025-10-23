@@ -333,15 +333,17 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 	// Check if we should use quick creation (skip all interactive questions)
 	// This happens when enough flags are provided to determine all requirements
 	// OR when --yes flag is used AND type/framework are provided
+	// BUT NOT when integrations need to be selected (unless --no-add is used)
 	const hasTypeFlag = options.plugin || options.widget;
 	const hasFrameworkFlag = options.framework || options.react || options.svelte || options.vue || options.noUi;
-	const shouldUseQuickCreation = Boolean(
-		(hasTypeFlag && hasFrameworkFlag && options.dir) || (options.yes && hasTypeFlag && hasFrameworkFlag),
-	);
+	const needsIntegrationPrompt = !options.noIntegrations && !options.add; // Need to prompt if neither --no-add nor --add is used
+	const shouldUseQuickCreation =
+		Boolean((hasTypeFlag && hasFrameworkFlag && options.dir) || (options.yes && hasTypeFlag && hasFrameworkFlag)) &&
+		!needsIntegrationPrompt; // Don't use quick creation if we need to prompt for integrations
 
 	if (options.debug) {
 		console.log(
-			`Debug: shouldUseQuickCreation=${shouldUseQuickCreation}, hasTypeFlag=${hasTypeFlag}, hasFrameworkFlag=${hasFrameworkFlag}, options.dir=${options.dir}, options.yes=${options.yes}`,
+			`Debug: shouldUseQuickCreation=${shouldUseQuickCreation}, hasTypeFlag=${hasTypeFlag}, hasFrameworkFlag=${hasFrameworkFlag}, options.dir=${options.dir}, options.yes=${options.yes}, needsIntegrationPrompt=${needsIntegrationPrompt}`,
 		);
 	}
 
@@ -367,9 +369,11 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 	}
 
 	// Determine pre-selected add-ons value from CLI flags
-	let preSelectedAddOns: boolean | undefined;
+	let preSelectedAddOns: boolean | string[] | undefined;
 	if (options.noIntegrations !== undefined) {
 		preSelectedAddOns = !options.noIntegrations; // Convert --no-add to false
+	} else if (options.add !== undefined && Array.isArray(options.add)) {
+		preSelectedAddOns = options.add; // Use --add flag values (only if it's an array)
 	}
 
 	// Determine pre-selected install dependencies value from CLI flags
@@ -426,7 +430,7 @@ async function browseAndSelectTemplate(
 	preSelectedType?: string,
 	preSelectedFramework?: string,
 	preSelectedTypescript?: boolean,
-	preSelectedAddOns?: boolean,
+	preSelectedAddOns?: boolean | string[],
 	preSelectedInstall?: boolean,
 	shouldUseQuickCreation?: boolean,
 ): Promise<void> {
@@ -517,6 +521,24 @@ async function browseAndSelectTemplate(
 				const detectedPM = await detect({ cwd: process.cwd() });
 				const defaultPM = detectedPM?.agent || 'npm';
 
+				// Handle integrations for quick mode
+				let addOnResults: any[] = [];
+				let addOnDeps: any = { dependencies: new Set<string>(), devDependencies: new Set<string>() };
+				let addOnAnswers: Record<string, Record<string, any>> = {};
+
+				if (preSelectedAddOns !== false && Array.isArray(preSelectedAddOns) && preSelectedAddOns.length > 0) {
+					// Process pre-selected integrations
+					const integrationResult = await promptForIntegrations({
+						preSelectedIntegration: preSelectedAddOns,
+						showNoneOption: false,
+						requireSelection: false,
+						framework,
+					});
+					addOnResults = integrationResult.allResults;
+					addOnDeps = integrationResult.allDeps;
+					addOnAnswers = integrationResult.integrationAnswers;
+				}
+
 				await createProjectFromOptions({
 					type,
 					framework,
@@ -525,10 +547,13 @@ async function browseAndSelectTemplate(
 					projectDir, // Raw directory name for file system
 					directory: CURR_DIR, // Use current directory as parent
 					debug: options.debug || false,
-					installAddOns: preSelectedAddOns === false ? [] : [], // Skip add-ons if --no-add is used
+					installAddOns:
+						preSelectedAddOns === false ? [] : Array.isArray(preSelectedAddOns) ? preSelectedAddOns : [], // Use --add flag values or skip if --no-add
+					addOnResults,
+					addOnDeps,
 					installDependencies: preSelectedInstall === undefined ? true : preSelectedInstall, // Install unless --no-install is used
 					selectedPackageManager: preSelectedInstall !== false ? options.install || defaultPM : null, // Use specified or detected package manager
-					addOnAnswers: {}, // No add-ons in quick mode
+					addOnAnswers,
 					preferredPM: defaultPM,
 					skipInstallPrompt: true, // Skip prompt in quick mode
 					verbose: options.verbose,
@@ -653,6 +678,24 @@ async function browseAndSelectTemplate(
 				const detectedPM = await detect({ cwd: process.cwd() });
 				const defaultPM = detectedPM?.agent || 'npm';
 
+				// Handle integrations for quick mode
+				let addOnResults: any[] = [];
+				let addOnDeps: any = { dependencies: new Set<string>(), devDependencies: new Set<string>() };
+				let addOnAnswers: Record<string, Record<string, any>> = {};
+
+				if (preSelectedAddOns !== false && Array.isArray(preSelectedAddOns) && preSelectedAddOns.length > 0) {
+					// Process pre-selected integrations
+					const integrationResult = await promptForIntegrations({
+						preSelectedIntegration: preSelectedAddOns,
+						showNoneOption: false,
+						requireSelection: false,
+						framework: answers.needsUI ? answers.selectedFramework : NO_UI_OPTION,
+					});
+					addOnResults = integrationResult.allResults;
+					addOnDeps = integrationResult.allDeps;
+					addOnAnswers = integrationResult.integrationAnswers;
+				}
+
 				await createProjectFromOptions({
 					type: answers.type,
 					framework: answers.needsUI ? answers.selectedFramework : NO_UI_OPTION,
@@ -661,7 +704,10 @@ async function browseAndSelectTemplate(
 					projectDir: answers.projectName, // Raw directory name for file system
 					directory: CURR_DIR, // Use current directory as parent
 					debug: options.debug || false,
-					installAddOns: preSelectedAddOns === false ? [] : [], // Skip add-ons when --yes is used
+					installAddOns:
+						preSelectedAddOns === false ? [] : Array.isArray(preSelectedAddOns) ? preSelectedAddOns : [], // Use --add flag values or skip when --yes is used
+					addOnResults,
+					addOnDeps,
 					installDependencies:
 						preSelectedInstall === undefined ? answers.installDependencies : preSelectedInstall,
 					selectedPackageManager: (
@@ -669,7 +715,7 @@ async function browseAndSelectTemplate(
 					)
 						? options.install || defaultPM
 						: null,
-					addOnAnswers: {}, // No add-ons when --yes is used
+					addOnAnswers,
 					preferredPM: defaultPM,
 					skipInstallPrompt: true, // Skip install prompt when --yes is used
 					verbose: options.verbose,
@@ -955,7 +1001,7 @@ async function browseAndSelectTemplate(
 				addOnResults: answers.addOnResults,
 				addOnDeps: answers.addOnDeps,
 				installDependencies: preSelectedInstall === undefined ? true : preSelectedInstall,
-				selectedPackageManager: options.install || preferredPM, // Use specified package manager or detected one
+				selectedPackageManager: preSelectedInstall !== false ? options.install || preferredPM : null, // Use specified package manager or detected one
 				addOnAnswers: answers.addOnAnswers,
 				preferredPM,
 				skipInstallPrompt: preSelectedInstall === false || Boolean(options.install), // Skip prompt if --no-install or --install specified
@@ -1107,6 +1153,24 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 		const detectedPM = await detect({ cwd: process.cwd() });
 		const defaultPM = detectedPM?.agent || 'npm';
 
+		// Handle integrations for template-based quick mode
+		let addOnResults: any[] = [];
+		let addOnDeps: any = { dependencies: new Set<string>(), devDependencies: new Set<string>() };
+		let addOnAnswers: Record<string, Record<string, any>> = {};
+
+		if (!options.noIntegrations && options.add && Array.isArray(options.add) && options.add.length > 0) {
+			// Process pre-selected integrations
+			const integrationResult = await promptForIntegrations({
+				preSelectedIntegration: options.add,
+				showNoneOption: false,
+				requireSelection: false,
+				framework,
+			});
+			addOnResults = integrationResult.allResults;
+			addOnDeps = integrationResult.allDeps;
+			addOnAnswers = integrationResult.integrationAnswers;
+		}
+
 		await createProjectFromOptions({
 			type,
 			framework,
@@ -1116,10 +1180,12 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 			directory: CURR_DIR, // Use current directory for quick mode
 			selectedExample: selectedTemplate,
 			debug: options.debug || false,
-			installAddOns: options.noIntegrations ? [] : [], // Skip add-ons in quick mode
+			installAddOns: options.noIntegrations ? [] : options.add || [], // Use --add flag values or skip if --no-add
+			addOnResults,
+			addOnDeps,
 			installDependencies: !options.noInstall,
 			selectedPackageManager: !options.noInstall ? options.install || defaultPM : null, // Use specified or detected package manager
-			addOnAnswers: {}, // No add-ons in quick mode
+			addOnAnswers,
 			preferredPM: defaultPM,
 			skipInstallPrompt: true, // Skip prompt when using --template
 			verbose: options.verbose,

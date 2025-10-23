@@ -85,6 +85,7 @@ export interface CommandOptions {
 		noTypescript?: boolean;
 		noUi?: boolean;
 		noIntegrations?: boolean;
+		add?: string[];
 		noInstall?: boolean;
 		install?: string;
 		yes?: boolean;
@@ -200,6 +201,12 @@ export function createOptions<T extends keyof CommandOptions>(
 	if ('addOns' in userOptions && userOptions.addOns === false) {
 		userOptions.noIntegrations = true;
 		delete userOptions.addOns;
+	}
+
+	// Handle --add flag (Commander.js converts --add to add: string[])
+	if ('add' in userOptions && Array.isArray(userOptions.add)) {
+		// Keep the add array as is - it contains the integration names
+		// Don't delete it, we need it for the create logic
 	}
 
 	// Handle --no-install flag (Commander.js converts --no-install to install: false)
