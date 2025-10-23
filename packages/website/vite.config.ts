@@ -18,12 +18,9 @@ export default defineConfig({
 			'@': path.resolve(__dirname, 'src') // Alias '@' to the 'src' directory
 		}
 	},
-	optimizeDeps: {
-		include: ['@plugma/shared']
-	},
 	build: {
 		commonjsOptions: {
-			include: [/@plugma\/shared/, /node_modules/]
+			include: [/node_modules/]
 		}
 	}
 });

@@ -3,7 +3,7 @@
 	import Icon from './Icon.svelte';
 	import { notify } from '@/stores';
 	import { highlighter } from '@/lib/stores/shiki';
-	import { transformCommand, type PackageManager } from '@plugma/shared';
+	import { transformCommand, type PackageManager } from '@/lib/package-manager-commands';
 	import { selectedPackageManager, setPackageManager } from '@/stores/packageManager';
 
 	const props = $props<{
