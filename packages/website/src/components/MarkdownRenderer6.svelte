@@ -85,7 +85,23 @@
 				}
 
 				case 'code': {
-					if (components['code']) {
+					// Check if this is a package manager code block
+					const isPackageManagerBlock =
+						token.lang === 'package-manager' ||
+						token.text.includes('npm create') ||
+						token.text.includes('npm install') ||
+						token.text.includes('npm run');
+
+					if (isPackageManagerBlock && components['package-manager-code']) {
+						newStructuredMarkdown.push({
+							id,
+							component: components['package-manager-code'],
+							props: {
+								text: token.text,
+								lang: 'bash'
+							}
+						});
+					} else if (components['code']) {
 						newStructuredMarkdown.push({
 							id,
 							component: components['code'],

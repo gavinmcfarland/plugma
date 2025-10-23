@@ -3,7 +3,7 @@ import { resolveCommand } from 'package-manager-detector/commands';
 import { radio, spawnWithColors, stream } from 'askeroo';
 import * as fs from 'fs';
 import * as path from 'path';
-import { getCommand, type PackageManager } from './package-manager-commands.js';
+import { getCommand, type PackageManager } from '@plugma/shared';
 
 export interface DependencyInstallationOptions {
 	/**

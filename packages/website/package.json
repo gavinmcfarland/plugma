@@ -34,6 +34,7 @@
 		"vite": "^6.3.6"
 	},
 	"dependencies": {
+		"@plugma/shared": "file:../shared",
 		"@shikijs/langs": "^3.2.2",
 		"@vercel/speed-insights": "^1.2.0",
 		"dompurify": "^3.2.5",

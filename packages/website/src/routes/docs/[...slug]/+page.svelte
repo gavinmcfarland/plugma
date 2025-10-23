@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import Code from '@/components/Code.svelte';
 	import Code2 from '@/components/Code2.svelte';
+	import PackageManagerCode from '@/components/PackageManagerCode.svelte';
 	// import SvelteMarkdown from 'svelte-markdown';
 	// import MarkdownRenderer from '@/components/MarkdownRenderer.svelte';
 	// import MarkdownRenderer3 from '@/components/MarkdownRenderer3.svelte';
@@ -153,8 +154,9 @@
 			<MarkdownRenderer6
 				markdown={source}
 				components={{
-					code: Code2,
-					heading: Heading
+					code: Code2 as any,
+					'package-manager-code': PackageManagerCode as any,
+					heading: Heading as any
 				}}
 			/>
 		</div>

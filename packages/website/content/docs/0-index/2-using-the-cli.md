@@ -3,7 +3,12 @@
 Plugma comes with a Command Line Interface that supports the following commands.
 
 <blockquote class="info">
-When using the commands with `npm run` you need to pass the arguments with a double dash `--`, for example `npm run dev -- -p 3000`.
+When using the commands with `npm run` you need to pass the arguments with a double dash `--`, for example:
+
+```package-manager
+npm run dev -- -p 3000
+```
+
 </blockquote>
 
 ## Commands
@@ -221,6 +226,6 @@ plugma add
 
 If you'd prefer to use the CLI globally you can install it using the following.
 
-```bash
+```package-manager
 npm install plugma -g
 ```

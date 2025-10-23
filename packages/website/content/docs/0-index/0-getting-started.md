@@ -10,7 +10,7 @@ Before you start, ensure you have [Node.js](https://nodejs.org/en) and the [Figm
 
 To create a plugin from a template, run the following command in your terminal and follow the prompts.
 
-```bash
+```package-manager
 npm create plugma@latest
 ```
 
@@ -18,14 +18,14 @@ npm create plugma@latest
 
 Change to the plugin directory and install the dependencies.
 
-```bash
+```package-manager
 cd my-plugin
 npm install
 ```
 
 Run the following to watch for changes while developing.
 
-```bash
+```package-manager
 npm run dev
 ```
 
@@ -43,7 +43,7 @@ Open the Figma desktop app, go to the Actions menu, search for your plugin, and 
 
 Before publishing your plugin, make sure to create a build. If not, it will still point to the dev server and won't work properly for users.
 
-```bash
+```package-manager
 npm run build
 ```
 

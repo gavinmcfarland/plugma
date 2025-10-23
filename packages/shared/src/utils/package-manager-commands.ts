@@ -198,3 +198,81 @@ export function getPackageManagerCommands(packageManager: PackageManager) {
 		remove: getCommand(packageManager, 'remove'),
 	};
 }
+
+/**
+ * Transform npm commands to other package managers
+ * Useful for converting existing npm commands to other package managers
+ */
+export function transformCommand(command: string, packageManager: PackageManager): string {
+	if (packageManager === 'npm') {
+		return command;
+	}
+
+	let transformed = command;
+
+	// Handle create commands
+	if (command.includes('npm create plugma@latest')) {
+		switch (packageManager) {
+			case 'yarn':
+				return command.replace('npm create plugma@latest', 'yarn create plugma');
+			case 'pnpm':
+				return command.replace('npm create plugma@latest', 'pnpm create plugma@latest');
+			case 'bun':
+				return command.replace('npm create plugma@latest', 'bun create plugma@latest');
+			case 'deno':
+				return command.replace('npm create plugma@latest', 'deno create plugma@latest');
+		}
+	}
+
+	// Handle other create commands
+	if (command.includes('npm create')) {
+		transformed = transformed.replace(/npm create/g, `${packageManager} create`);
+	}
+
+	// Handle add commands (npm install package-name) - check this first
+	const installMatch = command.match(/npm install\s+([^\s]+)/);
+	if (installMatch && installMatch[1]) {
+		transformed = transformed.replace(/npm install/g, getCommand(packageManager, 'add'));
+	} else if (command.includes('npm install')) {
+		// Handle install commands (only if no package name is specified)
+		transformed = transformed.replace(/npm install/g, getCommand(packageManager, 'install'));
+	}
+
+	// Handle run commands
+	if (command.includes('npm run')) {
+		// Extract the script name
+		const runMatch = command.match(/npm run\s+([^\s]+)/);
+		if (runMatch && runMatch[1]) {
+			const scriptName = runMatch[1];
+			switch (packageManager) {
+				case 'yarn':
+					transformed = transformed.replace(/npm run\s+[^\s]+/g, `yarn ${scriptName}`);
+					break;
+				case 'pnpm':
+					transformed = transformed.replace(/npm run\s+[^\s]+/g, `pnpm ${scriptName}`);
+					break;
+				case 'bun':
+					transformed = transformed.replace(/npm run\s+[^\s]+/g, `bun run ${scriptName}`);
+					break;
+				default:
+					transformed = transformed.replace(/npm run/g, `npm run`);
+			}
+		}
+	}
+
+	// Handle remove commands
+	if (command.includes('npm uninstall')) {
+		transformed = transformed.replace(/npm uninstall/g, getCommand(packageManager, 'remove'));
+	}
+
+	// Handle other npm commands (start, test, etc.)
+	if (command.includes('npm start')) {
+		transformed = transformed.replace(/npm start/g, getCommand(packageManager, 'start'));
+	}
+
+	if (command.includes('npm test')) {
+		transformed = transformed.replace(/npm test/g, getCommand(packageManager, 'test'));
+	}
+
+	return transformed;
+}
