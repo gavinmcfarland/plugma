@@ -23,13 +23,15 @@ npm create plugma@latest [type?] [framework?] [options]
 ##### Options
 
 - `--template <name>`: Use a specific template
-- `--framework <name>`: UI framework
-- `--dir <dpath>`: Project directory name
+- `--dir <path>`: Project directory name
+- `--add <integrations...>`: Add specific integrations
+- `--install <pkg-manager?>`: Install dependencies
+- `--verbose`: Show detailed logging
 - `--no-ts`: Use JavaScript instead of TypeScript
-- `--no-add`: Skip installing add-ons
-- `--no-install`: Skip installing dependencies
-- `--install <pkg-manager>`: Install dependencies using a specific package manager (npm, yarn, pnpm)
-- `-y, --yes`: Skip all prompts by accepting defaults (still prompts for type and framework if not provided). Requires an empty directory when creating in current directory.
+- `--no-add`: Skip add integrations
+- `--no-install`: Skip dependency installation
+- `-y, --yes`: Skip all prompts by accepting defaults
+- `-d, --debug`: Enable debug mode
 
 ##### Example
 
@@ -37,29 +39,11 @@ npm create plugma@latest [type?] [framework?] [options]
 # Create a react plugin with the defaults
 npm create plugma@latest -- plugin react --yes
 
-# Create a widget using JavaScript with no UI using the defaults
-npm create plugma@latest -- widget --yes --no-ts
+# Add specific integrations during creation
+npm create plugma@latest -- widget vue --add tailwind vitest prettier
 
-# Skip most prompts but still ask for type and framework
-npm create plugma@latest -- --yes
-
-# Skip all prompts when type and framework are provided
-npm create plugma@latest -- plugin react --yes
-
-# Create with just framework (type will be prompted)
-npm create plugma@latest -- svelte --yes
-
-# Create with custom directory name
-npm create plugma@latest -- plugin react --dir my-custom-plugin
-
-# Install with specific package manager
-npm create plugma@latest -- plugin react --install pnpm
-
-# Install with yarn
-npm create plugma@latest -- widget svelte --install yarn
-
-# Note: --yes requires an empty directory when creating in current directory
-# If directory is not empty, you'll get an error message
+# Created project with defaults but don't install depedendencies
+npm create plugma@latest -- widget svelte --yes --no-install
 ```
 
 </details>
@@ -227,10 +211,28 @@ npm create plugma@latest add
 - `vitest`
 - `tailwind`
 - `shadcn`
+- `eslint`
+- `prettier`
 
-<!-- ##### Options
+##### Options
 
-- `--no-install` - prevents installing dependencies -->
+- `--install <pkg-manager?>`: Install dependencies
+- `--no-install`: Skip dependency installation
+- `--verbose`: Show detailed logs
+- `--debug`: Enable debug mode
+
+##### Examples
+
+```package-manager
+# Add tailwind with detected package manager
+npm create plugma@latest add tailwind --install
+
+# Add eslint with specific package manager
+npm create plugma@latest add eslint --install pnpm
+
+# Add playwright without installing dependencies
+npm create plugma@latest add playwright --no-install
+```
 
 </details>
 
