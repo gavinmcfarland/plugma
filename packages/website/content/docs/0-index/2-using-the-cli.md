@@ -22,9 +22,9 @@ npm create plugma@latest [type?] [framework?] [options]
 
 ##### Options
 
-- `--template <template>`: Use a specific template
-- `--framework <framework>`: UI framework
-- `--dir <dir>`: Project directory name
+- `--template <name>`: Use a specific template
+- `--framework <name>`: UI framework
+- `--dir <dpath>`: Project directory name
 - `--no-ts`: Use JavaScript instead of TypeScript
 - `--no-ui`: No UI
 - `--no-add`: Skip installing add-ons
