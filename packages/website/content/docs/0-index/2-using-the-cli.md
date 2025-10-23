@@ -26,7 +26,6 @@ npm create plugma@latest [type?] [framework?] [options]
 - `--framework <name>`: UI framework
 - `--dir <dpath>`: Project directory name
 - `--no-ts`: Use JavaScript instead of TypeScript
-- `--no-ui`: No UI
 - `--no-add`: Skip installing add-ons
 - `--no-install`: Skip installing dependencies
 - `--install <pkg-manager>`: Install dependencies using a specific package manager (npm, yarn, pnpm)

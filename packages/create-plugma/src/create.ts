@@ -335,7 +335,7 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 	// OR when --yes flag is used AND type/framework are provided
 	// BUT NOT when integrations need to be selected (unless --no-add is used)
 	const hasTypeFlag = options.plugin || options.widget;
-	const hasFrameworkFlag = options.framework || options.react || options.svelte || options.vue || options.noUi;
+	const hasFrameworkFlag = options.framework || options.react || options.svelte || options.vue;
 	const needsIntegrationPrompt = !options.noIntegrations && !options.add; // Need to prompt if neither --no-add nor --add is used
 	const shouldUseQuickCreation =
 		Boolean((hasTypeFlag && hasFrameworkFlag && options.dir) || (options.yes && hasTypeFlag && hasFrameworkFlag)) &&
@@ -352,9 +352,7 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 
 	let preSelectedFramework: string | undefined;
 	if (hasFrameworkFlag) {
-		if (options.noUi) {
-			preSelectedFramework = NO_UI_OPTION;
-		} else {
+		{
 			preSelectedFramework = options.framework || 'React';
 			if (options.react) preSelectedFramework = 'React';
 			if (options.svelte) preSelectedFramework = 'Svelte';
@@ -564,8 +562,7 @@ async function browseAndSelectTemplate(
 
 			// Handle --yes flag when type/framework are not provided (prompt for essential choices only)
 			const hasTypeFlag = options.plugin || options.widget;
-			const hasFrameworkFlag =
-				options.framework || options.react || options.svelte || options.vue || options.noUi;
+			const hasFrameworkFlag = options.framework || options.react || options.svelte || options.vue;
 			if (options.yes && (!hasTypeFlag || !hasFrameworkFlag)) {
 				// Use the normal interactive flow but with pre-selected values
 				await completedFields();

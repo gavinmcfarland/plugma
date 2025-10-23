@@ -11,7 +11,6 @@ export interface ParsedCreateArgs {
 	react?: boolean;
 	svelte?: boolean;
 	vue?: boolean;
-	noUi?: boolean;
 	framework?: string;
 	verbose?: boolean;
 	addOns?: string[];
@@ -52,13 +51,9 @@ export function parseCreateArgs(
 			} else if (normalizedFirstArg === 'vue') {
 				enhancedOptions.vue = true;
 				enhancedOptions.framework = 'Vue';
-			} else if (normalizedFirstArg === 'no-ui') {
-				enhancedOptions.noUi = true;
 			} else {
 				console.error(
-					chalk.red(
-						`Invalid argument: "${type}". Expected "plugin", "widget", "react", "svelte", "vue", or "no-ui".`,
-					),
+					chalk.red(`Invalid argument: "${type}". Expected "plugin", "widget", "react", "svelte", or "vue".`),
 				);
 				process.exit(1);
 			}
@@ -77,12 +72,8 @@ export function parseCreateArgs(
 		} else if (normalizedFramework === 'vue') {
 			enhancedOptions.vue = true;
 			enhancedOptions.framework = 'Vue';
-		} else if (normalizedFramework === 'no-ui') {
-			enhancedOptions.noUi = true;
 		} else {
-			console.error(
-				chalk.red(`Invalid framework: "${framework}". Expected "react", "svelte", "vue", or "no-ui".`),
-			);
+			console.error(chalk.red(`Invalid framework: "${framework}". Expected "react", "svelte", or "vue".`));
 			process.exit(1);
 		}
 	}
@@ -100,7 +91,6 @@ export function getCreateExamplesText(commandName: string = 'create-plugma'): st
 	return `
 Examples:
   ${baseCommand} plugin react
-  ${baseCommand} plugin no-ui
   ${baseCommand} widget svelte
   ${baseCommand} react
   ${baseCommand} svelte
@@ -133,7 +123,7 @@ export function defineCreateCommand(
 			? cmd
 			: cmd
 					.argument('[type]', 'Project type: plugin or widget (optional)')
-					.argument('[framework]', 'UI framework: react, svelte, vue, or no-ui (optional)')
+					.argument('[framework]', 'UI framework: react, svelte, or vue (optional)')
 	)
 		.description('Create a new Figma plugin or widget project')
 		.option('--dir <path>', 'Project directory name')

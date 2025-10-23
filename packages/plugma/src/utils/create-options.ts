@@ -82,7 +82,6 @@ export interface CommandOptions {
 		vue?: boolean;
 		template?: string;
 		noTypescript?: boolean;
-		noUi?: boolean;
 		noIntegrations?: boolean;
 		noInstall?: boolean;
 		install?: string;
@@ -179,12 +178,6 @@ export function createOptions<T extends keyof CommandOptions>(
 	if (userOptions.noWebsockets) {
 		userOptions.websockets = false;
 		delete userOptions.noWebsockets;
-	}
-
-	// Handle --no-ui flag (Commander.js converts --no-ui to ui: false)
-	if ('ui' in userOptions && userOptions.ui === false) {
-		userOptions.noUi = true;
-		delete userOptions.ui;
 	}
 
 	// Handle --no-ts flag (Commander.js converts --no-ts to typescript: false)
