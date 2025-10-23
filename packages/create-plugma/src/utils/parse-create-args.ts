@@ -40,8 +40,27 @@ export function parseCreateArgs(
 		} else if (normalizedType === 'widget') {
 			enhancedOptions.widget = true;
 		} else {
-			console.error(chalk.red(`Invalid project type: "${type}". Expected "plugin" or "widget".`));
-			process.exit(1);
+			// If the first argument is not a valid type, check if it's a framework
+			const normalizedFirstArg = normalizedType;
+			if (normalizedFirstArg === 'react') {
+				enhancedOptions.react = true;
+				enhancedOptions.framework = 'React';
+			} else if (normalizedFirstArg === 'svelte') {
+				enhancedOptions.svelte = true;
+				enhancedOptions.framework = 'Svelte';
+			} else if (normalizedFirstArg === 'vue') {
+				enhancedOptions.vue = true;
+				enhancedOptions.framework = 'Vue';
+			} else if (normalizedFirstArg === 'no-ui') {
+				enhancedOptions.noUi = true;
+			} else {
+				console.error(
+					chalk.red(
+						`Invalid argument: "${type}". Expected "plugin", "widget", "react", "svelte", "vue", or "no-ui".`,
+					),
+				);
+				process.exit(1);
+			}
 		}
 	}
 
@@ -82,6 +101,8 @@ Examples:
   ${baseCommand} plugin react
   ${baseCommand} plugin no-ui
   ${baseCommand} widget svelte
+  ${baseCommand} react
+  ${baseCommand} svelte
   ${baseCommand} plugin react --name my-plugin
   ${baseCommand} plugin --template rectangle-creator
   ${baseCommand}
@@ -108,16 +129,16 @@ export function defineCreateCommand(
 		asSubcommand
 			? cmd
 			: cmd
-					.argument('[type]', 'Project type: plugin or widget')
-					.argument('[framework]', 'UI framework: react, svelte, vue, or no-ui')
+					.argument('[type]', 'Project type: plugin or widget (optional)')
+					.argument('[framework]', 'UI framework: react, svelte, vue, or no-ui (optional)')
 	)
 		.description('Create a new Figma plugin or widget project')
 		.option('--name <name>', 'Project name')
 		.option('--template <template>', 'Use a specific template')
-		.option('--no-typescript', 'Use JavaScript instead of TypeScript')
-		.option('--no-add-ons', 'Skip add-ons installation')
+		.option('--no-ts', 'Use JavaScript instead of TypeScript')
+		.option('--no-add', 'Skip add-ons installation')
 		.option('--no-install', 'Skip dependency installation')
-		.option('--skip-prompt', 'Skip showing the Plugma prompt (used internally)')
+		.option('-y, --yes', 'Skip all prompts by accepting defaults')
 		.option('-d, --debug', 'Enable debug mode', debugDefault)
 		.option('--verbose', 'Show detailed integration subtasks')
 		.action(onAction)

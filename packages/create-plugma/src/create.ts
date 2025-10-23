@@ -28,6 +28,19 @@ const CURR_DIR = process.cwd();
 
 // Constants
 const NO_UI_OPTION = 'No UI';
+
+/**
+ * Helper function to safely output messages that works in both interactive and non-interactive modes
+ */
+async function safeNote(message: string): Promise<void> {
+	try {
+		await note(message);
+	} catch {
+		// If note() fails (no askeroo context), fall back to console.log
+		console.log(message);
+	}
+}
+
 const NO_UI_DESCRIPTION = 'no UI';
 
 // Helper to handle cancellation
@@ -259,43 +272,12 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 
 	// Check if we should use quick creation (skip all interactive questions)
 	// This happens when enough flags are provided to determine all requirements
+	// OR when --yes flag is used AND type/framework are provided
 	const hasTypeFlag = options.plugin || options.widget;
 	const hasFrameworkFlag = options.framework || options.react || options.svelte || options.vue || options.noUi;
-
-	// Only use fully quick creation if we have type, framework, AND name specified
-	if (hasTypeFlag && hasFrameworkFlag && options.name) {
-		const type = options.plugin ? 'plugin' : 'widget';
-
-		// Determine framework from various options
-		let framework = options.framework || 'React';
-		if (options.react) framework = 'React';
-		if (options.svelte) framework = 'Svelte';
-		if (options.vue) framework = 'Vue';
-
-		const typescript = !options.noTypescript; // Default to true unless --no-typescript is specified
-
-		// Create project with defaults
-		const detectedPM = await detect({ cwd: process.cwd() });
-		const defaultPM = detectedPM?.agent || 'npm';
-
-		await createProjectFromOptions({
-			type,
-			framework: options.noUi ? NO_UI_OPTION : framework,
-			typescript,
-			name: options.name,
-			directory: CURR_DIR, // Use current directory for quick mode
-			debug: options.debug || false,
-			installAddOns: options.noAddOns ? [] : [], // Skip add-ons in quick mode
-			installDependencies: !options.noInstall,
-			selectedPackageManager: !options.noInstall ? defaultPM : null, // Use detected package manager
-			addOnAnswers: {}, // No add-ons in quick mode
-			preferredPM: defaultPM,
-			skipInstallPrompt: true, // Skip prompt in quick mode
-			verbose: options.verbose,
-		});
-
-		return;
-	}
+	const shouldUseQuickCreation = Boolean(
+		(hasTypeFlag && hasFrameworkFlag && options.name) || (options.yes && hasTypeFlag && hasFrameworkFlag),
+	);
 
 	// Determine pre-selected values from CLI flags
 	const preSelectedType = hasTypeFlag ? (options.plugin ? 'plugin' : 'widget') : undefined;
@@ -315,13 +297,13 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 	// Determine pre-selected TypeScript value from CLI flags
 	let preSelectedTypescript: boolean | undefined;
 	if (options.noTypescript !== undefined) {
-		preSelectedTypescript = !options.noTypescript; // Convert --no-typescript to false
+		preSelectedTypescript = !options.noTypescript; // Convert --no-ts to false
 	}
 
 	// Determine pre-selected add-ons value from CLI flags
 	let preSelectedAddOns: boolean | undefined;
-	if (options.noAddOns !== undefined) {
-		preSelectedAddOns = !options.noAddOns; // Convert --no-add-ons to false
+	if (options.noIntegrations !== undefined) {
+		preSelectedAddOns = !options.noIntegrations; // Convert --no-add to false
 	}
 
 	// Determine pre-selected install dependencies value from CLI flags
@@ -338,6 +320,7 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 		preSelectedTypescript,
 		preSelectedAddOns,
 		preSelectedInstall,
+		shouldUseQuickCreation || false,
 	);
 }
 
@@ -379,12 +362,13 @@ async function browseAndSelectTemplate(
 	preSelectedTypescript?: boolean,
 	preSelectedAddOns?: boolean,
 	preSelectedInstall?: boolean,
+	shouldUseQuickCreation?: boolean,
 ): Promise<void> {
 	const allExamples = getAvailableExamples();
 	const visibleExamples = allExamples.filter((example) => !example.metadata.hidden);
 
 	if (visibleExamples.length === 0) {
-		await note(chalk.red('No templates available.'));
+		await safeNote(chalk.red('No templates available.'));
 		process.exit(1);
 	}
 
@@ -427,6 +411,163 @@ async function browseAndSelectTemplate(
 	// Run the interactive flow
 	const result = await ask(
 		async () => {
+			// Handle quick creation (--yes flag with type/framework provided, or all required flags provided)
+			if (shouldUseQuickCreation) {
+				const type = preSelectedType || 'plugin'; // Default to plugin
+				const framework = preSelectedFramework || 'React'; // Default to React
+				const typescript = preSelectedTypescript !== undefined ? preSelectedTypescript : true; // Default to true
+				const name = options.name || 'my-plugin'; // Default name when --yes is used
+
+				// Detect user's preferred package manager early
+				const detectedPM = await detect({ cwd: process.cwd() });
+				const defaultPM = detectedPM?.agent || 'npm';
+
+				await createProjectFromOptions({
+					type,
+					framework,
+					typescript,
+					name,
+					directory: CURR_DIR, // Use current directory for quick mode
+					debug: options.debug || false,
+					installAddOns: preSelectedAddOns === false ? [] : [], // Skip add-ons if --no-add is used
+					installDependencies: preSelectedInstall !== false, // Install unless --no-install is used
+					selectedPackageManager: preSelectedInstall !== false ? defaultPM : null, // Use detected package manager
+					addOnAnswers: {}, // No add-ons in quick mode
+					preferredPM: defaultPM,
+					skipInstallPrompt: true, // Skip prompt in quick mode
+					verbose: options.verbose,
+				});
+
+				return;
+			}
+
+			// Handle --yes flag when type/framework are not provided (prompt for essential choices only)
+			const hasTypeFlag = options.plugin || options.widget;
+			const hasFrameworkFlag =
+				options.framework || options.react || options.svelte || options.vue || options.noUi;
+			if (options.yes && (!hasTypeFlag || !hasFrameworkFlag)) {
+				// Use the normal interactive flow but with pre-selected values
+				await showCreatePlugmaPrompt();
+
+				await completedFields();
+
+				const answers = await group(
+					async () => {
+						// Type selection (required when not provided)
+						let selectedType: string;
+						if (preSelectedType) {
+							selectedType = preSelectedType;
+						} else {
+							const availableTypes = Array.from(
+								new Set(visibleExamples.map((example) => example.metadata.type).filter(Boolean)),
+							).sort((a, b) => {
+								if (a === 'plugin') return -1;
+								if (b === 'plugin') return 1;
+								return a!.localeCompare(b!);
+							});
+
+							if (availableTypes.length === 0) {
+								throw new Error('No valid template types found.');
+							}
+
+							selectedType = await radio({
+								label: 'Choose what to create:',
+								shortLabel: 'Type',
+								options: availableTypes.map((type) => ({
+									value: type!,
+									label: type!.charAt(0).toUpperCase() + type!.slice(1),
+								})),
+							});
+						}
+
+						// Filter templates by selected type
+						const typeFilteredExamples = visibleExamples.filter(
+							(example) => example.metadata.type === selectedType,
+						);
+
+						if (typeFilteredExamples.length === 0) {
+							throw new Error(`No templates available for ${selectedType}.`);
+						}
+
+						// Framework selection (required when not provided)
+						let selectedFramework: string;
+						if (preSelectedFramework) {
+							selectedFramework = preSelectedFramework;
+						} else {
+							const availableFrameworks = getAvailableFrameworks(typeFilteredExamples);
+							const hasNoUIExamples = typeFilteredExamples.some(
+								(example) => !exampleHasUI(example.metadata),
+							);
+
+							const frameworkOptions = [
+								...availableFrameworks.map((framework) => {
+									const fwLower = framework.toLowerCase();
+									let color: string | undefined;
+									if (fwLower === 'react') color = 'red';
+									else if (fwLower === 'svelte') color = 'yellow';
+									else if (fwLower === 'vue') color = 'green';
+
+									return {
+										value: framework,
+										label: framework.charAt(0).toUpperCase() + framework.slice(1),
+										color,
+									};
+								}),
+								...(hasNoUIExamples ? [{ value: NO_UI_OPTION, label: NO_UI_OPTION }] : []),
+							];
+
+							if (frameworkOptions.length === 1) {
+								selectedFramework = frameworkOptions[0].value;
+							} else {
+								selectedFramework = await radio({
+									label: 'Select a framework for your UI:',
+									shortLabel: 'Framework',
+									options: frameworkOptions,
+								});
+							}
+						}
+
+						// Use defaults for other options when --yes is used
+						const typescript = preSelectedTypescript !== undefined ? preSelectedTypescript : true;
+						const name = options.name || 'my-plugin';
+						const installDependencies = preSelectedInstall !== false;
+
+						return {
+							type: selectedType,
+							selectedFramework,
+							typescript,
+							projectName: name,
+							projectDirectory: CURR_DIR,
+							installDependencies,
+							needsUI: selectedFramework !== NO_UI_OPTION,
+						};
+					},
+					{ flow: 'phased', hideOnCompletion: true },
+				);
+
+				// Create the project with minimal prompts
+				const detectedPM = await detect({ cwd: process.cwd() });
+				const defaultPM = detectedPM?.agent || 'npm';
+
+				await createProjectFromOptions({
+					type: answers.type,
+					framework: answers.needsUI ? answers.selectedFramework : NO_UI_OPTION,
+					typescript: answers.typescript,
+					name: answers.projectName,
+					directory: answers.projectDirectory,
+					debug: options.debug || false,
+					installAddOns: preSelectedAddOns === false ? [] : [], // Skip add-ons when --yes is used
+					installDependencies: answers.installDependencies,
+					selectedPackageManager: answers.installDependencies ? defaultPM : null,
+					addOnAnswers: {}, // No add-ons when --yes is used
+					preferredPM: defaultPM,
+					skipInstallPrompt: true, // Skip install prompt when --yes is used
+					verbose: options.verbose,
+				});
+
+				return;
+			}
+
 			await showCreatePlugmaPrompt();
 
 			await completedFields();
@@ -803,7 +944,7 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 				},
 				{
 					onCancel: async () => {
-						await note(chalk.gray('Operation cancelled.'));
+						await safeNote(chalk.gray('Operation cancelled.'));
 						process.exit(0);
 					},
 				},
@@ -865,7 +1006,7 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 			directory: CURR_DIR, // Use current directory for quick mode
 			selectedExample: selectedTemplate,
 			debug: options.debug || false,
-			installAddOns: options.noAddOns ? [] : [], // Skip add-ons in quick mode
+			installAddOns: options.noIntegrations ? [] : [], // Skip add-ons in quick mode
 			installDependencies: !options.noInstall,
 			selectedPackageManager: !options.noInstall ? defaultPM : null, // Use detected package manager
 			addOnAnswers: {}, // No add-ons in quick mode
@@ -1084,7 +1225,9 @@ async function createProjectFromOptions(params: {
 	try {
 		await tasks(tasksList, { concurrent: false });
 	} catch (error) {
-		await note(chalk.red('Error creating project: ' + (error instanceof Error ? error.message : String(error))));
+		await safeNote(
+			chalk.red('Error creating project: ' + (error instanceof Error ? error.message : String(error))),
+		);
 		process.exit(1);
 	}
 
@@ -1155,10 +1298,10 @@ async function createProjectFromOptions(params: {
 
 	const successMessage = nextStepsLines.join('\n');
 
-	await note(successMessage);
+	await safeNote(successMessage);
 
 	// Show dependency installation error after success message if installation failed
 	if (dependencyInstallationFailed) {
-		await note(chalk.yellow('Warning: Failed to install dependencies, but project was created successfully.'));
+		await safeNote(chalk.yellow('Warning: Failed to install dependencies, but project was created successfully.'));
 	}
 }

@@ -83,8 +83,9 @@ export interface CommandOptions {
 		template?: string;
 		noTypescript?: boolean;
 		noUi?: boolean;
-		noAddOns?: boolean;
+		noIntegrations?: boolean;
 		noInstall?: boolean;
+		yes?: boolean;
 	};
 }
 
@@ -185,15 +186,15 @@ export function createOptions<T extends keyof CommandOptions>(
 		delete userOptions.ui;
 	}
 
-	// Handle --no-typescript flag (Commander.js converts --no-typescript to typescript: false)
+	// Handle --no-ts flag (Commander.js converts --no-ts to typescript: false)
 	if ('typescript' in userOptions && userOptions.typescript === false) {
 		userOptions.noTypescript = true;
 		delete userOptions.typescript;
 	}
 
-	// Handle --no-add-ons flag (Commander.js converts --no-add-ons to addOns: false)
+	// Handle --no-add flag (Commander.js converts --no-add to addOns: false)
 	if ('addOns' in userOptions && userOptions.addOns === false) {
-		userOptions.noAddOns = true;
+		userOptions.noIntegrations = true;
 		delete userOptions.addOns;
 	}
 

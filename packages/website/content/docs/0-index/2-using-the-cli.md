@@ -27,8 +27,9 @@ npm create plugma@latest [type?] [framework?] [options]
 - `--name <name>`: Project name
 - `--no-ts`: Use JavaScript instead of TypeScript
 - `--no-ui`: No UI
-- `--no-add-ons`: Skip installing add-ons
+- `--no-add`: Skip installing add-ons
 - `--no-install`: Skip installing dependencies
+- `-y, --yes`: Skip all prompts by accepting defaults (still prompts for type and framework if not provided)
 - `--install <pkg-manager>`: Install dependencies using a certain package manager
 
 ##### Example
@@ -39,6 +40,15 @@ npm create plugma@latest -- plugin react --yes
 
 # Create a widget using JavaScript with no UI using the defaults
 npm create plugma@latest -- widget --yes --no-ts
+
+# Skip most prompts but still ask for type and framework
+npm create plugma@latest -- --yes
+
+# Skip all prompts when type and framework are provided
+npm create plugma@latest -- plugin react --yes
+
+# Create with just framework (type will be prompted)
+npm create plugma@latest -- svelte --yes
 ```
 
 </details>

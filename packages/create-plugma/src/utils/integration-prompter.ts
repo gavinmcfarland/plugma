@@ -299,7 +299,7 @@ export async function promptForIntegrations(
 	let selectedIntegrations: string[] = [];
 
 	if (preSelectedIntegration === false) {
-		// Explicitly skipped (from --no-add-ons flag)
+		// Explicitly skipped (from --no-add flag)
 		selectedIntegrations = [];
 	} else if (typeof preSelectedIntegration === 'string') {
 		// Single pre-selected integration (from CLI)
