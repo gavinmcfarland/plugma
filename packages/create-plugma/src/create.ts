@@ -25,6 +25,70 @@ import { detect } from 'package-manager-detector/detect';
 import { showCreatePlugmaPrompt } from './utils/show-prompt.js';
 
 /**
+ * Determine install behavior based on CLI flags
+ * Returns: { skipInstallPrompt: boolean, installDependencies: boolean, selectedPackageManager: string | null }
+ */
+function determineInstallBehavior(options: CreateCommandOptions, defaultPM: string) {
+	if (options.debug) {
+		console.log(
+			`Debug: determineInstallBehavior called with options.noInstall=${options.noInstall}, options.install=${options.install}, options.yes=${options.yes}, defaultPM=${defaultPM}`,
+		);
+	}
+
+	// --no-install: Don't show prompt, don't install
+	if (options.noInstall) {
+		return {
+			skipInstallPrompt: true,
+			installDependencies: false,
+			selectedPackageManager: null,
+		};
+	}
+
+	// --install <pkg-manager>: Don't show prompt, install with specified package manager
+	if (options.install && typeof options.install === 'string') {
+		return {
+			skipInstallPrompt: true,
+			installDependencies: true,
+			selectedPackageManager: options.install,
+		};
+	}
+
+	// --install (no package manager): Don't show prompt, install with detected package manager
+	if (options.install === true) {
+		return {
+			skipInstallPrompt: true,
+			installDependencies: true,
+			selectedPackageManager: defaultPM,
+		};
+	}
+
+	// --yes: Don't show prompt, install with detected package manager
+	if (options.yes) {
+		return {
+			skipInstallPrompt: true,
+			installDependencies: true,
+			selectedPackageManager: defaultPM,
+		};
+	}
+
+	// No --install flag provided: Show prompt, let user decide
+	if (options.install === undefined) {
+		return {
+			skipInstallPrompt: false,
+			installDependencies: true, // This will be overridden by user choice in the prompt
+			selectedPackageManager: null,
+		};
+	}
+
+	// Default: Show prompt, let user decide
+	return {
+		skipInstallPrompt: false,
+		installDependencies: true, // This will be overridden by user choice in the prompt
+		selectedPackageManager: null,
+	};
+}
+
+/**
  * Convert directory name to display format
  * my-plugin -> My Plugin
  */
@@ -336,7 +400,7 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 	// BUT NOT when integrations need to be selected (unless --no-add is used)
 	const hasTypeFlag = options.plugin || options.widget;
 	const hasFrameworkFlag = options.framework || options.react || options.svelte || options.vue;
-	const needsIntegrationPrompt = !options.noIntegrations && !options.add; // Need to prompt if neither --no-add nor --add is used
+	const needsIntegrationPrompt = options.add === undefined; // Need to prompt if no add flag is used
 	const shouldUseQuickCreation =
 		Boolean((hasTypeFlag && hasFrameworkFlag && options.dir) || (options.yes && hasTypeFlag && hasFrameworkFlag)) &&
 		!needsIntegrationPrompt; // Don't use quick creation if we need to prompt for integrations
@@ -368,10 +432,24 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 
 	// Determine pre-selected add-ons value from CLI flags
 	let preSelectedAddOns: boolean | string[] | undefined;
-	if (options.noIntegrations !== undefined) {
-		preSelectedAddOns = !options.noIntegrations; // Convert --no-add to false
+	if (options.add === false) {
+		preSelectedAddOns = false; // --no-add was used
+		if (options.debug) {
+			console.log(
+				`Debug: --no-add flag processing: options.add=${options.add}, preSelectedAddOns=${preSelectedAddOns}`,
+			);
+		}
 	} else if (options.add !== undefined && Array.isArray(options.add)) {
 		preSelectedAddOns = options.add; // Use --add flag values (only if it's an array)
+		if (options.debug) {
+			console.log(
+				`Debug: --add flag processing: options.add=${options.add}, preSelectedAddOns=${preSelectedAddOns}`,
+			);
+		}
+	} else {
+		if (options.debug) {
+			console.log(`Debug: No add-ons flags: options.add=${options.add}, preSelectedAddOns=${preSelectedAddOns}`);
+		}
 	}
 
 	// Determine pre-selected install dependencies value from CLI flags
@@ -519,6 +597,9 @@ async function browseAndSelectTemplate(
 				const detectedPM = await detect({ cwd: process.cwd() });
 				const defaultPM = detectedPM?.agent || 'npm';
 
+				// Determine install behavior based on CLI flags
+				const installBehavior = determineInstallBehavior(options, defaultPM);
+
 				// Handle integrations for quick mode
 				let addOnResults: any[] = [];
 				let addOnDeps: any = { dependencies: new Set<string>(), devDependencies: new Set<string>() };
@@ -549,18 +630,11 @@ async function browseAndSelectTemplate(
 						preSelectedAddOns === false ? [] : Array.isArray(preSelectedAddOns) ? preSelectedAddOns : [], // Use --add flag values or skip if --no-add
 					addOnResults,
 					addOnDeps,
-					installDependencies: preSelectedInstall === undefined ? true : preSelectedInstall, // Install unless --no-install is used
-					selectedPackageManager:
-						preSelectedInstall !== false
-							? typeof options.install === 'string'
-								? options.install
-								: options.install === true
-									? defaultPM
-									: null
-							: null, // Use specified package manager or detected one when --install is used without package manager
+					installDependencies: installBehavior.installDependencies,
+					selectedPackageManager: installBehavior.selectedPackageManager,
 					addOnAnswers,
 					preferredPM: defaultPM,
-					skipInstallPrompt: true, // Skip prompt in quick mode
+					skipInstallPrompt: installBehavior.skipInstallPrompt,
 					verbose: options.verbose,
 				});
 
@@ -661,7 +735,12 @@ async function browseAndSelectTemplate(
 									selectedFramework !== NO_UI_OPTION,
 								),
 							));
-						const installDependencies = preSelectedInstall === undefined ? true : preSelectedInstall;
+						const installDependencies =
+							preSelectedInstall === undefined
+								? preSelectedAddOns === false && !options.yes
+									? false
+									: true
+								: preSelectedInstall;
 
 						return {
 							type: selectedType,
@@ -681,6 +760,9 @@ async function browseAndSelectTemplate(
 				// Create the project with minimal prompts
 				const detectedPM = await detect({ cwd: process.cwd() });
 				const defaultPM = detectedPM?.agent || 'npm';
+
+				// Determine install behavior based on CLI flags
+				const installBehavior = determineInstallBehavior(options, defaultPM);
 
 				// Handle integrations for quick mode
 				let addOnResults: any[] = [];
@@ -712,16 +794,11 @@ async function browseAndSelectTemplate(
 						preSelectedAddOns === false ? [] : Array.isArray(preSelectedAddOns) ? preSelectedAddOns : [], // Use --add flag values or skip when --yes is used
 					addOnResults,
 					addOnDeps,
-					installDependencies:
-						preSelectedInstall === undefined ? answers.installDependencies : preSelectedInstall,
-					selectedPackageManager: (
-						preSelectedInstall === undefined ? answers.installDependencies : preSelectedInstall
-					)
-						? options.install || defaultPM
-						: null,
+					installDependencies: installBehavior.installDependencies,
+					selectedPackageManager: installBehavior.selectedPackageManager,
 					addOnAnswers,
 					preferredPM: defaultPM,
-					skipInstallPrompt: true, // Skip install prompt when --yes is used
+					skipInstallPrompt: installBehavior.skipInstallPrompt,
 					verbose: options.verbose,
 				});
 
@@ -991,6 +1068,12 @@ async function browseAndSelectTemplate(
 				{ flow: 'phased', hideOnCompletion: true },
 			);
 
+			// Determine install behavior based on CLI flags
+			const installBehavior = determineInstallBehavior(options, preferredPM);
+			if (options.debug) {
+				console.log(`Debug: determineInstallBehavior result:`, installBehavior);
+			}
+
 			// Create the project with tasks
 			await createProjectFromOptions({
 				type: answers.type,
@@ -1004,18 +1087,11 @@ async function browseAndSelectTemplate(
 				installAddOns: answers.selectedAddOns,
 				addOnResults: answers.addOnResults,
 				addOnDeps: answers.addOnDeps,
-				installDependencies: preSelectedInstall === undefined ? true : preSelectedInstall,
-				selectedPackageManager:
-					preSelectedInstall !== false
-						? typeof options.install === 'string'
-							? options.install
-							: options.install === true
-								? preferredPM
-								: null
-						: null, // Use specified package manager or detected one when --install is used without package manager
+				installDependencies: installBehavior.installDependencies,
+				selectedPackageManager: installBehavior.selectedPackageManager,
 				addOnAnswers: answers.addOnAnswers,
 				preferredPM,
-				skipInstallPrompt: preSelectedInstall === false || Boolean(options.install), // Skip prompt if --no-install or --install specified
+				skipInstallPrompt: installBehavior.skipInstallPrompt,
 				verbose: options.verbose,
 			});
 		},
@@ -1164,6 +1240,9 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 		const detectedPM = await detect({ cwd: process.cwd() });
 		const defaultPM = detectedPM?.agent || 'npm';
 
+		// Determine install behavior based on CLI flags
+		const installBehavior = determineInstallBehavior(options, defaultPM);
+
 		// Handle integrations for template-based quick mode
 		let addOnResults: any[] = [];
 		let addOnDeps: any = { dependencies: new Set<string>(), devDependencies: new Set<string>() };
@@ -1194,17 +1273,11 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 			installAddOns: options.noIntegrations ? [] : options.add || [], // Use --add flag values or skip if --no-add
 			addOnResults,
 			addOnDeps,
-			installDependencies: !options.noInstall,
-			selectedPackageManager: !options.noInstall
-				? typeof options.install === 'string'
-					? options.install
-					: options.install === true
-						? defaultPM
-						: null
-				: null, // Use specified package manager or detected one when --install is used without package manager
+			installDependencies: installBehavior.installDependencies,
+			selectedPackageManager: installBehavior.selectedPackageManager,
 			addOnAnswers,
 			preferredPM: defaultPM,
-			skipInstallPrompt: true, // Skip prompt when using --template
+			skipInstallPrompt: installBehavior.skipInstallPrompt,
 			verbose: options.verbose,
 		});
 	} catch (error) {

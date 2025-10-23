@@ -131,11 +131,11 @@ export function defineCreateCommand(
 		.option('--no-ts', 'Use JavaScript instead of TypeScript')
 		.option('--no-add', 'Skip add integrations')
 		.option('--add <integrations...>', 'Add specific integrations (e.g., --add tailwind shadcn vitest)')
-		.option('--no-install', 'Skip dependency installation')
 		.option(
 			'--install [pkg-manager]',
 			'Install dependencies using a specific package manager (npm, yarn, pnpm) or use detected package manager if none specified',
 		)
+		.option('--no-install', 'Skip dependency installation')
 		.option('-y, --yes', 'Skip all prompts by accepting defaults')
 		.option('-d, --debug', 'Enable debug mode', debugDefault)
 		.option('--verbose', 'Show detailed integration subtasks')

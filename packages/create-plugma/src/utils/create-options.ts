@@ -72,7 +72,7 @@ export interface CommandOptions {
 		integration?: string | string[];
 		verbose?: boolean;
 		noInstall?: boolean;
-		install?: string;
+		install?: string | boolean;
 	};
 	create: MinimalBaseOptions & {
 		command: 'create';
@@ -86,9 +86,9 @@ export interface CommandOptions {
 		template?: string;
 		noTypescript?: boolean;
 		noIntegrations?: boolean;
-		add?: string[];
+		add?: string[] | false;
 		noInstall?: boolean;
-		install?: string;
+		install?: string | boolean;
 		yes?: boolean;
 		verbose?: boolean;
 	};
@@ -191,10 +191,10 @@ export function createOptions<T extends keyof CommandOptions>(
 		delete userOptions.typescript;
 	}
 
-	// Handle --no-add flag (Commander.js converts --no-add to addOns: false)
-	if ('addOns' in userOptions && userOptions.addOns === false) {
-		userOptions.noIntegrations = true;
-		delete userOptions.addOns;
+	// Handle --no-add flag (Commander.js converts --no-add to add: false)
+	if ('add' in userOptions && userOptions.add === false) {
+		// Keep add: false as is - we'll use this to detect --no-add
+		// Don't delete it, we need it for the create logic
 	}
 
 	// Handle --add flag (Commander.js converts --add to add: string[])
