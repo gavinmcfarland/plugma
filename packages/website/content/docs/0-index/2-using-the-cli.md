@@ -2,15 +2,6 @@
 
 Plugma comes with a Command Line Interface that supports the following commands.
 
-<blockquote class="info">
-When using the commands with `npm run` you need to pass the arguments with a double dash `--`, for example:
-
-```package-manager
-npm run dev -- -p 3000
-```
-
-</blockquote>
-
 ## Commands
 
 <details>
@@ -25,8 +16,8 @@ Walks you through creating a Figma plugin or widget.
 
 ##### Usage
 
-```bash
-plugma create [type?] [framework?] [options]
+```package-manager
+npm create plugma@latest [type?] [framework?] [options]
 ```
 
 ##### Options
@@ -42,12 +33,12 @@ plugma create [type?] [framework?] [options]
 
 ##### Example
 
-```bash
+```package-manager
 # Create a react plugin with the defaults
-plugma create plugin react --yes
+npm create plugma@latest -- plugin react --yes
 
 # Create a widget using JavaScript with no UI using the defaults
-plugma create widget --yes --no-ts
+npm create plugma@latest -- widget --yes --no-ts
 ```
 
 </details>
@@ -64,8 +55,8 @@ Start a server to develop your plugin. This command builds the `ui.html` and poi
 
 ##### Usage
 
-```bash
-plugma dev [options]
+```package-manager
+npm run dev [options]
 ```
 
 ##### Options
@@ -78,9 +69,9 @@ plugma dev [options]
 
 ##### Example
 
-```bash
+```package-manager
 # Start development server on port 3000
-plugma dev -p 3000
+npm run dev -- -p 3000
 ```
 
 </details>
@@ -128,8 +119,8 @@ Create a build before publishing. This command compiles and bundles your plugin,
 
 ##### Usage
 
-```bash
-plugma build [options]
+```package-manager
+npm run build [options]
 ```
 
 ##### Options
@@ -140,12 +131,12 @@ plugma build [options]
 
 ##### Example
 
-```bash
+```package-manager
 # Build the plugin
-plugma build
+npm run build
 
 # Build and watch for changes
-plugma build -w
+npm run build -- -w
 ```
 
 </details>
@@ -160,8 +151,8 @@ plugma build -w
 
 Build the plugin and release to GitHub. This command automates creating a new GitHub release with your latest changes. If no version is specified, it will automatically update the `plugma.pluginVersion` field in `package.json`.
 
-```bash
-plugma release [version] [options]
+```package-manager
+npm run release [version] [options]
 ```
 
 ##### Version
@@ -177,18 +168,18 @@ plugma release [version] [options]
 
 ##### Example
 
-```bash
+```package-manager
 # Increment the next stable version
-plugma release
+npm run release
 
 # Release a beta version with custom title and notes
-plugma release beta -t "New feature" -n "This release includes new features X and Y"
+npm run release -- beta -t "New feature" -n "This release includes new features X and Y"
 
 # Release with a custom prefix (creates tag: figma-plugin@1)
-plugma release --prefix "figma-plugin" --title "Plugin Release"
+npm run release -- --prefix "figma-plugin" --title "Plugin Release"
 
 # Release alpha version with custom prefix (creates tag: plugin@2-alpha.0)
-plugma release alpha --prefix "plugin" --title "Alpha Release"
+npm run release -- alpha --prefix "plugin" --title "Alpha Release"
 ```
 
 </details>
@@ -205,8 +196,8 @@ Adds support for various integrations to your project, including testing framewo
 
 ##### Usage
 
-```bash
-plugma add
+```package-manager
+npm create plugma@latest add
 ```
 
 ##### Integration

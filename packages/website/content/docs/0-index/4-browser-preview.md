@@ -2,7 +2,11 @@
 
 Plugma enables your plugin UI to run in the browser during development by using WebSockets for two-way communication between Figma and the plugin UI. Developing Figma plugins traditionally requires testing within the Figma desktop app, which has several limitations. Browser preview changes this by allowing you to develop and test your plugin in any browser while maintaining full communication with Figma.
 
-To preview your plugin UI make sure your plugin is open in Figma and the development server running with `npm run dev`. You can access the URL preview from the terminal or via the built in developer toolbar.
+To preview your plugin UI make sure your plugin is open in Figma and the development server running with the following command. You can access the URL preview from the terminal or via the built in developer toolbar.
+
+```package-manager
+npm run dev
+```
 
 <blockquote class="warning">
 If the plugin runs before the browser preview is open, any messages sent from the main thread at that time might be missed. To prevent this, wait for a "ready" message from the UI before sending messages.

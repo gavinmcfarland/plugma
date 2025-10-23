@@ -8,7 +8,7 @@ This guide outlines the steps to update your Figma plugin to work seamlessly wit
 
 Add Plugma as a dependency in your project.
 
-```bash
+```package-manager
 npm install plugma@latest
 ```
 
@@ -66,7 +66,7 @@ If you have an `index.html` file either remove it or update it to include the `<
 
 If your project uses TypeScript, install the necessary type definitions for Figma
 
-```bash
+```package-manager
 npm install @figma/plugin-typings
 ```
 
@@ -121,7 +121,7 @@ export default defineConfig((context) => {
 
 Run the `build` command to create a `dist` folder with it's own `manifest.json` file, and import it using the Figma desktop app.
 
-```bash
+```package-manager
 npm run build
 ```
 

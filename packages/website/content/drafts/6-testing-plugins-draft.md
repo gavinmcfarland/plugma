@@ -3,7 +3,12 @@
 Testing is an important part of plugin development. Traditionally, this can be hard to accomplish. However, with Plugma, you can test your plugin using various tools.
 
 <blockquote class="warning">
-This is a work in progress and the implementation may change. You can also test the UI end-to-end using Playwright by running `npm init playwright@latest`, following the instructions and making sure the dev server is running with websockets enabled before running any tests.
+This is a work in progress and the implementation may change. You can also test the UI end-to-end using Playwright by running the following command, following the instructions and making sure the dev server is running with websockets enabled before running any tests.
+
+```package-manager
+npm init playwright@latest
+```
+
 </blockquote>
 
 ## Unit testing the main code
@@ -61,13 +66,13 @@ npx plugma init-test
 
 First, start the dev server in one terminal.
 
-```bash
+```package-manager
 npm run dev
 ```
 
 Then, in another terminal, run:
 
-```bash
+```package-manager
 npm run test
 ```
 

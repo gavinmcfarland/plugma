@@ -67,9 +67,11 @@ test('creates a rectangle with specific color', async () => {
 
 1. Open your plugin in the Figma desktop app
 2. Start the dev server with WebSockets enabled:
-    ```bash
-    npm run dev -- -ws
-    ```
+
+```package-manager
+npm run dev -- -ws
+```
+
 3. Run the tests:
     ```bash
     npx vitest
@@ -142,9 +144,11 @@ Currently, all functions that are required for Figma must be included in the mai
 ### Running E2E Tests
 
 1. Start the Plugma dev server with WebSocket support and a fixed port:
-    ```bash
-    npm run dev -- -ws -p 4000
-    ```
+
+```package-manager
+npm run dev -- -ws -p 4000
+```
+
 2. With your plugin open in the Figma desktop app, run:
     ```bash
     npx playwright test
