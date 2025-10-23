@@ -29,8 +29,8 @@ npm create plugma@latest [type?] [framework?] [options]
 - `--no-ui`: No UI
 - `--no-add`: Skip installing add-ons
 - `--no-install`: Skip installing dependencies
+- `--install <pkg-manager>`: Install dependencies using a specific package manager (npm, yarn, pnpm)
 - `-y, --yes`: Skip all prompts by accepting defaults (still prompts for type and framework if not provided). Requires an empty directory when creating in current directory.
-- `--install <pkg-manager>`: Install dependencies using a certain package manager
 
 ##### Example
 
@@ -52,6 +52,12 @@ npm create plugma@latest -- svelte --yes
 
 # Create with custom directory name
 npm create plugma@latest -- plugin react --dir my-custom-plugin
+
+# Install with specific package manager
+npm create plugma@latest -- plugin react --install pnpm
+
+# Install with yarn
+npm create plugma@latest -- widget svelte --install yarn
 
 # Note: --yes requires an empty directory when creating in current directory
 # If directory is not empty, you'll get an error message

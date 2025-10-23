@@ -86,6 +86,7 @@ export interface CommandOptions {
 		noUi?: boolean;
 		noIntegrations?: boolean;
 		noInstall?: boolean;
+		install?: string;
 		yes?: boolean;
 		skipPrompt?: boolean;
 		verbose?: boolean;
@@ -204,6 +205,19 @@ export function createOptions<T extends keyof CommandOptions>(
 	// Handle --no-install flag (Commander.js converts --no-install to install: false)
 	if ('install' in userOptions && userOptions.install === false) {
 		userOptions.noInstall = true;
+		delete userOptions.install;
+	}
+
+	// Handle --install <pkg-manager> flag
+	if ('install' in userOptions && typeof userOptions.install === 'string') {
+		// Keep the install option as is - it contains the package manager name
+		// Don't delete it, we need it for the create logic
+	}
+
+	// Handle default install: true (from --no-install option)
+	// When neither --install nor --no-install is used, Commander.js sets install to true
+	// We need to convert this to undefined so it doesn't interfere with package manager selection
+	if ('install' in userOptions && userOptions.install === true) {
 		delete userOptions.install;
 	}
 

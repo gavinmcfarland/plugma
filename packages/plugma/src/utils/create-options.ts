@@ -85,6 +85,7 @@ export interface CommandOptions {
 		noUi?: boolean;
 		noIntegrations?: boolean;
 		noInstall?: boolean;
+		install?: string;
 		yes?: boolean;
 	};
 }
@@ -202,6 +203,12 @@ export function createOptions<T extends keyof CommandOptions>(
 	if ('install' in userOptions && userOptions.install === false) {
 		userOptions.noInstall = true;
 		delete userOptions.install;
+	}
+
+	// Handle --install <pkg-manager> flag
+	if ('install' in userOptions && typeof userOptions.install === 'string') {
+		// Keep the install option as is - it contains the package manager name
+		// Don't delete it, we need it for the create logic
 	}
 
 	const newOptions = new Options(userOptions, requiredDefaults) as CommandOptions[T] & OptionsWithMeta;

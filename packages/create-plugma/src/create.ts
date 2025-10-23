@@ -339,6 +339,12 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 		(hasTypeFlag && hasFrameworkFlag && options.dir) || (options.yes && hasTypeFlag && hasFrameworkFlag),
 	);
 
+	if (options.debug) {
+		console.log(
+			`Debug: shouldUseQuickCreation=${shouldUseQuickCreation}, hasTypeFlag=${hasTypeFlag}, hasFrameworkFlag=${hasFrameworkFlag}, options.dir=${options.dir}, options.yes=${options.yes}`,
+		);
+	}
+
 	// Determine pre-selected values from CLI flags
 	const preSelectedType = hasTypeFlag ? (options.plugin ? 'plugin' : 'widget') : undefined;
 
@@ -515,12 +521,13 @@ async function browseAndSelectTemplate(
 					type,
 					framework,
 					typescript,
-					name: formatProjectName(projectDir),
-					directory: path.join(CURR_DIR, projectDir), // Use actual project directory
+					name: formatProjectName(projectDir), // Formatted name for templates
+					projectDir, // Raw directory name for file system
+					directory: CURR_DIR, // Use current directory as parent
 					debug: options.debug || false,
 					installAddOns: preSelectedAddOns === false ? [] : [], // Skip add-ons if --no-add is used
-					installDependencies: preSelectedInstall !== false, // Install unless --no-install is used
-					selectedPackageManager: preSelectedInstall !== false ? defaultPM : null, // Use detected package manager
+					installDependencies: preSelectedInstall === undefined ? true : preSelectedInstall, // Install unless --no-install is used
+					selectedPackageManager: preSelectedInstall !== false ? options.install || defaultPM : null, // Use specified or detected package manager
 					addOnAnswers: {}, // No add-ons in quick mode
 					preferredPM: defaultPM,
 					skipInstallPrompt: true, // Skip prompt in quick mode
@@ -625,7 +632,7 @@ async function browseAndSelectTemplate(
 									selectedFramework !== NO_UI_OPTION,
 								),
 							));
-						const installDependencies = preSelectedInstall !== false;
+						const installDependencies = preSelectedInstall === undefined ? true : preSelectedInstall;
 
 						return {
 							type: selectedType,
@@ -650,12 +657,18 @@ async function browseAndSelectTemplate(
 					type: answers.type,
 					framework: answers.needsUI ? answers.selectedFramework : NO_UI_OPTION,
 					typescript: answers.typescript,
-					name: formatProjectName(answers.projectName), // Format for display
-					directory: path.join(CURR_DIR, answers.projectName), // Use raw directory name for path
+					name: formatProjectName(answers.projectName), // Formatted name for templates
+					projectDir: answers.projectName, // Raw directory name for file system
+					directory: CURR_DIR, // Use current directory as parent
 					debug: options.debug || false,
 					installAddOns: preSelectedAddOns === false ? [] : [], // Skip add-ons when --yes is used
-					installDependencies: answers.installDependencies,
-					selectedPackageManager: answers.installDependencies ? defaultPM : null,
+					installDependencies:
+						preSelectedInstall === undefined ? answers.installDependencies : preSelectedInstall,
+					selectedPackageManager: (
+						preSelectedInstall === undefined ? answers.installDependencies : preSelectedInstall
+					)
+						? options.install || defaultPM
+						: null,
 					addOnAnswers: {}, // No add-ons when --yes is used
 					preferredPM: defaultPM,
 					skipInstallPrompt: true, // Skip install prompt when --yes is used
@@ -933,18 +946,19 @@ async function browseAndSelectTemplate(
 				type: answers.type,
 				framework: answers.needsUI ? answers.selectedFramework : NO_UI_OPTION,
 				typescript: answers.typescript,
-				name: formatProjectName(answers.projectName), // Format for display
+				name: formatProjectName(answers.projectName), // Formatted name for templates
+				projectDir: answers.projectName, // Raw directory name for file system
 				directory: answers.projectDirectory, // Use raw directory path
 				selectedExample: answers.selectedTemplate,
 				debug: options.debug || false,
 				installAddOns: answers.selectedAddOns,
 				addOnResults: answers.addOnResults,
 				addOnDeps: answers.addOnDeps,
-				installDependencies: preSelectedInstall !== false,
-				selectedPackageManager: null, // Will be prompted after tasks
+				installDependencies: preSelectedInstall === undefined ? true : preSelectedInstall,
+				selectedPackageManager: options.install || preferredPM, // Use specified package manager or detected one
 				addOnAnswers: answers.addOnAnswers,
 				preferredPM,
-				skipInstallPrompt: preSelectedInstall === false,
+				skipInstallPrompt: preSelectedInstall === false || Boolean(options.install), // Skip prompt if --no-install or --install specified
 				verbose: options.verbose,
 			});
 		},
@@ -1097,13 +1111,14 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 			type,
 			framework,
 			typescript,
-			name: defaultName,
+			name: formatProjectName(defaultName), // Formatted name for templates
+			projectDir: defaultName, // Raw directory name for file system
 			directory: CURR_DIR, // Use current directory for quick mode
 			selectedExample: selectedTemplate,
 			debug: options.debug || false,
 			installAddOns: options.noIntegrations ? [] : [], // Skip add-ons in quick mode
 			installDependencies: !options.noInstall,
-			selectedPackageManager: !options.noInstall ? defaultPM : null, // Use detected package manager
+			selectedPackageManager: !options.noInstall ? options.install || defaultPM : null, // Use specified or detected package manager
 			addOnAnswers: {}, // No add-ons in quick mode
 			preferredPM: defaultPM,
 			skipInstallPrompt: true, // Skip prompt when using --template
@@ -1134,7 +1149,8 @@ async function createProjectFromOptions(params: {
 	type: string;
 	framework: string;
 	typescript: boolean;
-	name: string;
+	name: string; // Display name for templates
+	projectDir: string; // Raw directory name for file system operations
 	directory?: string;
 	selectedExample?: Example;
 	debug: boolean;
@@ -1153,6 +1169,7 @@ async function createProjectFromOptions(params: {
 		framework,
 		typescript,
 		name,
+		projectDir,
 		directory = CURR_DIR,
 		selectedExample,
 		debug,
@@ -1168,8 +1185,8 @@ async function createProjectFromOptions(params: {
 	} = params;
 
 	// Extract the raw directory name from the directory path for cd command
-	const rawDirName = path.basename(directory);
-	const destDir = directory; // Use the full directory path directly
+	const rawDirName = projectDir; // projectDir is the raw directory name (e.g., "my-plugin")
+	const destDir = path.join(directory, projectDir);
 	let dependencyInstallationFailed = false;
 
 	// Shared state for add-on integration results
@@ -1224,7 +1241,7 @@ async function createProjectFromOptions(params: {
 				// Create template data
 				const needsUI = framework !== NO_UI_OPTION;
 				const templateData: TemplateData = {
-					name,
+					name, // Use formatted name for display in templates
 					type: type.toLowerCase(),
 					language: typescript ? 'typescript' : 'javascript',
 					framework: framework === NO_UI_OPTION ? null : framework.toLowerCase(),
@@ -1339,6 +1356,12 @@ async function createProjectFromOptions(params: {
 	let pkgManager: string | null = null;
 
 	try {
+		if (debug) {
+			console.log(
+				`Debug: Calling promptAndInstallDependencies with skipInstallPrompt=${skipInstallPrompt}, installDependencies=${installDependencies}, selectedPackageManager=${selectedPackageManager}, preferredPM=${preferredPM}`,
+			);
+		}
+
 		const result = await promptAndInstallDependencies({
 			skipInstallPrompt,
 			installDependencies,
@@ -1348,6 +1371,12 @@ async function createProjectFromOptions(params: {
 			verbose,
 			projectPath: destDir,
 		});
+
+		if (debug) {
+			console.log(
+				`Debug: promptAndInstallDependencies returned packageManager=${result.packageManager}, installationFailed=${result.installationFailed}`,
+			);
+		}
 
 		pkgManager = result.packageManager;
 		dependencyInstallationFailed = result.installationFailed;

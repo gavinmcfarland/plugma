@@ -138,6 +138,7 @@ export function defineCreateCommand(
 		.option('--no-ts', 'Use JavaScript instead of TypeScript')
 		.option('--no-add', 'Skip add-ons installation')
 		.option('--no-install', 'Skip dependency installation')
+		.option('--install <pkg-manager>', 'Install dependencies using a specific package manager (npm, yarn, pnpm)')
 		.option('-y, --yes', 'Skip all prompts by accepting defaults')
 		.option('-d, --debug', 'Enable debug mode', debugDefault)
 		.option('--verbose', 'Show detailed integration subtasks')

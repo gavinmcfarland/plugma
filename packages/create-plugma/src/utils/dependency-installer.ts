@@ -223,6 +223,12 @@ export async function promptAndInstallDependencies(
 	let packageManager: string | null = null;
 
 	// Determine package manager based on options
+	if (debug) {
+		console.log(
+			`Debug: skipInstallPrompt=${skipInstallPrompt}, installDependencies=${installDependencies}, selectedPackageManager=${selectedPackageManager}`,
+		);
+	}
+
 	if (!skipInstallPrompt && installDependencies) {
 		// Check which package managers are available
 		const allOptions = [
@@ -255,7 +261,8 @@ export async function promptAndInstallDependencies(
 			hideOnCompletion: true,
 		});
 	} else if (skipInstallPrompt) {
-		packageManager = 'skip';
+		// When skipping prompt, use selected package manager if provided, otherwise skip
+		packageManager = selectedPackageManager || 'skip';
 	} else {
 		packageManager = selectedPackageManager;
 	}

@@ -291,9 +291,6 @@ importers:
 
   packages/website:
     dependencies:
-      '@plugma/shared':
-        specifier: file:../shared
-        version: link:../shared
       '@shikijs/langs':
         specifier: ^3.2.2
         version: 3.3.0
