@@ -215,11 +215,11 @@ export function createOptions<T extends keyof CommandOptions>(
 		// Don't delete it, we need it for the create logic
 	}
 
-	// Handle default install: true (from --no-install option)
-	// When neither --install nor --no-install is used, Commander.js sets install to true
-	// We need to convert this to undefined so it doesn't interfere with package manager selection
+	// Handle --install flag without package manager (Commander.js converts to install: true)
+	// We need to preserve this information to use detected package manager
 	if ('install' in userOptions && userOptions.install === true) {
-		delete userOptions.install;
+		// Keep the install: true to indicate --install was used without package manager
+		// This will be handled in the create logic to use detected package manager
 	}
 
 	const newOptions = new Options(userOptions, requiredDefaults) as CommandOptions[T] & OptionsWithMeta;

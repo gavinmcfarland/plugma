@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "prettier": "latest",
+    "typescript": "latest",
+    "eslint": "9",
+    "@eslint/js": "^9.38.0",
+    "@typescript-eslint/parser": "^8.46.2",
+    "typescript-eslint": "8"
+  },
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint ."
+  }
+}

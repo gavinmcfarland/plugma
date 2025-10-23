@@ -550,7 +550,14 @@ async function browseAndSelectTemplate(
 					addOnResults,
 					addOnDeps,
 					installDependencies: preSelectedInstall === undefined ? true : preSelectedInstall, // Install unless --no-install is used
-					selectedPackageManager: preSelectedInstall !== false ? options.install || defaultPM : null, // Use specified or detected package manager
+					selectedPackageManager:
+						preSelectedInstall !== false
+							? typeof options.install === 'string'
+								? options.install
+								: options.install === true
+									? defaultPM
+									: null
+							: null, // Use specified package manager or detected one when --install is used without package manager
 					addOnAnswers,
 					preferredPM: defaultPM,
 					skipInstallPrompt: true, // Skip prompt in quick mode
@@ -998,7 +1005,14 @@ async function browseAndSelectTemplate(
 				addOnResults: answers.addOnResults,
 				addOnDeps: answers.addOnDeps,
 				installDependencies: preSelectedInstall === undefined ? true : preSelectedInstall,
-				selectedPackageManager: preSelectedInstall !== false ? options.install || preferredPM : null, // Use specified package manager or detected one
+				selectedPackageManager:
+					preSelectedInstall !== false
+						? typeof options.install === 'string'
+							? options.install
+							: options.install === true
+								? preferredPM
+								: null
+						: null, // Use specified package manager or detected one when --install is used without package manager
 				addOnAnswers: answers.addOnAnswers,
 				preferredPM,
 				skipInstallPrompt: preSelectedInstall === false || Boolean(options.install), // Skip prompt if --no-install or --install specified
@@ -1181,7 +1195,13 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 			addOnResults,
 			addOnDeps,
 			installDependencies: !options.noInstall,
-			selectedPackageManager: !options.noInstall ? options.install || defaultPM : null, // Use specified or detected package manager
+			selectedPackageManager: !options.noInstall
+				? typeof options.install === 'string'
+					? options.install
+					: options.install === true
+						? defaultPM
+						: null
+				: null, // Use specified package manager or detected one when --install is used without package manager
 			addOnAnswers,
 			preferredPM: defaultPM,
 			skipInstallPrompt: true, // Skip prompt when using --template

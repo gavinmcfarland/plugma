@@ -43,6 +43,7 @@ Examples:
   ${commandName} vitest
   ${commandName} shadcn
   ${commandName} tailwind --install pnpm
+  ${commandName} tailwind --install
   ${commandName} eslint --no-install
 `;
 }
@@ -68,7 +69,10 @@ export function defineAddCommand(program: Command, config: AddCommandConfig, asS
 		.option('-d, --debug', 'Enable debug mode', debugDefault)
 		.option('--verbose', 'Show detailed integration subtasks')
 		.option('--no-install', 'Skip dependency installation')
-		.option('--install <pkg-manager>', 'Install dependencies using a specific package manager (npm, yarn, pnpm)')
+		.option(
+			'--install [pkg-manager]',
+			'Install dependencies using a specific package manager (npm, yarn, pnpm) or use detected package manager if none specified',
+		)
 		.action(onAction)
 		.addHelpText('after', getAddExamplesText(commandName));
 }
