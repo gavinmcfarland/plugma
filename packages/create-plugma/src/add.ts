@@ -30,6 +30,12 @@ export async function add(options: AddCommandOptions): Promise<void> {
 		}
 	}
 
+	// Determine pre-selected install dependencies value from CLI flags
+	let preSelectedInstall: boolean | undefined;
+	if (options.noInstall !== undefined) {
+		preSelectedInstall = !options.noInstall; // Convert --no-install to false
+	}
+
 	// Get manifest data to check UI field
 	let manifest: { ui?: string } | undefined;
 	try {
@@ -88,8 +94,9 @@ export async function add(options: AddCommandOptions): Promise<void> {
 			const preferredPM = detectedPM?.agent || 'npm';
 
 			const { packageManager } = await promptAndInstallDependencies({
-				skipInstallPrompt: false,
-				installDependencies: true,
+				skipInstallPrompt: preSelectedInstall === false || Boolean(options.install), // Skip prompt if --no-install or --install specified
+				installDependencies: preSelectedInstall === undefined ? true : preSelectedInstall, // Install unless --no-install is used
+				selectedPackageManager: preSelectedInstall !== false ? options.install || null : null, // Use specified package manager or detected one
 				preferredPM,
 				verbose: options.verbose,
 				projectPath: process.cwd(),
@@ -130,17 +137,21 @@ export async function add(options: AddCommandOptions): Promise<void> {
 			// Show completion message with optional dependency installation reminder
 			let message = '';
 
-			if ((depsArray.length > 0 || devDepsArray.length > 0) && packageManager === 'skip') {
+			if (
+				(depsArray.length > 0 || devDepsArray.length > 0) &&
+				(packageManager === 'skip' || preSelectedInstall === false)
+			) {
+				const pmToUse = options.install || preferredPM;
 				const installCommand =
-					preferredPM === 'npm'
+					pmToUse === 'npm'
 						? 'npm install'
-						: preferredPM === 'yarn'
+						: pmToUse === 'yarn'
 							? 'yarn'
-							: preferredPM === 'pnpm'
+							: pmToUse === 'pnpm'
 								? 'pnpm install'
-								: preferredPM === 'bun'
+								: pmToUse === 'bun'
 									? 'bun install'
-									: preferredPM === 'deno'
+									: pmToUse === 'deno'
 										? 'deno install'
 										: 'npm install';
 

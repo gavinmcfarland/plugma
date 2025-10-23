@@ -71,6 +71,8 @@ export interface CommandOptions {
 		command: 'add';
 		integration?: string;
 		verbose?: boolean;
+		noInstall?: boolean;
+		install?: string;
 	};
 	create: MinimalBaseOptions & {
 		command: 'create';

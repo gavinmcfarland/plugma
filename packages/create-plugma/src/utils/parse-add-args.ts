@@ -42,6 +42,8 @@ Examples:
   ${commandName} playwright
   ${commandName} vitest
   ${commandName} shadcn
+  ${commandName} tailwind --install pnpm
+  ${commandName} eslint --no-install
 `;
 }
 
@@ -65,6 +67,8 @@ export function defineAddCommand(program: Command, config: AddCommandConfig, asS
 		.description('Add integrations to your Figma plugin project')
 		.option('-d, --debug', 'Enable debug mode', debugDefault)
 		.option('--verbose', 'Show detailed integration subtasks')
+		.option('--no-install', 'Skip dependency installation')
+		.option('--install <pkg-manager>', 'Install dependencies using a specific package manager (npm, yarn, pnpm)')
 		.action(onAction)
 		.addHelpText('after', getAddExamplesText(commandName));
 }
