@@ -133,7 +133,7 @@ export function defineCreateCommand(
 					.argument('[framework]', 'UI framework: react, svelte, vue, or no-ui (optional)')
 	)
 		.description('Create a new Figma plugin or widget project')
-		.option('--name <name>', 'Project name')
+		.option('--dir <dir>', 'Project directory name')
 		.option('--template <template>', 'Use a specific template')
 		.option('--no-ts', 'Use JavaScript instead of TypeScript')
 		.option('--no-add', 'Skip add-ons installation')

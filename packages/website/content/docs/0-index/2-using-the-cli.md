@@ -24,12 +24,12 @@ npm create plugma@latest [type?] [framework?] [options]
 
 - `--template <template>`: Use a specific template
 - `--framework <framework>`: UI framework
-- `--name <name>`: Project name
+- `--dir <dir>`: Project directory name
 - `--no-ts`: Use JavaScript instead of TypeScript
 - `--no-ui`: No UI
 - `--no-add`: Skip installing add-ons
 - `--no-install`: Skip installing dependencies
-- `-y, --yes`: Skip all prompts by accepting defaults (still prompts for type and framework if not provided)
+- `-y, --yes`: Skip all prompts by accepting defaults (still prompts for type and framework if not provided). Requires an empty directory when creating in current directory.
 - `--install <pkg-manager>`: Install dependencies using a certain package manager
 
 ##### Example
@@ -49,6 +49,12 @@ npm create plugma@latest -- plugin react --yes
 
 # Create with just framework (type will be prompted)
 npm create plugma@latest -- svelte --yes
+
+# Create with custom directory name
+npm create plugma@latest -- plugin react --dir my-custom-plugin
+
+# Note: --yes requires an empty directory when creating in current directory
+# If directory is not empty, you'll get an error message
 ```
 
 </details>

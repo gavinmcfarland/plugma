@@ -74,7 +74,7 @@ export interface CommandOptions {
 	};
 	create: MinimalBaseOptions & {
 		command: 'create';
-		name?: string;
+		dir?: string;
 		plugin?: boolean;
 		widget?: boolean;
 		framework?: string;

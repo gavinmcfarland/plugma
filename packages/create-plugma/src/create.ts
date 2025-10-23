@@ -24,6 +24,66 @@ import { getCommand, type PackageManager } from '@plugma/shared';
 import { detect } from 'package-manager-detector/detect';
 import { showCreatePlugmaPrompt } from './utils/show-prompt.js';
 
+/**
+ * Convert directory name to display format
+ * my-plugin -> My Plugin
+ */
+function formatProjectName(dirName: string): string {
+	return dirName
+		.split('-')
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(' ');
+}
+
+/**
+ * Generate default project name based on type and framework
+ * plugin + react -> figma-plugin-react-plugin
+ * widget + svelte -> figma-widget-svelte-widget
+ */
+function generateDefaultProjectName(type: string, framework: string, needsUI: boolean): string {
+	const frameworkPart = needsUI ? `-${framework.toLowerCase()}` : '';
+	return `figma${frameworkPart}-${type}`;
+}
+
+/**
+ * Generate a unique project name by checking if directory exists and incrementing number suffix
+ * figma-vue-plugin -> figma-vue-plugin-2 (if figma-vue-plugin exists)
+ */
+async function generateUniqueProjectName(baseName: string, baseDir: string = CURR_DIR): Promise<string> {
+	let projectName = baseName;
+	let counter = 1;
+
+	while (true) {
+		const projectPath = path.join(baseDir, projectName);
+
+		try {
+			// Check if directory exists
+			if (!fs.existsSync(projectPath)) {
+				return projectName;
+			}
+
+			// Check if directory is empty (only visible files)
+			const files = await fs.promises.readdir(projectPath);
+			const visibleFiles = files.filter(
+				(file) => !file.startsWith('.') && !['node_modules', 'dist', 'build', '.git'].includes(file),
+			);
+
+			// If directory is empty, we can use it
+			if (visibleFiles.length === 0) {
+				return projectName;
+			}
+
+			// Directory exists and is not empty, try next number
+			counter++;
+			projectName = `${baseName}-${counter}`;
+		} catch (error) {
+			// If we can't read the directory, assume it's not available
+			counter++;
+			projectName = `${baseName}-${counter}`;
+		}
+	}
+}
+
 const CURR_DIR = process.cwd();
 
 // Constants
@@ -276,7 +336,7 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 	const hasTypeFlag = options.plugin || options.widget;
 	const hasFrameworkFlag = options.framework || options.react || options.svelte || options.vue || options.noUi;
 	const shouldUseQuickCreation = Boolean(
-		(hasTypeFlag && hasFrameworkFlag && options.name) || (options.yes && hasTypeFlag && hasFrameworkFlag),
+		(hasTypeFlag && hasFrameworkFlag && options.dir) || (options.yes && hasTypeFlag && hasFrameworkFlag),
 	);
 
 	// Determine pre-selected values from CLI flags
@@ -411,12 +471,41 @@ async function browseAndSelectTemplate(
 	// Run the interactive flow
 	const result = await ask(
 		async () => {
+			// Always show the Plugma prompt first
+			await showCreatePlugmaPrompt();
+
 			// Handle quick creation (--yes flag with type/framework provided, or all required flags provided)
 			if (shouldUseQuickCreation) {
 				const type = preSelectedType || 'plugin'; // Default to plugin
 				const framework = preSelectedFramework || 'React'; // Default to React
 				const typescript = preSelectedTypescript !== undefined ? preSelectedTypescript : true; // Default to true
-				const name = options.name || 'my-plugin'; // Default name when --yes is used
+				const projectDir =
+					options.dir ||
+					(await generateUniqueProjectName(
+						generateDefaultProjectName(type, framework, framework !== NO_UI_OPTION),
+					)); // Default directory name when --yes is used
+
+				// Check if target project directory is empty when using --yes flag
+				if (options.yes) {
+					const targetProjectPath = path.join(CURR_DIR, projectDir);
+					try {
+						if (fs.existsSync(targetProjectPath)) {
+							const files = await fs.promises.readdir(targetProjectPath);
+							// Filter out hidden files and common development files that are safe to ignore
+							const visibleFiles = files.filter(
+								(file) =>
+									!file.startsWith('.') && !['node_modules', 'dist', 'build', '.git'].includes(file),
+							);
+
+							if (visibleFiles.length > 0) {
+								await note(`[■ Error: Directory ${projectDir} is not empty.]{red}`), process.exit(1);
+							}
+						}
+					} catch (error) {
+						// If we can't read the directory, that's fine - it might not exist yet
+						// The createProjectFromOptions function will handle directory creation
+					}
+				}
 
 				// Detect user's preferred package manager early
 				const detectedPM = await detect({ cwd: process.cwd() });
@@ -426,8 +515,8 @@ async function browseAndSelectTemplate(
 					type,
 					framework,
 					typescript,
-					name,
-					directory: CURR_DIR, // Use current directory for quick mode
+					name: formatProjectName(projectDir),
+					directory: path.join(CURR_DIR, projectDir), // Use actual project directory
 					debug: options.debug || false,
 					installAddOns: preSelectedAddOns === false ? [] : [], // Skip add-ons if --no-add is used
 					installDependencies: preSelectedInstall !== false, // Install unless --no-install is used
@@ -447,8 +536,6 @@ async function browseAndSelectTemplate(
 				options.framework || options.react || options.svelte || options.vue || options.noUi;
 			if (options.yes && (!hasTypeFlag || !hasFrameworkFlag)) {
 				// Use the normal interactive flow but with pre-selected values
-				await showCreatePlugmaPrompt();
-
 				await completedFields();
 
 				const answers = await group(
@@ -529,14 +616,22 @@ async function browseAndSelectTemplate(
 
 						// Use defaults for other options when --yes is used
 						const typescript = preSelectedTypescript !== undefined ? preSelectedTypescript : true;
-						const name = options.name || 'my-plugin';
+						const projectDir =
+							options.dir ||
+							(await generateUniqueProjectName(
+								generateDefaultProjectName(
+									selectedType,
+									selectedFramework,
+									selectedFramework !== NO_UI_OPTION,
+								),
+							));
 						const installDependencies = preSelectedInstall !== false;
 
 						return {
 							type: selectedType,
 							selectedFramework,
 							typescript,
-							projectName: name,
+							projectName: projectDir, // Keep raw directory name for path
 							projectDirectory: CURR_DIR,
 							installDependencies,
 							needsUI: selectedFramework !== NO_UI_OPTION,
@@ -544,6 +639,8 @@ async function browseAndSelectTemplate(
 					},
 					{ flow: 'phased', hideOnCompletion: true },
 				);
+
+				// Check if current directory is empty when using --yes flag
 
 				// Create the project with minimal prompts
 				const detectedPM = await detect({ cwd: process.cwd() });
@@ -553,8 +650,8 @@ async function browseAndSelectTemplate(
 					type: answers.type,
 					framework: answers.needsUI ? answers.selectedFramework : NO_UI_OPTION,
 					typescript: answers.typescript,
-					name: answers.projectName,
-					directory: answers.projectDirectory,
+					name: formatProjectName(answers.projectName), // Format for display
+					directory: path.join(CURR_DIR, answers.projectName), // Use raw directory name for path
 					debug: options.debug || false,
 					installAddOns: preSelectedAddOns === false ? [] : [], // Skip add-ons when --yes is used
 					installDependencies: answers.installDependencies,
@@ -567,8 +664,6 @@ async function browseAndSelectTemplate(
 
 				return;
 			}
-
-			await showCreatePlugmaPrompt();
 
 			await completedFields();
 
@@ -743,7 +838,7 @@ async function browseAndSelectTemplate(
 					const baseName = `${normalizedExampleName}${frameworkPart}-${type}`;
 
 					// Ensure initial value is prefixed with ./
-					const initialValue = options.name || baseName;
+					const initialValue = options.dir || baseName;
 					const prefixedInitialValue = initialValue.startsWith('./') ? initialValue : `./${initialValue}`;
 
 					const projectPath = await text({
@@ -824,7 +919,7 @@ async function browseAndSelectTemplate(
 						addOnResults,
 						addOnDeps,
 						typescript,
-						projectName,
+						projectName, // Keep raw name for directory path
 						projectDirectory,
 						needsUI,
 						type,
@@ -838,8 +933,8 @@ async function browseAndSelectTemplate(
 				type: answers.type,
 				framework: answers.needsUI ? answers.selectedFramework : NO_UI_OPTION,
 				typescript: answers.typescript,
-				name: answers.projectName,
-				directory: answers.projectDirectory,
+				name: formatProjectName(answers.projectName), // Format for display
+				directory: answers.projectDirectory, // Use raw directory path
 				selectedExample: answers.selectedTemplate,
 				debug: options.debug || false,
 				installAddOns: answers.selectedAddOns,
@@ -992,7 +1087,7 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 		const exampleName = selectedTemplate.metadata.name || selectedTemplate.name;
 		const normalizedExampleName = exampleName.toLowerCase().replace(/\s+/g, '-');
 		const frameworkPart = needsUI ? `-${framework.toLowerCase()}` : '';
-		const defaultName = options.name || `${normalizedExampleName}${frameworkPart}-${type}`;
+		const defaultName = options.dir || `${normalizedExampleName}${frameworkPart}-${type}`;
 
 		// Create the project
 		const detectedPM = await detect({ cwd: process.cwd() });
@@ -1072,7 +1167,9 @@ async function createProjectFromOptions(params: {
 		verbose = false,
 	} = params;
 
-	const destDir = path.join(directory, name);
+	// Extract the raw directory name from the directory path for cd command
+	const rawDirName = path.basename(directory);
+	const destDir = directory; // Use the full directory path directly
 	let dependencyInstallationFailed = false;
 
 	// Shared state for add-on integration results
@@ -1282,7 +1379,7 @@ async function createProjectFromOptions(params: {
 	const packageManager = pkgManager || selectedPackageManager || 'npm';
 	const nextStepsLines: string[] = ['**Plugged in and ready to go!**\n'];
 
-	nextStepsLines.push(`1. \`cd ${name}\``);
+	nextStepsLines.push(`1. \`cd ${rawDirName}\``);
 
 	// Only show install command if dependencies weren't installed OR if installation failed
 	if (!pkgManager || pkgManager === 'skip' || dependencyInstallationFailed) {
