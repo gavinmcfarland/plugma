@@ -89,7 +89,6 @@ export interface CommandOptions {
 		noInstall?: boolean;
 		install?: string;
 		yes?: boolean;
-		skipPrompt?: boolean;
 		verbose?: boolean;
 	};
 }

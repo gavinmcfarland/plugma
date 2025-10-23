@@ -12,8 +12,6 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 	// Convert plugma options to create-plugma options format
 	const createPlugmaOptions: CreatePlugmaOptions = {
 		...options,
-		// Skip showing prompt in create-plugma since plugma already showed it
-		skipPrompt: true,
 	};
 
 	// Directly call the create function from create-plugma
