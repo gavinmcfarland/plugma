@@ -1,16 +1,14 @@
 /**
  * Package manager command utilities
- * Centralized logic for generating package manager-specific commands
+ * Local copy of functions from @plugma/shared to avoid build issues
  */
 
 export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun' | 'deno';
 
-export type CommandType = 'install' | 'dev' | 'build' | 'test' | 'lint' | 'start' | 'add' | 'remove';
-
 /**
  * Get a command for a specific package manager and command type
  */
-export function getCommand(packageManager: PackageManager, commandType: CommandType): string {
+export function getCommand(packageManager: PackageManager, commandType: string): string {
 	switch (commandType) {
 		case 'install':
 			switch (packageManager) {
@@ -160,48 +158,9 @@ export function getCommand(packageManager: PackageManager, commandType: CommandT
 }
 
 /**
- * Get the install command for a specific package manager
- * @deprecated Use getCommand(packageManager, 'install') instead
- */
-export function getInstallCommand(packageManager: PackageManager): string {
-	return getCommand(packageManager, 'install');
-}
-
-/**
- * Get the dev command for a specific package manager
- * @deprecated Use getCommand(packageManager, 'dev') instead
- */
-export function getDevCommand(packageManager: PackageManager): string {
-	return getCommand(packageManager, 'dev');
-}
-
-/**
- * Get the build command for a specific package manager
- * @deprecated Use getCommand(packageManager, 'build') instead
- */
-export function getBuildCommand(packageManager: PackageManager): string {
-	return getCommand(packageManager, 'build');
-}
-
-/**
- * Get all common package manager commands at once
- */
-export function getPackageManagerCommands(packageManager: PackageManager) {
-	return {
-		install: getCommand(packageManager, 'install'),
-		dev: getCommand(packageManager, 'dev'),
-		build: getCommand(packageManager, 'build'),
-		test: getCommand(packageManager, 'test'),
-		lint: getCommand(packageManager, 'lint'),
-		start: getCommand(packageManager, 'start'),
-		add: getCommand(packageManager, 'add'),
-		remove: getCommand(packageManager, 'remove'),
-	};
-}
-
-/**
  * Transform npm commands to other package managers
  * Useful for converting existing npm commands to other package managers
+ * Handles npm's requirement for double dash (--) when passing options
  */
 export function transformCommand(command: string, packageManager: PackageManager): string {
 	if (packageManager === 'npm') {
@@ -210,23 +169,56 @@ export function transformCommand(command: string, packageManager: PackageManager
 
 	let transformed = command;
 
-	// Handle create commands
-	if (command.includes('npm create plugma@latest')) {
-		switch (packageManager) {
-			case 'yarn':
-				return command.replace('npm create plugma@latest', 'yarn create plugma');
-			case 'pnpm':
-				return command.replace('npm create plugma@latest', 'pnpm create plugma@latest');
-			case 'bun':
-				return command.replace('npm create plugma@latest', 'bun create plugma@latest');
-			case 'deno':
-				return command.replace('npm create plugma@latest', 'deno create plugma@latest');
-		}
-	}
-
-	// Handle other create commands
+	// Handle create commands with options
 	if (command.includes('npm create')) {
-		transformed = transformed.replace(/npm create/g, `${packageManager} create`);
+		// Use a more specific approach to handle multiple occurrences
+		// First, find all npm create commands and replace them one by one
+		const createRegex = /npm create\s+([^\s]+(?:\s+[^\s]+)*?)(?:\s+--\s+(.+?))?(?=\n|$)/g;
+		let match;
+
+		while ((match = createRegex.exec(command)) !== null) {
+			const packageName = match[1].trim();
+			const options = match[2]; // This will be undefined if no -- is present
+
+			switch (packageManager) {
+				case 'yarn':
+					if (packageName === 'plugma@latest') {
+						if (options) {
+							transformed = transformed.replace(match[0], `yarn create plugma ${options}`);
+						} else {
+							transformed = transformed.replace(match[0], 'yarn create plugma');
+						}
+					} else {
+						if (options) {
+							transformed = transformed.replace(match[0], `yarn create ${packageName} ${options}`);
+						} else {
+							transformed = transformed.replace(match[0], `yarn create ${packageName}`);
+						}
+					}
+					break;
+				case 'pnpm':
+					if (options) {
+						transformed = transformed.replace(match[0], `pnpm create ${packageName} ${options}`);
+					} else {
+						transformed = transformed.replace(match[0], `pnpm create ${packageName}`);
+					}
+					break;
+				case 'bun':
+					if (options) {
+						transformed = transformed.replace(match[0], `bun create ${packageName} ${options}`);
+					} else {
+						transformed = transformed.replace(match[0], `bun create ${packageName}`);
+					}
+					break;
+				case 'deno':
+					if (options) {
+						transformed = transformed.replace(match[0], `deno create ${packageName} ${options}`);
+					} else {
+						transformed = transformed.replace(match[0], `deno create ${packageName}`);
+					}
+					break;
+			}
+		}
 	}
 
 	// Handle add commands (npm install package-name) - check this first
@@ -238,24 +230,47 @@ export function transformCommand(command: string, packageManager: PackageManager
 		transformed = transformed.replace(/npm install/g, getCommand(packageManager, 'install'));
 	}
 
-	// Handle run commands
+	// Handle run commands with special logic for options
 	if (command.includes('npm run')) {
-		// Extract the script name
-		const runMatch = command.match(/npm run\s+([^\s]+)/);
-		if (runMatch && runMatch[1]) {
-			const scriptName = runMatch[1];
+		// Use a more specific approach to handle multiple occurrences
+		const runRegex = /npm run\s+([^\s]+(?:\s+[^\s]+)*?)(?:\s+--\s+(.+?))?(?=\n|$)/g;
+		let match;
+
+		while ((match = runRegex.exec(command)) !== null) {
+			const scriptName = match[1].trim();
+			const options = match[2]; // This will be undefined if no -- is present
+
 			switch (packageManager) {
 				case 'yarn':
-					transformed = transformed.replace(/npm run\s+[^\s]+/g, `yarn ${scriptName}`);
+					if (options) {
+						transformed = transformed.replace(match[0], `yarn ${scriptName} ${options}`);
+					} else {
+						transformed = transformed.replace(match[0], `yarn ${scriptName}`);
+					}
 					break;
 				case 'pnpm':
-					transformed = transformed.replace(/npm run\s+[^\s]+/g, `pnpm ${scriptName}`);
+					if (options) {
+						transformed = transformed.replace(match[0], `pnpm ${scriptName} ${options}`);
+					} else {
+						transformed = transformed.replace(match[0], `pnpm ${scriptName}`);
+					}
 					break;
 				case 'bun':
-					transformed = transformed.replace(/npm run\s+[^\s]+/g, `bun run ${scriptName}`);
+					if (options) {
+						transformed = transformed.replace(match[0], `bun run ${scriptName} ${options}`);
+					} else {
+						transformed = transformed.replace(match[0], `bun run ${scriptName}`);
+					}
+					break;
+				case 'deno':
+					if (options) {
+						transformed = transformed.replace(match[0], `deno run --allow-all ${scriptName} ${options}`);
+					} else {
+						transformed = transformed.replace(match[0], `deno run --allow-all ${scriptName}`);
+					}
 					break;
 				default:
-					transformed = transformed.replace(/npm run/g, `npm run`);
+					transformed = transformed.replace(match[0], `npm run ${scriptName}`);
 			}
 		}
 	}
