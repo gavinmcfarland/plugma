@@ -4,6 +4,7 @@
 	import { notify } from '@/stores';
 	import { highlighter } from '@/lib/stores/shiki';
 	import { transformCommand, type PackageManager } from '@plugma/shared';
+	import { selectedPackageManager, setPackageManager } from '@/stores/packageManager';
 
 	const props = $props<{
 		text: string;
@@ -34,12 +35,11 @@
 	const allPackageManagers = { ...defaultPackageManagers, ...packageManagers };
 	const packageManagerNames = Object.keys(allPackageManagers);
 
-	let selectedManager = $state('npm');
 	let copied = $state(false);
 	let html_now = $state('');
 
 	// Get the current command text based on selected manager
-	const currentText = $derived(allPackageManagers[selectedManager] || originalText);
+	const currentText = $derived(allPackageManagers[$selectedPackageManager] || originalText);
 	const lang = $derived(props.lang || 'bash');
 
 	const updateHighlighting = () => {
@@ -54,6 +54,7 @@
 	// Initial call
 	updateHighlighting();
 
+	// Update highlighting when selected manager changes
 	$effect(() => {
 		updateHighlighting();
 	});
@@ -69,23 +70,22 @@
 		}
 	};
 
-	// Switch package manager
+	// Switch package manager - update global state
 	const switchManager = (manager: string) => {
-		selectedManager = manager;
+		setPackageManager(manager);
 	};
 </script>
 
 <div class="PackageManagerCode border mt-4 mb-4 rounded-md {class_}">
 	<!-- Package manager selector -->
 	{#if packageManagerNames.length > 1}
-		<div class="package-manager-selector p-3 border-color-border bg-color-bg-secondary">
+		<div class="package-manager-selector p-3 pb-0 border-color-border bg-color-bg-secondary">
 			<div class="flex items-center gap-2 flex-wrap">
 				{#each packageManagerNames as manager}
 					<button
-						class="px-3 py-1 text-sm rounded-md transition-colors {selectedManager ===
-						manager
-							? 'bg-color-primary text-white'
-							: 'bg-color-bg text-color-text hover:bg-color-bg-secondary'}"
+						class="package-manager-button {$selectedPackageManager === manager
+							? 'active'
+							: ''}"
 						onclick={() => switchManager(manager)}
 					>
 						{manager}
@@ -147,11 +147,31 @@
 		opacity: 1;
 	}
 
-	.package-manager-selector button {
-		border: 1px solid var(--color-border);
+	.package-manager-button {
+		padding: 0.25rem 0.75rem;
+		font-size: 0.875rem;
+		border-radius: 0.375rem;
+		color: var(--color-text);
+		font-weight: 500;
+		transition: all 0.2s ease;
+		cursor: pointer;
 	}
 
-	.package-manager-selector button:hover {
+	.package-manager-button:hover {
+		background-color: var(--color-bg-secondary);
 		border-color: var(--color-primary);
+	}
+
+	.package-manager-button:active {
+		transform: translateY(0);
+	}
+
+	/* Active button styling */
+	.package-manager-button.active {
+		background-color: var(--color-bg-secondary);
+		color: var(--color-text);
+		font-weight: 600;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		text-decoration: none;
 	}
 </style>
