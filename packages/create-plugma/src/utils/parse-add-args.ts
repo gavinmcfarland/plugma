@@ -5,7 +5,7 @@
 import { Command } from 'commander';
 
 export interface ParsedAddArgs {
-	integration?: string;
+	integration?: string | string[];
 	debug?: boolean;
 	verbose?: boolean;
 }
@@ -13,18 +13,24 @@ export interface ParsedAddArgs {
 export interface AddCommandConfig {
 	debugDefault?: boolean;
 	commandName?: string;
-	onAction: (integration: string | undefined, options: any) => Promise<void>;
+	onAction: (integrations: string[] | undefined, options: any) => Promise<void>;
 }
 
 /**
  * Parse and validate integration argument for add command
  */
-export function parseAddArgs(integration: string | undefined, existingOptions: any = {}): ParsedAddArgs {
+export function parseAddArgs(integration: string | string[] | undefined, existingOptions: any = {}): ParsedAddArgs {
 	const enhancedOptions: ParsedAddArgs = { ...existingOptions };
 
-	// Handle integration argument
+	// Handle integration argument(s)
 	if (integration) {
-		enhancedOptions.integration = integration.toLowerCase();
+		if (Array.isArray(integration)) {
+			// Multiple integrations provided
+			enhancedOptions.integration = integration.map((integ) => integ.toLowerCase());
+		} else {
+			// Single integration provided
+			enhancedOptions.integration = integration.toLowerCase();
+		}
 	}
 
 	return enhancedOptions;
@@ -42,9 +48,11 @@ Examples:
   ${commandName} playwright
   ${commandName} vitest
   ${commandName} shadcn
+  ${commandName} tailwind eslint shadcn
   ${commandName} tailwind --install pnpm
   ${commandName} tailwind --install
   ${commandName} eslint --no-install
+  ${commandName} tailwind eslint shadcn --install
 `;
 }
 
@@ -58,12 +66,12 @@ export function defineAddCommand(program: Command, config: AddCommandConfig, asS
 	const { debugDefault = false, commandName = 'create-plugma add', onAction } = config;
 
 	// For subcommands, define the argument in the command() call
-	const cmd = asSubcommand ? program.command('add [integration]') : program;
+	const cmd = asSubcommand ? program.command('add [integrations...]') : program;
 
 	return (
 		asSubcommand
 			? cmd
-			: cmd.argument('[integration]', 'Integration to add: tailwind, eslint, playwright, vitest, shadcn')
+			: cmd.argument('[integrations...]', 'Integration(s) to add: tailwind, eslint, playwright, vitest, shadcn')
 	)
 		.description('Add integrations to your Figma plugin project')
 		.option('-d, --debug', 'Enable debug mode', debugDefault)

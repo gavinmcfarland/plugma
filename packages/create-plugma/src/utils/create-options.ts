@@ -69,7 +69,7 @@ export interface CommandOptions {
 	};
 	add: MinimalBaseOptions & {
 		command: 'add';
-		integration?: string;
+		integration?: string | string[];
 		verbose?: boolean;
 		noInstall?: boolean;
 		install?: string;

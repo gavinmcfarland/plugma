@@ -269,9 +269,9 @@ defineAddCommand(
 	{
 		debugDefault: DEFAULT_OPTIONS.debug,
 		commandName: 'plugma add',
-		onAction: async (integration: string | undefined, options: any) => {
+		onAction: async (integrations: string[] | undefined, options: any) => {
 			// Parse and validate arguments using shared utility
-			const enhancedOptions = parseAddArgs(integration, options);
+			const enhancedOptions = parseAddArgs(integrations, options);
 
 			await add(
 				createOptions<'add'>(enhancedOptions, {

@@ -52,12 +52,12 @@ defineAddCommand(
 	program,
 	{
 		commandName: 'create-plugma add',
-		onAction: async (integration, options) => {
+		onAction: async (integrations, options) => {
 			try {
 				// Show Create Plugma prompt
 
 				// Parse and validate arguments using shared utility
-				const enhancedOptions = parseAddArgs(integration, options);
+				const enhancedOptions = parseAddArgs(integrations, options);
 
 				const addOpts = createOptions(
 					{

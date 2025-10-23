@@ -20,8 +20,11 @@ function sleep(ms: number): Promise<void> {
 export async function add(options: AddCommandOptions): Promise<void> {
 	// Handle pre-selected integration validation
 	if (options.integration) {
-		if (!(options.integration in INTEGRATIONS)) {
-			console.error(chalk.red(`Integration "${options.integration}" not found.`));
+		const integrationsToValidate = Array.isArray(options.integration) ? options.integration : [options.integration];
+		const invalidIntegrations = integrationsToValidate.filter((integration) => !(integration in INTEGRATIONS));
+
+		if (invalidIntegrations.length > 0) {
+			console.error(chalk.red(`Integration(s) "${invalidIntegrations.join('", "')}" not found.`));
 			console.log(chalk.yellow('Available integrations:'));
 			for (const [key, integration] of Object.entries(INTEGRATIONS)) {
 				console.log(`  ${chalk.green(key)} - ${integration.description}`);
