@@ -9,8 +9,9 @@ const execAsync = promisify(exec);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Define path to versions.json file
+// Define paths to versions.json files
 const plugmaVersionsPath = resolve(__dirname, '../versions.json');
+const createPlugmaVersionsPath = resolve(__dirname, '../../create-plugma/versions.json');
 
 /**
  * Get the appropriate dist tag based on current git branch
@@ -78,23 +79,27 @@ async function updateSingleVersionFile(filePath, latestPlugmaVersion) {
 }
 
 /**
- * Update versions.json file (plugma only)
+ * Update versions.json files (plugma and create-plugma)
  */
 async function updateVersionFiles(distTag) {
 	try {
 		const latestPlugmaVersion = await getLatestVersion('plugma', distTag);
 
-		// Update file
-		const plugmaUpdated = await updateSingleVersionFile(plugmaVersionsPath, latestPlugmaVersion);
+		// Update both files
+		const [plugmaUpdated, createPlugmaUpdated] = await Promise.all([
+			updateSingleVersionFile(plugmaVersionsPath, latestPlugmaVersion),
+			updateSingleVersionFile(createPlugmaVersionsPath, latestPlugmaVersion)
+		]);
 
-		if (plugmaUpdated) {
+		if (plugmaUpdated || createPlugmaUpdated) {
 			console.log(`✅ Updated plugma version to ${latestPlugmaVersion} (tag: ${distTag})`);
-			console.log(`   - Updated: packages/plugma/versions.json`);
+			if (plugmaUpdated) console.log(`   - Updated: packages/plugma/versions.json`);
+			if (createPlugmaUpdated) console.log(`   - Updated: packages/create-plugma/versions.json`);
 		} else {
-			console.log(`ℹ️ versions.json file is already up-to-date with version ${latestPlugmaVersion} (tag: ${distTag})`);
+			console.log(`ℹ️ Both versions.json files are already up-to-date with version ${latestPlugmaVersion} (tag: ${distTag})`);
 		}
 	} catch (error) {
-		console.error('❌ Error updating version file:', error);
+		console.error('❌ Error updating version files:', error);
 	}
 }
 
