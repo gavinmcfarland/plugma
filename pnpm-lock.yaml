@@ -111,9 +111,6 @@ importers:
       '@playwright/test':
         specifier: ^1.51.1
         version: 1.52.0
-      '@plugma/shared':
-        specifier: file:../shared
-        version: link:../shared
       chalk:
         specifier: ^5.4.1
         version: 5.4.1
@@ -175,6 +172,9 @@ importers:
       '@figma/plugin-typings':
         specifier: ^1.107.0-beta.1
         version: 1.110.0
+      '@plugma/shared':
+        specifier: link:../shared
+        version: link:../shared
       '@sveltejs/vite-plugin-svelte':
         specifier: ^6.2.1
         version: 6.2.1(svelte@5.34.8)(vite@6.4.0(@types/node@22.15.3)(jiti@1.21.7)(terser@5.39.0)(tsx@4.19.4)(yaml@2.8.1))
