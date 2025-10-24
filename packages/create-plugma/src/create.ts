@@ -1612,21 +1612,21 @@ async function createProjectFromOptions(params: {
 
 	// Build success message with next steps
 	const packageManager = pkgManager || selectedPackageManager || 'npm';
-	const nextStepsLines: string[] = ['**Plugged in and ready to go!**\n'];
+	const nextStepsLines: string[] = ['[ Next Steps ]{bgBlue}\n'];
 
-	nextStepsLines.push(`1. \`cd ./${rawDirName}\``);
+	nextStepsLines.push(`1. Change dir \`cd ./${rawDirName}\``);
 
 	// Only show install command if dependencies weren't installed OR if installation failed
 	if (!pkgManager || pkgManager === 'skip' || dependencyInstallationFailed) {
 		const installCommand = getCommand(packageManager as PackageManager, 'install');
-		nextStepsLines.push(`2. Install depedencies \`${installCommand}\``);
+		nextStepsLines.push(`2. Install depedencies with \`${installCommand}\``);
 	}
 
 	const devCommand = getCommand(packageManager as PackageManager, 'dev');
 	const stepNum = !pkgManager || pkgManager === 'skip' || dependencyInstallationFailed ? 3 : 2;
-	nextStepsLines.push(`${stepNum}. Start the dev server \`${devCommand}\``);
-	nextStepsLines.push(`${stepNum + 1}. Import \`dist/manifest.json\` in Figma desktop app`);
-	nextStepsLines.push(`\nCheck out the docs at https://plugma.dev.`);
+	nextStepsLines.push(`${stepNum}. Use \`${devCommand}\` to start dev server`);
+	nextStepsLines.push(`${stepNum + 1}. Import \`dist/manifest.json\` in Figma`);
+	nextStepsLines.push(`\nRead the README for more info.\n`);
 
 	const successMessage = nextStepsLines.join('\n');
 
