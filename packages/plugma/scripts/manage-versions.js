@@ -16,7 +16,6 @@ async function setDevelopmentMode() {
 	console.log('🔗 Setting versions.json files to development mode (link: dependencies)');
 
 	const developmentVersions = {
-		plugmaNext: "1.0.0-38",
 		plugma: "link:../plugma"
 	};
 
@@ -49,7 +48,6 @@ async function setPublishMode() {
 	const actualVersion = packageJson.version;
 
 	const publishVersions = {
-		plugmaNext: "1.0.0-38",
 		plugma: `^${actualVersion}`
 	};
 
