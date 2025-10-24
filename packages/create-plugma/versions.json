@@ -1,4 +1,4 @@
 {
-  "plugmaNext": "1.0.0-38",
-  "plugma": "link:../../plugma"
+	"plugmaNext": "1.0.0-38",
+	"plugma": "link:../plugma"
 }
