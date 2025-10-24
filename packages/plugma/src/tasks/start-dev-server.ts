@@ -60,7 +60,7 @@ export const createStartViteServerTask = <T extends { viteServer?: ViteDevServer
 				throw error;
 			}
 
-			console.log(`${chalk.blue(`➔ http://localhost:${options.port}`)}\n`);
+			console.log(`${chalk.blue(`http://localhost:${options.port}`)}\n`);
 
 			return task.newListr(
 				[

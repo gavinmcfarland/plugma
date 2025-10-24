@@ -12,7 +12,7 @@ function watchForFileChanges(client) {
 	// Mock directory to watch - adjust this path as needed
 	const watchDir = join(process.cwd());
 
-	console.log(chalk.green("✓"), chalk.dim(`Watching directory: ${watchDir}`));
+	console.log(chalk.dim(`Watching directory: ${watchDir}`));
 
 	watch(watchDir, { recursive: true }, (eventType, filename) => {
 		console.log(chalk.green("✓"), chalk.dim(`File changed: ${filename}`));
