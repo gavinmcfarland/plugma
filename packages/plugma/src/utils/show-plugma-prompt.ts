@@ -16,6 +16,6 @@ export async function showPlugmaPrompt() {
 
 	// Match original formatting with chalk
 	console.log(
-		`\n${chalk.bgMagenta(' Plugma ')} ${chalk.grey(`v${version}${DEVELOPING_LOCALLY ? ' [development]' : ''}`)}\n`,
+		`${chalk.bgHex('#883AE2')(' Plugma ')} ${chalk.grey(`v${version}${DEVELOPING_LOCALLY ? ' [development]' : ''}`)}\n`,
 	);
 }

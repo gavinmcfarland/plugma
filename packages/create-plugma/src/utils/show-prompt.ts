@@ -39,6 +39,6 @@ export async function showCreatePlugmaPrompt() {
 		await note(`[ Plugma ]{bg#883AE2} ${chalk.grey(`v${version}${DEVELOPING_LOCALLY ? ' [development]' : ''}`)}`);
 	} catch (error) {
 		// Fallback if versions.json can't be read
-		await note(`\n${chalk.bgMagenta(' Plugma ')}`);
+		await note(`${chalk.bgHex('#883AE2')(' Plugma ')}`);
 	}
 }
