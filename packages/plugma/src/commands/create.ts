@@ -2,18 +2,26 @@
  * Create command - delegates to create-plugma package
  */
 
-import { create as createFromPlugma, type CreateCommandOptions as CreatePlugmaOptions } from 'create-plugma';
 import { CreateCommandOptions } from '../utils/create-options.js';
 
 /**
- * Delegate to create-plugma package by directly calling its create function
+ * Delegate to create-plugma package by dynamically importing its create function
  */
 export async function create(options: CreateCommandOptions): Promise<void> {
-	// Convert plugma options to create-plugma options format
-	const createPlugmaOptions: CreatePlugmaOptions = {
-		...options,
-	};
+	try {
+		// Dynamic import of create-plugma
+		const { create: createFromPlugma } = await import('create-plugma');
 
-	// Directly call the create function from create-plugma
-	await createFromPlugma(createPlugmaOptions);
+		// Convert plugma options to create-plugma options format
+		const createPlugmaOptions = {
+			...options,
+		};
+
+		// Directly call the create function from create-plugma
+		await createFromPlugma(createPlugmaOptions);
+	} catch (error) {
+		console.error('Error: create-plugma package not found. Please install it separately.');
+		console.error('Run: npm install create-plugma');
+		process.exit(1);
+	}
 }
