@@ -31,10 +31,13 @@
 		"dev:apps": "nr build:dev-server --watch && nr build:figma-bridge --watch",
 		"dev:plugma": "tsc -p tsconfig.build.json --watch",
 		"dev": "nr clean && concurrently -n apps,plugma 'nr dev:apps' 'nr dev:plugma'",
+		"sync-shared": "./scripts/sync-shared.sh",
+		"dev:shared": "concurrently -n shared-sync,plugma 'chokidar ../shared/src/**/*.ts -c ./scripts/sync-shared.sh' 'nr dev:plugma'",
 		"dev:setup": "node scripts/manage-versions.js dev",
 		"lint:fix": "biome check --fix .",
 		"lint:unsafe-fix": "biome check --unsafe-fix .",
 		"lint": "biome check .",
+		"prepack": "npm run sync-shared",
 		"prepublishOnly": "node scripts/manage-versions.js publish && nr build:prod",
 		"test:coverage": "vitest --run --coverage",
 		"test:watch": "vitest",
@@ -60,7 +63,6 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"@plugma/shared": "link:../shared",
 		"chalk": "^5.4.1",
 		"chokidar": "^4.0.3",
 		"commander": "^12.1.0",
@@ -80,9 +82,6 @@
 		"vitest": "^3.1.1",
 		"ws": "^8.18.1"
 	},
-	"bundledDependencies": [
-		"@plugma/shared"
-	],
 	"devDependencies": {
 		"@antfu/ni": "^23.2.0",
 		"@figma/plugin-typings": "^1.107.0-beta.1",
@@ -92,7 +91,9 @@
 		"@types/node": "^22.12.0",
 		"@types/ws": "^8.5.13",
 		"@vitest/ui": "^3.0.4",
+		"@plugma/shared": "link:../shared",
 		"biome": "^0.3.3",
+		"chokidar": "^4.0.3",
 		"concurrently": "^9.1.2",
 		"rollup": "^4.50.2",
 		"svelte": "^5.0.5",

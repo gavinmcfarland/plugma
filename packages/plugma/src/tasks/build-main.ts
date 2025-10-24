@@ -5,7 +5,7 @@ import type { PluginOptions } from '../core/types.js';
 import { createViteConfigs } from '../utils/config/create-vite-configs.js';
 import { viteState } from '../utils/vite-state-manager.js';
 import { loadConfig } from '../utils/config/load-config.js';
-import { getUserFiles } from '@plugma/shared';
+import { getUserFiles } from '../shared/index.js';
 import { access } from 'node:fs/promises';
 import { Timer } from '../utils/timer.js';
 import { ListrLogLevels, ListrTask, Listr } from 'listr2';

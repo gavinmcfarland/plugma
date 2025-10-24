@@ -10,7 +10,7 @@ import { Listr } from 'listr2';
 import { fileExists } from './utils.js';
 import { notifyInvalidManifestOptions } from '../../utils/config/notify-invalid-manifest-options.js';
 import { buildManifestFile } from './manifest-builder.js';
-import { getManifestPaths } from '@plugma/shared';
+import { getManifestPaths } from '../../shared/index.js';
 
 export interface WatcherState {
 	previousMainValue: string | undefined;

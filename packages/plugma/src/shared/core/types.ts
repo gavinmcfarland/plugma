@@ -1,14 +1,7 @@
-//@index('./**/types.ts', f => `export * from '${f.path}.js';`)
 import type { PackageJson } from 'type-fest';
-import type { BaseOptions } from '../shared/index.js';
-//@endindex
-
 import type { UserConfig } from 'vite';
 
 export type PlugmaCommand = 'build' | 'dev' | 'test' | 'preview';
-
-// TODO: Remove eventually
-export type PluginOptions = BaseOptions;
 
 export interface UserPluginOptions {
 	mode?: string;
@@ -18,8 +11,6 @@ export interface UserPluginOptions {
 	watch?: boolean;
 	cwd: string;
 }
-
-export type PlugmaRuntimeData = PluginOptions;
 
 /**
  * Manifest file structure for Figma plugins
@@ -37,7 +28,7 @@ export interface ManifestFile {
 	[key: string]: unknown;
 }
 
-export type PlugmaPackageJson = typeof import('../../package.json');
+export type PlugmaPackageJson = typeof import('../../../package.json');
 export type UserPackageJson = PackageJson & {
 	plugma?: {
 		manifest?: ManifestFile;

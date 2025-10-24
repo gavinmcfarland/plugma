@@ -1,6 +1,6 @@
 import type { ManifestFile } from '../../core/types.js';
 import { BuildCommandOptions, DevCommandOptions, PreviewCommandOptions } from '../../utils/create-options.js';
-import { getUserFiles } from '@plugma/shared';
+import { getUserFiles } from '../../shared/index.js';
 import { transformManifest } from '../../utils/transform-manifest.js';
 import { join, resolve } from 'node:path';
 import { access, mkdir, writeFile } from 'node:fs/promises';

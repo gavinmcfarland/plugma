@@ -8,7 +8,7 @@ import { BuildCommandOptions, DevCommandOptions, PreviewCommandOptions } from '.
 import { createViteConfigs } from '../utils/config/create-vite-configs.js';
 import { createViteServerConfig } from '../utils/config/create-server-config.js';
 import { viteState } from '../utils/vite-state-manager.js';
-import { getUserFiles } from '@plugma/shared';
+import { getUserFiles } from '../shared/index.js';
 import { createDebugAwareLogger } from '../utils/debug-aware-logger.js';
 import chalk from 'chalk';
 import { resolve } from 'node:path';

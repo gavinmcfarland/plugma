@@ -6,7 +6,7 @@ export * from '../vite-plugins/build-notifier.js';
 export * from './filter-null-props.js';
 export * from './fs/index.js';
 export * from './get-dir-name.js';
-export { getRandomPort, MANIFEST_FILE_NAMES, getManifestPaths, getUserFiles } from '@plugma/shared';
+export { getRandomPort, MANIFEST_FILE_NAMES, getManifestPaths, getUserFiles } from '../shared/index.js';
 export * from './is-node.js';
 export * from './log/index.js';
 export * from './time.js';

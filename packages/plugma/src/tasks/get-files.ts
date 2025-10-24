@@ -1,7 +1,7 @@
 import type { PluginOptions, PlugmaPackageJson, UserFiles } from '../core/types.js';
 import { createViteConfigs } from '../utils/config/create-vite-configs.js';
-import { getUserFiles } from '@plugma/shared';
-import { readJson } from '@plugma/shared';
+import { getUserFiles } from '../shared/index.js';
+import { readJson } from '../shared/index.js';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 

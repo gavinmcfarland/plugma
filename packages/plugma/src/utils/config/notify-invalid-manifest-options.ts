@@ -35,7 +35,7 @@ import chalk from 'chalk';
 import { access, lstat, rm, unlink } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { formatTime } from '../time.js';
-import { getUserFiles } from '@plugma/shared';
+import { getUserFiles } from '../../shared/index.js';
 
 type ValidationEventType = 'manifest-changed' | 'file-added' | 'plugin-built' | 'on-initialisation';
 

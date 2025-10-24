@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { readJson } from '@plugma/shared';
+import { readJson } from '../shared/index.js';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { PlugmaPackageJson } from '../core/types.js';
