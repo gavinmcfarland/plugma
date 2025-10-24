@@ -39,6 +39,9 @@ print_status "Setting versions.json files to development mode..."
 if [ -f "packages/plugma/scripts/manage-versions.js" ]; then
     node packages/plugma/scripts/manage-versions.js dev
     print_success "Development mode configured successfully!"
+elif [ -f "../plugma/scripts/manage-versions.js" ]; then
+    node ../plugma/scripts/manage-versions.js dev
+    print_success "Development mode configured successfully!"
 else
     print_error "manage-versions.js script not found!"
     exit 1

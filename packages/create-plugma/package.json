@@ -12,11 +12,12 @@
 		"./cli": "./dist/create-plugma.js"
 	},
 	"scripts": {
-		"build": "tsc -p tsconfig.build.json",
+		"build": "bash ../../dev-setup.sh && tsc -p tsconfig.build.json",
+		"build:prod": "tsc -p tsconfig.build.json",
 		"dev": "tsc -p tsconfig.build.json --watch",
 		"dev:setup": "node ../plugma/scripts/manage-versions.js dev",
 		"test": "echo \"Error: no test specified\"",
-		"prepublishOnly": "node ../plugma/scripts/manage-versions.js publish && npm run build",
+		"prepublishOnly": "node ../plugma/scripts/manage-versions.js publish && npm run build:prod",
 		"format:templates": "prettier --write templates/**/*.{js,ts,jsx,tsx,json,md}",
 		"version": "node ../plugma/scripts/bump-plugma-version.js"
 	},
