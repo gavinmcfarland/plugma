@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "child_process";
+import { readFileSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /**
  * Get the appropriate dist tag based on CLI args, environment variables, or development mode
@@ -38,21 +44,17 @@ function run(cmd, args) {
   process.exit(res.status ?? 0);
 }
 
-async function forwardToCreate(restArgs) {
+function forwardToCreate(restArgs) {
   const pm = detectPM();
   const pkg = "create-plugma";
 
   // Read create-plugma version from versions.json
   let version;
   try {
-    const { readFileSync } = await import('node:fs');
-    const { join } = await import('node:path');
     const versionsJson = JSON.parse(readFileSync(join(__dirname, '../versions.json'), 'utf8'));
     version = process.env.PLUGMA_CREATE_VERSION || versionsJson["create-plugma"];
   } catch (error) {
     // Fallback to package.json version if versions.json doesn't exist or is invalid
-    const { readFileSync } = await import('node:fs');
-    const { join } = await import('node:path');
     const packageJson = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf8'));
     version = process.env.PLUGMA_CREATE_VERSION || packageJson.version;
   }
@@ -73,10 +75,10 @@ async function forwardToCreate(restArgs) {
 const args = process.argv.slice(2);
 
 if (args[0] === "create") {
-  await forwardToCreate(args.slice(1));
+  forwardToCreate(args.slice(1));
 } else if (args[0] === "add") {
   // Forward add command to create-plugma as well
-  await forwardToCreate(args);
+  forwardToCreate(args);
 } else {
   // Import and run the normal plugma CLI for other commands
   await import('../dist/bin/cli.js');
