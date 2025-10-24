@@ -16,8 +16,7 @@ async function setDevelopmentMode() {
 	console.log('🔗 Setting versions.json files to development mode (link: dependencies)');
 
 	const developmentVersions = {
-		plugmaNext: "1.0.0-38",
-		plugma: "link:../plugma"
+		plugma: "file:../plugma"
 	};
 
 	try {
@@ -30,7 +29,7 @@ async function setDevelopmentMode() {
 		console.log('✅ Updated versions.json files for development:');
 		console.log('   - packages/plugma/versions.json');
 		console.log('   - packages/create-plugma/versions.json');
-		console.log('   - plugma dependency set to: link:../plugma');
+		console.log('   - plugma dependency set to: file:../plugma');
 	} catch (error) {
 		console.error('❌ Error updating versions.json files for development:', error);
 		process.exit(1);
@@ -49,7 +48,6 @@ async function setPublishMode() {
 	const actualVersion = packageJson.version;
 
 	const publishVersions = {
-		plugmaNext: "1.0.0-38",
 		plugma: `^${actualVersion}`
 	};
 
