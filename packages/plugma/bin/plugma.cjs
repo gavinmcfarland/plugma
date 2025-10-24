@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "child_process";
+import { readFileSync } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 function detectPM() {
   // works for npm/pnpm/yarn/bun when invoked via npx/dlx/etc.
@@ -19,8 +25,9 @@ function run(cmd, args) {
 function forwardToCreate(restArgs) {
   const pm = detectPM();
   const pkg = "create-plugma";
-  // Use latest version for now, can be overridden with PLUGMA_CREATE_VERSION
-  const version = process.env.PLUGMA_CREATE_VERSION || "latest";
+  // Pin to the same version as plugma for consistency
+  const packageJson = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf8'));
+  const version = process.env.PLUGMA_CREATE_VERSION || packageJson.version;
   const spec = `${pkg}@${version}`;
 
   if (pm === "pnpm") return run("pnpm", ["dlx", spec, ...restArgs]);

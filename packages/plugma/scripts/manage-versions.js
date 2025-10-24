@@ -5,9 +5,8 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Define paths to both versions.json files
+// Define path to versions.json file
 const plugmaVersionsPath = resolve(__dirname, '../versions.json');
-const createPlugmaVersionsPath = resolve(__dirname, '../../create-plugma/versions.json');
 
 /**
  * Update versions.json files for development mode (use link: dependencies)
@@ -21,18 +20,14 @@ async function setDevelopmentMode() {
 	};
 
 	try {
-		// Update both files
-		await Promise.all([
-			writeFile(plugmaVersionsPath, JSON.stringify(developmentVersions, null, 2) + '\n'),
-			writeFile(createPlugmaVersionsPath, JSON.stringify(developmentVersions, null, 2) + '\n')
-		]);
+		// Update versions.json file
+		await writeFile(plugmaVersionsPath, JSON.stringify(developmentVersions, null, 2) + '\n');
 
-		console.log('✅ Updated versions.json files for development:');
+		console.log('✅ Updated versions.json file for development:');
 		console.log('   - packages/plugma/versions.json');
-		console.log('   - packages/create-plugma/versions.json');
 		console.log('   - plugma dependency set to: link:../plugma');
 	} catch (error) {
-		console.error('❌ Error updating versions.json files for development:', error);
+		console.error('❌ Error updating versions.json file for development:', error);
 		process.exit(1);
 	}
 }
@@ -54,18 +49,14 @@ async function setPublishMode() {
 	};
 
 	try {
-		// Update both files
-		await Promise.all([
-			writeFile(plugmaVersionsPath, JSON.stringify(publishVersions, null, 2) + '\n'),
-			writeFile(createPlugmaVersionsPath, JSON.stringify(publishVersions, null, 2) + '\n')
-		]);
+		// Update versions.json file
+		await writeFile(plugmaVersionsPath, JSON.stringify(publishVersions, null, 2) + '\n');
 
-		console.log('✅ Updated versions.json files for publishing:');
+		console.log('✅ Updated versions.json file for publishing:');
 		console.log('   - packages/plugma/versions.json');
-		console.log('   - packages/create-plugma/versions.json');
 		console.log(`   - plugma dependency set to: ^${actualVersion}`);
 	} catch (error) {
-		console.error('❌ Error updating versions.json files for publishing:', error);
+		console.error('❌ Error updating versions.json file for publishing:', error);
 		process.exit(1);
 	}
 }
