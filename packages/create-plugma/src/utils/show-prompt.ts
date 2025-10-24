@@ -13,6 +13,11 @@ export async function showCreatePlugmaPrompt() {
 		let version = versions.plugma || '2.0.0';
 		const DEVELOPING_LOCALLY = process.env.PLUGMA_DEVELOPING_LOCALLY === 'true';
 
+		// Strip caret prefix if present (e.g., "^2.0.39" -> "2.0.39")
+		if (typeof version === 'string' && version.startsWith('^')) {
+			version = version.substring(1);
+		}
+
 		// If version is a link reference (e.g., "link:../../plugma"), read from the linked package
 		if (typeof version === 'string' && version.startsWith('link:')) {
 			try {
