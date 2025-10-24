@@ -1612,7 +1612,7 @@ async function createProjectFromOptions(params: {
 
 	// Build success message with next steps
 	const packageManager = pkgManager || selectedPackageManager || 'npm';
-	const nextStepsLines: string[] = ['[ Next Steps ]{bgBlue}\n'];
+	const nextStepsLines: string[] = ['[ All Set! ]{bgBlue}\n'];
 
 	nextStepsLines.push(`1. Change dir \`cd ./${rawDirName}\``);
 
