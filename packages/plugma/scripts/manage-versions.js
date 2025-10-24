@@ -15,8 +15,14 @@ const createPlugmaVersionsPath = resolve(__dirname, '../../create-plugma/version
 async function setDevelopmentMode() {
 	console.log('🔗 Setting versions.json files to development mode (link: dependencies)');
 
+	// Read create-plugma package.json to get its version for development
+	const createPlugmaPackageJsonPath = resolve(__dirname, '../../create-plugma/package.json');
+	const createPlugmaPackageJson = JSON.parse(await readFile(createPlugmaPackageJsonPath, 'utf8'));
+	const createPlugmaVersion = createPlugmaPackageJson.version;
+
 	const developmentVersions = {
-		plugma: "link:../plugma"
+		plugma: "link:../plugma",
+		"create-plugma": createPlugmaVersion
 	};
 
 	try {
@@ -30,6 +36,7 @@ async function setDevelopmentMode() {
 		console.log('   - packages/plugma/versions.json');
 		console.log('   - packages/create-plugma/versions.json');
 		console.log('   - plugma dependency set to: link:../plugma');
+		console.log(`   - create-plugma version set to: ${createPlugmaVersion}`);
 	} catch (error) {
 		console.error('❌ Error updating versions.json files for development:', error);
 		process.exit(1);
@@ -47,8 +54,14 @@ async function setPublishMode() {
 	const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8'));
 	const actualVersion = packageJson.version;
 
+	// Read create-plugma package.json to get its version
+	const createPlugmaPackageJsonPath = resolve(__dirname, '../../create-plugma/package.json');
+	const createPlugmaPackageJson = JSON.parse(await readFile(createPlugmaPackageJsonPath, 'utf8'));
+	const createPlugmaVersion = createPlugmaPackageJson.version;
+
 	const publishVersions = {
-		plugma: `^${actualVersion}`
+		plugma: `^${actualVersion}`,
+		"create-plugma": createPlugmaVersion
 	};
 
 	try {
@@ -62,6 +75,7 @@ async function setPublishMode() {
 		console.log('   - packages/plugma/versions.json');
 		console.log('   - packages/create-plugma/versions.json');
 		console.log(`   - plugma dependency set to: ^${actualVersion}`);
+		console.log(`   - create-plugma version set to: ${createPlugmaVersion}`);
 	} catch (error) {
 		console.error('❌ Error updating versions.json files for publishing:', error);
 		process.exit(1);

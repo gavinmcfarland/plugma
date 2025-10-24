@@ -41,9 +41,22 @@ function run(cmd, args) {
 async function forwardToCreate(restArgs) {
   const pm = detectPM();
   const pkg = "create-plugma";
-  // Get dist tag using the same logic as plugma
-  const distTag = await getDistTag();
-  const version = process.env.PLUGMA_CREATE_VERSION || distTag;
+
+  // Read create-plugma version from versions.json
+  let version;
+  try {
+    const { readFileSync } = await import('node:fs');
+    const { join } = await import('node:path');
+    const versionsJson = JSON.parse(readFileSync(join(__dirname, '../versions.json'), 'utf8'));
+    version = process.env.PLUGMA_CREATE_VERSION || versionsJson["create-plugma"];
+  } catch (error) {
+    // Fallback to package.json version if versions.json doesn't exist or is invalid
+    const { readFileSync } = await import('node:fs');
+    const { join } = await import('node:path');
+    const packageJson = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf8'));
+    version = process.env.PLUGMA_CREATE_VERSION || packageJson.version;
+  }
+
   const spec = `${pkg}@${version}`;
 
   // Set PLUGMA_DEVELOPING_LOCALLY for create-plugma to detect development mode

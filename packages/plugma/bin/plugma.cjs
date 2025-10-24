@@ -25,9 +25,18 @@ function run(cmd, args) {
 function forwardToCreate(restArgs) {
   const pm = detectPM();
   const pkg = "create-plugma";
-  // Pin to the same version as plugma for consistency
-  const packageJson = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf8'));
-  const version = process.env.PLUGMA_CREATE_VERSION || packageJson.version;
+
+  // Read create-plugma version from versions.json
+  let version;
+  try {
+    const versionsJson = JSON.parse(readFileSync(join(__dirname, '../versions.json'), 'utf8'));
+    version = process.env.PLUGMA_CREATE_VERSION || versionsJson["create-plugma"];
+  } catch (error) {
+    // Fallback to package.json version if versions.json doesn't exist or is invalid
+    const packageJson = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf8'));
+    version = process.env.PLUGMA_CREATE_VERSION || packageJson.version;
+  }
+
   const spec = `${pkg}@${version}`;
 
   if (pm === "pnpm") return run("pnpm", ["dlx", spec, ...restArgs]);

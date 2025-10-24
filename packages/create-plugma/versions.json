@@ -1,3 +1,4 @@
 {
-  "plugma": "link:../plugma"
+  "plugma": "link:../plugma",
+  "create-plugma": "2.0.34"
 }
