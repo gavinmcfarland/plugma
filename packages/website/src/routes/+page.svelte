@@ -33,9 +33,9 @@
 		</div>
 		<div class="max-w-6xl mx-auto">
 			<div class="text-center">
-				<Badge>New V2</Badge>
+				<Badge href="/whats-new">V2: What's new <Icon svg="arrow-right" size={16} /></Badge>
 				<h1 class="text-4xl/tight md:text-7xl/tight text-center font-medium mb-4">
-					Experience the future<br /> of Figma plugin development
+					Build Figma plugins<br /> without the hassle
 				</h1>
 				<p class="mb-10">Supports React, Svelte, Vue, and vanilla JS/TS</p>
 				<Code2
@@ -83,17 +83,17 @@
 	</Section> -->
 
 	<Section class="border-t-0 pt-0 md:pt-0">
-		<h2 class="text-3xl text-center font-medium mb-12">Features</h2>
+		<h2 class="text-3xl text-center font-medium mb-12">Why Choose Plugma</h2>
 
 		<div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
 			<Card>
 				<div class="flex flex-col gap-3">
 					<span class="flex gap-3 font-semibold"
-						><Icon svg="terminal" size={24} opacity={1} />Minimal Configuration</span
+						><Icon svg="terminal" size={24} opacity={1} />Start Building in Minutes</span
 					>
 					<p class="m-0">
-						Get started quickly with minimal configuration, everything from bundling to
-						setup is handled for you, so your plugin just works in Figma.
+						Skip the tedious setup process. Get from idea to working plugin in minutes,
+						not hours. Focus on your plugin's functionality, not configuration.
 					</p>
 				</div>
 			</Card>
@@ -101,12 +101,12 @@
 			<Card>
 				<div class="flex flex-col gap-3">
 					<span class="flex gap-3 font-semibold"
-						><Icon svg="globe" size={24} opacity={1} />Browser Preview</span
+						><Icon svg="globe" size={24} opacity={1} />Ship with Confidence</span
 					>
 					<p class="m-0">
-						Preview your plugin across multiple browsers during development before
-						publishing. Make use of tools like <b>Playwright</b> to ensure consistent behavior
-						across browsers.
+						Test your plugin across all browsers before users see it. Catch bugs early
+						and ensure consistent behavior everywhere, saving you from embarrassing
+						post-launch fixes.
 					</p>
 				</div>
 			</Card>
@@ -114,12 +114,13 @@
 			<Card>
 				<div class="flex flex-col gap-3">
 					<span class="flex gap-3 font-semibold"
-						><Icon svg="layout" size={24} opacity={1} />Developer Tools</span
+						><Icon svg="layout" size={24} opacity={1} />Debug Like a Pro</span
 					>
 					<p class="m-0">
-						Quickly preview in browser, minimize the plugin window, and clear stored
-						data, all from the plugin window. Activate or hide the developer toolbar
-						instantly with <kbd>Cmd</kbd> + <kbd>Opt</kbd> + <kbd>J</kbd>.
+						Stop wasting time switching between tools. Preview, test, and debug
+						everything from one place. Clear data, minimize windows, and access
+						developer tools instantly with <kbd>Cmd</kbd> + <kbd>Opt</kbd> +
+						<kbd>J</kbd>.
 					</p>
 				</div>
 			</Card>
@@ -127,12 +128,12 @@
 			<Card>
 				<div class="flex flex-col gap-3">
 					<span class="flex gap-3 font-semibold"
-						><Icon svg="copy" size={24} opacity={1} />Modes and Environments</span
+						><Icon svg="copy" size={24} opacity={1} />Deploy Anywhere</span
 					>
 					<p class="m-0">
-						Test various setups with <code>.env</code> variables and the
-						<code>--mode</code> option, allowing you to build, run, and debug for different
-						environments with ease.
+						Build once, deploy everywhere. Switch between staging, production, and
+						testing environments instantly. No more manual config changes or deployment
+						anxiety.
 					</p>
 				</div>
 			</Card>
@@ -140,12 +141,12 @@
 			<Card>
 				<div class="flex flex-col gap-3">
 					<span class="flex gap-3 font-semibold"
-						><Icon svg="cloud-upload-alt" size={24} opacity={1} />GitHub Workflows</span
+						><Icon svg="cloud-upload-alt" size={24} opacity={1} />Never Miss a Release</span
 					>
 					<p class="m-0">
-						Sync your Figma release with your source code using a single command.
-						Automatically bump versions and create GitHub releases to keep everything
-						aligned and easy to track.
+						Keep your Figma plugin and GitHub releases perfectly synced. One command
+						handles versioning and releases. Never lose track of what you've shipped
+						again.
 					</p>
 				</div>
 			</Card>
@@ -153,12 +154,13 @@
 			<Card>
 				<div class="flex flex-col gap-3">
 					<span class="flex gap-3 font-semibold"
-						><Icon svg="package" size={24} opacity={1} />Optimized Bundling</span
+						><Icon svg="package" size={24} opacity={1} />Lightning-Fast Performance</span
 					>
 					<p class="m-0">
-						Powered by <b>Vite</b> for lightning-fast builds and efficient bundling. All
-						scripts, styles, and assets are inlined for seamless use in Figma, keeping your
-						plugin lightweight and production-ready.
+						Your users get blazing-fast plugins that load instantly. Powered by <b
+							>Vite</b
+						>, everything is optimized and inlined for maximum performance. No more slow
+						loading or bloated bundles.
 					</p>
 				</div>
 			</Card>
@@ -179,25 +181,31 @@
 	</Section>
 
 	<Section class="commands">
-		<h2 class="text-3xl text-center font-medium mb-12">Commands</h2>
+		<h2 class="text-3xl text-center font-medium mb-12">Everything You Need</h2>
 		<div class="lg:max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
 			<div>
 				<h3 class="font-bold mb-2">Start dev server</h3>
 				<Code2 class_="mb-1" lang="bash" text="plugma dev" />
-				<p>Development is faster because it doesn't require a rebuild for each change.</p>
+				<p>
+					Start your development server with hot reloading for instant UI updates and
+					faster iteration cycles.
+				</p>
 			</div>
 			<div>
 				<h3 class="font-bold mb-2">Create a build</h3>
 				<Code2 class_="mb-1" lang="bash" text="plugma build" />
 				<p>
-					When you're ready to publish, create a minified version with with everything
-					inlined.
+					Generate a production-ready, minified build optimized for publishing to the
+					Figma community.
 				</p>
 			</div>
 			<div>
 				<h3 class="font-bold mb-2">Release to github</h3>
 				<Code2 class_="mb-1" lang="bash" text="plugma release" />
-				<p>A built-in command that allows you to keep track of your releases.</p>
+				<p>
+					Automatically manage versioning and track your plugin releases with seamless
+					GitHub integration.
+				</p>
 			</div>
 		</div>
 	</Section>

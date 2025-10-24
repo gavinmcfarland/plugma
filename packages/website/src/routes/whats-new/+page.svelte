@@ -38,80 +38,99 @@
 				<h2 class="text-8xl font-semibold">V2</h2>
 				<Badge class="mt-2">Try it now!</Badge>
 			</div>
-			<Code lang="bash" text="npm create plugma@next" class="w-full" persistCopyButton></Code>
+			<Code lang="bash" text="npm create plugma@latest" class="w-full" persistCopyButton
+			></Code>
 		</div>
 		<div
 			class="border rounded-lg sm:col-span-12 lg:col-span-8 p-10 grid grid-cols-1 md:grid-cols-2 gap-9"
 		>
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="clipboard-check" size={24} opacity={1} />Unit Testing</span
+					><Icon svg="apps" size={24} opacity={1} />Widget Support</span
 				>
 				<p class="m-0">
-					Test the live Figma API using Vitest. Write tests with files that end with
-					<code>.test.ts</code> and run tests using the new <code>test</code> command. Your
-					tests run directly in the Figma Desktop app, giving you access to the real Figma
-					API.
+					Full support for Figma widgets with a unified CLI for both plugins and widgets.
+					Multiple templates showcase real use cases and demonstrate how to use the Figma
+					API effectively for different scenarios.
 				</p>
 			</div>
 
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="screen-control" size={24} opacity={1} />End to End Testing</span
+					><Icon svg="apps" size={24} opacity={1} />Context-Aware Bundling</span
 				>
 				<p class="m-0">
-					Test your UI with Playwright. Record and run end-to-end tests with Playwright's
-					tools. Use the <code>playwright test</code> command to run your tests, or
-					<code>playwright codegen</code> to record new tests interactively.
+					Configure different bundling options for main and UI code using the <code
+						>context</code
+					>
+					option in your <code>vite.config.js</code>. Apply plugins conditionally based on
+					whether you're building the main thread or UI code.
 				</p>
 			</div>
 
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="globe" size={24} opacity={1} />Reliable Browser Preview</span
+					><Icon svg="terminal" size={24} opacity={1} />Minimal Configuration</span
 				>
 				<p class="m-0">
-					We've improved the browser preview's reliability and responsiveness. Previously,
-					missed messages and performance issues could occur if either party wasn't
-					available.
+					No more manual network access configuration in your manifest file. WebSocket and
+					browser preview are enabled automatically. True zero-config approach means you
+					can start building immediately without setup hassles.
 				</p>
 			</div>
 
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="apps" size={24} opacity={1} />Enhanced Bundling Config</span
+					><Icon svg="globe" size={24} opacity={1} />Rock-Solid Browser Preview</span
 				>
-
-				<!-- <p class="m-0">
-					Better support for different contexts using a special <code>context</code>
-					option. You can now specify different configurations for <code>main</code> and
-					<code>ui</code> with a single <code>vite.config.js</code> file.
-				</p> -->
 				<p class="m-0">
-					You can now specify different configurations for both the <code>main</code> code
-					and <code>ui</code> with a <code>vite.config.main.js</code> and
-					<code>vite.config.ui.js</code> file respectively.
+					WebSocket connections now wait until fully established before sending messages.
+					Dark/light mode syncs instantly, and you can preview with minimized plugin
+					windows to keep your workspace clean.
 				</p>
 			</div>
 
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="layout" size={24} opacity={1} />Custom Template</span
+					><Icon svg="layout" size={24} opacity={1} />Brand New CLI Wizard</span
 				>
 				<p class="m-0">
-					You can now provide a custom <code>index.html</code> template. This is useful if
-					you need to include additional frameworks or libraries in your plugin.
+					A brand new CLI wizard that supports adding integrations and installing using
+					any package manager. Streamlined commands make development faster than ever with
+					automatic dependency management and intelligent package manager detection.
 				</p>
 			</div>
 
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="bug" size={24} opacity={1} />Squashed Bugs</span
+					><Icon svg="layout" size={24} opacity={1} />Custom HTML Templates</span
 				>
 				<p class="m-0">
-					Bug fixes and improvements make your development experience more reliable.
-					Changes to
-					<code>manifest.json</code> now trigger rebuilds automatically.
+					Specify your own HTML template for entry files, giving you complete control over
+					the initial structure. Perfect for advanced users who need custom frameworks or
+					libraries that require specific HTML setup.
+				</p>
+			</div>
+
+			<div class="flex flex-col gap-3">
+				<span class="flex gap-3 font-semibold"
+					><Icon svg="bug" size={24} opacity={1} />Enhanced Developer Experience</span
+				>
+				<p class="m-0">
+					Better source mapping for main code makes debugging easier. Chrome DevTools
+					workspace integration lets you edit files directly from the browser. Improved
+					CLI output and error formatting provide clearer feedback during development.
+				</p>
+			</div>
+
+			<div class="flex flex-col gap-3">
+				<span class="flex gap-3 font-semibold"
+					><Icon svg="package" size={24} opacity={1} />One-Click Integrations</span
+				>
+				<p class="m-0">
+					Add powerful tools instantly with <code>plugma add</code>. Choose from Tailwind
+					CSS, Shadcn UI, Prettier, ESLint, Vitest, and Playwright. Each integration comes
+					with pre-configured setup and example code.
 				</p>
 			</div>
 		</div>
