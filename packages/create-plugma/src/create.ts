@@ -1403,7 +1403,7 @@ async function createProjectFromOptions(params: {
 		{
 			label: {
 				idle: `Creating ${type} from template...`,
-				success: `${type.charAt(0).toUpperCase() + type.slice(1)} created successfully`,
+				success: `${type.charAt(0).toUpperCase() + type.slice(1)} created successfully!`,
 			},
 			action: async () => {
 				const templatesPath = getTemplatesPath();

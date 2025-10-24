@@ -53,8 +53,8 @@ export function createIntegrationSetupTask(options: IntegrationTaskOptions): Tas
 
 	return {
 		label: {
-			idle: `Integrating chosen add-ons...`,
-			success: `Add-ons integrated successfully`,
+			idle: `Adding chosen integrations...`,
+			success: `Integrations added successfully!`,
 		},
 		action: async () => {},
 		concurrent: false,
