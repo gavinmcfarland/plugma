@@ -26,7 +26,10 @@ export function parseAddArgs(integration: string | string[] | undefined, existin
 	if (integration) {
 		if (Array.isArray(integration)) {
 			// Multiple integrations provided
-			enhancedOptions.integration = integration.map((integ) => integ.toLowerCase());
+			// Only set if array is not empty (empty array means no args were provided)
+			if (integration.length > 0) {
+				enhancedOptions.integration = integration.map((integ) => integ.toLowerCase());
+			}
 		} else {
 			// Single integration provided
 			enhancedOptions.integration = integration.toLowerCase();
