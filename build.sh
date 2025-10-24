@@ -134,6 +134,12 @@ main() {
         clean_all
     fi
 
+    # Set versions for publishing mode
+    print_status "Setting versions.json files to publish mode..."
+    if [ -f "packages/plugma/scripts/manage-versions.js" ]; then
+        node packages/plugma/scripts/manage-versions.js publish
+    fi
+
     # Build packages in dependency order
     # 1. create-plugma (no dependencies on other packages)
     if [ -d "packages/create-plugma" ]; then

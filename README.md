@@ -49,6 +49,49 @@ Or install it globally:
 npm install -g plugma
 ```
 
+## Development
+
+If you're contributing to Plugma or want to run it locally:
+
+1. **Clone the repository:**
+
+    ```bash
+    git clone https://github.com/your-org/plugma.git
+    cd plugma
+    ```
+
+2. **Install dependencies:**
+
+    ```bash
+    npm install
+    ```
+
+3. **Set up development environment:**
+
+    ```bash
+    ./dev-setup.sh
+    ```
+
+    This configures the `versions.json` files to use `link:../../plugma` dependencies for local development.
+
+4. **Start development:**
+
+    ```bash
+    # In packages/plugma
+    npm run dev
+
+    # In packages/create-plugma (separate terminal)
+    npm run dev
+    ```
+
+5. **When ready to publish:**
+    ```bash
+    # This automatically sets versions.json to use actual version numbers
+    npm run prepublishOnly
+    ```
+
+The development setup ensures that when you create new plugins using `create-plugma`, they will use the local development version of `plugma` instead of the published version.
+
 ## Commands
 
 | Command          | Description                       |

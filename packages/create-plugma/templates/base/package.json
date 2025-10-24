@@ -11,6 +11,6 @@
         "@figma/plugin-typings": "^1.100.2"
         <% } else { %>,
         "@figma/widget-typings": "^1.12.1"<% } %>,
-		"plugma": "^<%- versions.plugma %>"
+		"plugma": "<%- versions.plugma %>"
 	}
 }
