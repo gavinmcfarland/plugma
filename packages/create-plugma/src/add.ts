@@ -10,7 +10,7 @@ import { promptAndInstallDependencies } from './utils/dependency-installer.js';
 import { promptForIntegrations, INTEGRATIONS } from './utils/integration-prompter.js';
 import { createIntegrationSetupTask, createPostSetupTask } from './utils/integration-task-builder.js';
 import { showCreatePlugmaPrompt } from './utils/show-prompt.js';
-import { getUserFiles } from '@plugma/shared';
+import { getUserFiles } from './shared/index.js';
 
 // Helper to sleep
 function sleep(ms: number): Promise<void> {

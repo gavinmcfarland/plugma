@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { getRandomPort } from '../shared/index.js';
+import { getRandomPort } from './get-random-port.js';
 import { ManifestFile } from '../core/types.js';
 
 export const DEFAULT_OPTIONS = {
@@ -69,10 +69,8 @@ export interface CommandOptions {
 	};
 	add: MinimalBaseOptions & {
 		command: 'add';
-		integration?: string | string[];
+		integration?: string;
 		verbose?: boolean;
-		noInstall?: boolean;
-		install?: string | boolean;
 	};
 	create: MinimalBaseOptions & {
 		command: 'create';
@@ -83,13 +81,11 @@ export interface CommandOptions {
 		react?: boolean;
 		svelte?: boolean;
 		vue?: boolean;
-		noUi?: boolean;
 		template?: string;
 		noTypescript?: boolean;
 		noIntegrations?: boolean;
-		add?: string[] | false;
 		noInstall?: boolean;
-		install?: string | boolean;
+		install?: string;
 		yes?: boolean;
 		verbose?: boolean;
 	};
@@ -192,22 +188,10 @@ export function createOptions<T extends keyof CommandOptions>(
 		delete userOptions.typescript;
 	}
 
-	// Handle --no-ui flag (Commander.js converts --no-ui to ui: false)
-	if ('ui' in userOptions && userOptions.ui === false) {
-		userOptions.noUi = true;
-		delete userOptions.ui;
-	}
-
-	// Handle --no-add flag (Commander.js converts --no-add to add: false)
-	if ('add' in userOptions && userOptions.add === false) {
-		// Keep add: false as is - we'll use this to detect --no-add
-		// Don't delete it, we need it for the create logic
-	}
-
-	// Handle --add flag (Commander.js converts --add to add: string[])
-	if ('add' in userOptions && Array.isArray(userOptions.add)) {
-		// Keep the add array as is - it contains the integration names
-		// Don't delete it, we need it for the create logic
+	// Handle --no-add flag (Commander.js converts --no-add to addOns: false)
+	if ('addOns' in userOptions && userOptions.addOns === false) {
+		userOptions.noIntegrations = true;
+		delete userOptions.addOns;
 	}
 
 	// Handle --no-install flag (Commander.js converts --no-install to install: false)
@@ -220,13 +204,6 @@ export function createOptions<T extends keyof CommandOptions>(
 	if ('install' in userOptions && typeof userOptions.install === 'string') {
 		// Keep the install option as is - it contains the package manager name
 		// Don't delete it, we need it for the create logic
-	}
-
-	// Handle --install flag without package manager (Commander.js converts to install: true)
-	// We need to preserve this information to use detected package manager
-	if ('install' in userOptions && userOptions.install === true) {
-		// Keep the install: true to indicate --install was used without package manager
-		// This will be handled in the create logic to use detected package manager
 	}
 
 	const newOptions = new Options(userOptions, requiredDefaults) as CommandOptions[T] & OptionsWithMeta;

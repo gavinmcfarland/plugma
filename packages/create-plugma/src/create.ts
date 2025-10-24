@@ -18,7 +18,7 @@ import { createDebugAwareLogger } from './utils/debug-aware-logger.js';
 import { promptAndInstallDependencies } from './utils/dependency-installer.js';
 import { promptForIntegrations } from './utils/integration-prompter.js';
 import { createIntegrationSetupTask, createPostSetupTask } from './utils/integration-task-builder.js';
-import { getCommand, type PackageManager } from '@plugma/shared';
+import { getCommand, type PackageManager } from './shared/index.js';
 
 // Import necessary modules for dependency installation
 import { detect } from 'package-manager-detector/detect';

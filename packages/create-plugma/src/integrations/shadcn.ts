@@ -2,7 +2,7 @@ import { defineIntegration } from './define-integration.js';
 import MagicString from 'magic-string';
 import dedent from 'dedent';
 import chalk from 'chalk';
-import { getUserFiles } from '@plugma/shared';
+import { getUserFiles } from '../shared/index.js';
 import { dirname, resolve, join } from 'node:path';
 import { readFile } from 'node:fs/promises';
 
