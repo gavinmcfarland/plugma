@@ -12,6 +12,7 @@ Running the command without specifying an integration will show you a list of av
 
 ## Supported Integrations
 
+- `prettier` - Opinionated code formatter that supports multiple languages and ensures consistent code style
 - `tailwindcss` - Utility-first CSS framework for rapidly building custom designs
 - `shadcn` - Re-usable components built with Radix UI and Tailwind CSS
 - `vitest` - Unit testing framework with a focus on speed and simplicity

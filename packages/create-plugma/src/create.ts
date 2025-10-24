@@ -982,15 +982,15 @@ async function browseAndSelectTemplate(
 					const prefixedInitialValue = initialValue.startsWith('./') ? initialValue : `./${initialValue}`;
 
 					const projectPath = await text({
-						label: `Enter a path to create the ${type}:`,
-						shortLabel: 'Path',
+						label: `Where would you like the ${type} to be created?`,
+						shortLabel: 'Dir',
 						initialValue: prefixedInitialValue,
 						onValidate: async (value) => {
 							if (!value || value.trim() === '') {
 								return 'Project path is required';
 							}
 
-							// Ensure value is prefixed with ./ if it's a relative path
+							// Normalize the path for validation
 							let normalizedValue = value.trim();
 							if (
 								!normalizedValue.startsWith('./') &&
@@ -1000,7 +1000,6 @@ async function browseAndSelectTemplate(
 								normalizedValue = `./${normalizedValue}`;
 							}
 
-							// Normalize the path
 							const normalizedPath = path.resolve(normalizedValue);
 							const projectName = path.basename(normalizedPath);
 							const parentDir = path.dirname(normalizedPath);
@@ -1033,20 +1032,22 @@ async function browseAndSelectTemplate(
 
 							return null;
 						},
+						onSubmit: (value) => {
+							// Ensure the submitted value is prefixed with ./ if it's a relative path
+							let normalizedValue = value.trim();
+							if (
+								!normalizedValue.startsWith('./') &&
+								!normalizedValue.startsWith('/') &&
+								!normalizedValue.match(/^[A-Za-z]:/)
+							) {
+								normalizedValue = `./${normalizedValue}`;
+							}
+							return normalizedValue;
+						},
 					});
 
-					// Ensure the submitted value is prefixed with ./ if it's a relative path
-					let finalProjectPath = projectPath.trim();
-					if (
-						!finalProjectPath.startsWith('./') &&
-						!finalProjectPath.startsWith('/') &&
-						!finalProjectPath.match(/^[A-Za-z]:/)
-					) {
-						finalProjectPath = `./${finalProjectPath}`;
-					}
-
 					// Extract name and directory from the path
-					const normalizedPath = path.resolve(finalProjectPath);
+					const normalizedPath = path.resolve(projectPath);
 					const projectName = path.basename(normalizedPath);
 					const projectDirectory = path.dirname(normalizedPath);
 

@@ -35,7 +35,7 @@
 		"@combino/plugin-rebase": "^1.5.1",
 		"@combino/plugin-strip-ts": "^1.0.1",
 		"@plugma/shared": "file:../shared",
-		"askeroo": "0.0.0-alpha.14",
+		"askeroo": "0.0.0-alpha.15",
 		"chalk": "^5.4.1",
 		"combino": "^1.10.2",
 		"commander": "^12.1.0",

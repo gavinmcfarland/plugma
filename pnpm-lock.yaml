@@ -43,8 +43,8 @@ importers:
         specifier: file:../shared
         version: link:../shared
       askeroo:
-        specifier: 0.0.0-alpha.14
-        version: 0.0.0-alpha.14
+        specifier: 0.0.0-alpha.15
+        version: 0.0.0-alpha.15
       chalk:
         specifier: ^5.4.1
         version: 5.4.1
@@ -1905,8 +1905,8 @@ packages:
     resolution: {integrity: sha512-3duEwti880xqi4eAMN8AyR4a0ByT90zoYdLlevfrvU43vb0YZwZVfxOgxWrLXXXpyugL0hNZc9G6BiB5B3nUug==}
     engines: {node: '>=8'}
 
-  askeroo@0.0.0-alpha.14:
-    resolution: {integrity: sha512-YOcKLG2cQy0eVrIY6IKgmZ2DhdTk2OXCNaonwBNtCksIsQGLtIlYU7LQL/aS/0mQ0kL5btCnekoLI+rU7LzDeA==}
+  askeroo@0.0.0-alpha.15:
+    resolution: {integrity: sha512-jBYcVo8Vymz2GIPF+AZFQr1W9jDsDwJYAcQNMgmObwXO2bc6mTddqZfoU6+vzIoPpUMcx1dWZTrlsZp/4sdOyg==}
     engines: {node: '>=18.0.0'}
 
   asn1@0.2.6:
@@ -6798,7 +6798,7 @@ snapshots:
 
   arrify@2.0.1: {}
 
-  askeroo@0.0.0-alpha.14:
+  askeroo@0.0.0-alpha.15:
     dependencies:
       chalk: 5.6.2
       ink: 4.4.1(react-devtools-core@4.28.5)(react@18.3.1)

@@ -316,8 +316,8 @@ export async function promptForIntegrations(
 	} else if (preSelectedIntegration === undefined) {
 		// No pre-selection, prompt the user
 		const multiOptions: any = {
-			label: 'Choose add-ons:',
-			shortLabel: 'Add-ons',
+			label: 'Add integrations:',
+			shortLabel: 'Integrations',
 			options: availableIntegrations.map(([value, integration]) => ({
 				value,
 				label: integration.name,
