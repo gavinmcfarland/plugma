@@ -89,6 +89,20 @@ function determineInstallBehavior(options: CreateCommandOptions, defaultPM: stri
 }
 
 /**
+ * Project information interface to consolidate project name and directory handling
+ */
+interface ProjectInfo {
+	/** Raw directory name (e.g., "my-plugin") */
+	dirName: string;
+	/** Formatted display name (e.g., "My Plugin") */
+	displayName: string;
+	/** Full path to the project directory */
+	fullPath: string;
+	/** Parent directory path */
+	parentDir: string;
+}
+
+/**
  * Convert directory name to display format
  * my-plugin -> My Plugin
  */
@@ -100,20 +114,35 @@ function formatProjectName(dirName: string): string {
 }
 
 /**
- * Generate default project name based on type and framework
- * plugin + react -> figma-plugin-react-plugin
- * widget + svelte -> figma-widget-svelte-widget
+ * Create a ProjectInfo object from directory name and parent directory
  */
-function generateDefaultProjectName(type: string, framework: string, needsUI: boolean): string {
-	const frameworkPart = needsUI ? `-${framework.toLowerCase()}` : '';
-	return `figma${frameworkPart}-${type}`;
+function createProjectInfo(dirName: string, parentDir: string = CURR_DIR): ProjectInfo {
+	const fullPath = path.join(parentDir, dirName);
+	return {
+		dirName,
+		displayName: formatProjectName(dirName),
+		fullPath,
+		parentDir,
+	};
+}
+
+/**
+ * Generate default project name based on type and template
+ * Pattern: figma-{type}-{template} or figma-{type} for default template
+ */
+function generateDefaultProjectName(type: string, templateName?: string): string {
+	if (templateName && !templateName.toLowerCase().includes('blank')) {
+		const normalizedTemplateName = templateName.toLowerCase().replace(/\s+/g, '-');
+		return `figma-${type}-${normalizedTemplateName}`;
+	}
+	return `figma-${type}`;
 }
 
 /**
  * Generate a unique project name by checking if directory exists and incrementing number suffix
  * figma-vue-plugin -> figma-vue-plugin-2 (if figma-vue-plugin exists)
  */
-async function generateUniqueProjectName(baseName: string, baseDir: string = CURR_DIR): Promise<string> {
+async function generateUniqueProjectInfo(baseName: string, baseDir: string = CURR_DIR): Promise<ProjectInfo> {
 	let projectName = baseName;
 	let counter = 1;
 
@@ -123,7 +152,7 @@ async function generateUniqueProjectName(baseName: string, baseDir: string = CUR
 		try {
 			// Check if directory exists
 			if (!fs.existsSync(projectPath)) {
-				return projectName;
+				return createProjectInfo(projectName, baseDir);
 			}
 
 			// Check if directory is empty (only visible files)
@@ -134,7 +163,7 @@ async function generateUniqueProjectName(baseName: string, baseDir: string = CUR
 
 			// If directory is empty, we can use it
 			if (visibleFiles.length === 0) {
-				return projectName;
+				return createProjectInfo(projectName, baseDir);
 			}
 
 			// Directory exists and is not empty, try next number
@@ -399,7 +428,7 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 	// OR when --yes flag is used AND type/framework are provided
 	// BUT NOT when integrations need to be selected (unless --no-add is used)
 	const hasTypeFlag = options.plugin || options.widget;
-	const hasFrameworkFlag = options.framework || options.react || options.svelte || options.vue;
+	const hasFrameworkFlag = options.framework || options.react || options.svelte || options.vue || options.noUi;
 	const needsIntegrationPrompt = options.add === undefined; // Need to prompt if no add flag is used
 	const shouldUseQuickCreation =
 		Boolean((hasTypeFlag && hasFrameworkFlag && options.dir) || (options.yes && hasTypeFlag && hasFrameworkFlag)) &&
@@ -421,6 +450,7 @@ export async function create(options: CreateCommandOptions): Promise<void> {
 			if (options.react) preSelectedFramework = 'React';
 			if (options.svelte) preSelectedFramework = 'Svelte';
 			if (options.vue) preSelectedFramework = 'Vue';
+			if (options.noUi) preSelectedFramework = NO_UI_OPTION;
 		}
 	}
 
@@ -565,18 +595,15 @@ async function browseAndSelectTemplate(
 				const type = preSelectedType || 'plugin'; // Default to plugin
 				const framework = preSelectedFramework || 'React'; // Default to React
 				const typescript = preSelectedTypescript !== undefined ? preSelectedTypescript : true; // Default to true
-				const projectDir =
-					options.dir ||
-					(await generateUniqueProjectName(
-						generateDefaultProjectName(type, framework, framework !== NO_UI_OPTION),
-					)); // Default directory name when --yes is used
+				const projectInfo = options.dir
+					? createProjectInfo(options.dir, CURR_DIR)
+					: await generateUniqueProjectInfo(generateDefaultProjectName(type, 'blank')); // Default directory name when --yes is used
 
 				// Check if target project directory is empty when using --yes flag
 				if (options.yes) {
-					const targetProjectPath = path.join(CURR_DIR, projectDir);
 					try {
-						if (fs.existsSync(targetProjectPath)) {
-							const files = await fs.promises.readdir(targetProjectPath);
+						if (fs.existsSync(projectInfo.fullPath)) {
+							const files = await fs.promises.readdir(projectInfo.fullPath);
 							// Filter out hidden files and common development files that are safe to ignore
 							const visibleFiles = files.filter(
 								(file) =>
@@ -584,7 +611,8 @@ async function browseAndSelectTemplate(
 							);
 
 							if (visibleFiles.length > 0) {
-								await note(`[■ Error: Directory ${projectDir} is not empty.]{red}`), process.exit(1);
+								await note(`[■ Error: Directory ${projectInfo.dirName} is not empty.]{red}`),
+									process.exit(1);
 							}
 						}
 					} catch (error) {
@@ -622,9 +650,7 @@ async function browseAndSelectTemplate(
 					type,
 					framework,
 					typescript,
-					name: formatProjectName(projectDir), // Formatted name for templates
-					projectDir, // Raw directory name for file system
-					directory: CURR_DIR, // Use current directory as parent
+					projectInfo,
 					debug: options.debug || false,
 					installAddOns:
 						preSelectedAddOns === false ? [] : Array.isArray(preSelectedAddOns) ? preSelectedAddOns : [], // Use --add flag values or skip if --no-add
@@ -643,7 +669,8 @@ async function browseAndSelectTemplate(
 
 			// Handle --yes flag when type/framework are not provided (prompt for essential choices only)
 			const hasTypeFlag = options.plugin || options.widget;
-			const hasFrameworkFlag = options.framework || options.react || options.svelte || options.vue;
+			const hasFrameworkFlag =
+				options.framework || options.react || options.svelte || options.vue || options.noUi;
 			if (options.yes && (!hasTypeFlag || !hasFrameworkFlag)) {
 				// Use the normal interactive flow but with pre-selected values
 				await completedFields();
@@ -724,17 +751,50 @@ async function browseAndSelectTemplate(
 							}
 						}
 
+						// Filter templates by both type and framework preference
+						const needsUI = selectedFramework !== NO_UI_OPTION;
+						const filteredExamples = filterExamples(typeFilteredExamples, needsUI, selectedFramework);
+
+						if (filteredExamples.length === 0) {
+							throw new Error(
+								`No templates available for ${selectedType} with ${selectedFramework === NO_UI_OPTION ? 'no UI' : selectedFramework}.`,
+							);
+						}
+
+						// Sort templates by rank and select the first one when --yes is used
+						const sortedExamples = filteredExamples.sort((a, b) => {
+							const aRank = a.metadata.rank ?? 0;
+							const bRank = b.metadata.rank ?? 0;
+							return bRank - aRank;
+						});
+
+						// Automatically select the first template when --yes is used
+						const selectedTemplate = sortedExamples[0];
+
+						// Validate that the selected template supports the chosen framework
+						const templateNeedsUI = exampleHasUI(selectedTemplate.metadata);
+						if (templateNeedsUI && selectedFramework !== NO_UI_OPTION) {
+							const availableFrameworks = getFrameworksForExample(selectedTemplate);
+							const selectedFrameworkLower = selectedFramework.toLowerCase();
+							const supportsFramework = availableFrameworks.some(
+								(fw) => fw.toLowerCase() === selectedFrameworkLower,
+							);
+
+							if (!supportsFramework) {
+								throw new Error(
+									`Template "${getDisplayName(selectedTemplate)}" does not support ${selectedFramework}.`,
+								);
+							}
+						}
+
 						// Use defaults for other options when --yes is used
 						const typescript = preSelectedTypescript !== undefined ? preSelectedTypescript : true;
-						const projectDir =
-							options.dir ||
-							(await generateUniqueProjectName(
-								generateDefaultProjectName(
-									selectedType,
-									selectedFramework,
-									selectedFramework !== NO_UI_OPTION,
-								),
-							));
+						const selectedTemplateName = selectedTemplate.metadata.name || selectedTemplate.name;
+						const projectInfo = options.dir
+							? createProjectInfo(options.dir, CURR_DIR)
+							: await generateUniqueProjectInfo(
+									generateDefaultProjectName(selectedType, selectedTemplateName),
+								);
 						const installDependencies =
 							preSelectedInstall === undefined
 								? preSelectedAddOns === false && !options.yes
@@ -745,9 +805,9 @@ async function browseAndSelectTemplate(
 						return {
 							type: selectedType,
 							selectedFramework,
+							selectedTemplate,
 							typescript,
-							projectName: projectDir, // Keep raw directory name for path
-							projectDirectory: CURR_DIR,
+							projectInfo,
 							installDependencies,
 							needsUI: selectedFramework !== NO_UI_OPTION,
 						};
@@ -786,9 +846,8 @@ async function browseAndSelectTemplate(
 					type: answers.type,
 					framework: answers.needsUI ? answers.selectedFramework : NO_UI_OPTION,
 					typescript: answers.typescript,
-					name: formatProjectName(answers.projectName), // Formatted name for templates
-					projectDir: answers.projectName, // Raw directory name for file system
-					directory: CURR_DIR, // Use current directory as parent
+					projectInfo: answers.projectInfo,
+					selectedExample: answers.selectedTemplate, // Use the automatically selected template
 					debug: options.debug || false,
 					installAddOns:
 						preSelectedAddOns === false ? [] : Array.isArray(preSelectedAddOns) ? preSelectedAddOns : [], // Use --add flag values or skip when --yes is used
@@ -971,11 +1030,9 @@ async function browseAndSelectTemplate(
 					const addOnDeps = integrationResult.allDeps;
 
 					// Generate project name
-					const exampleName = selectedTemplate.metadata.name || selectedTemplate.name;
-					const normalizedExampleName = exampleName.toLowerCase().replace(/\s+/g, '-');
+					const selectedTemplateName = selectedTemplate.metadata.name || selectedTemplate.name;
 					const type = selectedTemplate.metadata.type || 'plugin';
-					const frameworkPart = needsUI ? `-${selectedFramework.toLowerCase()}` : '';
-					const baseName = `${normalizedExampleName}${frameworkPart}-${type}`;
+					const baseName = generateDefaultProjectName(type, selectedTemplateName);
 
 					// Ensure initial value is prefixed with ./
 					const initialValue = options.dir || baseName;
@@ -1050,6 +1107,7 @@ async function browseAndSelectTemplate(
 					const normalizedPath = path.resolve(projectPath);
 					const projectName = path.basename(normalizedPath);
 					const projectDirectory = path.dirname(normalizedPath);
+					const projectInfo = createProjectInfo(projectName, projectDirectory);
 
 					return {
 						selectedType,
@@ -1060,8 +1118,7 @@ async function browseAndSelectTemplate(
 						addOnResults,
 						addOnDeps,
 						typescript,
-						projectName, // Keep raw name for directory path
-						projectDirectory,
+						projectInfo,
 						needsUI,
 						type,
 					};
@@ -1080,9 +1137,7 @@ async function browseAndSelectTemplate(
 				type: answers.type,
 				framework: answers.needsUI ? answers.selectedFramework : NO_UI_OPTION,
 				typescript: answers.typescript,
-				name: formatProjectName(answers.projectName), // Formatted name for templates
-				projectDir: answers.projectName, // Raw directory name for file system
-				directory: answers.projectDirectory, // Use raw directory path
+				projectInfo: answers.projectInfo,
 				selectedExample: answers.selectedTemplate,
 				debug: options.debug || false,
 				installAddOns: answers.selectedAddOns,
@@ -1210,6 +1265,7 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 		if (options.react) framework = 'React';
 		if (options.svelte) framework = 'Svelte';
 		if (options.vue) framework = 'Vue';
+		if (options.noUi) framework = NO_UI_OPTION;
 
 		if (!needsUI) {
 			framework = NO_UI_OPTION;
@@ -1232,10 +1288,9 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 		const typescript = !options.noTypescript;
 
 		// Generate project name
-		const exampleName = selectedTemplate.metadata.name || selectedTemplate.name;
-		const normalizedExampleName = exampleName.toLowerCase().replace(/\s+/g, '-');
-		const frameworkPart = needsUI ? `-${framework.toLowerCase()}` : '';
-		const defaultName = options.dir || `${normalizedExampleName}${frameworkPart}-${type}`;
+		const selectedTemplateName = selectedTemplate.metadata.name || selectedTemplate.name;
+		const defaultName = options.dir || generateDefaultProjectName(type, selectedTemplateName);
+		const projectInfo = createProjectInfo(defaultName, CURR_DIR);
 
 		// Create the project
 		const detectedPM = await detect({ cwd: process.cwd() });
@@ -1266,9 +1321,7 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 			type,
 			framework,
 			typescript,
-			name: formatProjectName(defaultName), // Formatted name for templates
-			projectDir: defaultName, // Raw directory name for file system
-			directory: CURR_DIR, // Use current directory for quick mode
+			projectInfo,
 			selectedExample: selectedTemplate,
 			debug: options.debug || false,
 			installAddOns: options.noIntegrations ? [] : options.add || [], // Use --add flag values or skip if --no-add
@@ -1306,9 +1359,7 @@ async function createProjectFromOptions(params: {
 	type: string;
 	framework: string;
 	typescript: boolean;
-	name: string; // Display name for templates
-	projectDir: string; // Raw directory name for file system operations
-	directory?: string;
+	projectInfo: ProjectInfo;
 	selectedExample?: Example;
 	debug: boolean;
 	installAddOns?: string[];
@@ -1325,9 +1376,7 @@ async function createProjectFromOptions(params: {
 		type,
 		framework,
 		typescript,
-		name,
-		projectDir,
-		directory = CURR_DIR,
+		projectInfo,
 		selectedExample,
 		debug,
 		installAddOns = [],
@@ -1342,8 +1391,8 @@ async function createProjectFromOptions(params: {
 	} = params;
 
 	// Extract the raw directory name from the directory path for cd command
-	const rawDirName = projectDir; // projectDir is the raw directory name (e.g., "my-plugin")
-	const destDir = path.join(directory, projectDir);
+	const rawDirName = projectInfo.dirName; // projectInfo.dirName is the raw directory name (e.g., "my-plugin")
+	const destDir = projectInfo.fullPath;
 	let dependencyInstallationFailed = false;
 
 	// Shared state for add-on integration results
@@ -1398,7 +1447,7 @@ async function createProjectFromOptions(params: {
 				// Create template data
 				const needsUI = framework !== NO_UI_OPTION;
 				const templateData: TemplateData = {
-					name, // Use formatted name for display in templates
+					name: projectInfo.displayName, // Use formatted name for display in templates
 					type: type.toLowerCase(),
 					language: typescript ? 'typescript' : 'javascript',
 					framework: framework === NO_UI_OPTION ? null : framework.toLowerCase(),
@@ -1565,7 +1614,7 @@ async function createProjectFromOptions(params: {
 	const packageManager = pkgManager || selectedPackageManager || 'npm';
 	const nextStepsLines: string[] = ['**Plugged in and ready to go!**\n'];
 
-	nextStepsLines.push(`1. \`cd ${rawDirName}\``);
+	nextStepsLines.push(`1. \`cd ./${rawDirName}\``);
 
 	// Only show install command if dependencies weren't installed OR if installation failed
 	if (!pkgManager || pkgManager === 'skip' || dependencyInstallationFailed) {

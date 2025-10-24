@@ -83,6 +83,7 @@ export interface CommandOptions {
 		react?: boolean;
 		svelte?: boolean;
 		vue?: boolean;
+		noUi?: boolean;
 		template?: string;
 		noTypescript?: boolean;
 		noIntegrations?: boolean;
@@ -189,6 +190,12 @@ export function createOptions<T extends keyof CommandOptions>(
 	if ('typescript' in userOptions && userOptions.typescript === false) {
 		userOptions.noTypescript = true;
 		delete userOptions.typescript;
+	}
+
+	// Handle --no-ui flag (Commander.js converts --no-ui to ui: false)
+	if ('ui' in userOptions && userOptions.ui === false) {
+		userOptions.noUi = true;
+		delete userOptions.ui;
 	}
 
 	// Handle --no-add flag (Commander.js converts --no-add to add: false)

@@ -11,6 +11,7 @@ export interface ParsedCreateArgs {
 	react?: boolean;
 	svelte?: boolean;
 	vue?: boolean;
+	noUi?: boolean;
 	framework?: string;
 	verbose?: boolean;
 	addOns?: string[];
@@ -129,6 +130,7 @@ export function defineCreateCommand(
 		.option('--dir <path>', 'Project directory name')
 		.option('--template <name>', 'Use a specific template')
 		.option('--no-ts', 'Use JavaScript instead of TypeScript')
+		.option('--no-ui', 'Create project without UI framework')
 		.option('--no-add', 'Skip add integrations')
 		.option('--add <integrations...>', 'Add specific integrations (e.g., --add tailwind shadcn vitest)')
 		.option(
