@@ -1612,7 +1612,14 @@ async function createProjectFromOptions(params: {
 
 	// Build success message with next steps
 	const packageManager = pkgManager || selectedPackageManager || 'npm';
-	const nextStepsLines: string[] = ['[ All Set! ]{bgBlue}\n'];
+	const allSetMessage = dependencyInstallationFailed ? '[ Almost There! ]{bgBlue}' : '[ All Set! ]{bgBlue}';
+	const nextStepsLines: string[] = [allSetMessage + '\n'];
+
+	// Show dependency installation error after title if installation failed
+	if (dependencyInstallationFailed) {
+		nextStepsLines.push(chalk.yellow('Failed to install dependencies, but project was created successfully.'));
+		nextStepsLines.push(''); // Add empty line for spacing
+	}
 
 	nextStepsLines.push(`1. Change dir \`cd ./${rawDirName}\``);
 
@@ -1631,9 +1638,4 @@ async function createProjectFromOptions(params: {
 	const successMessage = nextStepsLines.join('\n');
 
 	await safeNote(successMessage);
-
-	// Show dependency installation error after success message if installation failed
-	if (dependencyInstallationFailed) {
-		await safeNote(chalk.yellow('[Warning] Failed to install dependencies, but project was created successfully.'));
-	}
 }
