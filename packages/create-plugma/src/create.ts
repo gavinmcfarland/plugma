@@ -1619,14 +1619,14 @@ async function createProjectFromOptions(params: {
 	// Only show install command if dependencies weren't installed OR if installation failed
 	if (!pkgManager || pkgManager === 'skip' || dependencyInstallationFailed) {
 		const installCommand = getCommand(packageManager as PackageManager, 'install');
-		nextStepsLines.push(`2. \`${installCommand}\``);
+		nextStepsLines.push(`2. Install depedencies \`${installCommand}\``);
 	}
 
 	const devCommand = getCommand(packageManager as PackageManager, 'dev');
 	const stepNum = !pkgManager || pkgManager === 'skip' || dependencyInstallationFailed ? 3 : 2;
-	nextStepsLines.push(`${stepNum}. \`${devCommand}\``);
-	nextStepsLines.push(`${stepNum + 1}. Import \`dist/manifest.json\` in Figma`);
-	nextStepsLines.push(`\nCheck the docs out at https://plugma.dev.`);
+	nextStepsLines.push(`${stepNum}. Start the dev server \`${devCommand}\``);
+	nextStepsLines.push(`${stepNum + 1}. Import \`dist/manifest.json\` in Figma desktop app`);
+	nextStepsLines.push(`\nCheck out the docs at https://plugma.dev.`);
 
 	const successMessage = nextStepsLines.join('\n');
 
@@ -1634,6 +1634,6 @@ async function createProjectFromOptions(params: {
 
 	// Show dependency installation error after success message if installation failed
 	if (dependencyInstallationFailed) {
-		await safeNote(chalk.yellow('Warning: Failed to install dependencies, but project was created successfully.'));
+		await safeNote(chalk.yellow('[Warning] Failed to install dependencies, but project was created successfully.'));
 	}
 }
