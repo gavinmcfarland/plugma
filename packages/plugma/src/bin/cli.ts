@@ -9,8 +9,6 @@ import {
 	DevCommandOptions,
 	PreviewCommandOptions,
 	ReleaseCommandOptions,
-	AddCommandOptions,
-	CreateCommandOptions,
 } from '../utils/create-options.js';
 
 import { readJson } from '../shared/index.js';
@@ -26,10 +24,9 @@ async function readPlugmaPackageJson(): Promise<PlugmaPackageJson> {
 
 import { Command, Option } from 'commander';
 
-import { build, dev, create } from '../commands/index.js';
+import { build, dev } from '../commands/index.js';
 import { colorStringify, debugLogger, defaultLogger } from '../utils/index.js';
 import chalk from 'chalk';
-import { add } from '../commands/add.js';
 import { suppressLogs } from '../utils/suppress-logs.js';
 import { ListrLogLevels } from 'listr2';
 import { createDebugAwareLogger } from '../utils/debug-aware-logger.js';
@@ -87,37 +84,6 @@ program
 	.version(version, '-v, --version', 'Output the current version')
 	.addHelpText('beforeAll', `${chalk.blue.bold('Plugma')} ${chalk.grey(`v${version}`)}\n`);
 
-// Create Command - dynamically import create-plugma
-program
-	.command('create [type] [framework]')
-	.description('Create a new Figma plugin or widget project')
-	.option('-d, --debug', 'Enable debug mode', DEFAULT_OPTIONS.debug)
-	.option('--verbose', 'Show detailed output')
-	.option('--no-typescript', 'Disable TypeScript')
-	.option('--no-integrations', 'Skip integration prompts')
-	.option('--no-install', 'Skip dependency installation')
-	.option('--install [pkg-manager]', 'Specify package manager (npm, yarn, pnpm)')
-	.option('-y, --yes', 'Skip prompts and use defaults')
-	.action(async (type: string | undefined, framework: string | undefined, options: any) => {
-		try {
-			// Dynamic import of create-plugma
-			const { defineCreateCommand, parseCreateArgs } = await import('create-plugma');
-
-			// Parse and validate arguments using shared utility
-			const enhancedOptions = parseCreateArgs(type, framework, options);
-
-			await create(
-				createOptions<'create'>(enhancedOptions, {
-					command: 'create',
-				}),
-			);
-		} catch (error) {
-			console.error(chalk.red('Error: create-plugma package not found. Please install it separately.'));
-			console.error(chalk.gray('Run: npm install create-plugma'));
-			process.exit(1);
-		}
-	});
-
 // Add a hook that runs before every command
 program.hook('preAction', async (thisCommand, actionCommand) => {
 	// This will run before any command execution
@@ -138,10 +104,8 @@ program.hook('preAction', async (thisCommand, actionCommand) => {
 	if (options.output) {
 		suppressLogs(options);
 	}
-	// Skip prompt for create and add commands
-	if (commandName !== 'create' && commandName !== 'add') {
-		await showPlugmaPrompt();
-	}
+	// Show plugma prompt for all commands
+	await showPlugmaPrompt();
 	checkDeprecatedFlags();
 });
 
@@ -272,34 +236,6 @@ Examples:
   plugma release --prefix "figma-plugin-" --title "Plugin Release"
   `,
 	);
-
-// Add Command - dynamically import create-plugma
-program
-	.command('add [integrations...]')
-	.description('Add integrations to your Figma plugin project')
-	.option('-d, --debug', 'Enable debug mode', DEFAULT_OPTIONS.debug)
-	.option('--verbose', 'Show detailed integration subtasks')
-	.option('--no-install', 'Skip dependency installation')
-	.option('--install [pkg-manager]', 'Specify package manager (npm, yarn, pnpm)')
-	.action(async (integrations: string[] | undefined, options: any) => {
-		try {
-			// Dynamic import of create-plugma
-			const { defineAddCommand, parseAddArgs } = await import('create-plugma');
-
-			// Parse and validate arguments using shared utility
-			const enhancedOptions = parseAddArgs(integrations, options);
-
-			await add(
-				createOptions<'add'>(enhancedOptions, {
-					command: 'add',
-				}),
-			);
-		} catch (error) {
-			console.error(chalk.red('Error: create-plugma package not found. Please install it separately.'));
-			console.error(chalk.gray('Run: npm install create-plugma'));
-			process.exit(1);
-		}
-	});
 
 // Parse arguments
 program.parse(process.argv);
