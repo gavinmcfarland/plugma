@@ -10,7 +10,7 @@ Get started by copying the `plugin-blank-w-ui` or `widget-blank-w-ui` example.
 
 ### Only Include Source Files
 
-Most examples use the base template as a foundation which is referenced in the `template.json` config. The files from the base template are merged with the files in your example. This simplifies the files you need to include and manage in your template. If the user selects a frontend framework or typescript the revelant files and dependencies are also merged. This allows examples to support multiple frameworks.
+Examples typically use the base template as a foundation which is referenced in the `template.json` config. The files from the base template are merged with the files in your example. This simplifies the files you need to include and manage in your template. If the user selects a frontend framework or typescript the revelant files and dependencies are also merged. This allows examples to support multiple frameworks.
 
 ### Write In TypeScript
 
