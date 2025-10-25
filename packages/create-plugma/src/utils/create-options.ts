@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 import { getRandomPort } from '../shared/index.js';
-import { ManifestFile } from '../core/types.js';
+import { ManifestFile } from '../types.js';
 
 export const DEFAULT_OPTIONS = {
 	dockPlugin: false,

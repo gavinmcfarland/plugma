@@ -1,6 +1,6 @@
 //@index('./**/types.ts', f => `export * from '${f.path}.js';`)
 import type { PackageJson } from 'type-fest';
-import type { BaseOptions } from '../shared/index.js';
+import type { BaseOptions } from './shared/index.js';
 //@endindex
 
 import type { UserConfig } from 'vite';
@@ -37,7 +37,7 @@ export interface ManifestFile {
 	[key: string]: unknown;
 }
 
-export type PlugmaPackageJson = typeof import('../../package.json');
+export type PlugmaPackageJson = typeof import('../package.json');
 export type UserPackageJson = PackageJson & {
 	plugma?: {
 		manifest?: ManifestFile;
