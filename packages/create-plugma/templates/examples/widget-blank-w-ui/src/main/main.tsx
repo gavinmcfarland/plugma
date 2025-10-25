@@ -1,5 +1,3 @@
-/** @jsx figma.widget.h */
-
 const { widget } = figma;
 const { AutoLayout, SVG, Text, useSyncedState, usePropertyMenu } = widget;
 

@@ -1,6 +1,3 @@
-/** @jsx figma.widget.h */
-/** @jsxFrag figma.widget.Fragment */
-
 const { widget } = figma;
 const { AutoLayout, Line, Text, useEffect, useSyncedState } = widget;
 

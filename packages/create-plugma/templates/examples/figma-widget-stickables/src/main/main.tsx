@@ -1,5 +1,3 @@
-/** @jsx figma.widget.h */
-
 const { editorType, widget } = figma;
 const { AutoLayout, Text, useStickable, useStickableHost, useSyncedState } = widget;
 
