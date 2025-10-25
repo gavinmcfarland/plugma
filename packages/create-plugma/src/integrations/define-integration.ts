@@ -1,96 +1,4 @@
-// @ts-ignore - enquirer doesn't have types
-import enquirer from 'enquirer';
-// @ts-ignore - enquirer doesn't have types
-const { Select, Toggle, Input } = enquirer;
 import { FileHelpers, createFileHelpers } from '../utils/file-helpers.js';
-
-// Helper to handle cancellation
-class CancelError extends Error {
-	constructor() {
-		super('User cancelled');
-		this.name = 'CancelError';
-	}
-}
-
-function isCancel(value: any): boolean {
-	return value === undefined || value === '' || (value instanceof Error && value.message === 'User cancelled');
-}
-
-// Enquirer wrapper functions
-async function select(options: {
-	message: string;
-	options: Array<{ label: string; value: any; hint?: string }>;
-	initialValue?: any;
-}): Promise<any> {
-	// Create a mapping from display labels to values
-	const labelToValue = new Map();
-
-	const choices = options.options.map((opt) => {
-		// Strip chalk colors for the mapping key but keep them for display
-		const cleanLabel = opt.label.replace(/\u001b\[[0-9;]*m/g, ''); // Remove ANSI color codes
-		labelToValue.set(cleanLabel, opt.value);
-
-		return {
-			name: cleanLabel,
-			message: opt.label, // Keep colors for display
-			hint: opt.hint,
-		};
-	});
-
-	const prompt = new Select({
-		name: 'value',
-		message: options.message,
-		choices,
-		initial: options.initialValue,
-	});
-
-	try {
-		const selectedLabel = await prompt.run();
-		return labelToValue.get(selectedLabel);
-	} catch (error) {
-		throw new CancelError();
-	}
-}
-
-async function confirm(options: { message: string; initialValue?: boolean }): Promise<boolean> {
-	const prompt = new Toggle({
-		name: 'value',
-		message: options.message,
-		enabled: 'Yes',
-		disabled: 'No',
-		initial: options.initialValue,
-	});
-
-	try {
-		return await prompt.run();
-	} catch (error) {
-		throw new CancelError();
-	}
-}
-
-async function text(options: {
-	message: string;
-	initialValue?: string;
-	validate?: (value: string) => string | undefined;
-}): Promise<string> {
-	const prompt = new Input({
-		name: 'value',
-		message: options.message,
-		initial: options.initialValue,
-		validate: options.validate
-			? (value: string) => {
-					const result = options.validate!(value);
-					return result === undefined ? true : result;
-				}
-			: undefined,
-	});
-
-	try {
-		return await prompt.run();
-	} catch (error) {
-		throw new CancelError();
-	}
-}
 
 export type QuestionType = 'select' | 'confirm' | 'text';
 
@@ -162,20 +70,8 @@ interface RunIntegrationOptions {
 }
 
 export async function runIntegration(integration: Integration, options?: RunIntegrationOptions) {
-	// Use provided answers if available, otherwise ask questions (legacy behavior)
-	let answers: Record<string, any> | null;
-
-	if (options?.providedAnswers) {
-		// Use answers that were already collected externally
-		answers = options.providedAnswers;
-	} else {
-		// Legacy behavior: ask questions directly (for backward compatibility)
-		answers = integration.questions
-			? await askQuestions(integration.questions, {}, options?.prefixPrompts ? options.name : undefined)
-			: {};
-	}
-
-	if (!answers) return null;
+	// Use provided answers if available
+	const answers: Record<string, any> = options?.providedAnswers || {};
 
 	// Get setup tasks from integration (they're now just an array, not a function)
 	const tasks: IntegrationTask[] = integration.setup || [];
@@ -188,45 +84,4 @@ export async function runIntegration(integration: Integration, options?: RunInte
 		nextSteps: integration.nextSteps?.(answers) || [],
 		tasks,
 	};
-}
-
-async function askQuestions(questions: Question[], answers: Record<string, any> = {}, prefixName?: string) {
-	for (const question of questions) {
-		if (question.condition && !question.condition(answers)) {
-			continue;
-		}
-
-		const message = prefixName ? `[${prefixName}] ${question.question}` : question.question;
-
-		let answer;
-		switch (question.type) {
-			case 'select':
-				answer = await select({
-					message,
-					options: question.options,
-					initialValue: question.default,
-				});
-				break;
-			case 'confirm':
-				answer = await confirm({
-					message,
-					initialValue: question.default,
-				});
-				break;
-			case 'text':
-				answer = await text({
-					message,
-					initialValue: question.default,
-				});
-				break;
-		}
-
-		if (isCancel(answer)) {
-			return null;
-		}
-
-		answers[question.id] = answer;
-	}
-
-	return answers;
 }
