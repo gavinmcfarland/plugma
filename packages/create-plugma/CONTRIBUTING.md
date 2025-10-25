@@ -6,7 +6,15 @@ Plugma uses a powerful template system built on [Combino](https://github.com/gav
 
 ## Creating a Plugin or Widget Example
 
-Get started by copying the `plugin-blank-w-ui` or `widget-blank-w-ui` example.
+1. Copy `blank-plugin` or `blank-widget` as the starting point for your new example.
+
+2. Include only files unique to your example. Everything else is included from the base template.
+
+3. Write your code in TypeScript for consistency and type safety. Plugma will automatically generate JavaScript versions for users.
+
+4. Update the name and other meta data in the `template.json` file which users see when they use the CLI.
+
+Comino then automatically merges files from the base template and your example into a complete project when users use the CLI.
 
 ### Only Include Source Files
 
@@ -43,7 +51,7 @@ You can add data used by your template inside the `combino.json` file at the roo
 }
 ```
 
-## Adding Support New Frameworks
+## Adding A New Framework
 
 If you're using a framework that `create-plugma` doesnt currently support, you can propose one which can then be used by other examples.
 
