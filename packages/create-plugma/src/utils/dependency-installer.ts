@@ -94,7 +94,7 @@ async function installAllDependencies(
 		});
 		proc.on('close', (code) => {
 			if (code === 0) {
-				output.complete(`Dependencies installed with ${packageManager}`);
+				output.complete(`Dependencies installed with ${packageManager}!`);
 				resolve();
 			} else {
 				// Show captured output on error, even if verbose is disabled

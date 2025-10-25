@@ -103,5 +103,10 @@
         "vite": "^7.0.0",
 		"@playwright/test": "^1.51.1"
 	},
+    "peerDependenciesMeta": {
+		"@playwright/test": {
+			"optional": true
+		}
+  },
 	"gitHead": "5d408156f91d2857618ec7fa647b7d3848c17114"
 }
