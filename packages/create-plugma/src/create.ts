@@ -14,7 +14,6 @@ import stripTS from '@combino/plugin-strip-ts';
 import ejsMate from '@combino/plugin-ejs-mate';
 import rebase from '@combino/plugin-rebase';
 import { CreateCommandOptions } from './utils/create-options.js';
-import { createDebugAwareLogger } from './utils/debug-aware-logger.js';
 import { promptAndInstallDependencies } from './utils/dependency-installer.js';
 import { promptForIntegrations } from './utils/integration-prompter.js';
 import { createIntegrationSetupTask, createPostSetupTask } from './utils/integration-task-builder.js';
@@ -415,8 +414,6 @@ function getVersions(): Record<string, string> {
  * Main create command implementation
  */
 export async function create(options: CreateCommandOptions): Promise<void> {
-	const logger = createDebugAwareLogger(options.debug);
-
 	// Handle specific template option
 	if (options.template) {
 		await createFromSpecificTemplate(options);
