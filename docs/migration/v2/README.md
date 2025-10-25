@@ -9,37 +9,9 @@ Plugma v2 fixes bugs and introduces a new add-on feature.
 - iframe origin is now `null` during development [Iframe Origin](#iframe-origin)
 - window events behaivour now matches production [Window Events Behaivour](#window-events-behaivour)
 
-## Updating Plugma Dependecy
-
-To install the beta version of the `plugma` dependency run:
-
-```
-npm install plugma@next
-```
-
 ## Required Changes
 
 These changes are necessary for your plugin to work with Plugma v2 and future versions.
-
-### Referencing Env variables
-
-This only applies if you were referencing envariables inside you main code using `process.env`.
-
-All environment variables used by Plugma must not be prefixed with `VITE_` and referenced using the `import.meta.env` object. This is because variables prefixed with `VITE_` are exposed to the client which can be discovered by inspecting the bundled source code where the plugin runs inside Figma, even if used only in the main thread.
-
-#### Example changes required
-
-```diff
-// .env
-- SOME_KEY=123
-+ VITE_SOME_KEY=123
-```
-
-```diff
-// main.js
-- console.log(process.env.SOME_KEY)
-+ console.log(import.meta.env.VITE_SOME_KEY)
-```
 
 ### Update your `manifest` file
 
@@ -76,6 +48,7 @@ Alternatively you can create seperate files for the `main` and `ui` context, nam
 - `vite.config.main.ts`
 - `vite.config.ui.ts`
 -->
+
 ### Adding Support for `env` Types (recommended)
 
 If you're using TypeScript you can add a reference for the new context paramater type definition at the top of the file by adding the following `vite-env.d.ts` to the `src` directory of your plugin.
@@ -102,12 +75,25 @@ Then reference it at the top of your `vite.config.ts` file.
 /// <reference path="./src/vite-env.d.ts" />
 ```
 
-### Command Line Changes
+### Referencing Env variables
 
-These changes only affect users who were using specific features in v1. If you weren't using these features, you can skip this section.
+This only applies if you were referencing envariables inside you main code using `process.env`.
 
-- WebSocket support is now enabled by default. If you were using the `-w, --websockets` flag, you can remove it as it's no longer needed. If you need to disable WebSocket support, you can use the new `--no-websockets` flag.
-- The `preview` command has been deprecated. If you were using this command, you should now use `dev --dock-plugin` instead.
+All environment variables used by Plugma must be prefixed with `VITE_` and referenced using the `import.meta.env` object. This is because variables prefixed with `VITE_` are exposed to the client which can be discovered by inspecting the bundled source code where the plugin runs inside Figma, even if used only in the main thread.
+
+#### Example changes required
+
+```diff
+// .env
+- SOME_KEY=123
++ VITE_SOME_KEY=123
+```
+
+```diff
+// main.js
+- console.log(process.env.SOME_KEY)
++ console.log(import.meta.env.VITE_SOME_KEY)
+```
 
 ### Iframe Origin
 
@@ -116,6 +102,13 @@ The iframe origin of the plugin has been updated to `null` to match what is used
 ### Window Events Behaivour
 
 In Plugma V1, some events, like drop events—didn't work the same in development as they did in production. This was because the UI was hosted on an external server. Now, Plugma still uses a server, but the UI is embedded directly using a data URI, which better matches how plugins run in production.
+
+### Command Line Changes
+
+These changes only affect users who were using specific features in v1. If you weren't using these features, you can skip this section.
+
+- WebSocket support is now enabled by default. If you were using the `-w, --websockets` flag, you can remove it as it's no longer needed. If you need to disable WebSocket support, you can use the new `--no-websockets` flag.
+- The `preview` command has been deprecated. If you were using this command, you should now use `dev --dock-plugin` instead.
 
 ## Optional Changes
 
@@ -172,15 +165,16 @@ export default defineManifest(() => {
 You can now integrate new third party libraries and tools using the following:
 
 ```bash
-npx plugma add
+npm create plugma@next add
 ```
 
 These include:
 
-- Tailwind (figma variables coming soon)
-- ESlint (with Figma specific rules)
+- Prettier
+- Tailwind
+- ESlint
+- Shadcn
 - Vitest (experimental)
 - Playwright (experimental)
-- Shadcn (coming soon)
 
-Each integration will automatically scaffold the necessary files and configuration, sparing you the manual setup. They’re still being refined, but they’ll cover most of what you need to get started.
+Each integration will automatically scaffold the necessary files and configuration, sparing you the manual setup.
