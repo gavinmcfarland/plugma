@@ -5,9 +5,9 @@
 		"build": "./build.sh",
 		"build:clean": "./build.sh --clean",
 		"clean": "./build.sh --clean && echo 'Clean completed'",
+		"test": "vitest --run",
 		"test:coverage": "vitest --run --coverage",
 		"test:watch": "vitest",
-		"test": "vitest --run",
 		"publish": "npx lerna publish",
 		"publish:next": "npx lerna publish --dist-tag=next",
 		"pre-release-check": "./pre-release-check.sh"
