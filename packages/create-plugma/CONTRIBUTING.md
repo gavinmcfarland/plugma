@@ -10,7 +10,7 @@ Plugma uses a powerful template system built on [Combino](https://github.com/gav
 
 1. Copy the `blank-plugin` or `blank-widget` example as the starting point for your new example.
 
-2. Include only files unique to your example. Everything else is included from the base template.
+2. Include only files unique to your example. Everything else is included from the base template referenced by the `template.json` file.
 
 3. Write your code in TypeScript for consistency and type safety. Plugma will automatically generate JavaScript versions for users.
 
