@@ -11,7 +11,6 @@ import { Timer } from '../utils/timer.js';
 import { ListrLogLevels, ListrTask, Listr } from 'listr2';
 import { BuildCommandOptions, DevCommandOptions, PreviewCommandOptions } from '../utils/create-options.js';
 import { createDebugAwareLogger } from '../utils/debug-aware-logger.js';
-import { colorStringify } from '../utils/cli/colorStringify.js';
 
 export interface BuildMainResult {
 	/** Path to the built main script file */

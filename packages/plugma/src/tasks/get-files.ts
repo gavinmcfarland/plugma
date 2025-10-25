@@ -10,11 +10,8 @@ async function readPlugmaPackageJson(): Promise<PlugmaPackageJson> {
 	const __dirname = dirname(__filename);
 	return readJson<PlugmaPackageJson>(join(__dirname, '..', '..', 'package.json'));
 }
-import { Logger } from '../utils/log/logger.js';
-// import { task } from './runner.js' // Temporarily disabled - old task runner pattern
-import { ListrLogger, ListrLogLevels, ListrLoggerOptions } from 'listr2';
-import { LISTR_LOGGER_STYLES } from '../constants.js';
-import { DebugAwareLogger, createDebugAwareLogger } from '../utils/debug-aware-logger.js';
+import { ListrLogLevels } from 'listr2';
+import { createDebugAwareLogger } from '../utils/debug-aware-logger.js';
 
 /**
  * Custom error class for file loading operations

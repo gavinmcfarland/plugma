@@ -1,1 +1,0 @@
-// Figma plugin code
