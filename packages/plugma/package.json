@@ -1,6 +1,6 @@
 {
 	"name": "plugma",
-	"version": "2.0.48",
+	"version": "2.0.49",
 	"description": "",
 	"main": "index.js",
 	"type": "module",
@@ -100,13 +100,13 @@
 		"vite-tsconfig-paths": "^5.1.4"
 	},
 	"peerDependencies": {
-        "vite": "^7.0.0",
-		"@playwright/test": "^1.51.1"
+		"@playwright/test": "^1.51.1",
+		"vite": "^7.0.0"
 	},
-    "peerDependenciesMeta": {
+	"peerDependenciesMeta": {
 		"@playwright/test": {
 			"optional": true
 		}
-  },
+	},
 	"gitHead": "5d408156f91d2857618ec7fa647b7d3848c17114"
 }
