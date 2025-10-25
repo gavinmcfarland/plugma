@@ -12,7 +12,7 @@
 		"./cli": "./dist/create-plugma.js"
 	},
 	"scripts": {
-		"build": "bash ../../dev-setup.sh && tsc -p tsconfig.build.json",
+		"build": "tsc -p tsconfig.build.json",
 		"build:prod": "tsc -p tsconfig.build.json",
 		"dev": "tsc -p tsconfig.build.json --watch",
 		"sync-shared": "./scripts/sync-shared.sh",

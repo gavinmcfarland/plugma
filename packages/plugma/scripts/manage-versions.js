@@ -9,32 +9,6 @@ const __dirname = dirname(__filename);
 const plugmaVersionsPath = resolve(__dirname, '../versions.json');
 const createPlugmaVersionsPath = resolve(__dirname, '../../create-plugma/versions.json');
 
-/**
- * Update versions.json files for development mode (use link: dependencies)
- */
-async function setDevelopmentMode() {
-	console.log('🔗 Setting versions.json files to development mode (link: dependencies)');
-
-	const developmentVersions = {
-		plugma: "file:../plugma"
-	};
-
-	try {
-		// Update both files
-		await Promise.all([
-			writeFile(plugmaVersionsPath, JSON.stringify(developmentVersions, null, 2) + '\n'),
-			writeFile(createPlugmaVersionsPath, JSON.stringify(developmentVersions, null, 2) + '\n')
-		]);
-
-		console.log('✅ Updated versions.json files for development:');
-		console.log('   - packages/plugma/versions.json');
-		console.log('   - packages/create-plugma/versions.json');
-		console.log('   - plugma dependency set to: file:../plugma');
-	} catch (error) {
-		console.error('❌ Error updating versions.json files for development:', error);
-		process.exit(1);
-	}
-}
 
 /**
  * Update versions.json files for publish mode (use actual versions)
@@ -74,13 +48,10 @@ async function setPublishMode() {
 async function main() {
 	const mode = process.argv[2];
 
-	if (mode === 'dev' || mode === 'development') {
-		await setDevelopmentMode();
-	} else if (mode === 'publish' || mode === 'prod' || mode === 'production') {
+	if (mode === 'publish' || mode === 'prod' || mode === 'production') {
 		await setPublishMode();
 	} else {
 		console.error('❌ Invalid mode. Usage:');
-		console.error('  node manage-versions.js dev|development  # Set to development mode');
 		console.error('  node manage-versions.js publish|prod|production  # Set to publish mode');
 		process.exit(1);
 	}
