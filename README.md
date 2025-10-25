@@ -26,7 +26,7 @@ For full documentation see [plugma.dev](https://next.plugma.dev/).
 Create a new plugin or widget from a template.
 
 ```bash
-npx plugma@next create
+npm create plugma@next
 ```
 
 Supported frameworks:
@@ -43,64 +43,13 @@ Add Plugma as a project dependency:
 npm install plugma --save-dev
 ```
 
-Or install it globally:
-
-```bash
-npm install -g plugma
-```
-
-## Development
-
-If you're contributing to Plugma or want to run it locally:
-
-1. **Clone the repository:**
-
-    ```bash
-    git clone https://github.com/your-org/plugma.git
-    cd plugma
-    ```
-
-2. **Install dependencies:**
-
-    ```bash
-    npm install
-    ```
-
-3. **Set up development environment:**
-
-    ```bash
-    ./dev-setup.sh
-    ```
-
-    This configures the `versions.json` files to use `link:../../plugma` dependencies for local development.
-
-4. **Start development:**
-
-    ```bash
-    # In packages/plugma
-    npm run dev
-
-    # In packages/create-plugma (separate terminal)
-    npm run dev
-    ```
-
-5. **When ready to publish:**
-    ```bash
-    # This automatically sets versions.json to use actual version numbers
-    npm run prepublishOnly
-    ```
-
-The development setup ensures that when you create new plugins using `create-plugma`, they will use the local development version of `plugma` instead of the published version.
-
 ## Commands
 
 | Command          | Description                       |
 | ---------------- | --------------------------------- |
-| `plugma create`  | Create a plugin or widget         |
 | `plugma dev`     | Start development server with HMR |
 | `plugma build`   | Create production build           |
 | `plugma release` | Build and release to GitHub       |
-| `plugma add`     | Add integrations to your plugin   |
 
 Run `plugma --help` for complete command documentation.
 
