@@ -13,10 +13,6 @@
 			"path": "packages/plugma/test/sandbox",
 		},
 		{
-			"name": "src",
-			"path": "packages/plugma/src",
-		},
-		{
 			"name": "apps",
 			"path": "packages/plugma/apps",
 		},
