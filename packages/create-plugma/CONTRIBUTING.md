@@ -6,6 +6,8 @@ Plugma uses a powerful template system built on [Combino](https://github.com/gav
 
 ## Creating a Plugin or Widget Example
 
+### Getting started
+
 1. Copy `blank-plugin` or `blank-widget` as the starting point for your new example.
 
 2. Include only files unique to your example. Everything else is included from the base template.
