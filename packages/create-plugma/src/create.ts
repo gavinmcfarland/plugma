@@ -1521,6 +1521,7 @@ async function createProjectFromOptions(params: {
 	const stepNum = !pkgManager || pkgManager === 'skip' || dependencyInstallationFailed ? 3 : 2;
 	steps.push(`${stepNum}. Use \`${devCommand}\` to start dev server`);
 	steps.push(`${stepNum + 1}. Import \`dist/manifest.json\` in Figma`);
+	steps.push(`\n\nCheckout https://plugma.dev for more info.`);
 
 	const errorMessage = dependencyInstallationFailed
 		? chalk.yellow('Failed to install dependencies, but project was created successfully.')
@@ -1528,7 +1529,7 @@ async function createProjectFromOptions(params: {
 
 	await formatAndDisplaySuccessMessageWithSteps({
 		command: 'create',
-		title: dependencyInstallationFailed ? '[ Almost There! ]{bgBlue}' : '[ All Set! ]{bgBlue}',
+		title: '[ Next Steps! ]{bgBlue}',
 		steps,
 		errorMessage,
 		hasNextSteps,

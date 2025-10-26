@@ -104,8 +104,8 @@ export async function add(options: AddCommandOptions): Promise<void> {
 			const preferredPM = detectedPM?.agent || 'npm';
 
 			const { packageManager } = await promptAndInstallDependencies({
-				skipInstallPrompt: preSelectedInstall === false || Boolean(options.install), // Skip prompt if --no-install or --install specified
-				installDependencies: preSelectedInstall === undefined ? true : preSelectedInstall, // Install unless --no-install is used
+				skipInstallPrompt: preSelectedInstall !== undefined || Boolean(options.install), // Skip prompt if flags are used
+				installDependencies: preSelectedInstall === undefined ? false : preSelectedInstall, // Don't auto-install unless flags are used
 				selectedPackageManager:
 					preSelectedInstall !== false
 						? typeof options.install === 'string'
