@@ -9,13 +9,14 @@ import rebase from '@combino/plugin-rebase';
 import stripTS from '@combino/plugin-strip-ts';
 
 export interface FileHelpers {
-	writeFile: (path: string, content: string) => Promise<void>;
+	writeFile: (path: string, content: string, options?: { mode?: number }) => Promise<void>;
 	writeTemplateFile: (templateDir: string, targetPath: string, data?: Record<string, any>) => Promise<void>;
 	readFile: (path: string) => Promise<string>;
 	updateFile: (path: string, updater: (content: string) => string) => Promise<void>;
 	updateJson: (path: string, updater: (json: any) => void) => Promise<void>;
 	exists: (path: string) => Promise<boolean>;
 	mkdir: (path: string) => Promise<void>;
+	ensureDir: (path: string) => Promise<void>;
 	detectTypeScript: () => Promise<boolean>;
 	getExtension: (forceJs?: boolean) => Promise<'ts' | 'js'>;
 	detectViteConfigFile: () => Promise<string | null>;
@@ -24,10 +25,10 @@ export interface FileHelpers {
 
 export function createFileHelpers(cwd = process.cwd()): FileHelpers {
 	return {
-		async writeFile(filePath: string, content: string) {
+		async writeFile(filePath: string, content: string, options?: { mode?: number }) {
 			const fullPath = path.join(cwd, filePath);
 			await fs.mkdir(path.dirname(fullPath), { recursive: true });
-			await fs.writeFile(fullPath, content);
+			await fs.writeFile(fullPath, content, options?.mode ? { mode: options.mode } : undefined);
 		},
 
 		async writeTemplateFile(templateDir: string, targetPath: string, data: Record<string, any> = {}) {
@@ -196,6 +197,10 @@ export function createFileHelpers(cwd = process.cwd()): FileHelpers {
 		},
 
 		async mkdir(dirPath: string) {
+			await fs.mkdir(path.join(cwd, dirPath), { recursive: true });
+		},
+
+		async ensureDir(dirPath: string) {
 			await fs.mkdir(path.join(cwd, dirPath), { recursive: true });
 		},
 

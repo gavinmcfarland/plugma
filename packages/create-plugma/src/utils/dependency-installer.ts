@@ -22,6 +22,11 @@ export interface DependencyInstallationOptions {
 	preferredPM?: string;
 
 	/**
+	 * Initial value for the prompt (defaults to preferredPM)
+	 */
+	initialValue?: string;
+
+	/**
 	 * Pre-selected package manager (skips prompt)
 	 */
 	selectedPackageManager?: string | null;
@@ -212,6 +217,7 @@ export async function promptAndInstallDependencies(
 		debug = false,
 		verbose = false,
 		projectPath,
+		initialValue = undefined,
 	} = options;
 
 	let installationFailed = false;
@@ -254,12 +260,13 @@ export async function promptAndInstallDependencies(
 			...availableOptions.filter((opt) => opt.available),
 		];
 
-		const initialValue = packageManagerOptions.find((opt) => opt.value === defaultPM)?.value || 'npm';
+		const promptInitialValue =
+			initialValue || packageManagerOptions.find((opt) => opt.value === defaultPM)?.value || 'npm';
 
 		packageManager = await radio({
 			label: 'Install dependencies?',
 			shortLabel: 'Dependencies',
-			initialValue,
+			initialValue: promptInitialValue,
 			options: packageManagerOptions,
 			hideOnCompletion: true,
 		});

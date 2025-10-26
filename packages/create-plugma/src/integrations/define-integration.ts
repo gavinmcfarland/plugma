@@ -1,6 +1,6 @@
 import { FileHelpers, createFileHelpers } from '../utils/file-helpers.js';
 
-export type QuestionType = 'select' | 'confirm' | 'text';
+export type QuestionType = 'select' | 'confirm' | 'text' | 'multiselect';
 
 export interface BaseQuestion {
 	id: string;
@@ -8,12 +8,20 @@ export interface BaseQuestion {
 	shortLabel?: string;
 	type: QuestionType;
 	condition?: (answers: Record<string, any>) => boolean;
+	when?: (answers: Record<string, any>) => boolean;
+	required?: boolean;
 }
 
 export interface SelectQuestion extends BaseQuestion {
 	type: 'select';
 	options: Array<{ value: string; label: string; hint?: string }>;
 	default?: string;
+}
+
+export interface MultiselectQuestion extends BaseQuestion {
+	type: 'multiselect';
+	options: Array<{ value: string; label: string; hint?: string }>;
+	default?: string[];
 }
 
 export interface ConfirmQuestion extends BaseQuestion {
@@ -26,7 +34,7 @@ export interface TextQuestion extends BaseQuestion {
 	default?: string;
 }
 
-export type Question = SelectQuestion | ConfirmQuestion | TextQuestion;
+export type Question = SelectQuestion | MultiselectQuestion | ConfirmQuestion | TextQuestion;
 
 export interface FileOperation {
 	path: string;
@@ -42,6 +50,7 @@ export interface SetupContext {
 export interface IntegrationTask {
 	label: string;
 	action: (context: SetupContext) => Promise<void>;
+	optional?: boolean;
 }
 
 export interface Integration {

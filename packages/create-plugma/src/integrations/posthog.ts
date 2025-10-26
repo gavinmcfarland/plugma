@@ -5,89 +5,89 @@ import { join, dirname, resolve } from 'node:path';
 import { getUserFiles } from '../shared/index.js';
 
 const runtimeDependencies = {
-  'posthog-js': 'latest',
+	'posthog-js': 'latest',
 };
 
 export default defineIntegration({
-  id: 'posthog',
-  name: 'PostHog',
-  description: 'Lightweight analytics for Figma plugins (main + UI)',
-  requiresUI: true,
+	id: 'posthog',
+	name: 'PostHog',
+	description: 'Lightweight analytics for Figma plugins (main + UI)',
+	requiresUI: true,
 
-  questions: [
-    {
-      id: 'apiKey',
-      type: 'input',
-      question: 'PostHog Project API Key:',
-      shortLabel: 'API key',
-      required: true,
-    },
-    {
-      id: 'region',
-      type: 'select',
-      question: 'Data region:',
-      shortLabel: 'Region',
-      options: [
-        { value: 'us', label: 'US (https://us.i.posthog.com)' },
-        { value: 'eu', label: 'EU (https://eu.i.posthog.com)' },
-        { value: 'custom', label: 'Custom host (self-hosted)' },
-      ],
-      default: 'us',
-    },
-    {
-      id: 'customHost',
-      type: 'input',
-      question: 'Custom PostHog host (e.g. https://posthog.example.com)',
-      shortLabel: 'Host',
-      when: (answers) => answers.region === 'custom',
-      required: true,
-    },
-    {
-      id: 'anonymous',
-      type: 'confirm',
-      question: 'Send anonymous events (avoid creating/updating person profiles)?',
-      shortLabel: 'Anonymous',
-      default: true,
-    },
-  ],
+	questions: [
+		{
+			id: 'apiKey',
+			type: 'text',
+			question: 'PostHog Project API Key:',
+			shortLabel: 'API key',
+			required: true,
+		},
+		{
+			id: 'region',
+			type: 'select',
+			question: 'Data region:',
+			shortLabel: 'Region',
+			options: [
+				{ value: 'us', label: 'US (https://us.i.posthog.com)' },
+				{ value: 'eu', label: 'EU (https://eu.i.posthog.com)' },
+				{ value: 'custom', label: 'Custom host (self-hosted)' },
+			],
+			default: 'us',
+		},
+		{
+			id: 'customHost',
+			type: 'text',
+			question: 'Custom PostHog host (e.g. https://posthog.example.com)',
+			shortLabel: 'Host',
+			when: (answers) => answers.region === 'custom',
+			required: true,
+		},
+		{
+			id: 'anonymous',
+			type: 'confirm',
+			question: 'Send anonymous events (avoid creating/updating person profiles)?',
+			shortLabel: 'Anonymous',
+			default: true,
+		},
+	],
 
-  setup: [
-    {
-      label: 'Adding posthog-js to dependencies',
-      action: async ({ helpers }) => {
-        await helpers.updateJson('package.json', (json) => {
-          json.dependencies = json.dependencies || {};
-          Object.entries(runtimeDependencies).forEach(([name, version]) => {
-            json.dependencies[name] = version;
-          });
-        });
-      },
-    },
-    {
-      label: 'Creating analytics helpers (main + UI)',
-      action: async ({ answers, helpers }) => {
-        const cwd = process.cwd();
+	setup: [
+		{
+			label: 'Adding posthog-js to dependencies',
+			action: async ({ helpers }) => {
+				await helpers.updateJson('package.json', (json) => {
+					json.dependencies = json.dependencies || {};
+					Object.entries(runtimeDependencies).forEach(([name, version]) => {
+						json.dependencies[name] = version;
+					});
+				});
+			},
+		},
+		{
+			label: 'Creating analytics helpers (main + UI)',
+			action: async ({ answers, helpers }) => {
+				const cwd = process.cwd();
 
-        // Try to locate the UI directory from manifest; fallback to 'src'
-        let uiDir = 'src';
-        try {
-          const files = await getUserFiles({ cwd });
-          if (files.manifest?.ui) {
-            uiDir = dirname(files.manifest.ui);
-          }
-        } catch {
-          // ignore, default to src
-        }
+				// Try to locate the UI directory from manifest; fallback to 'src'
+				let uiDir = 'src';
+				try {
+					const files = await getUserFiles({ cwd });
+					if (files.manifest?.ui) {
+						uiDir = dirname(files.manifest.ui);
+					}
+				} catch {
+					// ignore, default to src
+				}
 
-        const baseUrl =
-          answers.region === 'eu'
-            ? 'https://eu.i.posthog.com'
-            : answers.region === 'us'
-            ? 'https://us.i.posthog.com'
-            : (answers.customHost as string).replace(/\/$/, '');
+				const baseUrl =
+					answers.region === 'eu'
+						? 'https://eu.i.posthog.com'
+						: answers.region === 'us'
+							? 'https://us.i.posthog.com'
+							: (answers.customHost as string).replace(/\/$/, '');
 
-        // --- main thread helper (uses Figma fetch) ---
-        const mainHelper = dedent`
+				// --- main thread helper (uses Figma fetch) ---
+				const mainHelper = dedent`
           // src/analytics/posthog-main.ts
           // Minimal PostHog capture from the plugin main thread (Figma's global fetch)
           type PHConfig = {
@@ -137,8 +137,8 @@ export default defineIntegration({
           }
         `;
 
-        // --- UI helper (uses posthog-js) ---
-        const uiHelper = dedent`
+				// --- UI helper (uses posthog-js) ---
+				const uiHelper = dedent`
           // ${uiDir}/analytics/posthog-ui.ts
           import posthog from 'posthog-js';
 
@@ -187,17 +187,17 @@ export default defineIntegration({
           }
         `;
 
-        await helpers.ensureDir('src/analytics');
-        await helpers.writeFile(join('src', 'analytics', 'posthog-main.ts'), mainHelper);
+				await helpers.ensureDir('src/analytics');
+				await helpers.writeFile(join('src', 'analytics', 'posthog-main.ts'), mainHelper);
 
-        // Ensure UI analytics subfolder exists within the detected UI dir
-        await helpers.ensureDir(resolve(cwd, uiDir, 'analytics'));
-        await helpers.writeFile(join(uiDir, 'analytics', 'posthog-ui.ts'), uiHelper);
-      },
-    },
-  ],
+				// Ensure UI analytics subfolder exists within the detected UI dir
+				await helpers.ensureDir(resolve(cwd, uiDir, 'analytics'));
+				await helpers.writeFile(join(uiDir, 'analytics', 'posthog-ui.ts'), uiHelper);
+			},
+		},
+	],
 
-  nextSteps: (answers) => dedent`
+	nextSteps: (answers) => dedent`
     **PostHog is set up (main + UI)!**
 
     ### Main thread
