@@ -18,7 +18,7 @@ import { promptAndInstallDependencies } from './utils/dependency-installer.js';
 import { promptForIntegrations } from './utils/integration-prompter.js';
 import { createIntegrationSetupTask, createPostSetupTask } from './utils/integration-task-builder.js';
 import { writeIntegrationNextSteps } from './utils/integration-next-steps.js';
-import { getCommand, type PackageManager } from './shared/index.js';
+import { getCommand, type PackageManager, formatAndDisplaySuccessMessageWithSteps } from './shared/index.js';
 
 // Import necessary modules for dependency installation
 import { detect } from 'package-manager-detector/detect';
@@ -1506,36 +1506,31 @@ async function createProjectFromOptions(params: {
 
 	// Build success message with next steps
 	const packageManager = pkgManager || selectedPackageManager || 'npm';
-	const allSetMessage = dependencyInstallationFailed ? '[ Almost There! ]{bgBlue}' : '[ All Set! ]{bgBlue}';
-	const nextStepsLines: string[] = [allSetMessage + '\n'];
 
-	// Show dependency installation error after title if installation failed
-	if (dependencyInstallationFailed) {
-		nextStepsLines.push(chalk.yellow('Failed to install dependencies, but project was created successfully.'));
-		nextStepsLines.push(''); // Add empty line for spacing
-	}
-
-	nextStepsLines.push(`1. Change dir \`cd ./${rawDirName}\``);
+	// Build steps array
+	const steps: string[] = [];
+	steps.push(`1. Change dir \`cd ./${rawDirName}\``);
 
 	// Only show install command if dependencies weren't installed OR if installation failed
 	if (!pkgManager || pkgManager === 'skip' || dependencyInstallationFailed) {
 		const installCommand = getCommand(packageManager as PackageManager, 'install');
-		nextStepsLines.push(`2. Install depedencies with \`${installCommand}\``);
+		steps.push(`2. Install depedencies with \`${installCommand}\``);
 	}
 
 	const devCommand = getCommand(packageManager as PackageManager, 'dev');
 	const stepNum = !pkgManager || pkgManager === 'skip' || dependencyInstallationFailed ? 3 : 2;
-	nextStepsLines.push(`${stepNum}. Use \`${devCommand}\` to start dev server`);
-	nextStepsLines.push(`${stepNum + 1}. Import \`dist/manifest.json\` in Figma`);
+	steps.push(`${stepNum}. Use \`${devCommand}\` to start dev server`);
+	steps.push(`${stepNum + 1}. Import \`dist/manifest.json\` in Figma`);
 
-	// Add information about documentation files
-	if (hasNextSteps) {
-		nextStepsLines.push(`\n${chalk.blue('See INTEGRATIONS.md on how to use them.')}`);
-	}
+	const errorMessage = dependencyInstallationFailed
+		? chalk.yellow('Failed to install dependencies, but project was created successfully.')
+		: undefined;
 
-	nextStepsLines.push('');
-
-	const successMessage = nextStepsLines.join('\n');
-
-	await safeNote(successMessage);
+	await formatAndDisplaySuccessMessageWithSteps({
+		command: 'create',
+		title: dependencyInstallationFailed ? '[ Almost There! ]{bgBlue}' : '[ All Set! ]{bgBlue}',
+		steps,
+		errorMessage,
+		hasNextSteps,
+	});
 }

@@ -4,14 +4,14 @@
 
 import { detect } from 'package-manager-detector/detect';
 import chalk from 'chalk';
-import { ask, spinner, note, completedFields, group, tasks, type Task } from 'askeroo';
+import { ask, spinner, completedFields, group, tasks, type Task } from 'askeroo';
 import { AddCommandOptions } from './utils/create-options.js';
 import { promptAndInstallDependencies } from './utils/dependency-installer.js';
 import { promptForIntegrations, INTEGRATIONS } from './utils/integration-prompter.js';
 import { createIntegrationSetupTask, createPostSetupTask } from './utils/integration-task-builder.js';
 import { showCreatePlugmaPrompt } from './utils/show-prompt.js';
 import { writeIntegrationNextSteps } from './utils/integration-next-steps.js';
-import { getUserFiles } from './shared/index.js';
+import { getUserFiles, formatAndDisplaySuccessMessageWithSteps } from './shared/index.js';
 
 // Helper to sleep
 function sleep(ms: number): Promise<void> {
@@ -130,12 +130,13 @@ export async function add(options: AddCommandOptions): Promise<void> {
 			}
 
 			// Show completion message with optional dependency installation reminder
-			let message = '';
-
-			if (
+			const needsInstall =
 				(depsArray.length > 0 || devDepsArray.length > 0) &&
-				(packageManager === 'skip' || preSelectedInstall === false)
-			) {
+				(packageManager === 'skip' || preSelectedInstall === false);
+
+			let steps: string[];
+
+			if (needsInstall) {
 				const pmToUse = options.install || preferredPM;
 				const installCommand =
 					pmToUse === 'npm'
@@ -150,32 +151,17 @@ export async function add(options: AddCommandOptions): Promise<void> {
 										? 'deno install'
 										: 'npm install';
 
-				const dependencySections = [];
-
-				if (depsArray.length > 0) {
-					dependencySections.push(
-						`Dependencies:\n${depsArray.map((dep) => `  • ${chalk.green(dep)}`).join('\n')}`,
-					);
-				}
-
-				if (devDepsArray.length > 0) {
-					dependencySections.push(
-						`Dev dependencies:\n${devDepsArray.map((dep) => `  • ${chalk.green(dep)}`).join('\n')}`,
-					);
-				}
-
-				message = `**Integration added successfully!**\n\nTo complete the setup, install the required dependencies with \`${installCommand}\``;
+				steps = [`1. Install the required dependencies with \`${installCommand}\``];
 			} else {
-				message =
-					"**All set!**\n\nYour integration has been added and dependencies are installed. You're ready to go!";
+				steps = ['Your integrations have been added and dependencies are installed.'];
 			}
 
-			// Add information about INTEGRATIONS.md file if it was created
-			if (hasNextSteps) {
-				message += `\n${chalk.blue('See INTEGRATIONS.md on how to use them.')}`;
-			}
-
-			await note(message);
+			await formatAndDisplaySuccessMessageWithSteps({
+				command: 'add',
+				title: '[ Integrations Added! ]{bgBlue}',
+				steps,
+				hasNextSteps,
+			});
 		},
 		{
 			onCancel: async () => {
