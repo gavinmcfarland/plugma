@@ -32,9 +32,6 @@ Supported frameworks:
 - Svelte
 - Vue
 
-> [!TIP]
-> Try the upcoming [next](https://github.com/gavinmcfarland/plugma/tree/next) release.
-
 ## Installation
 
 Add Plugma as a project dependency:
