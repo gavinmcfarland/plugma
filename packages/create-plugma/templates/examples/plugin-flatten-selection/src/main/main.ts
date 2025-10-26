@@ -1,3 +1,4 @@
+export default function () {
 figma.on('run', () => {
 	const selection = figma.currentPage.selection;
 
@@ -19,3 +20,4 @@ figma.on('run', () => {
 
 	figma.closePlugin();
   });
+}
