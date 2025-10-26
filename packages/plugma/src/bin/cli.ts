@@ -93,10 +93,8 @@ program.hook('preAction', async (thisCommand, actionCommand) => {
 	// // Required for Vite to use correct DEV and PROD env variables
 	if (commandName === 'build') {
 		process.env.NODE_ENV = 'production';
-		process.env.PLUGMA_DEVELOPING_LOCALLY = 'false';
 	} else {
 		process.env.NODE_ENV = 'development';
-		process.env.PLUGMA_DEVELOPING_LOCALLY = 'true';
 	}
 
 	// You can add your common functionality here

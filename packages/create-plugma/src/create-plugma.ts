@@ -5,6 +5,10 @@
  * Standalone command for creating new Figma plugin/widget projects
  */
 
+import { loadEnvFiles } from './utils/load-env-files.js';
+
+loadEnvFiles();
+
 import { Command } from 'commander';
 import { create } from './create.js';
 import { add } from './add.js';
