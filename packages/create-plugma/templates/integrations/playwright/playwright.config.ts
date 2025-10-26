@@ -10,7 +10,7 @@ export default defineConfig({
 		},
 	],
 	webServer: {
-		command: 'npm run dev -- -ws --port 4000',
+		command: 'npm run dev -- --port 4000',
 		url: 'http://localhost:4000',
 		reuseExistingServer: !process.env.CI,
 	},
