@@ -1,17 +1,24 @@
-import { config } from 'dotenv';
+import { readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-/**
- * Load environment variables from .env files
- */
 export function loadEnvFiles() {
-	// Get the package root directory
 	const __dirname = dirname(fileURLToPath(import.meta.url));
 	const packageRoot = resolve(__dirname, '..', '..');
+	const envPath = resolve(packageRoot, '.env');
 
-	// Load environment variables from .env files
-	config({
-		path: resolve(packageRoot, '.env'),
-	});
+	if (!existsSync(envPath)) return;
+
+	const lines = readFileSync(envPath, 'utf-8').split(/\r?\n/);
+	for (const line of lines) {
+		if (!line || line.startsWith('#')) continue;
+		const [key, ...valueParts] = line.split('=');
+		const value = valueParts
+			.join('=')
+			.trim()
+			.replace(/^['"]|['"]$/g, '');
+		if (key && !(key in process.env)) {
+			process.env[key.trim()] = value;
+		}
+	}
 }

@@ -45,7 +45,6 @@
 		"comment-json": "^4.2.5",
 		"cross-dirname": "^0.1.0",
 		"dedent": "^1.5.3",
-		"dotenv": "^16.5.0",
 		"magic-string": "^0.30.17",
 		"package-manager-detector": "^1.1.0"
 	},
