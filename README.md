@@ -18,9 +18,6 @@ Plugma is a powerful command-line tool that simplifies your Figma plugin develop
 
 For full documentation see [plugma.dev](https://next.plugma.dev/).
 
-> [!WARNING]
-> This repository is in development and features may not work as expected or may undergo changes before release.
-
 ## Quick Start
 
 Create a new plugin or widget from a template.
