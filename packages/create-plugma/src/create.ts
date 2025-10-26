@@ -664,202 +664,11 @@ async function browseAndSelectTemplate(
 				return;
 			}
 
-			// Handle --yes flag when type/framework are not provided (prompt for essential choices only)
+			// Determine if we're in --yes mode
 			const hasTypeFlag = options.plugin || options.widget;
 			const hasFrameworkFlag =
 				options.framework || options.react || options.svelte || options.vue || options.noUi;
-			if (options.yes && (!hasTypeFlag || !hasFrameworkFlag)) {
-				// Use the normal interactive flow but with pre-selected values
-				await completedFields();
-
-				const answers = await group(
-					async () => {
-						// Type selection (required when not provided)
-						let selectedType: string;
-						if (preSelectedType) {
-							selectedType = preSelectedType;
-						} else {
-							const availableTypes = Array.from(
-								new Set(visibleExamples.map((example) => example.metadata.type).filter(Boolean)),
-							).sort((a, b) => {
-								if (a === 'plugin') return -1;
-								if (b === 'plugin') return 1;
-								return a!.localeCompare(b!);
-							});
-
-							if (availableTypes.length === 0) {
-								throw new Error('No valid template types found.');
-							}
-
-							selectedType = await radio({
-								label: 'Choose what to create:',
-								shortLabel: 'Type',
-								options: availableTypes.map((type) => ({
-									value: type!,
-									label: type!.charAt(0).toUpperCase() + type!.slice(1),
-								})),
-							});
-						}
-
-						// Filter templates by selected type
-						const typeFilteredExamples = visibleExamples.filter(
-							(example) => example.metadata.type === selectedType,
-						);
-
-						if (typeFilteredExamples.length === 0) {
-							throw new Error(`No templates available for ${selectedType}.`);
-						}
-
-						// Framework selection (required when not provided)
-						let selectedFramework: string;
-						if (preSelectedFramework) {
-							selectedFramework = preSelectedFramework;
-						} else {
-							const availableFrameworks = getAvailableFrameworks(typeFilteredExamples);
-							const hasNoUIExamples = typeFilteredExamples.some(
-								(example) => !exampleHasUI(example.metadata),
-							);
-
-							const frameworkOptions = [
-								...availableFrameworks.map((framework) => {
-									const fwLower = framework.toLowerCase();
-									let color: string | undefined;
-									if (fwLower === 'react') color = 'red';
-									else if (fwLower === 'svelte') color = 'yellow';
-									else if (fwLower === 'vue') color = 'green';
-
-									return {
-										value: framework,
-										label: framework.charAt(0).toUpperCase() + framework.slice(1),
-										color,
-									};
-								}),
-								...(hasNoUIExamples ? [{ value: NO_UI_OPTION, label: NO_UI_OPTION }] : []),
-							];
-
-							if (frameworkOptions.length === 1) {
-								selectedFramework = frameworkOptions[0].value;
-							} else {
-								selectedFramework = await radio({
-									label: 'Select a framework for your UI:',
-									shortLabel: 'Framework',
-									options: frameworkOptions,
-								});
-							}
-						}
-
-						// Filter templates by both type and framework preference
-						const needsUI = selectedFramework !== NO_UI_OPTION;
-						const filteredExamples = filterExamples(typeFilteredExamples, needsUI, selectedFramework);
-
-						if (filteredExamples.length === 0) {
-							throw new Error(
-								`No templates available for ${selectedType} with ${selectedFramework === NO_UI_OPTION ? 'no UI' : selectedFramework}.`,
-							);
-						}
-
-						// Sort templates by rank and select the first one when --yes is used
-						const sortedExamples = filteredExamples.sort((a, b) => {
-							const aRank = a.metadata.rank ?? 0;
-							const bRank = b.metadata.rank ?? 0;
-							return bRank - aRank;
-						});
-
-						// Automatically select the first template when --yes is used
-						const selectedTemplate = sortedExamples[0];
-
-						// Validate that the selected template supports the chosen framework
-						const templateNeedsUI = exampleHasUI(selectedTemplate.metadata);
-						if (templateNeedsUI && selectedFramework !== NO_UI_OPTION) {
-							const availableFrameworks = getFrameworksForExample(selectedTemplate);
-							const selectedFrameworkLower = selectedFramework.toLowerCase();
-							const supportsFramework = availableFrameworks.some(
-								(fw) => fw.toLowerCase() === selectedFrameworkLower,
-							);
-
-							if (!supportsFramework) {
-								throw new Error(
-									`Template "${getDisplayName(selectedTemplate)}" does not support ${selectedFramework}.`,
-								);
-							}
-						}
-
-						// Use defaults for other options when --yes is used
-						const typescript = preSelectedTypescript !== undefined ? preSelectedTypescript : true;
-						const selectedTemplateName = selectedTemplate.metadata.name || selectedTemplate.name;
-						const projectInfo = options.dir
-							? createProjectInfo(options.dir, CURR_DIR)
-							: await generateUniqueProjectInfo(
-									generateDefaultProjectName(selectedType, selectedTemplateName),
-								);
-						const installDependencies =
-							preSelectedInstall === undefined
-								? preSelectedAddOns === false && !options.yes
-									? false
-									: true
-								: preSelectedInstall;
-
-						return {
-							type: selectedType,
-							selectedFramework,
-							selectedTemplate,
-							typescript,
-							projectInfo,
-							installDependencies,
-							needsUI: selectedFramework !== NO_UI_OPTION,
-						};
-					},
-					{ flow: 'phased', hideOnCompletion: true },
-				);
-
-				// Check if current directory is empty when using --yes flag
-
-				// Create the project with minimal prompts
-				const detectedPM = await detect({ cwd: process.cwd() });
-				const defaultPM = detectedPM?.agent || 'npm';
-
-				// Determine install behavior based on CLI flags
-				const installBehavior = determineInstallBehavior(options, defaultPM);
-
-				// Handle integrations for quick mode
-				let addOnResults: any[] = [];
-				let addOnDeps: any = { dependencies: new Set<string>(), devDependencies: new Set<string>() };
-				let addOnAnswers: Record<string, Record<string, any>> = {};
-
-				if (preSelectedAddOns !== false && Array.isArray(preSelectedAddOns) && preSelectedAddOns.length > 0) {
-					// Process pre-selected integrations
-					const integrationResult = await promptForIntegrations({
-						preSelectedIntegration: preSelectedAddOns,
-						showNoneOption: false,
-						requireSelection: false,
-						framework: answers.needsUI ? answers.selectedFramework : NO_UI_OPTION,
-					});
-					addOnResults = integrationResult.allResults;
-					addOnDeps = integrationResult.allDeps;
-					addOnAnswers = integrationResult.integrationAnswers;
-				}
-
-				await createProjectFromOptions({
-					type: answers.type,
-					framework: answers.needsUI ? answers.selectedFramework : NO_UI_OPTION,
-					typescript: answers.typescript,
-					projectInfo: answers.projectInfo,
-					selectedExample: answers.selectedTemplate, // Use the automatically selected template
-					debug: options.debug || false,
-					installAddOns:
-						preSelectedAddOns === false ? [] : Array.isArray(preSelectedAddOns) ? preSelectedAddOns : [], // Use --add flag values or skip when --yes is used
-					addOnResults,
-					addOnDeps,
-					installDependencies: installBehavior.installDependencies,
-					selectedPackageManager: installBehavior.selectedPackageManager,
-					addOnAnswers,
-					preferredPM: defaultPM,
-					skipInstallPrompt: installBehavior.skipInstallPrompt,
-					verbose: options.verbose,
-				});
-
-				return;
-			}
+			const isYesMode = options.yes && (!hasTypeFlag || !hasFrameworkFlag);
 
 			await completedFields();
 
@@ -954,37 +763,38 @@ async function browseAndSelectTemplate(
 						return bRank - aRank;
 					});
 
-					// Template selection - create mapping from value to Example
-					const templateMap = new Map<string, Example>();
-					const templateOptions = sortedExamples.map((example, index) => {
-						const displayName = getDisplayName(example);
-						const description = example.metadata.description || '';
-						// NOTE: Not used currently
-						// const frameworks = example.metadata.frameworks
-						// 	? Array.isArray(example.metadata.frameworks)
-						// 		? example.metadata.frameworks.join(', ')
-						// 		: example.metadata.frameworks
-						// 	: 'No UI';
+					// Template selection - auto-select first (highest rank) in yes mode, otherwise prompt
+					let selectedTemplate: Example;
+					if (isYesMode) {
+						// Automatically select the first template (highest rank)
+						selectedTemplate = sortedExamples[0];
+					} else {
+						// Create mapping from value to Example and prompt user
+						const templateMap = new Map<string, Example>();
+						const templateOptions = sortedExamples.map((example, index) => {
+							const displayName = getDisplayName(example);
+							const description = example.metadata.description || '';
 
-						const type = example.metadata.type || 'plugin';
-						const value = `template-${index}`;
-						templateMap.set(value, example);
+							const type = example.metadata.type || 'plugin';
+							const value = `template-${index}`;
+							templateMap.set(value, example);
 
-						return {
-							value,
-							label: displayName,
-							hint: `${description}`,
-						};
-					});
+							return {
+								value,
+								label: displayName,
+								hint: `${description}`,
+							};
+						});
 
-					const selectedTemplateValue = await radio({
-						label: `Pick a starting template:`,
-						shortLabel: 'Template',
-						hintPosition: 'inline-fixed' as const,
-						options: templateOptions,
-					});
+						const selectedTemplateValue = await radio({
+							label: `Pick a starting template:`,
+							shortLabel: 'Template',
+							hintPosition: 'inline-fixed' as const,
+							options: templateOptions,
+						});
 
-					const selectedTemplate = templateMap.get(selectedTemplateValue)!;
+						selectedTemplate = templateMap.get(selectedTemplateValue)!;
+					}
 
 					// Validate that the selected template supports the chosen framework
 					const templateNeedsUI = exampleHasUI(selectedTemplate.metadata);
@@ -1003,108 +813,140 @@ async function browseAndSelectTemplate(
 					}
 
 					// TypeScript confirmation
-					const typescript =
-						preSelectedTypescript !== undefined
-							? preSelectedTypescript
-							: await confirm({
-									label: 'Use TypeScript?',
-									shortLabel: 'TypeScript',
-									initialValue: true,
-								});
+					let typescript: boolean;
+					if (preSelectedTypescript !== undefined) {
+						typescript = preSelectedTypescript;
+					} else if (isYesMode) {
+						// Use default true in yes mode
+						typescript = true;
+					} else {
+						typescript = await confirm({
+							label: 'Use TypeScript?',
+							shortLabel: 'TypeScript',
+							initialValue: true,
+						});
+					}
 
-					// Add-ons selection
-					const integrationResult = await promptForIntegrations({
-						preSelectedIntegration: preSelectedAddOns,
-						showNoneOption: true,
-						requireSelection: false,
-						hintPosition: 'inline-fixed',
-						framework: selectedFramework,
-					});
+					// Add-ons selection - only prompt if not in yes mode
+					let selectedAddOns: string[] = [];
+					let addOnAnswers: Record<string, Record<string, any>> = {};
+					let addOnResults: any[] = [];
+					let addOnDeps: any = { dependencies: new Set<string>(), devDependencies: new Set<string>() };
 
-					const selectedAddOns = integrationResult.selectedIntegrations;
-					const addOnAnswers = integrationResult.integrationAnswers;
-					const addOnResults = integrationResult.allResults;
-					const addOnDeps = integrationResult.allDeps;
+					if (!isYesMode) {
+						// Prompt for add-ons in normal mode
+						const integrationResult = await promptForIntegrations({
+							preSelectedIntegration: preSelectedAddOns,
+							showNoneOption: true,
+							requireSelection: false,
+							hintPosition: 'inline-fixed',
+							framework: selectedFramework,
+						});
+
+						selectedAddOns = integrationResult.selectedIntegrations;
+						addOnAnswers = integrationResult.integrationAnswers;
+						addOnResults = integrationResult.allResults;
+						addOnDeps = integrationResult.allDeps;
+					} else if (preSelectedAddOns !== false && Array.isArray(preSelectedAddOns)) {
+						// Use pre-selected add-ons in yes mode
+						selectedAddOns = preSelectedAddOns;
+					}
 
 					// Generate project name
 					const selectedTemplateName = selectedTemplate.metadata.name || selectedTemplate.name;
 					const type = selectedTemplate.metadata.type || 'plugin';
-					const baseName = generateDefaultProjectName(type, selectedTemplateName);
 
-					// Ensure initial value is prefixed with ./
-					const initialValue = options.dir || baseName;
-					const prefixedInitialValue = initialValue.startsWith('./') ? initialValue : `./${initialValue}`;
+					// Project path - auto-generate in yes mode, otherwise prompt
+					let projectInfo: ProjectInfo;
+					if (isYesMode) {
+						// Auto-generate project path in yes mode
+						const baseName = options.dir || generateDefaultProjectName(type, selectedTemplateName);
+						if (options.dir) {
+							projectInfo = createProjectInfo(options.dir, CURR_DIR);
+						} else {
+							projectInfo = await generateUniqueProjectInfo(
+								generateDefaultProjectName(type, selectedTemplateName),
+							);
+						}
+					} else {
+						// Prompt for project path in normal mode
+						const baseName = generateDefaultProjectName(type, selectedTemplateName);
 
-					const projectPath = await text({
-						label: `Where would you like the ${type} to be created?`,
-						shortLabel: 'Dir',
-						initialValue: prefixedInitialValue,
-						onValidate: async (value) => {
-							if (!value || value.trim() === '') {
-								return 'Project path is required';
-							}
+						// Ensure initial value is prefixed with ./
+						const initialValue = options.dir || baseName;
+						const prefixedInitialValue = initialValue.startsWith('./') ? initialValue : `./${initialValue}`;
 
-							// Normalize the path for validation
-							let normalizedValue = value.trim();
-							if (
-								!normalizedValue.startsWith('./') &&
-								!normalizedValue.startsWith('/') &&
-								!normalizedValue.match(/^[A-Za-z]:/)
-							) {
-								normalizedValue = `./${normalizedValue}`;
-							}
-
-							const normalizedPath = path.resolve(normalizedValue);
-							const projectName = path.basename(normalizedPath);
-							const parentDir = path.dirname(normalizedPath);
-
-							// Validate project name
-							if (!/^[a-zA-Z0-9_-]+$/.test(projectName)) {
-								return 'Project name can only contain letters, numbers, hyphens, and underscores';
-							}
-
-							// Create parent directory if it doesn't exist
-							if (!fs.existsSync(parentDir)) {
-								try {
-									fs.mkdirSync(parentDir, { recursive: true });
-								} catch (error) {
-									return `Failed to create parent directory "${parentDir}": ${error instanceof Error ? error.message : String(error)}`;
+						const projectPath = await text({
+							label: `Where would you like the ${type} to be created?`,
+							shortLabel: 'Dir',
+							initialValue: prefixedInitialValue,
+							onValidate: async (value) => {
+								if (!value || value.trim() === '') {
+									return 'Project path is required';
 								}
-							}
 
-							// Check if parent directory is writable
-							try {
-								fs.accessSync(parentDir, fs.constants.W_OK);
-							} catch {
-								return `Parent directory "${parentDir}" is not writable`;
-							}
+								// Normalize the path for validation
+								let normalizedValue = value.trim();
+								if (
+									!normalizedValue.startsWith('./') &&
+									!normalizedValue.startsWith('/') &&
+									!normalizedValue.match(/^[A-Za-z]:/)
+								) {
+									normalizedValue = `./${normalizedValue}`;
+								}
 
-							// Check if project directory already exists
-							if (fs.existsSync(normalizedPath)) {
-								return `Directory "${projectName}" already exists`;
-							}
+								const normalizedPath = path.resolve(normalizedValue);
+								const projectName = path.basename(normalizedPath);
+								const parentDir = path.dirname(normalizedPath);
 
-							return null;
-						},
-						onSubmit: (value) => {
-							// Ensure the submitted value is prefixed with ./ if it's a relative path
-							let normalizedValue = value.trim();
-							if (
-								!normalizedValue.startsWith('./') &&
-								!normalizedValue.startsWith('/') &&
-								!normalizedValue.match(/^[A-Za-z]:/)
-							) {
-								normalizedValue = `./${normalizedValue}`;
-							}
-							return normalizedValue;
-						},
-					});
+								// Validate project name
+								if (!/^[a-zA-Z0-9_-]+$/.test(projectName)) {
+									return 'Project name can only contain letters, numbers, hyphens, and underscores';
+								}
 
-					// Extract name and directory from the path
-					const normalizedPath = path.resolve(projectPath);
-					const projectName = path.basename(normalizedPath);
-					const projectDirectory = path.dirname(normalizedPath);
-					const projectInfo = createProjectInfo(projectName, projectDirectory);
+								// Create parent directory if it doesn't exist
+								if (!fs.existsSync(parentDir)) {
+									try {
+										fs.mkdirSync(parentDir, { recursive: true });
+									} catch (error) {
+										return `Failed to create parent directory "${parentDir}": ${error instanceof Error ? error.message : String(error)}`;
+									}
+								}
+
+								// Check if parent directory is writable
+								try {
+									fs.accessSync(parentDir, fs.constants.W_OK);
+								} catch {
+									return `Parent directory "${parentDir}" is not writable`;
+								}
+
+								// Check if project directory already exists
+								if (fs.existsSync(normalizedPath)) {
+									return `Directory "${projectName}" already exists`;
+								}
+
+								return null;
+							},
+							onSubmit: (value) => {
+								// Ensure the submitted value is prefixed with ./ if it's a relative path
+								let normalizedValue = value.trim();
+								if (
+									!normalizedValue.startsWith('./') &&
+									!normalizedValue.startsWith('/') &&
+									!normalizedValue.match(/^[A-Za-z]:/)
+								) {
+									normalizedValue = `./${normalizedValue}`;
+								}
+								return normalizedValue;
+							},
+						});
+
+						// Extract name and directory from the path
+						const normalizedPath = path.resolve(projectPath);
+						const projectName = path.basename(normalizedPath);
+						const projectDirectory = path.dirname(normalizedPath);
+						projectInfo = createProjectInfo(projectName, projectDirectory);
+					}
 
 					return {
 						selectedType,
@@ -1123,10 +965,55 @@ async function browseAndSelectTemplate(
 				{ flow: 'phased', hideOnCompletion: true },
 			);
 
+			// Check if target project directory is empty when using yes mode
+			if (isYesMode && options.yes) {
+				try {
+					if (fs.existsSync(answers.projectInfo.fullPath)) {
+						const files = await fs.promises.readdir(answers.projectInfo.fullPath);
+						// Filter out hidden files and common development files that are safe to ignore
+						const visibleFiles = files.filter(
+							(file) =>
+								!file.startsWith('.') && !['node_modules', 'dist', 'build', '.git'].includes(file),
+						);
+
+						if (visibleFiles.length > 0) {
+							await note(`[■ Error: Directory ${answers.projectInfo.dirName} is not empty.]{red}`);
+							process.exit(1);
+						}
+					}
+				} catch (error) {
+					// If we can't read the directory, that's fine - it might not exist yet
+					// The createProjectFromOptions function will handle directory creation
+				}
+			}
+
 			// Determine install behavior based on CLI flags
 			const installBehavior = determineInstallBehavior(options, preferredPM);
 			if (options.debug) {
 				console.log(`Debug: determineInstallBehavior result:`, installBehavior);
+			}
+
+			// Handle integrations for yes mode if add-ons were pre-selected
+			let finalAddOnResults = answers.addOnResults;
+			let finalAddOnDeps = answers.addOnDeps;
+			let finalAddOnAnswers = answers.addOnAnswers;
+
+			if (
+				isYesMode &&
+				preSelectedAddOns !== false &&
+				Array.isArray(preSelectedAddOns) &&
+				preSelectedAddOns.length > 0
+			) {
+				// Process pre-selected integrations
+				const integrationResult = await promptForIntegrations({
+					preSelectedIntegration: preSelectedAddOns,
+					showNoneOption: false,
+					requireSelection: false,
+					framework: answers.needsUI ? answers.selectedFramework : NO_UI_OPTION,
+				});
+				finalAddOnResults = integrationResult.allResults;
+				finalAddOnDeps = integrationResult.allDeps;
+				finalAddOnAnswers = integrationResult.integrationAnswers;
 			}
 
 			// Create the project with tasks
@@ -1138,11 +1025,11 @@ async function browseAndSelectTemplate(
 				selectedExample: answers.selectedTemplate,
 				debug: options.debug || false,
 				installAddOns: answers.selectedAddOns,
-				addOnResults: answers.addOnResults,
-				addOnDeps: answers.addOnDeps,
+				addOnResults: finalAddOnResults,
+				addOnDeps: finalAddOnDeps,
 				installDependencies: installBehavior.installDependencies,
 				selectedPackageManager: installBehavior.selectedPackageManager,
-				addOnAnswers: answers.addOnAnswers,
+				addOnAnswers: finalAddOnAnswers,
 				preferredPM,
 				skipInstallPrompt: installBehavior.skipInstallPrompt,
 				verbose: options.verbose,
