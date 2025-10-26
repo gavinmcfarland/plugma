@@ -10,6 +10,7 @@
 		"vite": "^7.0.0"<% if (type === 'plugin') { %>,
         "@figma/plugin-typings": "^1.100.2"
         <% } else { %>,
+        "@figma/plugin-typings": "^1.100.2",
         "@figma/widget-typings": "^1.12.1"<% } %>,
 		"plugma": "<%- versions.plugma %>"
 	}
