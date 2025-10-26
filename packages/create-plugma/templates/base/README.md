@@ -38,6 +38,14 @@ Before publishing your plugin, make sure to create a build. If not, it will stil
 
 Now you can publish the plugin from the Figma desktop app.
 
+### Integrations
+
+You can add new integrations by running the following command. Integrations extend your project with tools and frameworks commonly used in modern development.
+
+```bash
+npm create plugma@latest add
+```
+
 ### Advanced
 
 See the [Plugma docs](https://plugma.dev/docs) for further information.
