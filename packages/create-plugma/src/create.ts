@@ -107,7 +107,15 @@ interface ProjectInfo {
  * my-plugin -> My Plugin
  */
 function formatProjectName(dirName: string): string {
-	return dirName
+	// Remove figma-plugin- or figma-widget- prefix if present
+	let processedName = dirName;
+	if (dirName.startsWith('figma-plugin-')) {
+		processedName = dirName.slice('figma-plugin-'.length);
+	} else if (dirName.startsWith('figma-widget-')) {
+		processedName = dirName.slice('figma-widget-'.length);
+	}
+
+	return processedName
 		.split('-')
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 		.join(' ');
