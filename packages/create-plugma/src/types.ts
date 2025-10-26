@@ -3,8 +3,6 @@ import type { PackageJson } from 'type-fest';
 import type { BaseOptions } from './shared/index.js';
 //@endindex
 
-import type { UserConfig } from 'vite';
-
 export type PlugmaCommand = 'build' | 'dev' | 'test' | 'preview';
 
 // TODO: Remove eventually
@@ -51,15 +49,4 @@ export interface UserFiles {
 	manifest: ManifestFile;
 	userPkgJson: UserPackageJson;
 	rawManifest: ManifestFile;
-}
-
-export interface ViteConfigs {
-	vite: {
-		dev: UserConfig;
-		build: UserConfig;
-	};
-	viteMain: {
-		dev: UserConfig;
-		build: UserConfig;
-	};
 }

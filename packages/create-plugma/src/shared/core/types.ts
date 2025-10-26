@@ -1,5 +1,4 @@
 import type { PackageJson } from 'type-fest';
-import type { UserConfig } from 'vite';
 
 export type PlugmaCommand = 'build' | 'dev' | 'test' | 'preview';
 
@@ -42,15 +41,4 @@ export interface UserFiles {
 	manifest: ManifestFile;
 	userPkgJson: UserPackageJson;
 	rawManifest: ManifestFile;
-}
-
-export interface ViteConfigs {
-	vite: {
-		dev: UserConfig;
-		build: UserConfig;
-	};
-	viteMain: {
-		dev: UserConfig;
-		build: UserConfig;
-	};
 }
