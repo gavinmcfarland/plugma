@@ -1,9 +1,14 @@
-<script>
+<script lang="ts">
 	import MarkdownIt from 'markdown-it';
 
-	// Define a prop for the Markdown content and a prop for the component map
-	export let content = '';
-	export let components = {};
+	
+	interface Props {
+		// Define a prop for the Markdown content and a prop for the component map
+		content?: string;
+		components?: any;
+	}
+
+	let { content = '', components = {} }: Props = $props();
 
 	// Create the `markdown-it` instance
 	const md = new MarkdownIt();
@@ -22,7 +27,8 @@
 	{#each tokens as token}
 		{#if components[token.type]}
 			<!-- Render the Svelte component passed in for this token type -->
-			<svelte:component this={components[token.type]} content={token.content} />
+			{@const SvelteComponent = components[token.type]}
+			<SvelteComponent content={token.content} />
 		{:else}
 			<!-- Render plain text directly -->
 			{@html token.content}

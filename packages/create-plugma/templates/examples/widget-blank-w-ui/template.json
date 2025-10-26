@@ -1,0 +1,15 @@
+{
+    "meta": {
+        "name": "Blank",
+		"description": "A blank widget to start from the ground up",
+        "type": "widget",
+        "frameworks": ["svelte", "vue", "react"],
+		"rank": 1000
+    },
+    "include": [
+        "../../base"
+    ],
+    "data": {
+        "description": "A blank widget to start from the ground up"
+    }
+}

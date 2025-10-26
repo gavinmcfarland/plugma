@@ -1,0 +1,12 @@
+{
+	"id": "com.<%- name %>",
+	"name": "<%- name %>",
+	"main": "<%- mainDir %>/main.<%- typescript ? 'ts' : 'js' %>",
+    "capabilities": ["inspect"],
+    "enableProposedApi": true,
+    "editorType": ["dev"],
+    "menu": [
+      { "name": "Annotate images in selection", "command": "selection" },
+      { "name": "Annotate all images on page", "command": "all-images" }
+    ]
+  }

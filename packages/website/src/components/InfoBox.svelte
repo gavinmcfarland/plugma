@@ -1,5 +1,13 @@
+<script lang="ts">
+	interface Props {
+		children?: import('svelte').Snippet;
+	}
+
+	let { children }: Props = $props();
+</script>
+
 <div class="info-box">
-	<slot></slot>
+	{@render children?.()}
 	<!-- Renders the content inside the custom syntax -->
 </div>
 

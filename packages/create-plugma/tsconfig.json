@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+		"esModuleInterop": true,
+		"isolatedModules": true,
+		"skipLibCheck": true,
+		"lib": ["DOM", "esnext"],
+		"module": "esnext",
+		"target": "esnext",
+		"moduleResolution": "bundler",
+		"outDir": "./dist",
+		"rootDir": "./src",
+		"strict": false,
+		"resolveJsonModule": true,
+		"baseUrl": "src",
+		"allowJs": true,
+		"verbatimModuleSyntax": false,
+		"noImplicitAny": false,
+		"noImplicitReturns": false,
+		"noImplicitThis": false
+	},
+	"include": ["src/**/*.ts", "src/**/*.js"],
+	"exclude": ["templates", "dist", "node_modules"]
+}

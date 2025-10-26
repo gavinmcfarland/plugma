@@ -1,7 +1,7 @@
-<script>
+<script lang="ts">
 	import Icon from './Icon.svelte';
 
-	export let name;
+	let { name } = $props();
 </script>
 
 <li draggable="true">

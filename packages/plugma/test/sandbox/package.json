@@ -1,0 +1,59 @@
+{
+	"private": true,
+	"type": "module",
+	"packageManager": "pnpm@8.15.4",
+	"scripts": {
+		"build-plugma": "cd ../../ && nr build",
+		"list-dist": "command ls -la dist",
+		"dev": "nr build-plugma && plugma dev -p 4000",
+		"dev:plugma": "pnpm --filter plugma build:watch",
+		"build": "nr build-plugma && plugma build",
+		"preview": "nr build-plugma && plugma preview",
+		"release": "nr build-plugma && plugma release",
+		"test": "plugma test",
+		"test:dev": "nr build-plugma && (timeout 3s plugma dev --debug); nr list-dist",
+		"test:build": "nr build-plugma && plugma build --debug && nr list-dist",
+		"test:preview": "nr build-plugma && (timeout 5s plugma preview --debug); nr list-dist",
+		"test:release": "nr build-plugma && plugma release --debug && nr list-dist",
+		"playwright": "npx playwright test",
+		"vitest": "npx vitest",
+		"clean": "rm -rf dist node_modules"
+	},
+	"devDependencies": {
+		"@antfu/ni": "^23.2.0",
+		"@figma/plugin-typings": "^1.100.2",
+		"@playwright/test": "^1.51.1",
+		"@sveltejs/vite-plugin-svelte": "^6.2.1",
+		"@tsconfig/svelte": "^5.0.4",
+		"@types/chai": "^5.0.1",
+		"@types/node": "^22.14.0",
+		"svelte": "^5.0.5",
+		"svelte-check": "^4.0.5",
+		"tslib": "^2.8.0",
+		"typescript": "~5.6.2",
+		"vite": "^6.4.0",
+		"vite-plugin-devtools-json": "^0.2.1"
+	},
+	"plugma": {
+		"manifest": {
+			"id": "com.plugma-sandbox",
+			"name": "plugma-sandbox-2",
+			"main": "src/main.ts",
+			"editorType": [
+				"figma",
+				"figjam",
+				"slides"
+			],
+			"networkAccess": {
+				"allowedDomains": [
+					"none"
+				]
+			}
+		}
+	},
+	"dependencies": {
+		"listr2": "^8.3.3",
+		"plugma": "workspace:*",
+		"prettier": "^3.5.3"
+	}
+}

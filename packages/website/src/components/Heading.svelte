@@ -1,8 +1,12 @@
-<script>
+<script lang="ts">
 	import Icon from './Icon.svelte';
 
-	export let depth = 1;
-	export let text = '';
+	interface Props {
+		depth?: number;
+		text?: string;
+	}
+
+	let { depth = 1, text = '' }: Props = $props();
 
 	function slugify(text) {
 		return text

@@ -6,6 +6,20 @@
 	border-color: inherit;
 }
 
+/* @media (prefers-color-scheme: light) {
+	:root {
+		--code-foreground: #24292e;
+		--code-background: #ffffff;
+		--code-keyword: #d73a49;
+		--code-string: #032f62;
+		--code-number: #e36209;
+		--code-comment: #6a737d;
+		--code-function: #6f42c1;
+		--code-variable: #e36209;
+		--code-operator: #24292e;
+	}
+} */
+
 @layer base {
 	:root {
 		--color-text: black;
@@ -54,6 +68,44 @@
 
 			--color-info-hsl: 208 100% 74%;
 			--color-warning-hsl: 36 98% 55%;
+
+			/* Code syntax variables for dark mode */
+			--code-foreground: #c9d1d9;
+			--code-background: #0d1117;
+			--code-comment: #8b949e;
+			--code-punctuation: #8b949e;
+			--code-keyword: #ff7b72;
+			--code-function: #d2a8ff;
+			--code-string: #a5d6ff;
+			--code-number: #ffa657;
+			--code-variable: #ffa657;
+			--code-operator: #c9d1d9;
+			--code-class: #7ee787;
+			--code-tag: #7ee787;
+			--code-regex: #a5d6ff;
+			--code-symbol: #79c0ff;
+			--code-type: #79c0ff;
+		}
+	}
+
+	/* Light mode code syntax colors */
+	@media (prefers-color-scheme: light) {
+		:root {
+			--code-foreground: #24292e;
+			--code-background: #ffffff;
+			--code-comment: #6a737d;
+			--code-punctuation: #6a737d;
+			--code-keyword: #d73a49;
+			--code-function: #6f42c1;
+			--code-string: #032f62;
+			--code-number: #e36209;
+			--code-variable: #e36209;
+			--code-operator: #24292e;
+			--code-class: #22863a;
+			--code-tag: #22863a;
+			--code-regex: #032f62;
+			--code-symbol: #005cc5;
+			--code-type: #005cc5;
 		}
 	}
 }
@@ -69,8 +121,7 @@ li {
 }
 
 code {
-	font-size: 0.9em;
-	background-color: hsl(var(--color-bg-hsl) / 0.8);
+	font-size: 0.87em;
 }
 
 a {
@@ -78,23 +129,17 @@ a {
 }
 
 h1 {
-	@apply text-3xl font-medium mb-10;
+	@apply text-3xl font-medium mb-9;
 }
 
 h2 {
 	@apply text-2xl;
 }
 
-strong {
+strong,
+b {
 	font-weight: 600;
-}
-
-.main-content h2 {
-	@apply mt-6 mb-4;
-}
-
-.main-content h3 {
-	@apply text-xl font-normal mt-6 mb-4;
+	color: var(--color-text);
 }
 
 h3,
@@ -110,7 +155,9 @@ code:not(pre code) {
 	/* background-color: var(--color-bg-secondary); */
 	color: var(--color-text);
 	border: 1px solid var(--color-border);
-	@apply rounded-sm px-1 py-[1px];
+	@apply rounded-sm px-1 py-[2px];
+	background-color: hsl(var(--color-bg-hsl) / 0.8);
+	text-transform: none;
 }
 
 .Button:hover svg path,
@@ -132,6 +179,7 @@ html {
 }
 
 html {
+	line-height: 1.6;
 	scrollbar-width: thin;
 	scrollbar-color: var(--color-bg-secondary) transparent;
 }
@@ -143,6 +191,18 @@ body {
 }
 
 .main-content {
+	h1 {
+		@apply text-3xl font-medium mb-9 capitalize;
+	}
+
+	h2 {
+		@apply mt-8 mb-4 capitalize;
+	}
+
+	h3 {
+		@apply text-lg font-normal mt-7 mb-5 capitalize;
+	}
+
 	ol {
 		list-style: none;
 		counter-reset: my-awesome-counter;
@@ -167,9 +227,41 @@ body {
 	ul li::before {
 		content: '-';
 		margin-left: -24px;
-		display: inline-block;
+		position: absolute;
+		display: block;
 		min-width: 24px;
 	}
+
+	.blank-list {
+		margin-left: 0;
+	}
+
+	.blank-list li {
+		margin-bottom: 4px;
+	}
+
+	.blank-list li::before {
+		display: none;
+	}
+
+	.blank-list li {
+		margin-left: 0;
+	}
+
+	.active {
+		color: var(--color-primary);
+		font-weight: 500;
+		text-decoration: underline;
+	}
+}
+
+kbd {
+	color: var(--color-text);
+	@apply rounded-sm px-1 py-[2px];
+	background-color: hsl(var(--color-info-hsl) / 0.1);
+	border: 1px solid hsl(var(--color-info-hsl) / 0.4);
+	font-weight: normal;
+	font-size: 0.87em;
 }
 
 /* mark {
@@ -587,4 +679,8 @@ blockquote.info {
 		color: #a5d6ff;
 		font-style: underline;
 	}
+}
+
+.blank-list a {
+	transition: color 0.2s ease;
 }

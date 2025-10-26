@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"esModuleInterop": true,
+		"isolatedModules": true,
+		"skipLibCheck": true,
+		"lib": ["DOM", "esnext"],
+		"module": "esnext",
+		"target": "esnext",
+		"moduleResolution": "node",
+		"outDir": "./dist",
+		"rootDir": "../",
+		"strict": true,
+		"resolveJsonModule": true,
+		"types": ["@figma/plugin-typings"],
+		"baseUrl": "."
+	},
+	"include": ["./**/*.js", "./**/*.ts", "./**/*.svelte"]
+}

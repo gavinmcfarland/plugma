@@ -1,10 +1,27 @@
 {
-  "compilerOptions": {
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "lib": ["DOM", "ES2020"],
-    "module": "ES2020",
-    "moduleResolution": "Node",
-    "strict": true
-  }
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "isolatedModules": true,
+        "skipLibCheck": true,
+        "lib": ["DOM", "esnext"],
+        "module": "esnext",
+        "target": "esnext",
+        "moduleResolution": "node",
+        "outDir": "./dist",
+        "rootDir": "./",
+        "strict": true,
+        "resolveJsonModule": true,
+        "types": ["@figma/plugin-typings"],
+        "baseUrl": ".",
+    },
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.svelte",
+        "src/**/*.tsx",
+        "src/**/*.test.ts",
+        "test/**/*.ts",
+        "./package.json",
+        "__tests__/**/*.test.ts"
+    ],
+    "exclude": ["archive", "dist", "node_modules", "templates"]
 }

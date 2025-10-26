@@ -7,6 +7,8 @@
 	import Icon from '@/components/Icon.svelte';
 	import Meta from '@/components/Meta.svelte';
 	import Section from '@/components/Section.svelte';
+	import Banner from '@/components/Banner.svelte';
+	import Code2 from '@/components/Code2.svelte';
 </script>
 
 <svelte:head>
@@ -27,20 +29,19 @@
 
 	<Section class="border-t-0 text-primary">
 		<div class="svg-background">
-			<!-- Content of the page goes here -->
 			<div class="gradient"></div>
 		</div>
 		<div class="max-w-6xl mx-auto">
 			<div class="text-center">
-				<Badge href="/whats-new">V1 What's New<Icon svg="arrow-right" /></Badge>
-				<h1 class="text-5xl/tight md:text-7xl/tight text-center font-medium mb-4">
-					Create Figma plugins <br />without the hassle
+				<Badge href="/whats-new">V2: What's new <Icon svg="arrow-right" size={16} /></Badge>
+				<h1 class="text-4xl/tight md:text-7xl/tight text-center font-medium mb-4">
+					Build Figma plugins<br /> without the hassle
 				</h1>
 				<p class="mb-10">Supports React, Svelte, Vue, and vanilla JS/TS</p>
-				<Code
-					class="max-w-fit mx-auto"
+				<Code2
+					class_="max-w-fit mx-auto"
 					persistCopyButton
-					lang="js"
+					lang="bash"
 					text="npm create plugma@latest"
 				/>
 				<Button class="mt-4 mx-auto" href="docs/getting-started">Get started</Button>
@@ -48,7 +49,7 @@
 		</div>
 	</Section>
 
-	<Section class="border-t-0 pt-0 md:pt-0">
+	<!-- <Section class="border-t-0 pt-0 md:pt-0">
 		<h2 class="text-3xl sm:text-4xl text-center font-medium mb-8">Features</h2>
 
 		<div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
@@ -79,35 +80,132 @@
 				</p>
 			</Card>
 		</div>
+	</Section> -->
+
+	<Section class="border-t-0 pt-0 md:pt-0">
+		<h2 class="text-3xl text-center font-medium mb-12">Why Choose Plugma</h2>
+
+		<div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+			<Card>
+				<div class="flex flex-col gap-3">
+					<span class="flex gap-3 font-semibold"
+						><Icon svg="terminal" size={24} opacity={1} />Start Building in Minutes</span
+					>
+					<p class="m-0">
+						Skip the tedious setup process. Get from idea to working plugin in minutes,
+						not hours. Focus on your plugin's functionality, not configuration.
+					</p>
+				</div>
+			</Card>
+
+			<Card>
+				<div class="flex flex-col gap-3">
+					<span class="flex gap-3 font-semibold"
+						><Icon svg="globe" size={24} opacity={1} />Ship with Confidence</span
+					>
+					<p class="m-0">
+						Test your plugin across all browsers before users see it. Catch bugs early
+						and ensure consistent behavior everywhere, saving you from embarrassing
+						post-launch fixes.
+					</p>
+				</div>
+			</Card>
+
+			<Card>
+				<div class="flex flex-col gap-3">
+					<span class="flex gap-3 font-semibold"
+						><Icon svg="layout" size={24} opacity={1} />Debug Like a Pro</span
+					>
+					<p class="m-0">
+						Stop wasting time switching between tools. Preview, test, and debug
+						everything from one place. Clear data, minimize windows, and access
+						developer tools instantly with <kbd>Cmd</kbd> + <kbd>Opt</kbd> +
+						<kbd>J</kbd>.
+					</p>
+				</div>
+			</Card>
+
+			<Card>
+				<div class="flex flex-col gap-3">
+					<span class="flex gap-3 font-semibold"
+						><Icon svg="copy" size={24} opacity={1} />Deploy Anywhere</span
+					>
+					<p class="m-0">
+						Build once, deploy everywhere. Switch between staging, production, and
+						testing environments instantly. No more manual config changes or deployment
+						anxiety.
+					</p>
+				</div>
+			</Card>
+
+			<Card>
+				<div class="flex flex-col gap-3">
+					<span class="flex gap-3 font-semibold"
+						><Icon svg="cloud-upload-alt" size={24} opacity={1} />Never Miss a Release</span
+					>
+					<p class="m-0">
+						Keep your Figma plugin and GitHub releases perfectly synced. One command
+						handles versioning and releases. Never lose track of what you've shipped
+						again.
+					</p>
+				</div>
+			</Card>
+
+			<Card>
+				<div class="flex flex-col gap-3">
+					<span class="flex gap-3 font-semibold"
+						><Icon svg="package" size={24} opacity={1} />Lightning-Fast Performance</span
+					>
+					<p class="m-0">
+						Your users get blazing-fast plugins that load instantly. Powered by <b
+							>Vite</b
+						>, everything is optimized and inlined for maximum performance. No more slow
+						loading or bloated bundles.
+					</p>
+				</div>
+			</Card>
+
+			<!-- <Card>
+				<div class="flex flex-col gap-3">
+					<span class="flex gap-3 font-semibold"
+						><Icon svg="boolean-subtract" size={24} opacity={1} />First-Class Testing</span
+					>
+					<p class="m-0">
+						Write fast, reliable unit tests with <b>Vitest</b> and run full end-to-end
+						tests using <b>Playwright</b>, without ever leaving your development
+						workflow. The first toolkit to bring comprehensive testing to Figma plugins.
+					</p>
+				</div>
+			</Card> -->
+		</div>
 	</Section>
 
 	<Section class="commands">
-		<h2 class="text-3xl text-center font-medium mb-12">Commands</h2>
-		<div class="lg:max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
+		<h2 class="text-3xl text-center font-medium mb-12">Everything You Need</h2>
+		<div class="lg:max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
 			<div>
 				<h3 class="font-bold mb-2">Start dev server</h3>
-				<Code class="mb-1" lang="js" text="plugma dev" />
-				<p>Development is faster because it doesn’t require a rebuild for each change.</p>
-			</div>
-			<div>
-				<h3 class="font-bold mb-2">Preview in any browser</h3>
-				<Code class="mb-1" lang="js" text="plugma preview" />
+				<Code2 class_="mb-1" lang="bash" text="plugma dev" />
 				<p>
-					Debug and test across different browsers without having to publish your plugin.
+					Start your development server with hot reloading for instant UI updates and
+					faster iteration cycles.
 				</p>
 			</div>
 			<div>
 				<h3 class="font-bold mb-2">Create a build</h3>
-				<Code class="mb-1" lang="js" text="plugma build" />
+				<Code2 class_="mb-1" lang="bash" text="plugma build" />
 				<p>
-					When you're ready to publish, create a minified version with with everything
-					inlined.
+					Generate a production-ready, minified build optimized for publishing to the
+					Figma community.
 				</p>
 			</div>
 			<div>
 				<h3 class="font-bold mb-2">Release to github</h3>
-				<Code class="mb-1" lang="js" text="plugma release" />
-				<p>A built-in command that allows you to keep track of your releases.</p>
+				<Code2 class_="mb-1" lang="bash" text="plugma release" />
+				<p>
+					Automatically manage versioning and track your plugin releases with seamless
+					GitHub integration.
+				</p>
 			</div>
 		</div>
 	</Section>
@@ -195,7 +293,8 @@
 		left: 0;
 		right: 0;
 		/* background-color: red; */
-		background: linear-gradient(0deg, var(--color-bg), transparent),
+		background:
+			linear-gradient(0deg, var(--color-bg), transparent),
 			linear-gradient(-90deg, var(--color-bg), transparent);
 	}
 </style>

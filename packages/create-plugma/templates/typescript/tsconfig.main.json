@@ -1,0 +1,13 @@
+{
+	"compilerOptions": {
+		"composite": true,
+		"module": "ESNext",
+		"moduleResolution": "bundler" <% if (type === 'widget') { %>,
+		"jsx": "react",
+		"jsxFactory": "figma.widget.h",
+		"jsxFragmentFactory": "figma.widget.Fragment"
+		<% } %>,
+		"typeRoots": ["<%= rebase('node_modules/@figma') %>", "<%= rebase('node_modules/@types') %>"]
+	},
+	"include": ["**/*.ts", <% if (type === 'widget') { %>"**/*.tsx", <% } %>"<%= rebase('vite-env.d.ts', { locate: true }) %>"]
+}

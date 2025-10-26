@@ -17,5 +17,10 @@ export default defineConfig({
 		alias: {
 			'@': path.resolve(__dirname, 'src') // Alias '@' to the 'src' directory
 		}
+	},
+	build: {
+		commonjsOptions: {
+			include: [/node_modules/]
+		}
 	}
 });

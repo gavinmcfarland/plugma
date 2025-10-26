@@ -1,4 +1,4 @@
-<script context="module">
+<script module>
 	const folders = {};
 
 	export function getFolder(id = '') {
@@ -10,13 +10,18 @@
 	import { onMount } from 'svelte';
 	import Icon from './Icon.svelte';
 
-	export let name;
-	export let id = '';
+	interface Props {
+		name: any;
+		id?: string;
+		children?: import('svelte').Snippet;
+	}
+
+	let { name, id = '', children }: Props = $props();
 	let item;
 
-	let open = false;
+	let open = $state(false);
 
-	if ($$slots.default) {
+	if (children) {
 		open = true;
 	}
 
@@ -88,7 +93,7 @@
 	</span>
 	{#if open}
 		<ul>
-			<slot></slot>
+			{@render children?.()}
 		</ul>
 	{/if}
 </li>

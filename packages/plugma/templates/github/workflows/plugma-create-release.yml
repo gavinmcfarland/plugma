@@ -1,157 +1,691 @@
 name: Create release
 
 on:
-  push:
-    tags:
-      - "v*" # Trigger on tags starting with 'v'
+    push:
+        tags:
+            - 'v*' # Trigger on tags starting with 'v' (default format)
+            - '*@*' # Trigger on tags with @ symbol (custom prefix format)
 
 permissions:
-  contents: write # Allow the workflow to push tags
+    contents: write # Allow the workflow to push tags
+
+env:
+    # Set the working directory for the plugin (for monorepo support)
+    # This will be automatically updated by plugma if the plugin is in a subdirectory
+    PLUGIN_DIR: '.'
 
 jobs:
-  release:
-    runs-on: ubuntu-latest
+    release:
+        runs-on: ubuntu-latest
 
-    outputs:
-      NEW_VERSION: ${{ steps.determine_release_type.outputs.new_version }} # Define NEW_VERSION as output
+        outputs:
+            NEW_VERSION: ${{ steps.determine_release_type.outputs.new_version }} # Define NEW_VERSION as output
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          ref: main # Ensure you're checking out the main branch
-          tags: true
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+              with:
+                  ref: main # Ensure you're checking out the main branch
+                  tags: true
 
-      - name: Fetch specific tag
-        run: |
-          TAG_NAME="${{ github.ref }}"
-          TAG_NAME=${TAG_NAME#refs/tags/}
-          git fetch origin "refs/tags/$TAG_NAME:refs/tags/$TAG_NAME" # Fetch only the specific tag
+            - name: Fetch specific tag
+              run: |
+                  TAG_NAME="${{ github.ref }}"
+                  TAG_NAME=${TAG_NAME#refs/tags/}
+                  git fetch origin "refs/tags/$TAG_NAME:refs/tags/$TAG_NAME" # Fetch only the specific tag
 
-      - name: Install dependencies
-        run: npm ci # Use 'npm ci' for clean installation of dependencies
+            - name: Prepare environment
+              working-directory: ${{ env.PLUGIN_DIR }}
+              run: |
+                  # Enable corepack to handle package managers
+                  corepack enable
 
-      - name: Determine release type and prerelease status
-        id: determine_release_type
-        run: |
-          TAG_NAME="${{ github.ref }}"
-          TAG_NAME=${TAG_NAME#refs/tags/}  # Strip refs/tags/ from tag
-          NEW_VERSION=$TAG_NAME
+                  # Check if package.json has a packageManager field
+                  if [ -f package.json ]; then
+                    echo "📋 Checking package.json for packageManager field..."
+                    if grep -q '"packageManager"' package.json; then
+                      PACKAGE_MANAGER=$(grep -o '"packageManager": "[^"]*"' package.json | cut -d'"' -f4 | cut -d'@' -f1)
+                      echo "✅ packageManager field found: $PACKAGE_MANAGER"
+                    else
+                      echo "ℹ️  No packageManager field found - corepack may add one automatically"
+                    fi
+                  fi
 
-          # Check if the tag contains 'alpha' or 'beta'
-          if [[ $NEW_VERSION == *"-alpha"* || $NEW_VERSION == *"-beta"* ]]; then
-            echo "This is a pre-release version: $NEW_VERSION"
-            echo "IS_PRERELEASE=true" >> $GITHUB_ENV
-          else
-            echo "This is a stable release version: $NEW_VERSION"
-            echo "IS_PRERELEASE=false" >> $GITHUB_ENV
-          fi
+                  # Show available lockfiles
+                  echo "🔍 Available lockfiles:"
+                  if [ -f "pnpm-lock.yaml" ]; then echo "  ✅ pnpm-lock.yaml"; fi
+                  if [ -f "yarn.lock" ]; then echo "  ✅ yarn.lock"; fi
+                  if [ -f "package-lock.json" ]; then echo "  ✅ package-lock.json"; fi
 
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-          echo "::set-output name=new_version::$NEW_VERSION" # Set NEW_VERSION as output for later steps
+            - name: Detect package manager and install dependencies
+              working-directory: ${{ env.PLUGIN_DIR }}
+              run: |
+                  # Function to detect package manager from a directory
+                  detect_package_manager() {
+                    local dir=$1
+                    local package_manager=""
 
-      - name: Check if tag exists
-        run: git tag -l
+                    # Check packageManager field in package.json first
+                    if [ -f "$dir/package.json" ]; then
+                      package_manager=$(grep -o '"packageManager": "[^"]*"' "$dir/package.json" | cut -d'"' -f4 | cut -d'@' -f1 2>/dev/null)
+                    fi
 
-      - name: Build project
-        run: npm run build
+                    # If no packageManager field, detect from lockfiles
+                    if [ -z "$package_manager" ]; then
+                      if [ -f "$dir/pnpm-lock.yaml" ]; then
+                        package_manager="pnpm"
+                      elif [ -f "$dir/yarn.lock" ]; then
+                        package_manager="yarn"
+                      elif [ -f "$dir/package-lock.json" ]; then
+                        package_manager="npm"
+                      fi
+                    fi
 
-      - name: Zip dist folder
-        run: zip -r dist.zip dist
+                    echo "$package_manager"
+                  }
 
-      - name: Extract Release Title and Notes from Tag
-        id: extract_tag_message
-        run: |
-          TAG_NAME="${{ github.ref }}"
-          TAG_NAME=${TAG_NAME#refs/tags/}
-          TAG_MESSAGE=$(git tag -l --format='%(contents)' $TAG_NAME)
+                  # Function to install dependencies with detected package manager
+                  install_deps() {
+                    local package_manager=$1
+                    local install_dir=$2
 
-          # Assuming the first line is the release title, and the rest is release notes
-          # Extract the release title and notes using markers
-          RELEASE_TITLE=$(echo "$TAG_MESSAGE" | sed -n 's/^TITLE: //p')
-          RELEASE_NOTES=$(echo "$TAG_MESSAGE" | sed -n '/^NOTES: /,$p' | sed 's/^NOTES: //')
+                    cd "$install_dir"
 
-          # Fallback if no title or notes are found
-          if [ -z "$RELEASE_TITLE" ]; then
-            RELEASE_TITLE=$TAG_NAME
-          fi
+                    if [ "$package_manager" = "pnpm" ]; then
+                      echo "📦 Installing with pnpm in $install_dir"
+                      if ! pnpm install --frozen-lockfile; then
+                        echo "⚠️  Lockfile is out of sync, updating dependencies..."
+                        pnpm install
+                      fi
+                    elif [ "$package_manager" = "yarn" ]; then
+                      echo "📦 Installing with yarn in $install_dir"
+                      if ! yarn install --frozen-lockfile; then
+                        echo "⚠️  Lockfile is out of sync, updating dependencies..."
+                        yarn install
+                      fi
+                    elif [ "$package_manager" = "npm" ]; then
+                      echo "📦 Installing with npm in $install_dir"
+                      if ! npm ci; then
+                        echo "⚠️  Lockfile is out of sync, updating dependencies..."
+                        npm install
+                      fi
+                    else
+                      echo "❌ Unknown package manager: $package_manager"
+                      return 1
+                    fi
+                  }
 
-          if [ -z "$RELEASE_NOTES" ]; then
-            RELEASE_NOTES="No release notes added."
-          fi
+                  # First, try to detect package manager from plugin directory
+                  PACKAGE_MANAGER=$(detect_package_manager ".")
+                  echo "🔍 Package manager detected from plugin directory: '$PACKAGE_MANAGER'"
 
-          echo "Tag message is: $TAG_MESSAGE"
-          echo "Release title is: $RELEASE_TITLE"
-          echo "Release notes is: $RELEASE_NOTES"
+                  # If not found in plugin directory, check repository root
+                  if [ -z "$PACKAGE_MANAGER" ]; then
+                    echo "🔍 Checking repository root for package manager..."
+                    PACKAGE_MANAGER=$(detect_package_manager "$GITHUB_WORKSPACE")
+                    echo "🔍 Package manager detected from repository root: '$PACKAGE_MANAGER'"
+                  fi
 
-          echo "RELEASE_TITLE=$RELEASE_TITLE" >> $GITHUB_ENV
-          echo "RELEASE_NOTES=$RELEASE_NOTES" >> $GITHUB_ENV
+                  # If still no package manager found, error
+                  if [ -z "$PACKAGE_MANAGER" ]; then
+                    echo "❌ No package manager could be detected from plugin directory or repository root"
+                    echo "📋 Plugin directory contents:"
+                    ls -la .
+                    echo "📋 Repository root contents:"
+                    ls -la "$GITHUB_WORKSPACE"
+                    exit 1
+                  fi
 
-      - name: Clear Tag Message with Lightweight Tag
-        run: |
-          TAG_NAME="${{ github.ref }}"
-          TAG_NAME=${TAG_NAME#refs/tags/}
+                  echo "✅ Using package manager: $PACKAGE_MANAGER"
 
-          # Delete the annotated tag locally
-          git tag -d $TAG_NAME
+                  # Install dependencies
+                  # First try in repository root (for monorepos)
+                  if [ -f "$GITHUB_WORKSPACE/package.json" ] && [ "$GITHUB_WORKSPACE" != "$(pwd)" ]; then
+                    echo "🔍 Found package.json in repository root, attempting root installation first..."
+                    if install_deps "$PACKAGE_MANAGER" "$GITHUB_WORKSPACE"; then
+                      echo "✅ Dependencies installed from repository root"
+                    else
+                      echo "⚠️  Root installation failed, trying plugin directory..."
+                      install_deps "$PACKAGE_MANAGER" "."
+                    fi
+                  else
+                    echo "🔍 Installing dependencies in plugin directory..."
+                    install_deps "$PACKAGE_MANAGER" "."
+                  fi
 
-          # Recreate the tag as a lightweight tag (no message)
-          git tag $TAG_NAME
+                  # For pnpm, ensure plugma is installed locally (not linked globally)
+                  if [ "$PACKAGE_MANAGER" = "pnpm" ] && [ -f "package.json" ]; then
+                    echo "📦 Ensuring plugma is installed locally..."
+                    PLUGMA_VERSION=$(grep -o '"plugma": "[^"]*"' package.json | cut -d'"' -f4)
+                    if [ -n "$PLUGMA_VERSION" ]; then
+                      if pnpm list plugma | grep -q "link:" 2>/dev/null; then
+                        echo "⚠️  plugma is linked globally, reinstalling locally..."
+                        pnpm remove plugma
+                        pnpm add "plugma@$PLUGMA_VERSION" --ignore-workspace-root-check
+                      fi
+                    fi
+                  fi
 
-          # Force push the updated lightweight tag
-          git push --force origin $TAG_NAME
+            - name: Verify package manager selection
+              working-directory: ${{ env.PLUGIN_DIR }}
+              run: |
+                  echo "🔍 Verifying package manager selection..."
 
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
-        with:
-          tag_name: ${{ env.NEW_VERSION }}
-          release_name: ${{ env.RELEASE_TITLE }}
-          body: ${{ env.RELEASE_NOTES }}
-          draft: false
-          prerelease: ${{ env.IS_PRERELEASE }}
+                  # Function to detect package manager (same as previous step)
+                  detect_package_manager() {
+                    local dir=$1
+                    local package_manager=""
+
+                    if [ -f "$dir/package.json" ]; then
+                      package_manager=$(grep -o '"packageManager": "[^"]*"' "$dir/package.json" | cut -d'"' -f4 | cut -d'@' -f1 2>/dev/null)
+                    fi
+
+                    if [ -z "$package_manager" ]; then
+                      if [ -f "$dir/pnpm-lock.yaml" ]; then
+                        package_manager="pnpm"
+                      elif [ -f "$dir/yarn.lock" ]; then
+                        package_manager="yarn"
+                      elif [ -f "$dir/package-lock.json" ]; then
+                        package_manager="npm"
+                      fi
+                    fi
+
+                    echo "$package_manager"
+                  }
+
+                  # Detect package manager
+                  PACKAGE_MANAGER=$(detect_package_manager ".")
+                  if [ -z "$PACKAGE_MANAGER" ]; then
+                    PACKAGE_MANAGER=$(detect_package_manager "$GITHUB_WORKSPACE")
+                  fi
+
+                  echo "📦 Package manager: $PACKAGE_MANAGER"
+
+                  # Check if the package manager is available
+                  if [ "$PACKAGE_MANAGER" = "pnpm" ]; then
+                    echo "🔧 Testing pnpm availability:"
+                    pnpm --version || echo "❌ pnpm not available"
+                  elif [ "$PACKAGE_MANAGER" = "yarn" ]; then
+                    echo "🔧 Testing yarn availability:"
+                    yarn --version || echo "❌ yarn not available"
+                  elif [ "$PACKAGE_MANAGER" = "npm" ]; then
+                    echo "🔧 Testing npm availability:"
+                    npm --version || echo "❌ npm not available"
+                  fi
+
+                  # Show which lockfiles exist in both directories
+                  echo "📋 Lockfiles in plugin directory:"
+                  if [ -f "pnpm-lock.yaml" ]; then echo "  ✅ pnpm-lock.yaml"; fi
+                  if [ -f "yarn.lock" ]; then echo "  ✅ yarn.lock"; fi
+                  if [ -f "package-lock.json" ]; then echo "  ✅ package-lock.json"; fi
+
+                  echo "📋 Lockfiles in repository root:"
+                  if [ -f "$GITHUB_WORKSPACE/pnpm-lock.yaml" ]; then echo "  ✅ pnpm-lock.yaml"; fi
+                  if [ -f "$GITHUB_WORKSPACE/yarn.lock" ]; then echo "  ✅ yarn.lock"; fi
+                  if [ -f "$GITHUB_WORKSPACE/package-lock.json" ]; then echo "  ✅ package-lock.json"; fi
+
+            - name: Determine release type and prerelease status
+              id: determine_release_type
+              run: |
+                  TAG_NAME="${{ github.ref }}"
+                  TAG_NAME=${TAG_NAME#refs/tags/}  # Strip refs/tags/ from tag
+                  NEW_VERSION=$TAG_NAME
+
+                  # Check if the tag contains 'alpha' or 'beta'
+                  if [[ $NEW_VERSION == *"-alpha"* || $NEW_VERSION == *"-beta"* ]]; then
+                    echo "This is a pre-release version: $NEW_VERSION"
+                    echo "IS_PRERELEASE=true" >> $GITHUB_ENV
+                  else
+                    echo "This is a stable release version: $NEW_VERSION"
+                    echo "IS_PRERELEASE=false" >> $GITHUB_ENV
+                  fi
+
+                  echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+                  echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT # Set NEW_VERSION as output for later steps
+
+            - name: Check if tag exists
+              run: git tag -l
+
+            - name: Verify dependencies and build environment
+              working-directory: ${{ env.PLUGIN_DIR }}
+              run: |
+                  echo "🔍 Verifying build environment..."
+
+                  # Check if node_modules exists
+                  if [ -d "node_modules" ]; then
+                    echo "✅ node_modules directory exists"
+                    echo "📊 node_modules size: $(du -sh node_modules | cut -f1)"
+                  else
+                    echo "❌ node_modules directory not found"
+                    exit 1
+                  fi
+
+                  # Check if package.json exists and has build script
+                  if [ -f "package.json" ]; then
+                    echo "✅ package.json exists"
+                    if grep -q '"build"' package.json; then
+                      echo "✅ build script found in package.json"
+                    else
+                      echo "⚠️  No build script found in package.json"
+                    fi
+                  else
+                    echo "❌ package.json not found"
+                    exit 1
+                  fi
+
+                  # List installed packages (top level only) using the same package manager detection
+                  echo "📦 Top-level dependencies:"
+
+                  # Function to detect package manager (same as previous steps)
+                  detect_package_manager() {
+                    local dir=$1
+                    local package_manager=""
+
+                    if [ -f "$dir/package.json" ]; then
+                      package_manager=$(grep -o '"packageManager": "[^"]*"' "$dir/package.json" | cut -d'"' -f4 | cut -d'@' -f1 2>/dev/null)
+                    fi
+
+                    if [ -z "$package_manager" ]; then
+                      if [ -f "$dir/pnpm-lock.yaml" ]; then
+                        package_manager="pnpm"
+                      elif [ -f "$dir/yarn.lock" ]; then
+                        package_manager="yarn"
+                      elif [ -f "$dir/package-lock.json" ]; then
+                        package_manager="npm"
+                      fi
+                    fi
+
+                    echo "$package_manager"
+                  }
+
+                  # Detect package manager
+                  PACKAGE_MANAGER=$(detect_package_manager ".")
+                  if [ -z "$PACKAGE_MANAGER" ]; then
+                    PACKAGE_MANAGER=$(detect_package_manager "$GITHUB_WORKSPACE")
+                  fi
+
+                  if [ -n "$PACKAGE_MANAGER" ]; then
+                    if [ "$PACKAGE_MANAGER" = "pnpm" ]; then
+                      pnpm list --depth=0 || echo "⚠️  Could not list pnpm dependencies"
+                    elif [ "$PACKAGE_MANAGER" = "yarn" ]; then
+                      yarn list --depth=0 || echo "⚠️  Could not list yarn dependencies"
+                    elif [ "$PACKAGE_MANAGER" = "npm" ]; then
+                      npm list --depth=0 || echo "⚠️  Could not list npm dependencies"
+                    fi
+                  else
+                    echo "⚠️  No package manager detected for dependency listing"
+                  fi
+
+            - name: Verify plugma binary availability
+              working-directory: ${{ env.PLUGIN_DIR }}
+              run: |
+                  echo "🔍 Verifying plugma availability..."
+
+                  # Check the expected plugma version from package.json
+                  if [ -f "package.json" ]; then
+                    EXPECTED_VERSION=$(grep -o '"plugma": "[^"]*"' package.json | cut -d'"' -f4)
+                    echo "📦 Expected plugma version from package.json: $EXPECTED_VERSION"
+                  fi
+
+                  # Check if plugma is available (either local or linked)
+                  if [ -d "node_modules/plugma" ]; then
+                    echo "✅ plugma package found locally in node_modules/plugma"
+
+                    # Check the installed version
+                    if [ -f "node_modules/plugma/package.json" ]; then
+                      INSTALLED_VERSION=$(grep -o '"version": "[^"]*"' node_modules/plugma/package.json | cut -d'"' -f4)
+                      echo "📦 Installed plugma version: $INSTALLED_VERSION"
+                    fi
+                  elif pnpm list plugma | grep -q "link:"; then
+                    echo "✅ plugma is linked globally"
+                    pnpm list plugma | grep "link:"
+                  else
+                    echo "❌ plugma package not found"
+                  fi
+
+                  # Test if the package manager can run the build command
+                  echo "🔧 Testing package manager build command..."
+
+                  # Function to detect package manager (same as previous steps)
+                  detect_package_manager() {
+                    local dir=$1
+                    local package_manager=""
+
+                    if [ -f "$dir/package.json" ]; then
+                      package_manager=$(grep -o '"packageManager": "[^"]*"' "$dir/package.json" | cut -d'"' -f4 | cut -d'@' -f1 2>/dev/null)
+                    fi
+
+                    if [ -z "$package_manager" ]; then
+                      if [ -f "$dir/pnpm-lock.yaml" ]; then
+                        package_manager="pnpm"
+                      elif [ -f "$dir/yarn.lock" ]; then
+                        package_manager="yarn"
+                      elif [ -f "$dir/package-lock.json" ]; then
+                        package_manager="npm"
+                      fi
+                    fi
+
+                    echo "$package_manager"
+                  }
+
+                  # Detect package manager
+                  PACKAGE_MANAGER=$(detect_package_manager ".")
+                  if [ -z "$PACKAGE_MANAGER" ]; then
+                    PACKAGE_MANAGER=$(detect_package_manager "$GITHUB_WORKSPACE")
+                  fi
+
+                  if [ -n "$PACKAGE_MANAGER" ]; then
+                    if [ "$PACKAGE_MANAGER" = "pnpm" ]; then
+                      echo "📦 Testing pnpm run build (dry run):"
+                      pnpm run --dry-run build || echo "❌ pnpm run build failed"
+                    elif [ "$PACKAGE_MANAGER" = "yarn" ]; then
+                      echo "📦 Testing yarn build (dry run):"
+                      yarn build --dry-run || echo "❌ yarn build failed"
+                    elif [ "$PACKAGE_MANAGER" = "npm" ]; then
+                      echo "📦 Testing npm run build (dry run):"
+                      npm run build --dry-run || echo "❌ npm run build failed"
+                    fi
+                  else
+                    echo "⚠️  No package manager detected for build testing"
+                  fi
+
+            - name: Build project
+              working-directory: ${{ env.PLUGIN_DIR }}
+              run: |
+                  echo "🔨 Building project..."
+
+                  # Function to detect package manager (same as previous steps)
+                  detect_package_manager() {
+                    local dir=$1
+                    local package_manager=""
+
+                    if [ -f "$dir/package.json" ]; then
+                      package_manager=$(grep -o '"packageManager": "[^"]*"' "$dir/package.json" | cut -d'"' -f4 | cut -d'@' -f1 2>/dev/null)
+                    fi
+
+                    if [ -z "$package_manager" ]; then
+                      if [ -f "$dir/pnpm-lock.yaml" ]; then
+                        package_manager="pnpm"
+                      elif [ -f "$dir/yarn.lock" ]; then
+                        package_manager="yarn"
+                      elif [ -f "$dir/package-lock.json" ]; then
+                        package_manager="npm"
+                      fi
+                    fi
+
+                    echo "$package_manager"
+                  }
+
+                  # Detect package manager
+                  PACKAGE_MANAGER=$(detect_package_manager ".")
+                  if [ -z "$PACKAGE_MANAGER" ]; then
+                    PACKAGE_MANAGER=$(detect_package_manager "$GITHUB_WORKSPACE")
+                  fi
+
+                  if [ -z "$PACKAGE_MANAGER" ]; then
+                    echo "❌ No package manager could be detected"
+                    exit 1
+                  fi
+
+                  echo "📦 Building with package manager: $PACKAGE_MANAGER"
+
+                  # Build with detected package manager
+                  if [ "$PACKAGE_MANAGER" = "pnpm" ]; then
+                    echo "📦 Building with pnpm..."
+                    pnpm run build
+                  elif [ "$PACKAGE_MANAGER" = "yarn" ]; then
+                    echo "📦 Building with yarn..."
+                    yarn build
+                  elif [ "$PACKAGE_MANAGER" = "npm" ]; then
+                    echo "📦 Building with npm..."
+                    npm run build
+                  else
+                    echo "❌ Unknown package manager: $PACKAGE_MANAGER"
+                    exit 1
+                  fi
+              continue-on-error: false
+
+            - name: Handle build failure
+              if: failure()
+              working-directory: ${{ env.PLUGIN_DIR }}
+              run: |
+                  echo "❌ Build failed!"
+                  echo "📋 Current directory contents:"
+                  ls -la
+
+                  echo "📋 package.json contents:"
+                  cat package.json || echo "package.json not found"
+
+                  echo "📋 Available scripts:"
+                  if [ -f "package.json" ]; then
+                    grep -A 10 '"scripts"' package.json || echo "No scripts found"
+                  fi
+
+                  echo "❌ Exiting due to build failure"
+                  exit 1
+
+            - name: Zip dist folder
+              working-directory: ${{ env.PLUGIN_DIR }}
+              run: |
+                  echo "📦 Creating release archive..."
+
+                  # Check for common build output directories
+                  if [ -d "dist" ]; then
+                    echo "✅ Found dist directory, creating dist.zip"
+                    zip -r dist.zip dist
+                  elif [ -d "build" ]; then
+                    echo "✅ Found build directory, creating build.zip"
+                    zip -r build.zip build
+                  elif [ -d "out" ]; then
+                    echo "✅ Found out directory, creating out.zip"
+                    zip -r out.zip out
+                  elif [ -d ".next" ]; then
+                    echo "✅ Found .next directory, creating next.zip"
+                    zip -r next.zip .next
+                  else
+                    echo "⚠️  No common build output directory found. Checking for any directories..."
+                    # List all directories to help debug
+                    ls -la
+
+                    # Try to find any directory that might be build output
+                    for dir in */; do
+                      if [ -d "$dir" ] && [ "$dir" != "node_modules/" ] && [ "$dir" != ".git/" ]; then
+                        echo "📁 Found potential build output: $dir"
+                        zip -r "${dir%/}.zip" "$dir"
+                        break
+                      fi
+                    done
+
+                    # If no directories found, create an empty zip or fail
+                    if [ ! -f "*.zip" ]; then
+                      echo "❌ No build output found to zip. Creating empty archive."
+                      touch empty.zip
+                    fi
+                  fi
+
+                  # List created archives
+                  echo "📋 Created archives:"
+                  ls -la *.zip || echo "No zip files found"
+
+            - name: Move assets to root for upload
+              run: |
+                  echo "📦 Moving build assets to repository root for upload..."
+
+                  # If plugin is in a subdirectory, move the zip files to the root
+                  if [ "${{ env.PLUGIN_DIR }}" != "." ]; then
+                    echo "🔍 Plugin is in subdirectory: ${{ env.PLUGIN_DIR }}"
+                    echo "📋 Current working directory: $(pwd)"
+                    echo "📋 Contents of plugin directory:"
+                    ls -la "${{ env.PLUGIN_DIR }}"
+
+                    # Change to plugin directory and move files
+                    cd "${{ env.PLUGIN_DIR }}"
+                    echo "📋 Looking for zip files in plugin directory:"
+                    ls -la *.zip 2>/dev/null || echo "No zip files found"
+
+                    for zipfile in *.zip; do
+                      if [ -f "$zipfile" ]; then
+                        echo "📦 Moving $zipfile to repository root..."
+                        # Calculate path to repository root from plugin directory
+                        # Count the number of path segments to determine how many '../' we need
+                        SEGMENTS=$(echo "${{ env.PLUGIN_DIR }}" | tr '/' '\n' | wc -l)
+                        PARENT_PATH=""
+                        for i in $(seq 1 $SEGMENTS); do
+                          PARENT_PATH="../$PARENT_PATH"
+                        done
+
+                        echo "🔧 Moving to: ${PARENT_PATH}$zipfile"
+                        if mv "$zipfile" "${PARENT_PATH}$zipfile"; then
+                          echo "✅ Successfully moved $zipfile"
+                        else
+                          echo "❌ Failed to move $zipfile"
+                        fi
+                      fi
+                    done
+
+                    # Return to repository root
+                    cd "$GITHUB_WORKSPACE"
+                    echo "📋 Contents of repository root after moving:"
+                    ls -la *.zip 2>/dev/null || echo "No zip files found in repository root"
+                  else
+                    echo "ℹ️  Plugin is at repository root, no moving needed"
+                  fi
+
+            - name: Determine release asset to upload
+              id: determine_asset
+              run: |
+                  echo "🔍 Determining which asset to upload..."
+
+                  # Find the first zip file available (now in the root)
+                  if [ -f "dist.zip" ]; then
+                    echo "✅ Found dist.zip"
+                    echo "ASSET_PATH=./dist.zip" >> $GITHUB_ENV
+                    echo "ASSET_NAME=dist.zip" >> $GITHUB_ENV
+                  elif [ -f "build.zip" ]; then
+                    echo "✅ Found build.zip"
+                    echo "ASSET_PATH=./build.zip" >> $GITHUB_ENV
+                    echo "ASSET_NAME=build.zip" >> $GITHUB_ENV
+                  elif [ -f "out.zip" ]; then
+                    echo "✅ Found out.zip"
+                    echo "ASSET_PATH=./out.zip" >> $GITHUB_ENV
+                    echo "ASSET_NAME=out.zip" >> $GITHUB_ENV
+                  elif [ -f "next.zip" ]; then
+                    echo "✅ Found next.zip"
+                    echo "ASSET_PATH=./next.zip" >> $GITHUB_ENV
+                    echo "ASSET_NAME=next.zip" >> $GITHUB_ENV
+                  elif [ -f "empty.zip" ]; then
+                    echo "⚠️  Found empty.zip (no build output)"
+                    echo "ASSET_PATH=./empty.zip" >> $GITHUB_ENV
+                    echo "ASSET_NAME=empty.zip" >> $GITHUB_ENV
+                  else
+                    echo "❌ No zip file found to upload"
+                    echo "ASSET_PATH=" >> $GITHUB_ENV
+                    echo "ASSET_NAME=" >> $GITHUB_ENV
+                  fi
+
+                  echo "Asset path: $ASSET_PATH"
+                  echo "Asset name: $ASSET_NAME"
+
+            - name: Extract Release Title and Notes from Tag
+              id: extract_tag_message
+              run: |
+                  TAG_NAME="${{ github.ref }}"
+                  TAG_NAME=${TAG_NAME#refs/tags/}
+                  TAG_MESSAGE=$(git tag -l --format='%(contents)' $TAG_NAME)
+
+                  # Assuming the first line is the release title, and the rest is release notes
+                  # Extract the release title and notes using markers
+                  RELEASE_TITLE=$(echo "$TAG_MESSAGE" | sed -n 's/^TITLE: //p')
+                  RELEASE_NOTES=$(echo "$TAG_MESSAGE" | sed -n '/^NOTES: /,$p' | sed 's/^NOTES: //')
+
+                  # Fallback if no title or notes are found
+                  if [ -z "$RELEASE_TITLE" ]; then
+                    RELEASE_TITLE=$TAG_NAME
+                  fi
+
+                  if [ -z "$RELEASE_NOTES" ]; then
+                    RELEASE_NOTES="No release notes added."
+                  fi
+
+                  echo "Tag message is: $TAG_MESSAGE"
+                  echo "Release title is: $RELEASE_TITLE"
+                  echo "Release notes is: $RELEASE_NOTES"
+
+                  echo "RELEASE_TITLE=$RELEASE_TITLE" >> $GITHUB_ENV
+                  echo "RELEASE_NOTES=$RELEASE_NOTES" >> $GITHUB_ENV
+
+            - name: Clear Tag Message with Lightweight Tag
+              run: |
+                  TAG_NAME="${{ github.ref }}"
+                  TAG_NAME=${TAG_NAME#refs/tags/}
+
+                  # Delete the annotated tag locally
+                  git tag -d $TAG_NAME
+
+                  # Recreate the tag as a lightweight tag (no message)
+                  git tag $TAG_NAME
+
+                  # Force push the updated lightweight tag
+                  git push --force origin $TAG_NAME
+
+            - name: Create GitHub Release
+              id: create_release
+              uses: actions/create-release@v1
+              with:
+                  tag_name: ${{ env.NEW_VERSION }}
+                  release_name: ${{ env.RELEASE_TITLE }}
+                  body: ${{ env.RELEASE_NOTES }}
+                  draft: false
+                  prerelease: ${{ env.IS_PRERELEASE }}
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Upload release asset
+              if: env.ASSET_PATH != ''
+              uses: actions/upload-release-asset@v1
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: ${{ env.ASSET_PATH }}
+                  asset_name: ${{ env.ASSET_NAME }}
+                  asset_content_type: application/zip
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Skip asset upload
+              if: env.ASSET_PATH == ''
+              run: |
+                  echo "⚠️  No asset to upload - skipping asset upload step"
+                  echo "This might be expected if the project doesn't generate build artifacts"
+
+    rollback:
+        runs-on: ubuntu-latest
+        needs: release # Ensures rollback runs only after release job completes
+        if: ${{ failure() }} # Check if release job failed
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            NEW_VERSION: ${{ needs.release.outputs.NEW_VERSION }} # Pass the new version from the release step
+        steps:
+            - name: Checkout repository with full history
+              uses: actions/checkout@v3
+              with:
+                  ref: main # Make sure we are on the main branch
+                  fetch-depth: 0 # Fetch all history so we can perform the reset
 
-      - name: Upload release asset
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist.zip
-          asset_name: dist.zip
-          asset_content_type: application/zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Show NEW_VERSION value
+              run: |
+                  echo "NEW_VERSION is set to: ${{ env.NEW_VERSION }}"
 
-  rollback:
-    runs-on: ubuntu-latest
-    needs: release # Ensures rollback runs only after release job completes
-    if: ${{ failure() }} # Check if release job failed
-    env:
-      NEW_VERSION: ${{ needs.release.outputs.NEW_VERSION }} # Pass the new version from the release step
-    steps:
-      - name: Checkout repository with full history
-        uses: actions/checkout@v3
-        with:
-          ref: main # Make sure we are on the main branch
-          fetch-depth: 0 # Fetch all history so we can perform the reset
+            - name: Reset version bump commit
+              run: |
+                  echo "Rolling back version bump commit due to workflow failure..."
+                  git reset --hard HEAD^1
+                  git push origin main --force
 
-      - name: Show NEW_VERSION value
-        run: |
-          echo "NEW_VERSION is set to: ${{ env.NEW_VERSION }}"
+            - name: Delete the tag locally
+              run: |
+                  echo "Deleting tag: ${{ env.NEW_VERSION }}"
+                  git tag -d "${{ env.NEW_VERSION }}" # Deletes the tag locally
 
-      - name: Reset version bump commit
-        run: |
-          echo "Rolling back version bump commit due to workflow failure..."
-          git reset --hard HEAD^1
-          git push origin main --force
-
-      - name: Delete the tag locally
-        run: |
-          echo "Deleting tag: ${{ env.NEW_VERSION }}"
-          git tag -d "${{ env.NEW_VERSION }}" # Deletes the tag locally
-
-      - name: Delete the tag on remote
-        run: |
-          echo "Deleting remote tag: ${{ env.NEW_VERSION }}"
-          git push origin :refs/tags/${{ env.NEW_VERSION }} # Deletes the tag on the remote
+            - name: Delete the tag on remote
+              run: |
+                  echo "Deleting remote tag: ${{ env.NEW_VERSION }}"
+                  git push origin :refs/tags/${{ env.NEW_VERSION }} # Deletes the tag on the remote

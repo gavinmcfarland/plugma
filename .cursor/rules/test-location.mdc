@@ -1,0 +1,5 @@
+---
+description: Describes where to write test files
+globs: *.test.ts
+---
+test files are placed in the same folder of the file they test. For example [get-files.test.ts](mdc:plugma/src/tasks/common/get-files.test.ts) is beside [get-files.ts](mdc:plugma/src/tasks/common/get-files.ts)

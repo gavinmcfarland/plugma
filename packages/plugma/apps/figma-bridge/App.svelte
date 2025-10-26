@@ -1,0 +1,119 @@
+<script lang="ts">
+	import ServerStatus from '../shared/components/ServerStatus.svelte'
+	import { monitorUrl } from '../shared/lib/monitorUrl'
+	import { initializeWsClient, isBrowserConnected, isTestRunnerConnected } from '../shared/stores'
+
+	import { setBodyStyles } from './lib/setBodyStyles'
+
+	import { onMount } from 'svelte'
+	import { triggerDeveloperTools } from '../shared/lib/triggerDeveloperTools'
+	import { isDeveloperToolsActive, isLocalhostWithoutPort, wsEnabled, htmlStore } from '../shared/stores'
+	import Toolbar from './components/Toolbar.svelte'
+	import { monitorDeveloperToolsStatus } from './lib/monitorDeveloperToolsStatus'
+	import { getRoom } from '../shared/lib/getRoom'
+	import { addMessageListener } from '../shared/lib/addMessageListener'
+	import { postMessageVia } from '../shared/lib/postMessageVia'
+
+	import { relayFigmaMessages } from './lib/relayFigmaMessages'
+	import { observeAndPostFigmaStyles } from './lib/observeAndPostFigmaStyles'
+	import { postFigmaStyles } from './lib/postFigmaStyles'
+	import { redirectIframe } from './lib/redirectIframe'
+	import { devServerIframe } from '../shared/stores'
+	let iframe: HTMLIFrameElement = $state()
+	const html = document.querySelector('html')
+
+	// @ts-ignore
+	let devServerUIUrl = `http://localhost:${window.runtimeData.port}`
+
+	let isServerActive = $state(true)
+
+	wsEnabled.set(window.runtimeData.websockets)
+
+	interface RoomStats {
+		room: string
+		connections: number
+	}
+
+	function handleRoomStats(data: RoomStats[]) {
+		const browserRoom = data.find((room) => room.room === 'browser')
+		const testRunnerRoom = data.find((room) => room.room === 'test')
+
+		isBrowserConnected.set(browserRoom?.connections ? browserRoom.connections > 0 : false)
+		isTestRunnerConnected.set(testRunnerRoom?.connections ? testRunnerRoom.connections > 0 : false)
+	}
+
+	function handleRunTest(data: any) {
+		// console.log('%cRUN_TEST', 'color: red', data)
+		postMessageVia(['parent'], {
+			pluginMessage: {
+				type: 'RUN_TEST',
+				data,
+			},
+		})
+	}
+
+	onMount(async () => {
+		// Store the iframe on mount
+		devServerIframe.set(iframe)
+		htmlStore.set(document)
+
+		// NOTE: Messaging must be setup first so that it's ready to receive messages from iframe
+		// NOTE: Because source is not passed through it will appear as "unknown" in the client list
+		if (window.runtimeData.websockets) {
+			const socket = initializeWsClient('figma', window.runtimeData.port)
+
+			socket.on('ROOM_STATS', handleRoomStats)
+			socket.on('RUN_TEST', handleRunTest)
+
+			addMessageListener('window', (message) => {
+				if (message.data.pluginMessage) {
+					if (message.data.pluginMessage.type === 'TEST_ASSERTIONS') {
+						socket.emit('TEST_ASSERTIONS', message.data.pluginMessage.data)
+					}
+					if (message.data.pluginMessage.type === 'TEST_ERROR') {
+						socket.emit('TEST_ERROR', message.data.pluginMessage.data)
+					}
+				}
+			})
+		}
+
+		redirectIframe(devServerUIUrl, window.runtimeData.config?.runtimeData?.iframeMode || 'data-uri')
+		setBodyStyles()
+		relayFigmaMessages()
+		postFigmaStyles()
+
+		// For some reason messages sent from figma bridge to iframe are missed by the iframe message handler if we don't wait for the iframe to load
+		iframe.addEventListener('load', () => {
+			observeAndPostFigmaStyles()
+		})
+
+		monitorUrl(devServerUIUrl, (isDevServerActive: boolean) => {
+			isServerActive = isDevServerActive
+		})
+
+		await monitorDeveloperToolsStatus()
+		await triggerDeveloperTools()
+	})
+</script>
+
+{#if $isDeveloperToolsActive}
+	<Toolbar />
+{/if}
+
+<iframe title="" id="dev-server-ui" bind:this={iframe}></iframe>
+
+<!-- needs to be in both FigmaBridge and DevServer, because if DevServer hasn't loaded, then no way to report error-->
+{#if !isServerActive}
+	<ServerStatus></ServerStatus>
+{/if}
+
+<style>
+	#dev-server-ui {
+		width: 100%;
+		/* height: 100vh; */
+		flex-grow: 1;
+		border: none;
+		/* Prevents iframe from pushing out of plugin window */
+		min-height: 0;
+	}
+</style>

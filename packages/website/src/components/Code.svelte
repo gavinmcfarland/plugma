@@ -1,3 +1,4 @@
+<!-- @migration-task Error while migrating Svelte code: $$props is used together with named props in a way that cannot be automatically migrated. -->
 <script>
 	import { onMount } from 'svelte';
 	import hljs from 'highlight.js';
@@ -38,9 +39,9 @@
 	};
 </script>
 
-<div class="Code border mt-4 mb-8 rounded-md {$$props.class}">
+<div class="Code border mt-4 mb-4 rounded-md {$$props.class}">
 	<div class="overflow-auto p-4 pr-16">
-		<pre><code>{@html html_now}</code></pre>
+		<pre data-language={lang}><code>{@html html_now}</code></pre>
 		<button
 			aria-label="Copy code"
 			class="copy-button p-2 {persistCopyButton ? 'visible' : 'hidden'}"

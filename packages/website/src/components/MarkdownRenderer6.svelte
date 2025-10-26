@@ -1,0 +1,241 @@
+<script lang="ts">
+	import { marked } from 'marked';
+
+	interface Props {
+		markdown?: string;
+		components?: Record<string, typeof import('svelte').SvelteComponent>;
+	}
+
+	let { markdown = '', components = {} }: Props = $props();
+
+	let structuredMarkdown: {
+		id: number;
+		component: typeof import('svelte').SvelteComponent | string | null;
+		props: Record<string, any>;
+	}[] = $state([]);
+
+	let uniqueId = 0;
+
+	// Helper to create slugs from headings
+	function slugify(text: string): string {
+		return text
+			.toLowerCase()
+			.replace(/\s+/g, '-')
+			.replace(/[^\w-]+/g, '');
+	}
+
+	const tokenToTagMap: Record<string, string> = {
+		paragraph: 'p',
+		list_item: 'li',
+		list: 'ul',
+		strong: 'strong',
+		em: 'em',
+		del: 'del',
+		blockquote: 'blockquote',
+		link: 'a'
+	};
+
+	function parseMarkdown(content: string) {
+		const newStructuredMarkdown = [];
+		uniqueId = 0;
+
+		const tokens = marked.lexer(content);
+
+		for (const token of tokens) {
+			const id = uniqueId++;
+
+			switch (token.type) {
+				case 'heading': {
+					const componentTag = `h${token.depth}`;
+					const content = marked.parseInline(token.text);
+					const slug = slugify(token.text);
+
+					if (components[componentTag]) {
+						// Only add the anchor link if the heading depth is greater than 1
+						newStructuredMarkdown.push({
+							id,
+							component: components[componentTag],
+							props: {
+								level: token.depth,
+								content,
+								id: slug, // Add id to heading props for linking
+								anchorLink: token.depth !== 1 ? `#${slug}` : null // Link for the anchor if depth > 1
+							}
+						});
+					} else {
+						// If depth is greater than 1, add anchor link span, else omit it
+						const innerHTML =
+							token.depth !== 1
+								? `<span class="anchor-link"><a href="#${slug}" aria-label="Anchor link"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M13.2505 16.7495L11.0005 18.9995C9.3436 20.6563 6.65731 20.6563 5.00046 18.9995C3.3436 17.3426 3.3436 14.6563 5.00045 12.9995L7.25045 10.7495M16.7505 13.2495L19.0005 10.9995C20.6573 9.34262 20.6573 6.65633 19.0005 4.99947C17.3436 3.34262 14.6573 3.34262 13.0005 4.99948L10.7505 7.24948" stroke="currentColor" stroke-width="1.5" stroke-opacity="0.8" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+				<path d="M9 15L15 9" stroke="currentColor" stroke-opacity="0.8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+				</svg></a></span> ${content}`
+								: content;
+
+						newStructuredMarkdown.push({
+							id,
+							component: `h${token.depth}`,
+							props: {
+								id: slug,
+								innerHTML
+							}
+						});
+					}
+					break;
+				}
+
+				case 'code': {
+					// Check if this is a package manager code block
+					const isPackageManagerBlock =
+						token.lang === 'package-manager' ||
+						token.text.includes('npm create') ||
+						token.text.includes('npm install') ||
+						token.text.includes('npm run');
+
+					if (isPackageManagerBlock && components['package-manager-code']) {
+						newStructuredMarkdown.push({
+							id,
+							component: components['package-manager-code'],
+							props: {
+								text: token.text,
+								lang: 'bash'
+							}
+						});
+					} else if (components['code']) {
+						newStructuredMarkdown.push({
+							id,
+							component: components['code'],
+							props: {
+								text: token.text,
+								lang: token.lang || 'plaintext'
+							}
+						});
+					} else {
+						newStructuredMarkdown.push({
+							id,
+							component: 'pre',
+							props: {
+								innerHTML: `<code class="language-${token.lang || 'plaintext'}">${token.text}</code>`
+							}
+						});
+					}
+					break;
+				}
+
+				case 'list': {
+					const listTag = token.ordered ? 'ol' : 'ul';
+					const items = token.items
+						.map(
+							(item: { text: string }) => `<li>${marked.parseInline(item.text)}</li>`
+						)
+						.join('');
+					newStructuredMarkdown.push({
+						id,
+						component: listTag,
+						props: { innerHTML: items }
+					});
+					break;
+				}
+
+				case 'html': {
+					const htmlRegex = /^<(\w+)(\s+[^>]*)?>([\s\S]*?)<\/\1>$/;
+					const match = token.text.trim().match(htmlRegex);
+
+					if (match) {
+						const [, tagName, rawAttributes = '', content] = match;
+
+						// Parse attributes into a key-value object
+						const attributes: Record<string, string> = {};
+						rawAttributes.replace(
+							/(\w+)=["']([^"']*)["']/g,
+							(match: string, attrName: string, attrValue: string) => {
+								attributes[attrName] = attrValue;
+								return match;
+							}
+						);
+
+						// Convert attributes object to a string format for inline HTML rendering
+						const attributesString = Object.entries(attributes)
+							.map(([key, value]) => `${key}="${value}"`)
+							.join(' ');
+
+						// Remove the extra line break and directly parse the content
+						newStructuredMarkdown.push({
+							id,
+							component: tagName,
+							props: {
+								attributes: attributesString,
+								innerHTML: marked.parseInline(content.trim())
+							}
+						});
+					} else {
+						// Fallback to treating as raw HTML if no matching HTML structure
+						const parsedContent = marked.parseInline(token.text);
+						newStructuredMarkdown.push({
+							id,
+							component: null,
+							props: { innerHTML: parsedContent }
+						});
+					}
+					break;
+				}
+
+				case 'paragraph': {
+					const content = String(marked.parseInline(token.text)).trim();
+					if (content) {
+						newStructuredMarkdown.push({
+							id,
+							component: 'p',
+							props: { innerHTML: content }
+						});
+					}
+					break;
+				}
+
+				case 'space': {
+					// Skip 'space' tokens with two or more newlines
+					if (!token.raw.includes('\n\n')) {
+						newStructuredMarkdown.push({
+							id,
+							component: 'br',
+							props: {}
+						});
+					}
+					break;
+				}
+
+				default: {
+					const tag = tokenToTagMap[token.type] || 'div';
+					const content = marked.parser([token]);
+
+					newStructuredMarkdown.push({
+						id,
+						component: tag,
+						props: { innerHTML: content }
+					});
+					break;
+				}
+			}
+		}
+
+		return newStructuredMarkdown;
+	}
+
+	// Replace the run() with $effect
+	$effect(() => {
+		structuredMarkdown = parseMarkdown(markdown);
+	});
+</script>
+
+<!-- Render each item in structuredMarkdown separately -->
+{#each structuredMarkdown as { id, component, props } (id)}
+	{#if component === null}
+		<!-- {@html props.innerHTML} -->
+	{:else if typeof component === 'string'}
+		<!-- {console.log(props)} -->
+		{@html `<${component} ${props.attributes} id=${props.id}>${props.innerHTML}</${component}>`}
+	{:else}
+		{@const Component = component as typeof import('svelte').SvelteComponent}
+		<Component {...props} />
+	{/if}
+{/each}

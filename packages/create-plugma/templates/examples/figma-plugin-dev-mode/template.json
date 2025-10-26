@@ -1,0 +1,14 @@
+{
+	"meta": {
+		"hidden": true,
+		"name": "Dev Mode",
+		"description": "A plugin that demonstrates how to use the dev mode API",
+		"type": "plugin"
+	},
+	"include": [
+		"../../base"
+	],
+    "data": {
+         "attribution": "This example is adapted from the official [Figma plugin samples](https://github.com/figma/plugin-samples)."
+    }
+}

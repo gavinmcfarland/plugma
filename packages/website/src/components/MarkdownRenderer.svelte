@@ -1,15 +1,21 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { marked } from 'marked';
 	import { SvelteComponent } from 'svelte';
 
-	export let markdown: string = '';
-	export let components: Record<string, typeof SvelteComponent> = {};
+	interface Props {
+		markdown?: string;
+		components?: Record<string, typeof SvelteComponent>;
+	}
+
+	let { markdown = '', components = {} }: Props = $props();
 
 	let structuredMarkdown: {
 		id: number;
 		component: typeof SvelteComponent | string | null;
 		props: Record<string, any>;
-	}[] = [];
+	}[] = $state([]);
 
 	let uniqueId = 0;
 
@@ -21,7 +27,7 @@
 			.replace(/[^\w-]+/g, '');
 	}
 
-	const tokenToTagMap = {
+	const tokenToTagMap: Record<string, string> = {
 		paragraph: 'p',
 		list_item: 'li',
 		list: 'ul',
@@ -106,7 +112,9 @@
 				case 'list': {
 					const listTag = token.ordered ? 'ol' : 'ul';
 					const items = token.items
-						.map((item) => `<li>${marked.parseInline(item.text)}</li>`)
+						.map(
+							(item: { text: string }) => `<li>${marked.parseInline(item.text)}</li>`
+						)
 						.join('');
 					structuredMarkdown.push({
 						id,
@@ -124,10 +132,10 @@
 						const [, tagName, rawAttributes = '', content] = match;
 
 						// Parse attributes into a key-value object
-						const attributes: Record<string, any> = {};
+						const attributes: Record<string, string> = {};
 						rawAttributes.replace(
 							/(\w+)=["']([^"']*)["']/g,
-							(match, attrName, attrValue) => {
+							(match: string, attrName: string, attrValue: string) => {
 								attributes[attrName] = attrValue;
 								return match;
 							}
@@ -138,13 +146,13 @@
 							.map(([key, value]) => `${key}="${value}"`)
 							.join(' ');
 
-						// Push the detected component, attributes as a string, and parsed Markdown content
+						// Remove the extra line break and directly parse the content
 						structuredMarkdown.push({
 							id,
 							component: tagName,
 							props: {
 								attributes: attributesString,
-								innerHTML: marked.parseInline(content)
+								innerHTML: marked.parseInline(content.trim())
 							}
 						});
 					} else {
@@ -160,7 +168,7 @@
 				}
 
 				case 'paragraph': {
-					const content = marked.parseInline(token.text).trim();
+					const content = String(marked.parseInline(token.text)).trim();
 					if (content) {
 						structuredMarkdown.push({
 							id,
@@ -199,7 +207,9 @@
 	}
 
 	// Reactive statement that calls parseMarkdown when `markdown` changes
-	$: parseMarkdown(markdown);
+	run(() => {
+		parseMarkdown(markdown);
+	});
 </script>
 
 <!-- Render each item in structuredMarkdown separately -->
@@ -210,6 +220,7 @@
 		<!-- {console.log(props)} -->
 		{@html `<${component} ${props.attributes} id=${props.id}>${props.innerHTML}</${component}>`}
 	{:else}
-		<svelte:component this={component} {...props} />
+		{@const SvelteComponent_1 = component}
+		<SvelteComponent_1 {...props} />
 	{/if}
 {/each}

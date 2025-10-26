@@ -1,15 +1,67 @@
 <script lang="ts">
-	export let svg;
-	export let color = 'currentColor';
-	export let opacity: number = 0.8;
-	export let strokeWidth: number = 1.5;
-	export let isAnimated: boolean = false;
+	interface Props {
+		svg: any;
+		color?: string;
+		opacity?: number;
+		strokeWidth?: number;
+		isAnimated?: boolean;
+		size?: number;
+	}
 
-	export let size: number = 16;
-	$: sizePx = `${size}px`;
+	let {
+		svg,
+		color = 'currentColor',
+		opacity = 0.8,
+		strokeWidth = 1.5,
+		isAnimated = false,
+		size = 16
+	}: Props = $props();
+	let sizePx = $derived(`${size}px`);
 </script>
 
 <span class="Icon">
+	{#if svg === 'package'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 25 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M4.5 8V16L12.5 21L20.5 16V8"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M12.5 13V21"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M12.5 3L20.5 8L12.5 13L4.5 8L12.5 3Z"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M8.5 5.5L16.5 10.5"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	{/if}
 	{#if svg === 'copy'}
 		<svg
 			style:width={sizePx}
@@ -31,6 +83,78 @@
 				stroke-width={strokeWidth}
 				stroke-linecap="round"
 				stroke-linejoin="round"
+			/>
+		</svg>
+	{/if}
+	{#if svg === 'menu'}
+		<svg
+			width={sizePx}
+			height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M19.7292 12.3632H5.72925"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M19.7292 7.36321H5.72925"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M19.7292 17.3632H5.72925"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	{/if}
+	{#if svg === 'close'}
+		<svg
+			width={sizePx}
+			height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M18.0001 6L6.00006 18"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M6.00006 6L18.0001 18"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	{/if}
+	{#if svg === 'github'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M12.9598 2.57223C7.43481 2.57223 2.95981 7.04973 2.95981 12.5722C2.95981 16.9914 5.82481 20.7389 9.79731 22.0597C10.2973 22.1539 10.4806 21.8447 10.4806 21.5789C10.4806 21.3414 10.4723 20.7122 10.4681 19.8789C7.68648 20.4822 7.09981 18.5372 7.09981 18.5372C6.64481 17.383 5.98731 17.0747 5.98731 17.0747C5.08148 16.4547 6.05731 16.4672 6.05731 16.4672C7.06148 16.5372 7.58898 17.4972 7.58898 17.4972C8.48064 19.0264 9.92981 18.5847 10.5015 18.3289C10.5915 17.6822 10.849 17.2414 11.1348 16.9914C8.91398 16.7414 6.57981 15.8814 6.57981 12.0497C6.57981 10.958 6.96731 10.0664 7.60898 9.3664C7.49648 9.1139 7.15898 8.09723 7.69648 6.71973C7.69648 6.71973 8.53398 6.4514 10.4465 7.74473C11.2465 7.52223 12.0965 7.41223 12.9465 7.40723C13.7965 7.41223 14.6465 7.52223 15.4465 7.74473C17.3465 6.4514 18.184 6.71973 18.184 6.71973C18.7215 8.09723 18.384 9.1139 18.284 9.3664C18.9215 10.0664 19.309 10.958 19.309 12.0497C19.309 15.8914 16.9715 16.7372 14.7465 16.983C15.0965 17.283 15.4215 17.8964 15.4215 18.833C15.4215 20.1714 15.409 21.2464 15.409 21.5714C15.409 21.8339 15.584 22.1464 16.0965 22.0464C20.0973 20.7347 22.9598 16.9847 22.9598 12.5722C22.9598 7.04973 18.4823 2.57223 12.9598 2.57223Z"
+				fill={color}
 			/>
 		</svg>
 	{/if}
@@ -98,6 +222,32 @@
 				stroke-width={strokeWidth}
 				stroke-linecap="round"
 				class:animated-dot={isAnimated}
+			/>
+		</svg>
+	{/if}
+	{#if svg === 'screen-control'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M21 13.0128V4C21 3.44772 20.5523 3 20 3H4C3.44772 3 3 3.44772 3 4V16C3 16.5523 3.44772 17 4 17H5.7H12"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M14.7458 11.7955L16.1154 20.9612L17.8812 17.2263L21.9987 17.5645L14.7458 11.7955Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
 			/>
 		</svg>
 	{/if}
@@ -175,6 +325,237 @@
 			/>
 			<path
 				d="M14 7H10C7.79086 7 6 8.79086 6 11V15C6 18.3137 8.68629 21 12 21C15.3137 21 18 18.3137 18 15V11C18 8.79086 16.2091 7 14 7Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	{/if}
+	{#if svg === 'layout'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M20.546 4.63281H4.54605C3.99377 4.63281 3.54605 5.08053 3.54605 5.63281V19.6328C3.54605 20.1851 3.99377 20.6328 4.54605 20.6328H20.546C21.0983 20.6328 21.546 20.1851 21.546 19.6328V5.63281C21.546 5.08053 21.0983 4.63281 20.546 4.63281Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M20.546 4.63281H4.54605C3.99377 4.63281 3.54605 5.08053 3.54605 5.63281V10.6328H21.546V5.63281C21.546 5.08053 21.0983 4.63281 20.546 4.63281Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M9.54605 10.6328H3.54605V19.6328C3.54605 20.1851 3.99377 20.6328 4.54605 20.6328H9.54605V10.6328Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	{/if}
+	{#if svg === 'globe'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M12.9252 21.5336C17.8958 21.5336 21.9252 17.5042 21.9252 12.5336C21.9252 7.56304 17.8958 3.5336 12.9252 3.5336C7.95468 3.5336 3.92525 7.56304 3.92525 12.5336C3.92525 17.5042 7.95468 21.5336 12.9252 21.5336Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+			/>
+			<path
+				d="M12.9252 21.5336C15.1344 21.5336 16.9252 17.5042 16.9252 12.5336C16.9252 7.56304 15.1344 3.5336 12.9252 3.5336C10.7161 3.5336 8.92525 7.56304 8.92525 12.5336C8.92525 17.5042 10.7161 21.5336 12.9252 21.5336Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+			/>
+			<path
+				d="M3.92525 12.5336H21.9252"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+			/>
+		</svg>
+	{/if}
+	{#if svg === 'cloud-upload-alt'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M16.9789 16.6508L12.9789 12.6508L8.97892 16.6508"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M12.9792 21.6508V12.6508"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M21.0492 18.6508C21.8391 18.084 22.4314 17.2752 22.7403 16.3417C23.0491 15.4081 23.0584 14.3984 22.7667 13.4592C22.4751 12.5199 21.8977 11.6999 21.1183 11.1181C20.339 10.5364 19.3982 10.2232 18.4326 10.2239H17.2878C17.0145 9.13731 16.5032 8.12809 15.7924 7.27227C15.0816 6.41645 14.1897 5.73631 13.184 5.28307C12.1783 4.82983 11.0849 4.61529 9.98619 4.65561C8.88745 4.69593 7.81198 4.99005 6.84077 5.51583C5.86955 6.04161 5.0279 6.78535 4.37916 7.69107C3.73041 8.59678 3.29148 9.64085 3.09542 10.7447C2.89936 11.8485 2.95129 12.9834 3.24727 14.0638C3.54325 15.1442 4.07558 16.142 4.80419 16.9821"
+				stroke={color}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	{/if}
+	{#if svg === 'apps'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M9.54605 4.63287H4.54605C3.99376 4.63287 3.54605 5.08059 3.54605 5.63287V10.6329C3.54605 11.1852 3.99376 11.6329 4.54605 11.6329H9.54605C10.0983 11.6329 10.546 11.1852 10.546 10.6329V5.63287C10.546 5.08059 10.0983 4.63287 9.54605 4.63287Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+			/>
+			<path
+				d="M9.54605 14.6329H4.54605C3.99376 14.6329 3.54605 15.0806 3.54605 15.6329V20.6329C3.54605 21.1852 3.99376 21.6329 4.54605 21.6329H9.54605C10.0983 21.6329 10.546 21.1852 10.546 20.6329V15.6329C10.546 15.0806 10.0983 14.6329 9.54605 14.6329Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+			/>
+			<path
+				d="M19.546 14.6329H14.546C13.9938 14.6329 13.546 15.0806 13.546 15.6329V20.6329C13.546 21.1852 13.9938 21.6329 14.546 21.6329H19.546C20.0983 21.6329 20.546 21.1852 20.546 20.6329V15.6329C20.546 15.0806 20.0983 14.6329 19.546 14.6329Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+			/>
+			<path
+				d="M17.3389 2.89023L13.8034 6.42577C13.4128 6.81629 13.4128 7.44946 13.8034 7.83998L17.3389 11.3755C17.7294 11.766 18.3626 11.766 18.7531 11.3755L22.2886 7.83998C22.6792 7.44946 22.6792 6.81629 22.2886 6.42577L18.7531 2.89023C18.3626 2.49971 17.7294 2.49971 17.3389 2.89023Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+			/>
+		</svg>
+	{/if}
+	{#if svg === 'clipboard-check'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M9 13.5L11 15.5L15 11.5"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M8 4H6C5.44772 4 5 4.44772 5 5V20C5 20.5523 5.44772 21 6 21H18C18.5523 21 19 20.5523 19 20V5C19 4.44772 18.5523 4 18 4H16"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+			/>
+			<path
+				d="M9 5V3C9 2.44772 9.44772 2 10 2H14C14.5523 2 15 2.44772 15 3V5C15 5.55228 14.5523 6 14 6H10C9.44772 6 9 5.55228 9 5Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+			/>
+		</svg>
+	{/if}
+	{#if svg === 'boolean-subtract'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M9 16.25C12.7279 16.25 15.75 13.2279 15.75 9.5C15.75 5.77208 12.7279 2.75 9 2.75C5.27208 2.75 2.25 5.77208 2.25 9.5C2.25 13.2279 5.27208 16.25 9 16.25Z"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M15.7125 8.78751C16.9796 8.92206 18.1828 9.41254 19.1829 10.2022C20.1829 10.9919 20.9391 12.0486 21.3638 13.25C21.7885 14.4514 21.8645 15.7485 21.5829 16.9912C21.3013 18.234 20.6738 19.3717 19.7727 20.2727C18.8717 21.1738 17.734 21.8014 16.4912 22.0829C15.2484 22.3645 13.9513 22.2885 12.7499 21.8638C11.5485 21.4391 10.4919 20.683 9.7022 19.6829C8.91251 18.6828 8.42203 17.4797 8.28748 16.2125"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M15.4603 11.4603L21.4603 17.4603"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M13.7728 14.2728L19.7728 20.2728"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M10.9603 15.9603L16.9603 21.9603"
+				stroke={color}
+				stroke-opacity={opacity}
+				stroke-width={strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	{/if}
+	{#if svg === 'folder'}
+		<svg
+			style:width={sizePx}
+			style:height={sizePx}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M3.00002 6.5C3.00002 5.94772 3.44773 5.5 4.00002 5.5H9.00002L11 7.5H20C20.5523 7.5 21 7.94772 21 8.5V18.5C21 19.0523 20.5523 19.5 20 19.5H4.00002C3.44773 19.5 3.00002 19.0523 3.00002 18.5V6.5Z"
 				stroke={color}
 				stroke-opacity={opacity}
 				stroke-width={strokeWidth}

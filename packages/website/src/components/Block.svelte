@@ -1,6 +1,15 @@
+<script lang="ts">
+	interface Props {
+		header?: import('svelte').Snippet;
+		content?: import('svelte').Snippet;
+	}
+
+	let { header, content }: Props = $props();
+</script>
+
 <section class="host text-gap-1">
-	<div class="header"><slot name="header"></slot></div>
-	<div class="content"><slot name="content"></slot></div>
+	<div class="header">{@render header?.()}</div>
+	<div class="content">{@render content?.()}</div>
 </section>
 
 <style>

@@ -1,12 +1,11 @@
-<script>
+<script lang="ts">
 	import { page } from '$app/stores';
 	import Badge from '@/components/Badge.svelte';
 	import Code from '@/components/Code.svelte';
 	import Icon from '@/components/Icon.svelte';
 	import Meta from '@/components/Meta.svelte';
-	export let data;
+	let { data } = $props();
 
-	// function replaceSyntax(data) {
 	// 	data.content = data.content.replace(
 	// 		/\[info\]([\s\S]*?)\[\/info\]/g,
 	// 		'<info-placeholder>$1</info-placeholder>'
@@ -25,9 +24,9 @@
 	/>
 </svelte:head>
 
-<div class="my-8 mx-4">
+<div class="my-8 mx-6">
 	<h1 class="text-center text-3xl my-24">What's new</h1>
-	<div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-12 gap-9">
+	<div class="max-w-7xl grid grid-cols-1 sm:grid-cols-12 gap-9">
 		<div
 			class="min-h-80 border rounded-lg sm:col-span-12 lg:col-span-4 place-content-center place-items-center p-10 pt-0 flex flex-col relative overflow-hidden"
 		>
@@ -36,7 +35,7 @@
 				<div class="gradient"></div>
 			</div>
 			<div class="text-center grow place-content-center">
-				<h2 class="text-8xl font-semibold">V1</h2>
+				<h2 class="text-8xl font-semibold">V2</h2>
 				<Badge class="mt-2">Try it now!</Badge>
 			</div>
 			<Code lang="bash" text="npm create plugma@latest" class="w-full" persistCopyButton
@@ -47,59 +46,91 @@
 		>
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="message-square" size={24} opacity={1} />Enhanced WebSockets</span
+					><Icon svg="apps" size={24} opacity={1} />Widget Support</span
 				>
 				<p class="m-0">
-					WebSocket messages are now queued until the connection is ready, making browser
-					previews much more stable and responsive, even for complex plugins.
+					Full support for Figma widgets with a unified CLI for both plugins and widgets.
+					Multiple templates showcase real use cases and demonstrate how to use the Figma
+					API effectively for different scenarios.
 				</p>
 			</div>
-			<div class="flex flex-col gap-3">
-				<span class="flex gap-3 font-semibold"
-					><Icon svg="copy" size={24} opacity={1} />Modes and Environments</span
-				>
 
-				<p class="m-0">
-					Test various setups with the new <code>--mode</code> option and
-					<code>.env</code> variables, allowing you to build, run, and debug for different
-					environments with ease.
-				</p>
-			</div>
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="switch-alt" size={24} opacity={1} />Real-Time Theme Switching</span
+					><Icon svg="apps" size={24} opacity={1} />Context-Aware Bundling</span
 				>
 				<p class="m-0">
-					Figma’s dark/light modes now update in real time, using a new iframe setup that
-					directly syncs theme changes to your plugin UI without any delay.
+					Configure different bundling options for main and UI code using the <code
+						>context</code
+					>
+					option in your <code>vite.config.js</code>. Apply plugins conditionally based on
+					whether you're building the main thread or UI code.
 				</p>
 			</div>
+
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="file" size={24} opacity={1} />Simplified Vite Configuration</span
+					><Icon svg="terminal" size={24} opacity={1} />Minimal Configuration</span
 				>
 				<p class="m-0">
-					Simplify builds with a single <code>vite.config.js</code> to manage main and UI code
-					for dev and production modes. Customise freely to match your specific build needs.
+					No more manual network access configuration in your manifest file. WebSocket and
+					browser preview are enabled automatically. True zero-config approach means you
+					can start building immediately without setup hassles.
 				</p>
 			</div>
+
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="briefcase" size={24} opacity={1} />Developer Tools</span
+					><Icon svg="globe" size={24} opacity={1} />Rock-Solid Browser Preview</span
 				>
 				<p class="m-0">
-					Previously, enabling developer tools required setting a flag before starting
-					Plugma. Now, they’re just a keyboard shortcut away! Activate or hide developer
-					tools instantly with <code class="whitespace-nowrap">Cmd + Opt + J</code>.
+					WebSocket connections now wait until fully established before sending messages.
+					Dark/light mode syncs instantly, and you can preview with minimized plugin
+					windows to keep your workspace clean.
 				</p>
 			</div>
+
 			<div class="flex flex-col gap-3">
 				<span class="flex gap-3 font-semibold"
-					><Icon svg="window" size={24} opacity={1} />Dedicated Preview Command</span
+					><Icon svg="layout" size={24} opacity={1} />Brand New CLI Wizard</span
 				>
 				<p class="m-0">
-					For those who frequently use browser previews, the new preview command minimises
-					the plugin window in Figma, allowing you to free up space.
+					A brand new CLI wizard that supports adding integrations and installing using
+					any package manager. Streamlined commands make development faster than ever with
+					automatic dependency management and intelligent package manager detection.
+				</p>
+			</div>
+
+			<div class="flex flex-col gap-3">
+				<span class="flex gap-3 font-semibold"
+					><Icon svg="layout" size={24} opacity={1} />Custom HTML Templates</span
+				>
+				<p class="m-0">
+					Specify your own HTML template for entry files, giving you complete control over
+					the initial structure. Perfect for advanced users who need custom frameworks or
+					libraries that require specific HTML setup.
+				</p>
+			</div>
+
+			<div class="flex flex-col gap-3">
+				<span class="flex gap-3 font-semibold"
+					><Icon svg="bug" size={24} opacity={1} />Enhanced Developer Experience</span
+				>
+				<p class="m-0">
+					Better source mapping for main code makes debugging easier. Chrome DevTools
+					workspace integration lets you edit files directly from the browser. Improved
+					CLI output and error formatting provide clearer feedback during development.
+				</p>
+			</div>
+
+			<div class="flex flex-col gap-3">
+				<span class="flex gap-3 font-semibold"
+					><Icon svg="package" size={24} opacity={1} />One-Click Integrations</span
+				>
+				<p class="m-0">
+					Add powerful tools instantly with <code>plugma add</code>. Choose from Tailwind
+					CSS, Shadcn UI, Prettier, ESLint, Vitest, and Playwright. Each integration comes
+					with pre-configured setup and example code.
 				</p>
 			</div>
 		</div>
@@ -135,7 +166,8 @@
 		left: 0;
 		right: 0;
 		/* background-color: red; */
-		background: linear-gradient(0deg, var(--color-bg), transparent),
+		background:
+			linear-gradient(0deg, var(--color-bg), transparent),
 			linear-gradient(-90deg, var(--color-bg), transparent);
 	}
 

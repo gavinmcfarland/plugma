@@ -1,0 +1,6 @@
+{
+	"compilerOptions": {
+		"composite": true
+	},
+	"include": ["<%= rebase('vite-env.d.ts', { locate: true }) %>"]
+}

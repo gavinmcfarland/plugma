@@ -1,30 +1,63 @@
 {
 	"name": "create-plugma",
-	"version": "1.0.11",
+	"version": "2.0.39",
 	"description": "",
-	"main": "create-plugma.js",
+	"main": "dist/index.js",
 	"type": "module",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		},
+		"./cli": "./dist/create-plugma.js"
+	},
 	"scripts": {
+		"build": "tsc -p tsconfig.build.json",
+		"build:prod": "tsc -p tsconfig.build.json",
+		"dev": "tsc -p tsconfig.build.json --watch",
+		"sync-shared": "./scripts/sync-shared.sh",
+		"prepack": "npm run sync-shared",
+		"dev:setup": "node ../plugma/scripts/manage-versions.js dev",
 		"test": "echo \"Error: no test specified\"",
-		"bump-versions": "node scripts/bump-plugma-version.js",
-		"postversion": "npm run bump-versions"
+		"prepublishOnly": "node ../plugma/scripts/manage-versions.js publish && npm run build:prod",
+		"format:templates": "prettier --write templates/**/*.{js,ts,jsx,tsx,json,md}",
+		"version": "node ../plugma/scripts/bump-plugma-version.js"
 	},
 	"bin": {
-		"create-plugma": "./create-plugma.js"
+		"create-plugma": "./dist/create-plugma.js"
 	},
 	"files": [
+		"dist",
 		"templates",
-		"scripts",
+		"config",
 		"versions.json"
 	],
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"inquirer": "^10.1.0",
-		"lodash": "^4.17.21",
-		"slugify": "^1.6.6"
+		"@combino/plugin-ejs-mate": "^1.10.0",
+		"@combino/plugin-rebase": "^1.5.1",
+		"@combino/plugin-strip-ts": "^1.10.4",
+		"askeroo": "0.0.0-alpha.16",
+		"chalk": "^5.4.1",
+		"combino": "^1.10.4",
+		"commander": "^12.1.0",
+		"comment-json": "^4.2.5",
+		"cross-dirname": "^0.1.0",
+		"dedent": "^1.5.3",
+		"enquirer": "^2.4.1",
+		"listr2": "^8.3.3",
+		"magic-string": "^0.30.17",
+		"nanoid": "^5.1.5",
+		"package-manager-detector": "^1.1.0",
+		"vite": "^6.0.0"
 	},
 	"devDependencies": {
-		"jest": "^29.7.0"
-	}
+		"@types/ejs": "^3.1.0",
+		"@types/node": "^20.0.0",
+		"prettier": "^3.3.3",
+		"type-fest": "^4.33.0",
+		"typescript": "^5.0.0"
+	},
+	"gitHead": "5d408156f91d2857618ec7fa647b7d3848c17114"
 }

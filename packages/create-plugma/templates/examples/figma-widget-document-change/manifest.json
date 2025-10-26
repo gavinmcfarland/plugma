@@ -1,0 +1,12 @@
+{
+    "id": "com.<%- name %>",
+	"name": "<%- name %>",
+    "main": "<%- mainDir %>/main.<%- typescript ? 'tsx' : 'jsx' %>",
+    "editorType": ["figma"],
+    "networkAccess": {
+        "allowedDomains": ["none"]
+    },
+    "containsWidget": true,
+    "permissions": [],
+    "widgetApi": "1.0.0"
+}

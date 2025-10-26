@@ -1,0 +1,14 @@
+{
+    "meta": {
+        "name": "Counter",
+        "description": "A simple button that increments and decrements a counter",
+        "type": "widget"
+    },
+    "include": [
+        "../../base"
+    ],
+    "data": {
+        "description": "A sticky notes widget for Figma",
+        "attribution": "This example is adapted from the official [Figma widget samples](https://github.com/figma/widget-samples)."
+    }
+}

@@ -1,0 +1,6 @@
+{
+	"id": "com.<%- name %>",
+	"name": "<%- name %>",
+	"main": "<%- mainDir %>/main.<%- typescript ? 'ts' : 'js' %>",
+	"editorType": ["figma", "figjam"]
+}

@@ -1,11 +1,29 @@
 {
-  "folders": [
-    {
-      "path": "website",
-    },
-    {
-      "path": ".",
-    },
-  ],
-  "settings": {},
+	"folders": [
+		{
+			"name": "repo",
+			"path": ".",
+		},
+		{
+			"name": "website",
+			"path": "packages/website",
+		},
+		{
+			"name": "sandbox",
+			"path": "packages/plugma/test/sandbox",
+		},
+		{
+			"name": "apps",
+			"path": "packages/plugma/apps",
+		},
+		{
+			"name": "plugma",
+			"path": "packages/plugma",
+		},
+		{
+			"name": "create-plugma",
+			"path": "packages/create-plugma",
+		},
+	],
+	"settings": {},
 }

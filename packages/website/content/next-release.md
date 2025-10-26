@@ -8,13 +8,13 @@ Want an early look? You can get started with Plugma V1 today by following these 
 
 #### Updating an existing plugin
 
-```bash
+```package-manager
 npm install plugma@next
 ```
 
 #### Starting a new plugin from scratch
 
-```bash
+```package-manager
 npm create plugma@next
 ```
 

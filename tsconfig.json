@@ -1,0 +1,10 @@
+// Needed to prevent template files in create-plugma from being linted
+{
+	"compilerOptions": {
+		"checkJs": false,
+		"allowJs": true,
+		"strict": false,
+		"noEmit": true
+	},
+	"exclude": ["node_modules"]
+}

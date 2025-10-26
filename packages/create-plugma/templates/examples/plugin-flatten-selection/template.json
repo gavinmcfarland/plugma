@@ -1,0 +1,12 @@
+{
+	"meta": {
+		"name": "Flatten Selection",
+		"description": "A plugin that flattens a selection",
+		"type": "plugin"
+	},
+	"include": ["../../base"],
+	"exclude": ["../../base/src/ui/vite-env.d.ts", "../../base/tsconfig.ui.json"],
+	"data": {
+		"description": "A plugin without UI"
+	}
+}

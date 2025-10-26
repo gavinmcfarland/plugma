@@ -1,0 +1,7 @@
+{
+	"id": "com.<%- name %>",
+	"name": "<%- name %>",
+	"main": "<%- mainDir %>/main.<%- typescript ? 'ts' : 'js' %>",
+	"ui": "<%- uiDir %>/ui.<%- framework === 'react' ? (typescript ? 'tsx' : 'jsx') : (typescript ? 'ts' : 'js') %>",
+	"editorType": ["figma", "figjam"]
+}
