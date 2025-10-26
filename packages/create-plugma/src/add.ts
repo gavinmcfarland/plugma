@@ -93,6 +93,12 @@ export async function add(options: AddCommandOptions): Promise<void> {
 			// Start with setup tasks
 			const tasksResult = await tasks(setupTasksList.length > 0 ? setupTasksList : [], { concurrent: false });
 
+			// Write next steps to INTEGRATIONS.md if there are any (before dependency installation)
+			const hasNextSteps = await writeIntegrationNextSteps({
+				integrationResults: answers.allResults,
+				outputPath: 'INTEGRATIONS.md',
+			});
+
 			// Prompt for dependency installation
 			const detectedPM = await detect({ cwd: process.cwd() });
 			const preferredPM = detectedPM?.agent || 'npm';
@@ -122,12 +128,6 @@ export async function add(options: AddCommandOptions): Promise<void> {
 			if (postSetupTask) {
 				await tasks.add([postSetupTask]);
 			}
-
-			// Write next steps to INTEGRATIONS.md if there are any
-			const hasNextSteps = await writeIntegrationNextSteps({
-				integrationResults: answers.allResults,
-				outputPath: 'INTEGRATIONS.md',
-			});
 
 			// Show completion message with optional dependency installation reminder
 			let message = '';

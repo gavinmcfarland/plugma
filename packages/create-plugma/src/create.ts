@@ -1436,6 +1436,12 @@ async function createProjectFromOptions(params: {
 		process.exit(1);
 	}
 
+	// Write next steps to INTEGRATIONS.md if there are any (before dependency installation)
+	const hasNextSteps = await writeIntegrationNextSteps({
+		integrationResults: addOnResults,
+		outputPath: path.join(destDir, 'INTEGRATIONS.md'),
+	});
+
 	// Change to the project directory for dependency installation
 	const originalCwd = process.cwd();
 	process.chdir(destDir);
@@ -1494,12 +1500,6 @@ async function createProjectFromOptions(params: {
 		// Change back to original directory
 		process.chdir(originalCwd);
 	}
-
-	// Write next steps to INTEGRATIONS.md if there are any (in the project directory)
-	const hasNextSteps = await writeIntegrationNextSteps({
-		integrationResults: addOnResults,
-		outputPath: path.join(destDir, 'INTEGRATIONS.md'),
-	});
 
 	// Build success message with next steps
 	const packageManager = pkgManager || selectedPackageManager || 'npm';

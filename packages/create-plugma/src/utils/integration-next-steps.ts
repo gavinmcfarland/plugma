@@ -11,6 +11,40 @@ export interface WriteIntegrationNextStepsOptions extends CollectIntegrationNext
 }
 
 /**
+ * Removes leading whitespace (tabs/spaces) from each line of text
+ * Similar to dedent functionality
+ */
+function dedentText(text: string): string {
+	if (!text) return text;
+
+	const lines = text.split('\n');
+
+	// Find the minimum leading whitespace (excluding empty lines)
+	let minIndent = Infinity;
+	for (const line of lines) {
+		if (line.trim().length === 0) continue; // Skip empty lines
+		const match = line.match(/^(\s*)/);
+		if (match) {
+			const indent = match[1].length;
+			if (indent < minIndent) {
+				minIndent = indent;
+			}
+		}
+	}
+
+	// If no indentation found, return as is (after trimming)
+	if (minIndent === Infinity || minIndent === 0) {
+		return text.trim();
+	}
+
+	// Remove the minimum indentation from each line and trim the result
+	return lines
+		.map((line) => line.slice(minIndent))
+		.join('\n')
+		.trim();
+}
+
+/**
  * Collects all next steps from integrations and their required integrations
  * @returns Array of next steps formatted as strings
  */
@@ -32,7 +66,9 @@ export function collectIntegrationNextSteps(options: CollectIntegrationNextSteps
 						? requiredResult.integration.nextSteps(requiredResult.answers)
 						: requiredResult.integration.nextSteps;
 				const stepsArray = Array.isArray(steps) ? steps : [steps];
-				allNextSteps.push(...stepsArray);
+				// Dedent each step to remove leading whitespace
+				const dedentedSteps = stepsArray.map((step) => dedentText(step));
+				allNextSteps.push(...dedentedSteps);
 			}
 		}
 
@@ -41,7 +77,9 @@ export function collectIntegrationNextSteps(options: CollectIntegrationNextSteps
 			const steps = Array.isArray(result.integrationResult.nextSteps)
 				? result.integrationResult.nextSteps
 				: [result.integrationResult.nextSteps];
-			allNextSteps.push(...steps);
+			// Dedent each step to remove leading whitespace
+			const dedentedSteps = steps.map((step) => dedentText(step));
+			allNextSteps.push(...dedentedSteps);
 		}
 	}
 
@@ -58,7 +96,12 @@ export async function writeIntegrationNextSteps(options: WriteIntegrationNextSte
 
 	// Write next steps to INTEGRATIONS.md if there are any
 	if (allNextSteps.length > 0) {
-		const integrationsContent = `# Integrations Next Steps\n\n${allNextSteps.join('\n')}\n`;
+		// Join the steps and remove extra blank lines
+		const content = allNextSteps
+			.join('\n')
+			.replace(/\n{3,}/g, '\n\n')
+			.trim();
+		const integrationsContent = `# Integrations Next Steps\n\n${content}\n`;
 		await fs.promises.writeFile(outputPath, integrationsContent);
 		return true;
 	}
