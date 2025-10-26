@@ -1,41 +1,9 @@
-import { getRandomPort } from '../shared/index.js';
-import { ManifestFile } from '../types.js';
-
-export const DEFAULT_OPTIONS = {
-	dockPlugin: false,
-	mode: process.env.NODE_ENV,
-	port: getRandomPort(),
-	output: 'dist',
-	websockets: true,
-	debug: false,
-	watch: false,
-	configParser: (value: string) => {
-		try {
-			return JSON.parse(value);
-		} catch (e) {
-			console.error('Invalid JSON configuration:', e);
-			process.exit(1);
-		}
-	},
-} as const;
-
-export type ReleaseType = 'alpha' | 'beta' | 'stable';
+export const DEFAULT_OPTIONS = {} as const;
 
 // Minimal options for commands that only need basic functionality
 export interface MinimalBaseOptions {
 	cwd: string;
 	debug?: boolean;
-	config?: Record<string, unknown>;
-}
-
-// Base options that are common across all commands
-export interface BaseOptions extends MinimalBaseOptions {
-	mode: string;
-	output: string;
-	instanceId: string;
-	watch?: boolean;
-	manifest?: ManifestFile;
-	[key: string]: unknown;
 }
 
 // Command-specific options
@@ -143,16 +111,9 @@ export function createOptions<T extends keyof CommandOptions>(
 	// Ensure required fields are present in defaults
 	const requiredDefaults = {
 		...DEFAULT_OPTIONS,
-		instanceId: userOptions.instanceId || '',
 		cwd: process.cwd(),
 		...defaults,
 	} as unknown as CommandOptions[T];
-
-	// Handle noWebsockets option
-	if (userOptions.noWebsockets) {
-		userOptions.websockets = false;
-		delete userOptions.noWebsockets;
-	}
 
 	// Handle --no-ts flag (Commander.js converts --no-ts to typescript: false)
 	if ('typescript' in userOptions && userOptions.typescript === false) {
