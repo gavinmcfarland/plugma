@@ -188,6 +188,95 @@ export function updateReadmeWithPackageManager(
 }
 
 /**
+ * Update INTEGRATIONS.md file with package manager-specific commands
+ */
+export function updateIntegrationsWithPackageManager(
+	projectPath: string,
+	packageManager: string | null,
+	debug: boolean = false,
+): void {
+	if (!packageManager || packageManager === 'skip') {
+		if (debug) {
+			console.log(`Skipping INTEGRATIONS update: packageManager=${packageManager}`);
+		}
+		return;
+	}
+
+	const integrationsPath = path.join(projectPath, 'INTEGRATIONS.md');
+
+	if (!fs.existsSync(integrationsPath)) {
+		if (debug) {
+			console.log(`INTEGRATIONS.md not found at: ${integrationsPath}`);
+		}
+		return;
+	}
+
+	let integrationsContent = fs.readFileSync(integrationsPath, 'utf8');
+	const originalContent = integrationsContent;
+
+	if (debug) {
+		console.log(`Updating INTEGRATIONS.md with package manager: ${packageManager}`);
+	}
+
+	// Map to store command replacements
+	const commandMap: Record<string, string> = {};
+
+	// Common script commands that might need updating
+	const scripts = ['dev', 'format', 'format:check', 'lint', 'vitest', 'playwright'];
+
+	for (const script of scripts) {
+		// Get the correct package manager command for running scripts
+		let currentCommand: string;
+		if (packageManager === 'npm') {
+			currentCommand = `npm run ${script}`;
+		} else if (packageManager === 'pnpm') {
+			currentCommand = `pnpm run ${script}`;
+		} else if (packageManager === 'yarn') {
+			currentCommand = `yarn ${script}`;
+		} else if (packageManager === 'bun') {
+			currentCommand = `bun run ${script}`;
+		} else {
+			currentCommand = getCommand(packageManager as PackageManager, script);
+		}
+		commandMap[`npm run ${script}`] = currentCommand;
+	}
+
+	// Replace all npm run commands
+	for (const [oldCmd, newCmd] of Object.entries(commandMap)) {
+		integrationsContent = integrationsContent.replace(new RegExp(escapeRegExp(oldCmd), 'g'), newCmd);
+	}
+
+	// Replace npx commands if needed (for shadcn, etc.)
+	if (packageManager === 'npm') {
+		// Keep npx as is for npm
+		// No replacement needed
+	} else if (packageManager === 'yarn') {
+		integrationsContent = integrationsContent.replace(/\bnpx\s+/g, 'yarn dlx ');
+	} else if (packageManager === 'pnpm') {
+		integrationsContent = integrationsContent.replace(/\bnpx\s+/g, 'pnpm dlx ');
+	} else if (packageManager === 'bun') {
+		integrationsContent = integrationsContent.replace(/\bnpx\s+/g, 'bunx ');
+	}
+
+	// Only write if content changed
+	if (integrationsContent !== originalContent) {
+		fs.writeFileSync(integrationsPath, integrationsContent, 'utf8');
+		if (debug) {
+			console.log(`INTEGRATIONS.md updated successfully`);
+		}
+	} else if (debug) {
+		console.log(`No changes needed in INTEGRATIONS.md`);
+	}
+}
+
+/**
+ * Escape special regex characters
+ */
+function escapeRegExp(string: string): string {
+	return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
  * Check if a command is available in the system PATH
  */
 async function isCommandAvailable(command: string): Promise<boolean> {
@@ -287,6 +376,7 @@ export async function promptAndInstallDependencies(
 	// Update README with package manager-specific commands
 	if (projectPath) {
 		updateReadmeWithPackageManager(projectPath, packageManager, debug);
+		updateIntegrationsWithPackageManager(projectPath, packageManager, debug);
 	}
 
 	return { packageManager, installationFailed };
