@@ -53,8 +53,6 @@ export default defineIntegration({
 	],
 
 	nextSteps: () => `
-	**Plugged in and ready to go!**
-
 	1. To run the linter, run \`npm run lint\`.
 	2. [Optional] Install ESLint extension for VSCode: https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
 	`,

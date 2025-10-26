@@ -50,8 +50,6 @@ export default defineIntegration({
 	],
 
 	nextSteps: (answers) => `
-	**Plugged in and ready to go!**
-
 	1. Run tests with \`npm run playwright\`
 	2. Visit https://playwright.dev/ for more information
 	`,

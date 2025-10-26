@@ -17,6 +17,7 @@ import { CreateCommandOptions } from './utils/create-options.js';
 import { promptAndInstallDependencies } from './utils/dependency-installer.js';
 import { promptForIntegrations } from './utils/integration-prompter.js';
 import { createIntegrationSetupTask, createPostSetupTask } from './utils/integration-task-builder.js';
+import { writeIntegrationNextSteps } from './utils/integration-next-steps.js';
 import { getCommand, type PackageManager } from './shared/index.js';
 
 // Import necessary modules for dependency installation
@@ -1494,6 +1495,12 @@ async function createProjectFromOptions(params: {
 		process.chdir(originalCwd);
 	}
 
+	// Write next steps to INTEGRATIONS.md if there are any (in the project directory)
+	const hasNextSteps = await writeIntegrationNextSteps({
+		integrationResults: addOnResults,
+		outputPath: path.join(destDir, 'INTEGRATIONS.md'),
+	});
+
 	// Build success message with next steps
 	const packageManager = pkgManager || selectedPackageManager || 'npm';
 	const allSetMessage = dependencyInstallationFailed ? '[ Almost There! ]{bgBlue}' : '[ All Set! ]{bgBlue}';
@@ -1517,7 +1524,15 @@ async function createProjectFromOptions(params: {
 	const stepNum = !pkgManager || pkgManager === 'skip' || dependencyInstallationFailed ? 3 : 2;
 	nextStepsLines.push(`${stepNum}. Use \`${devCommand}\` to start dev server`);
 	nextStepsLines.push(`${stepNum + 1}. Import \`dist/manifest.json\` in Figma`);
-	nextStepsLines.push(`\nRead the README for more info.\n`);
+
+	// Add information about documentation files
+	if (hasNextSteps) {
+		nextStepsLines.push(`\nSee \`README.md\` and \`INTEGRATIONS.md\` for more info.`);
+	} else {
+		nextStepsLines.push(`\nSee \`README.md\` for more info.`);
+	}
+
+	nextStepsLines.push('');
 
 	const successMessage = nextStepsLines.join('\n');
 

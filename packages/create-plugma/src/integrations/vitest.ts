@@ -51,10 +51,8 @@ export default defineIntegration({
 	],
 
 	nextSteps: (answers) => `
-	**Plugged in and ready to go!**
-
-	1. Start the dev server: \`npm run dev\`
-	2. Run tests with \`npm run vitest\`
+	1. Start the dev server in one terminal \`npm run dev\`
+	2. In another terminal, run tests with \`npm run vitest\`
 	3. Visit https://vitest.dev/ for more information
 	`,
 });

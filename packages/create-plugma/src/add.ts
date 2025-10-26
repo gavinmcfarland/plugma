@@ -10,6 +10,7 @@ import { promptAndInstallDependencies } from './utils/dependency-installer.js';
 import { promptForIntegrations, INTEGRATIONS } from './utils/integration-prompter.js';
 import { createIntegrationSetupTask, createPostSetupTask } from './utils/integration-task-builder.js';
 import { showCreatePlugmaPrompt } from './utils/show-prompt.js';
+import { writeIntegrationNextSteps } from './utils/integration-next-steps.js';
 import { getUserFiles } from './shared/index.js';
 
 // Helper to sleep
@@ -122,27 +123,11 @@ export async function add(options: AddCommandOptions): Promise<void> {
 				await tasks.add([postSetupTask]);
 			}
 
-			// Collect all next steps from all integrations
-			// const allNextSteps: string[] = [];
-			// for (const result of answers.allResults) {
-			// 	if (result.integrationResult.nextSteps) {
-			// 		const steps = Array.isArray(result.integrationResult.nextSteps)
-			// 			? result.integrationResult.nextSteps
-			// 			: [result.integrationResult.nextSteps];
-
-			// 		if (answers.allResults.length > 1) {
-			// 			// Add integration name if multiple integrations were installed
-			// 			allNextSteps.push(`\n**${result.integration.name}:**`);
-			// 		}
-			// 		allNextSteps.push(...steps);
-			// 	}
-			// }
-
-			// Show success message with next steps
-			// if (allNextSteps.length > 0) {
-			// 	const successMessage = allNextSteps.join('\n');
-			// 	await note(successMessage);
-			// }
+			// Write next steps to INTEGRATIONS.md if there are any
+			const hasNextSteps = await writeIntegrationNextSteps({
+				integrationResults: answers.allResults,
+				outputPath: 'INTEGRATIONS.md',
+			});
 
 			// Show completion message with optional dependency installation reminder
 			let message = '';
@@ -183,6 +168,11 @@ export async function add(options: AddCommandOptions): Promise<void> {
 			} else {
 				message =
 					"**All set!**\n\nYour integration has been added and dependencies are installed. You're ready to go!";
+			}
+
+			// Add information about INTEGRATIONS.md file if it was created
+			if (hasNextSteps) {
+				message += `\n\nSee ${chalk.cyan('`README.md`')} and ${chalk.cyan('`INTEGRATIONS.md`')} for more info.`;
 			}
 
 			await note(message);
