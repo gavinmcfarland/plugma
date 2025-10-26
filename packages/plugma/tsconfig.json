@@ -13,6 +13,15 @@
         "resolveJsonModule": true,
         "types": ["@figma/plugin-typings"],
         "baseUrl": ".",
+        "paths": {
+            "#tasks": ["./src/tasks"],
+            "#core": ["./src/core"],
+            "#utils": ["./src/utils"],
+            "#shared": ["./src/shared"],
+            "#vite-plugins": ["./src/vite-plugins"],
+            "#commands": ["./src/commands"],
+            "#test": ["./test"]
+        }
     },
     "include": [
         "src/**/*.ts",

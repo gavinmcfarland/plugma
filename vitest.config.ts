@@ -23,10 +23,10 @@ export default defineConfig({
 			provider: 'v8',
 			reporter: ['text', 'html'],
 		},
-		pool: 'forks',
+		pool: 'threads',
 		poolOptions: {
-			forks: {
-				singleFork: true,
+			threads: {
+				singleThread: false,
 			},
 		},
 	},
@@ -40,6 +40,7 @@ export default defineConfig({
 			'#core': resolve(__dirname, 'packages/plugma/src/core'),
 			'#commands': resolve(__dirname, 'packages/plugma/src/commands'),
 			'#utils': resolve(__dirname, 'packages/plugma/src/utils'),
+			'#shared': resolve(__dirname, 'packages/plugma/src/shared'),
 			'#vite-plugins': resolve(__dirname, 'packages/plugma/src/vite-plugins'),
 			'#tasks': resolve(__dirname, 'packages/plugma/src/tasks'),
 			'#test': resolve(__dirname, 'packages/plugma/test'),

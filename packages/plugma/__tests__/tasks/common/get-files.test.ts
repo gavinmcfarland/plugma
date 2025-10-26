@@ -36,7 +36,7 @@ vi.mock('#utils', () => ({
   writeTempFile: mocks.writeTempFile,
 }));
 
-vi.mock('#utils/fs/read-json.js', () => ({
+vi.mock('#shared/utils/fs/read-json.js', () => ({
   readJson: mocks.readJson,
   readModule: vi.fn().mockResolvedValue(null),
   readPlugmaPackageJson: mocks.readPlugmaPackageJson,
@@ -46,7 +46,7 @@ vi.mock('#utils/config/create-vite-configs.js', () => ({
   createViteConfigs: mocks.createViteConfigs,
 }));
 
-vi.mock('#utils/get-user-files.js', () => ({
+vi.mock('#shared/utils/get-user-files.js', () => ({
   getUserFiles: mocks.getUserFiles,
 }));
 
@@ -65,13 +65,17 @@ describe('get-files Task', () => {
     cwd: '/mock/test/dir',
   };
 
-  const baseContext = {};
-
   beforeEach(() => {
     vi.clearAllMocks();
     mockFs = createMockFs();
     mocks.readJson.mockImplementation(async (filePath: string) => {
       if (filePath.endsWith('package.json')) {
+        // Return Plugma package.json if the path contains 'packages/plugma/package.json'
+        // The path from readPlugmaPackageJson would be: .../packages/plugma/package.json
+        if (filePath.includes('packages/plugma/package.json')) {
+          return mockGetFilesResult.plugmaPkg;
+        }
+        // Otherwise return user's package.json
         return mockGetFilesResult.files.userPkgJson;
       }
       throw new Error('File not found');
@@ -90,11 +94,12 @@ describe('get-files Task', () => {
       mocks.getUserFiles.mockResolvedValue({
         manifest: mockGetFilesResult.files.manifest,
         userPkgJson: mockGetFilesResult.files.userPkgJson,
+        rawManifest: mockGetFilesResult.files.rawManifest,
       });
 
       mocks.createViteConfigs.mockReturnValue(mockConfig);
 
-      const result = await GetFilesTask.run(baseOptions, baseContext);
+      const result = await GetFilesTask.run(baseOptions);
 
       expect(result.plugmaPkg.version).toBe(
         mockGetFilesResult.plugmaPkg.version,
@@ -112,7 +117,7 @@ describe('get-files Task', () => {
       const error = new Error('File not found');
       mocks.getUserFiles.mockRejectedValue(error);
 
-      await expect(GetFilesTask.run(baseOptions, baseContext)).rejects.toThrow(
+      await expect(GetFilesTask.run(baseOptions)).rejects.toThrow(
         new GetFilesError('Failed to load files', 'FILE_ERROR', error),
       );
     });
@@ -121,7 +126,7 @@ describe('get-files Task', () => {
       const error = new Error('Invalid JSON format');
       mocks.getUserFiles.mockRejectedValue(error);
 
-      await expect(GetFilesTask.run(baseOptions, baseContext)).rejects.toThrow(
+      await expect(GetFilesTask.run(baseOptions)).rejects.toThrow(
         new GetFilesError('Failed to load files', 'FILE_ERROR', error),
       );
     });
@@ -130,7 +135,7 @@ describe('get-files Task', () => {
       const error = new Error('Missing required fields');
       mocks.getUserFiles.mockRejectedValue(error);
 
-      await expect(GetFilesTask.run(baseOptions, baseContext)).rejects.toThrow(
+      await expect(GetFilesTask.run(baseOptions)).rejects.toThrow(
         new GetFilesError('Failed to load files', 'FILE_ERROR', error),
       );
     });
@@ -139,6 +144,7 @@ describe('get-files Task', () => {
       mocks.getUserFiles.mockResolvedValue({
         manifest: mockGetFilesResult.files.manifest,
         userPkgJson: mockGetFilesResult.files.userPkgJson,
+        rawManifest: mockGetFilesResult.files.rawManifest,
       });
 
       const error = new Error('Failed to create configs');
@@ -146,7 +152,7 @@ describe('get-files Task', () => {
         throw error;
       });
 
-      await expect(GetFilesTask.run(baseOptions, baseContext)).rejects.toThrow(
+      await expect(GetFilesTask.run(baseOptions)).rejects.toThrow(
         new GetFilesError('Failed to create configs', 'CONFIG_ERROR', error),
       );
     });
@@ -155,6 +161,7 @@ describe('get-files Task', () => {
       mocks.getUserFiles.mockResolvedValue({
         manifest: mockGetFilesResult.files.manifest,
         userPkgJson: mockGetFilesResult.files.userPkgJson,
+        rawManifest: mockGetFilesResult.files.rawManifest,
       });
 
       mocks.createViteConfigs.mockReturnValue({
@@ -168,10 +175,10 @@ describe('get-files Task', () => {
         },
       });
 
-      const result = await GetFilesTask.run(
-        { ...baseOptions, mode: 'production' },
-        baseContext,
-      );
+      const result = await GetFilesTask.run({
+        ...baseOptions,
+        mode: 'production',
+      });
 
       expect(result.config.main.build.mode).toBe('production');
     });

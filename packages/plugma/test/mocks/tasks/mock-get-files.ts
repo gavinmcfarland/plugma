@@ -1,9 +1,17 @@
-import PlugmaPackageJson from '../../../package.json' with { type: 'json' };
-import type { GetFilesTaskResult } from '#tasks/get-files.js';
-import userPkgJson from '#test/fixtures/user-package.json' with {
-  type: 'json',
-};
+import type { GetFilesTaskResult } from '#tasks';
+import type { PlugmaPackageJson, UserPackageJson } from '../../../src/core/types.js';
 import type { PackageJson, PartialDeep } from 'type-fest';
+
+// Import JSON files using require-style syntax for vitest compatibility
+const PlugmaPackageJson = { name: 'plugma', version: '2.0.49', gitHead: 'mock-hash' } as PackageJson;
+const userPkgJson: PackageJson = {
+  name: 'test-plugin',
+  version: '1.0.0',
+  private: true,
+  type: 'module',
+  scripts: {},
+  devDependencies: {},
+};
 
 /**
  * Creates a mock GetFilesResult with all required fields for testing.
@@ -13,10 +21,18 @@ export function createMockGetFilesResult(
   overrides: PartialDeep<GetFilesTaskResult> = {},
 ): GetFilesTaskResult {
   const defaultResult: GetFilesTaskResult = {
-    plugmaPkg: PlugmaPackageJson as PackageJson,
+    plugmaPkg: PlugmaPackageJson as unknown as PlugmaPackageJson,
     files: {
-      userPkgJson: userPkgJson as PackageJson,
+      userPkgJson: userPkgJson as UserPackageJson,
       manifest: {
+        name: 'Test Plugin',
+        id: 'test-plugin',
+        main: 'src/main.ts',
+        ui: 'src/ui.tsx',
+        version: '1.0.0',
+        api: '1.0.0',
+      },
+      rawManifest: {
         name: 'Test Plugin',
         id: 'test-plugin',
         main: 'src/main.ts',

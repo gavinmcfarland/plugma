@@ -30,6 +30,8 @@ import { promises as fs } from 'node:fs';
 describe('versionUpdate', () => {
   beforeEach(() => {
     vi.resetAllMocks();
+    // Ensure process.cwd() returns a valid directory
+    vi.spyOn(process, 'cwd').mockReturnValue('/mock/test/dir');
   });
 
   const mockPackageJson = (pluginVersion?: string) => {

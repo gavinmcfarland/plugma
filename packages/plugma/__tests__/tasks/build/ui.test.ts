@@ -84,7 +84,7 @@ vi.mock('node:perf_hooks', () => ({
   performance: mocks.performance,
 }));
 
-vi.mock('#utils/get-user-files.js', () => ({
+vi.mock('#shared/utils/get-user-files.js', () => ({
   getUserFiles: mocks.getUserFiles,
 }));
 

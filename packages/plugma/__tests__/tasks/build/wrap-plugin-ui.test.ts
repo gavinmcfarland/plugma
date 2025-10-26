@@ -61,7 +61,7 @@ vi.mock('#utils/log/logger.js', () => ({
   Logger: mocks.Logger,
 }));
 
-vi.mock('#utils/get-user-files.js', () => ({
+vi.mock('#shared/utils/get-user-files.js', () => ({
   getUserFiles: mocks.getUserFiles,
 }));
 
