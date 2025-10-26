@@ -40,7 +40,7 @@ Now you can publish the plugin from the Figma desktop app.
 
 ### Integrations
 
-You can add new integrations by running the following command. Integrations extend your project with tools and frameworks commonly used in modern development.
+You can add integrations by running the following command. Integrations extend your <%- type %> with tools and frameworks commonly used in modern development.
 
 ```bash
 npm create plugma@latest add
