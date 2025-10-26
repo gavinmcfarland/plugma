@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid';
 import { getRandomPort } from '../shared/index.js';
 import { ManifestFile } from '../types.js';
 
@@ -41,32 +40,6 @@ export interface BaseOptions extends MinimalBaseOptions {
 
 // Command-specific options
 export interface CommandOptions {
-	build: BaseOptions & {
-		command: 'build';
-	};
-	dev: BaseOptions & {
-		command: 'dev';
-		port: number;
-		websockets?: boolean;
-	};
-	preview: BaseOptions & {
-		command: 'preview';
-		port: number;
-		websockets?: boolean;
-	};
-	test: BaseOptions & {
-		command: 'test';
-		port: number;
-		websockets?: boolean;
-	};
-	release: BaseOptions & {
-		command: 'release';
-		type: ReleaseType;
-		version?: string;
-		title?: string;
-		notes?: string;
-		prefix?: string;
-	};
 	add: MinimalBaseOptions & {
 		command: 'add';
 		integration?: string | string[];
@@ -96,11 +69,6 @@ export interface CommandOptions {
 }
 
 // Export individual command types
-export type BuildCommandOptions = CommandOptions['build'];
-export type DevCommandOptions = CommandOptions['dev'];
-export type PreviewCommandOptions = CommandOptions['preview'];
-export type TestCommandOptions = CommandOptions['test'];
-export type ReleaseCommandOptions = CommandOptions['release'];
 export type AddCommandOptions = CommandOptions['add'];
 export type CreateCommandOptions = CommandOptions['create'];
 
@@ -175,7 +143,7 @@ export function createOptions<T extends keyof CommandOptions>(
 	// Ensure required fields are present in defaults
 	const requiredDefaults = {
 		...DEFAULT_OPTIONS,
-		instanceId: nanoid(),
+		instanceId: userOptions.instanceId || '',
 		cwd: process.cwd(),
 		...defaults,
 	} as unknown as CommandOptions[T];

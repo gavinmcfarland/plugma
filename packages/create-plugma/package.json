@@ -46,7 +46,6 @@
 		"cross-dirname": "^0.1.0",
 		"dedent": "^1.5.3",
 		"magic-string": "^0.30.17",
-		"nanoid": "^5.1.5",
 		"package-manager-detector": "^1.1.0"
 	},
 	"devDependencies": {
