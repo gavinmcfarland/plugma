@@ -1,5 +1,3 @@
-import type { PackageJson } from 'type-fest';
-
 export type PlugmaCommand = 'build' | 'dev' | 'test' | 'preview';
 
 export interface UserPluginOptions {
@@ -28,10 +26,11 @@ export interface ManifestFile {
 }
 
 export type PlugmaPackageJson = typeof import('../../../package.json');
-export type UserPackageJson = PackageJson & {
+export type UserPackageJson = {
 	plugma?: {
 		manifest?: ManifestFile;
 	};
+	[key: string]: any;
 };
 
 /**
