@@ -172,7 +172,7 @@ export async function add(options: AddCommandOptions): Promise<void> {
 
 			// Add information about INTEGRATIONS.md file if it was created
 			if (hasNextSteps) {
-				message += `\n\nSee ${chalk.cyan('`README.md`')} and ${chalk.cyan('`INTEGRATIONS.md`')} for more info.`;
+				message += `\n${chalk.blue('See INTEGRATIONS.md on how to use them.')}`;
 			}
 
 			await note(message);

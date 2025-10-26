@@ -873,8 +873,11 @@ async function browseAndSelectTemplate(
 						// Prompt for project path in normal mode
 						const baseName = generateDefaultProjectName(type, selectedTemplateName);
 
+						// Generate unique project name to check if directory exists (same logic as --yes mode)
+						const uniqueProjectInfo = await generateUniqueProjectInfo(options.dir || baseName, CURR_DIR);
+
 						// Ensure initial value is prefixed with ./
-						const initialValue = options.dir || baseName;
+						const initialValue = uniqueProjectInfo.dirName;
 						const prefixedInitialValue = initialValue.startsWith('./') ? initialValue : `./${initialValue}`;
 
 						const projectPath = await text({
@@ -1527,9 +1530,7 @@ async function createProjectFromOptions(params: {
 
 	// Add information about documentation files
 	if (hasNextSteps) {
-		nextStepsLines.push(`\nSee \`README.md\` and \`INTEGRATIONS.md\` for more info.`);
-	} else {
-		nextStepsLines.push(`\nSee \`README.md\` for more info.`);
+		nextStepsLines.push(`\n${chalk.blue('See INTEGRATIONS.md on how to use them.')}`);
 	}
 
 	nextStepsLines.push('');
