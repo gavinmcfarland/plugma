@@ -4,7 +4,7 @@
 
 <div align="center">
 
-[![npm version](https://img.shields.io/npm/v/plugma/next.svg)](https://www.npmjs.com/package/plugma)
+[![npm version](https://img.shields.io/npm/v/plugma/latest.svg)](https://www.npmjs.com/package/plugma)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Discord](https://img.shields.io/discord/1369975781811425382?logo=discord&logoColor=white&label=discord)](https://discord.gg/RvHH4ZnKXS)
 
