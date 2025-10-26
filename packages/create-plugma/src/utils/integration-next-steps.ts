@@ -101,7 +101,7 @@ export async function writeIntegrationNextSteps(options: WriteIntegrationNextSte
 			.join('\n')
 			.replace(/\n{3,}/g, '\n\n')
 			.trim();
-		const integrationsContent = `# Integrations Next Steps\n\n${content}\n`;
+		const integrationsContent = `# Integrations\n\n${content}\n`;
 		await fs.promises.writeFile(outputPath, integrationsContent);
 		return true;
 	}
