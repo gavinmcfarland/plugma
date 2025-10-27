@@ -78,7 +78,8 @@
 		"uuid": "^11.1.0",
 		"vite-plugin-singlefile": "^2.3.0",
 		"vitest": "^4.0.0",
-		"ws": "^8.18.1"
+		"ws": "^8.18.1",
+        "jiti": "^2.6.1"
 	},
 	"devDependencies": {
 		"@antfu/ni": "^23.2.0",

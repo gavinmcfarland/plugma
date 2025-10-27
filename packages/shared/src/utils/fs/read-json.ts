@@ -2,7 +2,7 @@ import type { PlugmaPackageJson, UserPackageJson } from '../../core/types.js';
 import { promises as fsPromises } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createRequire } from 'node:module';
-import { loadConfigFromFile } from 'vite';
+import createJiti from 'jiti';
 
 /**
  * Reads and parses a JSON file asynchronously.
@@ -115,24 +115,28 @@ export async function readModule<T>(filePath: string, dontThrow = false): Promis
 		// Resolve to absolute path
 		const resolvedPath = resolve(filePath);
 
-		// Use Vite's config loader to handle TypeScript files
-		// This avoids dependency on jiti and leverages Vite's existing infrastructure
-		const result = await loadConfigFromFile({ command: 'build', mode: 'development' }, resolvedPath, process.cwd());
+		// Create a fresh jiti instance for each call to ensure no caching
+		// This is important when watching manifest.ts files for changes
+		const jitiLoader = createJiti(import.meta.url, {
+			interopDefault: true,
+			cache: false, // Disable cache completely
+		});
 
-		if (!result) {
-			throw new Error('Failed to load module');
+		// Clear any potential module cache for this file
+		// jiti may compile to .js files in node_modules/.cache, so we need to clear that too
+		try {
+			delete (jitiLoader as any).cache?.[resolvedPath];
+		} catch {
+			// Ignore cache clearing errors
 		}
 
-		// Vite's loadConfigFromFile wraps the config in a wrapper object
-		// We need to get the actual exported default value
-		const module = result.config as any;
-
-		// Check if the config has a default export
-		if (!module || typeof module !== 'object') {
+		// Load the module
+		const module = jitiLoader(resolvedPath);
+		if (!module.default || typeof module.default !== 'object') {
 			throw new Error('Invalid module format - must export a default object');
 		}
 
-		return module as T;
+		return module.default as T;
 	} catch (err) {
 		if (err instanceof Error) {
 			const msg = err.message || '';
