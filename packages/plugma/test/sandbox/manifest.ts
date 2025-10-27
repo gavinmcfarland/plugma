@@ -1,4 +1,4 @@
-import { defineManifest } from 'plugma/utils';
+import { defineManifest } from 'plugma';
 
 export default defineManifest(() => {
 	return {

@@ -172,7 +172,7 @@ async function launchPlugin(name: string, options: LaunchPluginOptions): Promise
 #### Example Usage
 
 ```typescript
-import { launchPlugin } from 'plugma/utils';
+import { launchPlugin } from 'plugma';
 
 launchPlugin('My Plugin, {
 	submenu: 'Create Rectangles',

@@ -1,4 +1,4 @@
-import { defineManifest } from 'plugma/utils'
+import { defineManifest } from 'plugma';
 
 export default defineManifest(() => {
 	return {
@@ -10,5 +10,5 @@ export default defineManifest(() => {
 		networkAccess: {
 			allowedDomains: ['none'],
 		},
-	}
-})
+	};
+});

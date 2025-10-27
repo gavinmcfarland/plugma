@@ -1,4 +1,4 @@
-import type { PluginManifest } from 'plugma/utils';
+import type { PluginManifest } from 'plugma';
 
 export default {
 	name: 'Test Plugin',

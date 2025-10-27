@@ -121,7 +121,7 @@ You can now manage your manifest in a TypeScript file.
 > This feature is still under development, so changes may not always trigger a plugin reload while it’s running.
 
 ```ts
-import { defineManifest } from 'plugma/utils';
+import { defineManifest } from 'plugma';
 
 export default defineManifest(() => {
     return {

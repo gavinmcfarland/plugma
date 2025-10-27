@@ -59,7 +59,7 @@ If no manifest is found in any of these locations in the project root, Plugma wi
 #### Example using `manifest.js`
 
 ```js
-import { defineManifest } from 'plugma/utils';
+import { defineManifest } from 'plugma';
 
 export default defineManifest(() => {
 	return {
@@ -83,7 +83,7 @@ Support for type-safe files is still a work in progress, so changes may not trig
 </blockquote>
 
 ```ts
-import { defineManifest } from 'plugma/utils';
+import { defineManifest } from 'plugma';
 
 export default defineManifest(() => {
 	return {
