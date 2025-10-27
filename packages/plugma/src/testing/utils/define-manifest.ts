@@ -1,11 +1,3 @@
-/**
- * Figma plugin manifest structure
- *
- * @see https://www.figma.com/plugin-docs/manifest/
- *
- * Note: @figma/plugin-typings does not include manifest type definitions,
- * so we maintain them here based on the official Figma documentation.
- */
 export interface Manifest {
 	name: string
 	id?: string
@@ -71,6 +63,10 @@ export interface CodegenPreference {
 	includedLanguages?: string[]
 }
 
+/**
+ * Figma plugin manifest structure
+ * @see https://www.figma.com/plugin-docs/manifest/
+ */
 export function defineManifest(config: Manifest | (() => Manifest)): Manifest {
 	if (typeof config === 'function') {
 		return config()
