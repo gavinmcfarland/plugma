@@ -126,7 +126,7 @@ export async function readModule<T>(filePath: string, dontThrow = false): Promis
 		// Vite's loadConfigFromFile wraps the config in a wrapper object
 		// We need to get the actual exported default value
 		const module = result.config as any;
-		
+
 		// Check if the config has a default export
 		if (!module || typeof module !== 'object') {
 			throw new Error('Invalid module format - must export a default object');

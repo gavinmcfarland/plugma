@@ -1,7 +1,8 @@
 import type { PlugmaPackageJson, UserPackageJson } from '../../core/types.js';
 import { promises as fsPromises } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { createRequire } from 'node:module';
+import { loadConfigFromFile } from 'vite';
 
 /**
  * Reads and parses a JSON file asynchronously.
@@ -111,29 +112,27 @@ export async function readUserPackageJson(cwd?: string): Promise<UserPackageJson
  */
 export async function readModule<T>(filePath: string, dontThrow = false): Promise<T | null> {
 	try {
-		const require = createRequire(import.meta.url);
-		let resolvedPath: string;
+		// Resolve to absolute path
+		const resolvedPath = resolve(filePath);
 
-		// Check if the path is absolute or relative
-		if (filePath.startsWith('/') || filePath.startsWith('./') || filePath.startsWith('../')) {
-			resolvedPath = require.resolve(filePath, { paths: [process.cwd()] });
-		} else {
-			resolvedPath = require.resolve(filePath);
+		// Use Vite's config loader to handle TypeScript files
+		// This avoids dependency on jiti and leverages Vite's existing infrastructure
+		const result = await loadConfigFromFile({ command: 'build', mode: 'development' }, resolvedPath, process.cwd());
+
+		if (!result) {
+			throw new Error('Failed to load module');
 		}
 
-		// Clear the cache for this specific module and ALL cached modules
-		// This is necessary because TypeScript files may have different resolved paths
-		// and we need to ensure we're getting the latest version
-		for (const key in require.cache) {
-			delete require.cache[key];
-		}
+		// Vite's loadConfigFromFile wraps the config in a wrapper object
+		// We need to get the actual exported default value
+		const module = result.config as any;
 
-		const module = require(resolvedPath);
-		if (!module.default || typeof module.default !== 'object') {
+		// Check if the config has a default export
+		if (!module || typeof module !== 'object') {
 			throw new Error('Invalid module format - must export a default object');
 		}
 
-		return module.default as T;
+		return module as T;
 	} catch (err) {
 		if (err instanceof Error) {
 			const msg = err.message || '';
