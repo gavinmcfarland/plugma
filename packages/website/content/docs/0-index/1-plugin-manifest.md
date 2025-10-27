@@ -56,26 +56,6 @@ If no manifest is found in any of these locations in the project root, Plugma wi
 }
 ```
 
-#### Example using `manifest.js`
-
-```js
-import { defineManifest } from 'plugma';
-
-export default defineManifest(() => {
-	return {
-		id: 'com.my-plugin',
-		name: 'My Plugin',
-		api: '1.0.0',
-		main: 'src/main.js',
-		ui: 'src/ui.js',
-		editorType: ['figma', 'figjam'],
-		networkAccess: {
-			allowedDomains: ['none']
-		}
-	};
-});
-```
-
 #### Example using `manifest.ts`
 
 <blockquote class="warning">
@@ -85,18 +65,16 @@ Support for type-safe files is still a work in progress, so changes may not trig
 ```ts
 import { defineManifest } from 'plugma';
 
-export default defineManifest(() => {
-	return {
-		id: 'com.my-plugin',
-		name: 'My Plugin',
-		api: '1.0.0',
-		main: 'src/main.ts',
-		ui: 'src/ui.ts',
-		editorType: ['figma', 'figjam'],
-		networkAccess: {
-			allowedDomains: ['none']
-		}
-	};
+export default defineManifest({
+	id: 'com.my-plugin',
+	name: 'My Plugin',
+	api: '1.0.0',
+	main: 'src/main/main.ts',
+	ui: 'src/ui/ui.tsx',
+	editorType: ['figma', 'figjam'],
+	networkAccess: {
+		allowedDomains: ['none']
+	}
 });
 ```
 
