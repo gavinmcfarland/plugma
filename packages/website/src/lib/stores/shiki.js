@@ -4,6 +4,7 @@ import { createHighlighterCoreSync } from 'shiki/core'
 import js from '@shikijs/langs/javascript';
 import bash from '@shikijs/langs/bash';
 import css from '@shikijs/langs/css';
+import json from '@shikijs/langs/json';
 import jsonc from '@shikijs/langs/jsonc';
 import html from '@shikijs/langs/html';
 import ts from '@shikijs/langs/typescript';
@@ -256,7 +257,7 @@ const highlighterSync = createHighlighterCoreSync({
 
 		],
 	}],
-	langs: [js, bash, css, jsonc, html, ts, md]
+	langs: [js, bash, css, json, jsonc, html, ts, md]
 })
 
 highlighter.set(highlighterSync);
