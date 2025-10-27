@@ -58,10 +58,6 @@ If no manifest is found in any of these locations in the project root, Plugma wi
 
 #### Example using `manifest.ts`
 
-<blockquote class="warning">
-Support for type-safe files is still a work in progress, so changes may not trigger a plugin reload while it's running.
-</blockquote>
-
 ```ts
 import { defineManifest } from 'plugma';
 
