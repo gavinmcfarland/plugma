@@ -63,8 +63,8 @@
 					Configure different bundling options for main and UI code using the <code
 						>context</code
 					>
-					option in your <code>vite.config.js</code>. Apply plugins conditionally based on
-					whether you're building the main thread or UI code.
+					option in your <code>vite.config.js</code>. Apply Vite plugins conditionally
+					based on whether you're building the main thread or UI code.
 				</p>
 			</div>
 

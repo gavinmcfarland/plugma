@@ -196,9 +196,8 @@ export default defineIntegration({
 	],
 
 	nextSteps: (answers) => `
-		1. UI directory located at: \`${answers.uiDir}\`
-		2. Add components using \`npx shadcn@latest add button\`
-		3. Import components from \`@/components/ui\`
-		4. Visit https://ui.shadcn.com/docs/components for available components
+		1. Add components using \`npx shadcn@latest add button\`
+		2. Import components from \`@/components/ui\`
+		3. Visit https://ui.shadcn.com/docs/components for available components
 	`,
 });
