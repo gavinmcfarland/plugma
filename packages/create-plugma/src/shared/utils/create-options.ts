@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid';
 import { getRandomPort } from './get-random-port.js';
 import { ManifestFile } from '../core/types.js';
 
@@ -170,7 +171,7 @@ export function createOptions<T extends keyof CommandOptions>(
 	// Ensure required fields are present in defaults
 	const requiredDefaults = {
 		...DEFAULT_OPTIONS,
-		instanceId: userOptions.instanceId || '',
+		instanceId: nanoid(),
 		cwd: process.cwd(),
 		...defaults,
 	} as unknown as CommandOptions[T];

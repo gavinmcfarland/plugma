@@ -121,13 +121,12 @@ export async function readModule<T>(filePath: string, dontThrow = false): Promis
 			resolvedPath = require.resolve(filePath);
 		}
 
-		delete require.cache[resolvedPath];
-
-		Object.keys(require.cache).forEach((key) => {
-			if (require.cache[key]?.children?.some((child) => child.id === resolvedPath)) {
-				delete require.cache[key];
-			}
-		});
+		// Clear the cache for this specific module and ALL cached modules
+		// This is necessary because TypeScript files may have different resolved paths
+		// and we need to ensure we're getting the latest version
+		for (const key in require.cache) {
+			delete require.cache[key];
+		}
 
 		const module = require(resolvedPath);
 		if (!module.default || typeof module.default !== 'object') {

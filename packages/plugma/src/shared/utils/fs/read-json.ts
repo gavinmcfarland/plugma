@@ -1,7 +1,8 @@
 import type { PlugmaPackageJson, UserPackageJson } from '../../core/types.js';
 import { promises as fsPromises } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { createRequire } from 'node:module';
+import createJiti from 'jiti';
 
 /**
  * Reads and parses a JSON file asynchronously.
@@ -111,25 +112,27 @@ export async function readUserPackageJson(cwd?: string): Promise<UserPackageJson
  */
 export async function readModule<T>(filePath: string, dontThrow = false): Promise<T | null> {
 	try {
-		const require = createRequire(import.meta.url);
-		let resolvedPath: string;
+		// Resolve to absolute path
+		const resolvedPath = resolve(filePath);
 
-		// Check if the path is absolute or relative
-		if (filePath.startsWith('/') || filePath.startsWith('./') || filePath.startsWith('../')) {
-			resolvedPath = require.resolve(filePath, { paths: [process.cwd()] });
-		} else {
-			resolvedPath = require.resolve(filePath);
-		}
-
-		delete require.cache[resolvedPath];
-
-		Object.keys(require.cache).forEach((key) => {
-			if (require.cache[key]?.children?.some((child) => child.id === resolvedPath)) {
-				delete require.cache[key];
-			}
+		// Create a fresh jiti instance for each call to ensure no caching
+		// This is important when watching manifest.ts files for changes
+		const jitiLoader = createJiti(import.meta.url, {
+			interopDefault: true,
+			cache: false, // Disable cache completely
+			esmResolve: true,
 		});
 
-		const module = require(resolvedPath);
+		// Clear any potential module cache for this file
+		// jiti may compile to .js files in node_modules/.cache, so we need to clear that too
+		try {
+			delete (jitiLoader as any).cache?.[resolvedPath];
+		} catch {
+			// Ignore cache clearing errors
+		}
+
+		// Load the module
+		const module = jitiLoader(resolvedPath);
 		if (!module.default || typeof module.default !== 'object') {
 			throw new Error('Invalid module format - must export a default object');
 		}

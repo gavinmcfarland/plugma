@@ -29,5 +29,8 @@
 		"type-fest": "^4.33.0",
 		"typescript": "^5.7.3",
 		"vite": "^6.4.0"
+	},
+	"dependencies": {
+		"jiti": "^2.6.1"
 	}
 }
