@@ -23,7 +23,7 @@ For full documentation see [plugma.dev](https://next.plugma.dev/).
 Create a new plugin or widget from a template.
 
 ```bash
-npm create plugma@next
+npm create plugma@latest
 ```
 
 Supported frameworks:
