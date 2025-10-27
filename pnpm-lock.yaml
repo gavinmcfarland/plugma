@@ -71,6 +71,9 @@ importers:
       dedent:
         specifier: ^1.5.3
         version: 1.5.3
+      jiti:
+        specifier: ^2.6.1
+        version: 2.6.1
       magic-string:
         specifier: ^0.30.17
         version: 0.30.19
@@ -117,6 +120,9 @@ importers:
       glob:
         specifier: ^11.0.1
         version: 11.0.2
+      jiti:
+        specifier: ^2.6.1
+        version: 2.6.1
       listr2:
         specifier: ^8.3.3
         version: 8.3.3

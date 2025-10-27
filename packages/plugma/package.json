@@ -1,6 +1,6 @@
 {
 	"name": "plugma",
-	"version": "2.2.0",
+	"version": "2.2.1",
 	"description": "",
 	"main": "index.js",
 	"type": "module",
@@ -70,6 +70,7 @@
 		"debug": "^4.4.0",
 		"dotenv": "^16.5.0",
 		"glob": "^11.0.1",
+		"jiti": "^2.6.1",
 		"listr2": "^8.3.3",
 		"nanoid": "^5.1.5",
 		"socket.io": "^4.8.1",
@@ -78,8 +79,7 @@
 		"uuid": "^11.1.0",
 		"vite-plugin-singlefile": "^2.3.0",
 		"vitest": "^4.0.0",
-		"ws": "^8.18.1",
-        "jiti": "^2.6.1"
+		"ws": "^8.18.1"
 	},
 	"devDependencies": {
 		"@antfu/ni": "^23.2.0",
