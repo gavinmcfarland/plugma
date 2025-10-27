@@ -5,7 +5,7 @@ Plugma makes it easy to add integrations with other libraries and frameworks. Wi
 ## Usage
 
 ```package-manager
-npm create plugma add
+npm create plugma@latest add
 ```
 
 Running the command without specifying an integration will show you a list of available options to choose from.

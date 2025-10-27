@@ -1,6 +1,6 @@
 # Migrating from V1 to V2
 
-Plugma v2 fixes bugs and introduces a new add-on feature.
+Plugma v2 brings major improvements including separated Vite configurations for main and UI contexts, first-class testing support with Vitest and Playwright, easy integration of tools via the `add` command, widget support, and production-like behavior in development.
 
 ## Breaking changes
 
@@ -79,7 +79,7 @@ Then reference it at the top of your `vite.config.ts` file.
 
 This only applies if you were referencing envariables inside you main code using `process.env`.
 
-All environment variables used by Plugma must be prefixed with `VITE_` and referenced using the `import.meta.env` object. This is because variables prefixed with `VITE_` are exposed to the client which can be discovered by inspecting the bundled source code where the plugin runs inside Figma, even if used only in the main thread.
+All environment variables used by Plugma must be prefixed with `VITE_` and referenced using the `import.meta.env` object. The `VITE_` prefix is required to explicitly mark these variables as exposed to the client. This applies to both main thread code and UI code, because even though main thread code doesn't render in the UI, it still runs in the client context where the bundled code is exposed and can be inspected.
 
 #### Example changes required
 

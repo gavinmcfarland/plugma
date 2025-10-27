@@ -128,9 +128,9 @@
 					><Icon svg="package" size={24} opacity={1} />One-Click Integrations</span
 				>
 				<p class="m-0">
-					Add powerful tools instantly with <code>plugma add</code>. Choose from Tailwind
-					CSS, Shadcn UI, Prettier, ESLint, Vitest, and Playwright. Each integration comes
-					with pre-configured setup and example code.
+					Add powerful tools instantly using the CLI. Choose from Tailwind CSS, Shadcn UI,
+					Prettier, ESLint, Vitest, and Playwright. Each integration comes with
+					pre-configured setup and example code.
 				</p>
 			</div>
 		</div>
