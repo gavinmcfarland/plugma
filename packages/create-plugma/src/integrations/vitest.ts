@@ -4,7 +4,7 @@ import { defineIntegration } from './define-integration.js';
 // TODO: Update tsconfig.json to include tests
 
 const dependencies = {
-	vitest: 'latest',
+	vitest: '^4.0.0',
 };
 
 export default defineIntegration({
