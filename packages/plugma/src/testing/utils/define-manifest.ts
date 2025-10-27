@@ -1,4 +1,4 @@
-interface Manifest {
+export interface Manifest {
 	name: string
 	id?: string
 	api: string
@@ -20,13 +20,13 @@ interface Manifest {
 	codegenPreferences?: CodegenPreference[]
 }
 
-interface NetworkAccess {
+export interface NetworkAccess {
 	allowedDomains: string[]
 	reasoning?: string
 	devAllowedDomains?: string[]
 }
 
-interface Parameter {
+export interface Parameter {
 	name: string
 	key: string
 	description?: string
@@ -34,25 +34,25 @@ interface Parameter {
 	optional?: boolean
 }
 
-type ManifestMenuItem =
+export type ManifestMenuItem =
 	| { name: string; command: string; parameters?: Parameter[]; parameterOnly?: boolean }
 	| { separator: true }
 	| { name: string; menu: ManifestMenuItem[] }
 
-interface ManifestRelaunchButton {
+export interface ManifestRelaunchButton {
 	command: string
 	name: string
 	multipleSelection?: boolean
 }
 
-type PluginPermissionType = 'currentuser' | 'activeusers' | 'fileusers' | 'payments' | 'teamlibrary'
+export type PluginPermissionType = 'currentuser' | 'activeusers' | 'fileusers' | 'payments' | 'teamlibrary'
 
-interface CodeLanguage {
+export interface CodeLanguage {
 	label: string
 	value: string
 }
 
-interface CodegenPreference {
+export interface CodegenPreference {
 	itemType: 'unit' | 'select' | 'action'
 	propertyName: string
 	label: string
@@ -69,3 +69,6 @@ export function defineManifest(config: Manifest | (() => Manifest)): Manifest {
 	}
 	return config
 }
+
+// Type alias for backward compatibility and cleaner type usage
+export type PluginManifest = Manifest
