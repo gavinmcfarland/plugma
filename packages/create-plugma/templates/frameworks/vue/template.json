@@ -5,7 +5,8 @@
                 "name": "vue",
                 "import": "@vitejs/plugin-vue"
             }
-        ]
+        ],
+        "frameworkUrl": "https://vuejs.org/"
     }
 }
 

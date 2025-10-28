@@ -5,7 +5,8 @@
                 "name": ["svelte"],
                 "import": "@sveltejs/vite-plugin-svelte"
             }
-        ]
+        ],
+        "frameworkUrl": "https://svelte.dev/"
     }
 }
 

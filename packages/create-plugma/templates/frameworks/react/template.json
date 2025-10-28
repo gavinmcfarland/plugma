@@ -5,6 +5,7 @@
                 "name": "react",
                 "import": "@vitejs/plugin-react"
             }
-        ]
+        ],
+        "frameworkUrl": "https://react.dev/"
     }
 }
