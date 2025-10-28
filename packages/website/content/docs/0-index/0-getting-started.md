@@ -1,52 +1,64 @@
 # Getting started
 
-Plugma is a powerful toolkit designed to streamline your development workflow. It makes it easier to create, build, and test your plugins and widgets.
+Plugma is a powerful toolkit that streamlines your Figma plugin and widget development workflow. It makes it easy to create, build, and test your projects.
 
-<!-- ## Prerequisites
+## Start from a Template
 
-Before you start, ensure you have [Node.js](https://nodejs.org/en) and the [Figma desktop app](https://www.figma.com/downloads/) installed. These tools are essential for developing plugins. -->
-
-## Start From a Template
-
-To create a plugin or widget from a template, run the following command in your terminal and follow the prompts.
+To create a new plugin or widget from a template, run the following command in your terminal and follow the prompts:
 
 ```package-manager
 npm create plugma@latest
 ```
 
-### Installing Plugma
+The CLI wizard will guide you through setup; asking whether you want to create a plugin or widget, and optionally choose a framework if your project includes a UI.
 
-Change to the directory and install the dependencies.
+## Build and Import
+
+Navigate to your new project folder and install dependencies:
 
 ```package-manager
 cd my-plugin
 npm install
 ```
 
-Run the following to watch for changes while developing.
-
-```package-manager
-npm run dev
-```
-
-## Importing the plugin in Figma
-
-After you've run the `dev`, `build` or `preview` command, a `dist` directory will be created where you can import the plugin from the `manifest.json` file.
-
-1. Open a file in Figma in the desktop app.
-2. Search for "Import plugin (or widget) from manifest..." using the [Actions](https://help.figma.com/hc/en-us/articles/23570416033943-Use-the-actions-menu-in-Figma-Design) menu (`Cmd + /`).
-3. Choose the `manifest.json` file from the `dist` folder.
-
-Go to the Actions menu, search for your plugin or widget, and select it. Your code changes will update instantly in the UI.
-
-## Before publishing
-
-Before publishing your plugin or widget, make sure to create a build. If not, it will still point to the dev server and won't work properly for users.
+Then build your plugin files into the **`dist/`** folder:
 
 ```package-manager
 npm run build
 ```
 
-## Migrating an existing plugin
+Once built, import your plugin into Figma:
 
-If you already have a Figma plugin or widget, you can follow our [migration guide](./migrating-an-existing-plugin) to convert it to use Plugma.
+1. Open a file in the Figma desktop app.
+2. Press `Cmd/Ctrl + K` to open the [Actions](https://help.figma.com/hc/en-us/articles/23570416033943-Use-the-actions-menu-in-Figma-Design) menu.
+3. Search for **“Import plugin (or widget) from manifest…”**
+4. Select **`dist/manifest.json`** (not the one in the project root).
+
+After importing, open the Actions menu again, search for your plugin or widget to run it.
+
+## Developing
+
+Run the dev server to watch for changes and rebuild automatically.
+
+```package-manager
+npm run dev
+```
+
+While the dev server is running:
+
+- Files are automatically recompiled into **`dist/`** on save.
+- The plugin UI hot-reloads instantly.
+- Edits to **`./manifest.json`** sync to **`dist/manifest.json`**.
+- A browser preview is available from the link shown in the terminal (plugin UI must be open in Figma).
+
+## Before Publishing
+
+Before publishing your plugin or widget, run a production build to ensure it no longer points to the dev server:
+
+```package-manager
+npm run build
+```
+
+## Migrating an Existing Plugin
+
+Already have a Figma plugin or widget? Follow the [migration guide](./migrating-an-existing-plugin) to use it with Plugma.
