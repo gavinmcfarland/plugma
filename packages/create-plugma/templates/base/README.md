@@ -8,46 +8,42 @@ This <%- type %> was created with [Plugma](https://github.com/gavinmcfarland/plu
 
 ### Requirements
 
-- [Node.js](https://nodejs.org/en)
-- [Figma desktop app](https://www.figma.com/downloads/)
+* [Node.js](https://nodejs.org/en)
+* [Figma desktop app](https://www.figma.com/downloads/)
 
-### Build and Import
+### Develop and Import
 
-1. Install the dependencies and build the <%- type %> to `dist/`:
+1. Install dependencies and start the dev server:
 
-    ```bash
-    <%- installCommand || 'npm install' %>
-    <%- buildCommand || 'npm run build' %>
-    ```
+   ```bash
+   <%- installCommand || 'npm install' %>
+   <%- devCommand || 'npm run dev' %>
+   ```
 
-2. Open the Figma desktop app and import the built <%- type %>:
+   Changes are automatically rebuilt to `dist/` on save.
 
-    - Open a file in Figma.
-    - Press `Cmd/Ctrl + K` to open the [Actions](https://help.figma.com/hc/en-us/articles/23570416033943-Use-the-actions-menu-in-Figma-Design) menu.
-    - Search for _"Import <%- type %> from manifest..."_
-    - Select `dist/manifest.json` (not the root one).
+2. In the Figma desktop app:
 
-To update <%- type %> details, edit `./manifest.json` in the project root.
+   * Open a file.
+   * Press `Cmd/Ctrl + K` to open the [Actions menu](https://help.figma.com/hc/en-us/articles/23570416033943-Use-the-actions-menu-in-Figma-Design).
+   * Search for **“Import <%- type %> from manifest…”**
+   * Select `dist/manifest.json`.
 
-### Developing
+After importing, open the Actions menu again to find and run your <%- type %>.
+Keep the dev server running for instant reloads while testing in Figma.
 
-Run the dev server to watch for changes and rebuild automatically.
-
-```bash
-pnpm dev
-```
-
-While the dev server is running:
-
-- Files are recompiled into `dist/` on save.
-- The plugin UI hot-reloads instantly.
-- Edits to `./manifest.json` sync to the generated `dist/manifest.json`.
-- A browser preview is available from the link shown in the terminal (plugin UI must be open in Figma).
-
+Edit `./manifest.json` in the project root to update your <%- type %> details.
 
 ### Before Publishing
 
-Before publishing your plugin from the desktop app, run a production build to ensure it no longer points to the dev server.
+When your <%- type %> is ready to publish, create a production build.
+This optimizes and minifies your code, and ensures the output no longer points to the dev server.
+
+```bash
+<%- buildCommand || 'npm run build' %>
+```
+
+The build in `dist/` is now ready to upload via the Figma desktop app.
 
 ### Integrations
 
@@ -62,6 +58,7 @@ npm create plugma@latest add
 See the [Plugma docs](https://plugma.dev/docs) for more information.
 
 <% if (attribution) { %>
+
 
 ### Attribution
 
