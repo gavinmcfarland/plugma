@@ -11,36 +11,47 @@ This <%- type %> was created with [Plugma](https://github.com/gavinmcfarland/plu
 - [Node.js](https://nodejs.org/en)
 - [Figma desktop app](https://www.figma.com/downloads/)
 
-### Install and Import
+### Build and Import
 
-1. Install the dependencies and watch for changes while developing:
+1. Install the dependencies and build the <%- type %> to `dist/`:
 
     ```bash
     <%- installCommand || 'npm install' %>
-    <%- devCommand || 'npm run dev' %>
+    <%- buildCommand || 'npm run build' %>
     ```
 
-2. Open the Figma desktop app and import the plugin:
+2. Open the Figma desktop app and import the built <%- type %>:
 
     - Open a file in Figma.
-    - Search for "Import plugin from manifest..." using the [Actions](https://help.figma.com/hc/en-us/articles/360040328653-Use-shortcuts-and-quick-actions#Use_quick_actions) menu `Cmd/Ctrl + /`.
-    - Choose the `manifest.json` file from the `dist` folder.
+    - Press `Cmd/Ctrl + K` to open the [Actions](https://help.figma.com/hc/en-us/articles/23570416033943-Use-the-actions-menu-in-Figma-Design) menu.
+    - Search for _"Import <%- type %> from manifest..."_
+    - Select `dist/manifest.json` (not the root one).
 
-3. Manage `manifest` details from inside `./manifest.json`.
+To update <%- type %> details, edit `./manifest.json` in the project root.
+
+### Developing
+
+Run the dev server to watch for changes and rebuild automatically.
+
+```bash
+pnpm dev
+```
+
+While the dev server is running:
+
+- Files are recompiled into `dist/` on save.
+- The plugin UI hot-reloads instantly.
+- Edits to `./manifest.json` sync to the generated `dist/manifest.json`.
+- A browser preview is available from the link shown in the terminal (plugin UI must be open in Figma).
+
 
 ### Before Publishing
 
-Before publishing your plugin, make sure to create a build. If not, it will still point to the dev server and won't work properly for users.
-
-```bash
-<%- buildCommand || 'npm run build' %>
-```
-
-Now you can publish the plugin from the Figma desktop app.
+Before publishing your plugin from the desktop app, run a production build to ensure it no longer points to the dev server.
 
 ### Integrations
 
-You can add integrations by running the following command. Integrations extend your <%- type %> with tools and frameworks commonly used in modern development.
+Add integrations to extend your <%- type %> with common tools and frameworks.
 
 ```bash
 npm create plugma@latest add
@@ -48,7 +59,7 @@ npm create plugma@latest add
 
 ### Advanced
 
-See the [Plugma docs](https://plugma.dev/docs) for further information.
+See the [Plugma docs](https://plugma.dev/docs) for more information.
 
 <% if (attribution) { %>
 
