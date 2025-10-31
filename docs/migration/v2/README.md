@@ -166,22 +166,20 @@ export default defineManifest({
 
 ### Custom `index.html` Entry Point
 
-- Add support for custom `index.html` template
+By default, Plugma uses its own index template for the UI process. However, you can use your own template by adding an `index.html` file to the root of your project.
 
-    By default, Plugma uses its own index template for the UI process. However, you can use your own template by adding an `index.html` file to the root of your project.
+Just make sure to include the <!--[ PLUGIN_UI ]--> placeholder where the Plugma generated UI code will be injected.
 
-    Just make sure to include the <!--[ PLUGIN_UI ]--> placeholder where the Plugma generated UI code will be injected.
+**Example**
 
-    **Example**
-
-    ```html
-    <html>
-        <head>
-            <title><!--[ PLUGIN_NAME ]--></title>
-        </head>
-        <body>
-            <div id="app"></div>
-            <!--[ PLUGIN_UI ]-->
-        </body>
-    </html>
-    ```
+```html
+<html>
+    <head>
+        <title><!--[ PLUGIN_NAME ]--></title>
+    </head>
+    <body>
+        <div id="app"></div>
+        <!--[ PLUGIN_UI ]-->
+    </body>
+</html>
+```
