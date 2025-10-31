@@ -107,8 +107,7 @@ In Plugma V1, some events, like drop events—didn't work the same in developmen
 
 These changes only affect users who were using specific features in v1. If you weren't using these features, you can skip this section.
 
-- WebSocket support is now enabled by default. If you were using the `-w, --websockets` flag, you can remove it as it's no longer needed. If you need to disable WebSocket support, you can use the new `--no-websockets` flag.
-- The `preview` command has been deprecated. If you were using this command, you should now use `dev --dock-plugin` instead.
+- WebSocket support is now enabled by default. If you were using the `-ws, --websockets` flag, you can remove it as it's no longer needed. If you need to disable WebSocket support, you can use the new `--no-websockets` flag.
     
 ## Other Notable Updates
 
