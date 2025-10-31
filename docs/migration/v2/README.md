@@ -1,13 +1,13 @@
 # Migrating from V1 to V2
 
-Plugma v2 brings major improvements including separated Vite configurations for main and UI contexts, first-class testing support with Vitest and Playwright, easy integration of tools via the `add` command, widget support, and production-like behavior in development.
+Plugma v2 brings major improvements, including separated Vite configurations for main and UI contexts, first-class testing support with Vitest and Playwright, easy integration of tools via the `add` command, widget support, and production-like behaviour in development.
 
 ## Breaking changes
 
-- `process.env` is not longer support by default. See [Referncing Env Variables](#referencing-env-variables)
+- `process.env` is no longer supported by default. See [Referencing Env Variables](#referencing-env-variables)
 - `-ws, --websockets` is no longer supported. See [Command Line Changes](#command-line-changes)
 - iframe origin is now `null` during development [Iframe Origin](#iframe-origin)
-- window events behaivour now matches production [Window Events Behaivour](#window-events-behaivour)
+- window events behaviour now matches production [Window Events Behaviour](#window-events-behaivour)
 
 ## Required Changes
 
@@ -31,7 +31,7 @@ Remove Plugma specific `devAllowedDomains`. These are now added automatically.
 
 ### Update your `vite.config` file
 
-You should now define what config vite uses for the `main` and the `ui` context. You can do this using the `context` parameter.
+You should now define what config Vite uses for the `main` and the `ui` context. You can do this using the `context` parameter.
 
 ```diff
 export default defineConfig(({ context }) => {
@@ -51,7 +51,7 @@ Alternatively you can create seperate files for the `main` and `ui` context, nam
 
 ### Adding Support for `env` Types (recommended)
 
-If you're using TypeScript you can add a reference for the new context paramater type definition at the top of the file by adding the following `vite-env.d.ts` to the `src` directory of your plugin.
+If you're using TypeScript, you can add a reference for the new context parameter type definition at the top of the file by adding the following `vite-env.d.ts` to the `src` directory of your plugin.
 
 ```ts
 /// <reference types="vite/client" />
@@ -77,9 +77,9 @@ Then reference it at the top of your `vite.config.ts` file.
 
 ### Referencing Env variables
 
-This only applies if you were referencing envariables inside you main code using `process.env`.
+This applies only if you were referencing environment variables in your main code using `process.env`.
 
-All environment variables used by Plugma must be prefixed with `VITE_` and referenced using the `import.meta.env` object. The `VITE_` prefix is required to explicitly mark these variables as exposed to the client. This applies to both main thread code and UI code, because even though main thread code doesn't render in the UI, it still runs in the client context where the bundled code is exposed and can be inspected.
+All environment variables used by Plugma must be prefixed with `VITE_` and referenced using the `import.meta.env` object. The `VITE_` prefix is required to mark these variables as exposed to the client explicitly. This applies to both main-thread and UI code, because even though main-thread code doesn't render in the UI, it still runs in the client context where the bundled code is exposed and can be inspected.
 
 #### Example changes required
 
@@ -109,40 +109,67 @@ These changes only affect users who were using specific features in v1. If you w
 
 - WebSocket support is now enabled by default. If you were using the `-w, --websockets` flag, you can remove it as it's no longer needed. If you need to disable WebSocket support, you can use the new `--no-websockets` flag.
 - The `preview` command has been deprecated. If you were using this command, you should now use `dev --dock-plugin` instead.
+    
+## Other Notable Updates
 
-## Optional Changes
+## New CLI Wizard
 
-These changes are completely optional and can be implemented if you want to take advantage of new features.
+The `create-plugma` cli has been completely revamped to support the following:
+
+- You can now create widgets
+- Brand new CLI that's more intuitive and guides you through the process
+- A new and recommended file organisation for plugins and widgets
+- Ability to add integrations
+- Option to install dependencies with your preferred package manager
+
+```bash
+npm create plugma@latest
+```
+
+### Add Integrations
+
+You can now integrate new third-party libraries and tools using the following:
+
+```bash
+npm create plugma@latest add
+```
+
+These include:
+
+- Prettier
+- Tailwind
+- ESlint
+- Shadcn
+- Vitest (experimental)
+- Playwright (experimental)
+
+Each integration will automatically scaffold the necessary files and configuration, sparing you the manual setup.
 
 ### Type-safe manifest file
 
 You can now manage your manifest in a TypeScript file.
 
-> This feature is still under development, so changes may not always trigger a plugin reload while it’s running.
-
 ```ts
 import { defineManifest } from 'plugma';
 
-export default defineManifest(() => {
-    return {
-        id: 'com.my-plugin',
-        name: 'My Plugin',
-        api: '1.0.0',
-        main: 'src/main.ts',
-        ui: 'src/ui.ts',
-        editorType: ['figma', 'figjam'],
-        networkAccess: {
-            allowedDomains: ['none'],
-        },
-    };
-});
+export default defineManifest({
+    id: 'com.my-plugin',
+    name: 'My Plugin',
+    api: '1.0.0',
+    main: 'src/main.ts',
+    ui: 'src/ui.ts',
+    editorType: ['figma', 'figjam'],
+    networkAccess: {
+        allowedDomains: ['none'],
+    }
+);
 ```
 
 ### Custom `index.html` Entry Point
 
 - Add support for custom `index.html` template
 
-    By default Plugma uses it's own index template for the UI process. However you can use your own template by adding a `index.html` file to the root of your project.
+    By default, Plugma uses its own index template for the UI process. However, you can use your own template by adding an `index.html` file to the root of your project.
 
     Just make sure to include the <!--[ PLUGIN_UI ]--> placeholder where the Plugma generated UI code will be injected.
 
@@ -159,22 +186,3 @@ export default defineManifest(() => {
         </body>
     </html>
     ```
-
-### New Intergrations
-
-You can now integrate new third party libraries and tools using the following:
-
-```bash
-npm create plugma@next add
-```
-
-These include:
-
-- Prettier
-- Tailwind
-- ESlint
-- Shadcn
-- Vitest (experimental)
-- Playwright (experimental)
-
-Each integration will automatically scaffold the necessary files and configuration, sparing you the manual setup.
