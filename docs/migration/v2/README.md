@@ -137,7 +137,7 @@ These include:
 
 - Prettier
 - Tailwind
-- ESlint
+- ESLint
 - Shadcn
 - Vitest (experimental)
 - Playwright (experimental)
