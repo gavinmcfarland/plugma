@@ -1,0 +1,10 @@
+{
+	"documentAccess": "dynamic-page",
+	"api": "1.0.0",
+	"networkAccess": { "allowedDomains": ["none"] },
+	"id": "com.Sandbox",
+	"name": "Sandbox",
+	"main": "src/main/main.ts",
+	"ui": "src/ui/ui.tsx",
+	"editorType": ["figma", "figjam"]
+}
