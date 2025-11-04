@@ -1,13 +1,13 @@
 /// <reference types="vite/client" />
 
-interface ImportMetaEnv {
-	readonly VITE_APP_TITLE: string
-	readonly PROD: boolean
-	readonly DEV: boolean
-	readonly MODE: string
-	// more env variables...
-}
+import 'vite';
+import type { UserConfigExport } from 'vite';
 
-interface ImportMeta {
-	readonly env: ImportMetaEnv
+declare module 'vite' {
+	interface ConfigEnv {
+		context?: 'ui' | 'main';
+	}
+
+	// Overload defineConfig to acknowledge the context parameter
+	function defineConfig(config: (env: ConfigEnv) => UserConfigExport): UserConfigExport;
 }

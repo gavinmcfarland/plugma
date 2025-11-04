@@ -1,7 +1,9 @@
 // Read the docs https://plugma.dev/docs
+import { showUI } from './cfp/showUI.js';
 
 export default function () {
-	figma.showUI(__html__, { width: 300, height: 260, themeColors: true });
+	showUI({ width: 300, height: 260, themeColors: true }, {});
+	// figma.showUI(__html__, { width: 300, height: 260, themeColors: true });
 
 	figma.ui.onmessage = (message) => {
 		if (message.type === 'CREATE_RECTANGLES') {

@@ -23,8 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 
-# Playwright
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+vite.config.ui.js.timestamp-*
+vite.config.ui.ts.timestamp-*
+vite.config.main.js.timestamp-*
+vite.config.main.ts.timestamp-*

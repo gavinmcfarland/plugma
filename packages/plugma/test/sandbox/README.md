@@ -1,84 +1,57 @@
-# plugma-sandbox
+# Sandbox
+
+A simple Figma plugin that demonstrates how to send messages between the plugin’s UI and the main thread, using a basic rectangle creation example.
 
 ## Quickstart
 
-This plugin was created with [Plugma](https://github.com/gavinmcfarland/plugma) using the [Svelte](https://svelte.dev/) framework.
+This plugin was created with [Plugma](https://github.com/gavinmcfarland/plugma) using the [React](https://react.dev/) framework.
 
 ### Requirements
 
 - [Node.js](https://nodejs.org/en)
 - [Figma desktop app](https://www.figma.com/downloads/)
 
-### Install and Import
+### Develop and Import
 
-1. Install the dependencies and watch for changes while developing:
+1. Install dependencies and start the dev server:
 
-    ```bash
-    pnpm install
-    pnpm dev
-    ```
+   ```bash
+   npm install
+   npm run dev
+   ```
 
-2. Open the Figma desktop app and import the plugin:
+   Changes are automatically rebuilt to `dist/` on save.
 
-    - Open a file in Figma.
-    - Search for "Import plugin from manifest..." using the [Quick Actions](https://help.figma.com/hc/en-us/articles/360040328653-Use-shortcuts-and-quick-actions#Use_quick_actions) bar.
-    - Choose the `manifest.json` file from the `dist` folder.
+2. In the Figma desktop app:
+   - Open a file.
+   - Press `Cmd/Ctrl + K` to open the [Actions menu](https://help.figma.com/hc/en-us/articles/23570416033943-Use-the-actions-menu-in-Figma-Design).
+   - Search for **“Import plugin from manifest…”**
+   - Select `dist/manifest.json`.
 
-3. Manage `manifest` details from inside `package.json`.
+After importing, open the Actions menu again to find and run your plugin.
+Keep the dev server running for instant reloads while testing in Figma.
 
-### Developing
+Edit `./manifest.json` in the project root to update your plugin details.
 
-To develop Plugma locally while using the sandbox plugin.
+### Before Publishing
 
-1. Run the following command:
+When your plugin is ready to publish, create a production build.
+This optimizes and minifies your code, and ensures the output no longer points to the dev server.
 
-    ```bash
-    pnpm dev:plugma
-    ```
+```bash
+npm run build
+```
 
-2. And then in another terminal run:
+The build in `dist/` is now ready to upload via the Figma desktop app.
 
-    ```bash
-    pnpm dev
-    ```
+### Integrations
 
-### Browser Preview
+Add integrations to extend your plugin with common tools and frameworks.
 
-To preview your plugin in the browser during development.
-
-1. Open plugin in the Figma desktop app.
-2. Run the following command.
-
-    ```bash
-    pnpm preview
-    ```
-
-### Vitest
-
-1. Open plugin in the Figma desktop app.
-2. Run the following command.
-
-    ```bash
-    pnpm dev
-    pnpm vitest
-    ```
-
-3. With Vitest's UI
-
-    ```bash
-    pnpm dev
-    pnpm vitest --ui
-    ```
-
-### Playwright
-
-1. Open plugin in the Figma desktop app.
-2. Run the following command.
-
-    ```bash
-    pnpm playwright
-    ```
+```bash
+npm create plugma@latest add
+```
 
 ### Advanced
 
-See the [Plugma docs](https://plugma.dev/docs) for further information.
+See the [Plugma docs](https://plugma.dev/docs) for more information.
