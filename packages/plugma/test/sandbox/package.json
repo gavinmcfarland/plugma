@@ -6,7 +6,9 @@
     "build": "plugma build",
     "release": "plugma release",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "vitest": "npx vitest",
+    "playwright": "npx playwright test"
   },
   "devDependencies": {
     "vite": "^7.0.0",
@@ -22,6 +24,8 @@
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "prettier": "latest"
+    "prettier": "latest",
+    "vitest": "^4.0.0",
+    "@playwright/test": "latest"
   }
 }

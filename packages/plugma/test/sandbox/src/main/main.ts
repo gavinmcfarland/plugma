@@ -2,8 +2,7 @@
 import { showUI } from './cfp/showUI.js';
 
 export default function () {
-	showUI({ width: 300, height: 260, themeColors: true }, {});
-	// figma.showUI(__html__, { width: 300, height: 260, themeColors: true });
+	figma.showUI(__html__, { width: 300, height: 260, themeColors: true });
 
 	figma.ui.onmessage = (message) => {
 		if (message.type === 'CREATE_RECTANGLES') {
