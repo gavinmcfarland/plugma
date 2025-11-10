@@ -102,9 +102,10 @@ export async function add(options: AddCommandOptions): Promise<void> {
 			// Prompt for dependency installation
 			const detectedPM = await detect({ cwd: process.cwd() });
 			const preferredPM = detectedPM?.agent || 'npm';
+			const skipInstallPrompt = preSelectedInstall !== undefined || Boolean(options.install);
 
 			const { packageManager } = await promptAndInstallDependencies({
-				skipInstallPrompt: preSelectedInstall !== undefined || Boolean(options.install), // Skip prompt if flags are used
+				skipInstallPrompt, // Skip prompt if flags are used
 				installDependencies: preSelectedInstall === undefined ? false : preSelectedInstall, // Don't auto-install unless flags are used
 				selectedPackageManager:
 					preSelectedInstall !== false
@@ -115,6 +116,7 @@ export async function add(options: AddCommandOptions): Promise<void> {
 								: null
 						: null, // Use specified package manager or detected one when --install is used without package manager
 				preferredPM,
+				initialValue: skipInstallPrompt ? undefined : preferredPM, // Preselect detected package manager when showing prompt
 				verbose: options.verbose,
 				projectPath: process.cwd(),
 			});

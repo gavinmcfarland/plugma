@@ -145,18 +145,14 @@ export function createOptions<T extends keyof CommandOptions>(
 		delete userOptions.install;
 	}
 
-	// Handle --install <pkg-manager> flag
-	if ('install' in userOptions && typeof userOptions.install === 'string') {
-		// Keep the install option as is - it contains the package manager name
-		// Don't delete it, we need it for the create logic
-	}
+	// Handle --install <pkg-manager> flag (string value)
+	// Keep the install option as is - it contains the package manager name
+	// Don't delete it, we need it for the create logic
 
 	// Handle --install flag without package manager (Commander.js converts to install: true)
-	// We need to preserve this information to use detected package manager
-	if ('install' in userOptions && userOptions.install === true) {
-		// Keep the install: true to indicate --install was used without package manager
-		// This will be handled in the create logic to use detected package manager
-	}
+	// Note: The fix for Commander.js incorrectly setting install: true is now handled
+	// in parse-add-args.ts by checking process.argv. So if install: true is here,
+	// it means --install was actually passed.
 
 	const newOptions = new Options(userOptions, requiredDefaults) as CommandOptions[T] & OptionsWithMeta;
 

@@ -349,8 +349,11 @@ export async function promptAndInstallDependencies(
 			...availableOptions.filter((opt) => opt.available),
 		];
 
+		// Determine initial value: use provided initialValue if it's available, otherwise try to find defaultPM in available options
 		const promptInitialValue =
-			initialValue || packageManagerOptions.find((opt) => opt.value === defaultPM)?.value || 'npm';
+			(initialValue && packageManagerOptions.find((opt) => opt.value === initialValue)?.value) ||
+			packageManagerOptions.find((opt) => opt.value === defaultPM)?.value ||
+			'npm';
 
 		packageManager = await radio({
 			label: 'Install dependencies?',
