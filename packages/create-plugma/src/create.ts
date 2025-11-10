@@ -871,7 +871,17 @@ async function browseAndSelectTemplate(
 						// Auto-generate project path in yes mode
 						const baseName = options.dir || generateDefaultProjectName(type, selectedTemplateName);
 						if (options.dir) {
-							projectInfo = createProjectInfo(options.dir, CURR_DIR);
+							// Normalize the path to handle cases like './' or '.'
+							const normalizedDir = path.resolve(options.dir);
+							const isCurrentDirectory = normalizedDir === CURR_DIR;
+							if (isCurrentDirectory) {
+								// When creating in current directory, use current directory name as project name
+								const projectName = path.basename(CURR_DIR);
+								const parentDir = path.dirname(CURR_DIR);
+								projectInfo = createProjectInfo(projectName, parentDir);
+							} else {
+								projectInfo = createProjectInfo(options.dir, CURR_DIR);
+							}
 						} else {
 							projectInfo = await generateUniqueProjectInfo(
 								generateDefaultProjectName(type, selectedTemplateName),
@@ -879,19 +889,11 @@ async function browseAndSelectTemplate(
 						}
 					} else {
 						// Prompt for project path in normal mode
-						const baseName = generateDefaultProjectName(type, selectedTemplateName);
-
-						// Generate unique project name to check if directory exists (same logic as --yes mode)
-						const uniqueProjectInfo = await generateUniqueProjectInfo(options.dir || baseName, CURR_DIR);
-
-						// Ensure initial value is prefixed with ./
-						const initialValue = uniqueProjectInfo.dirName;
-						const prefixedInitialValue = initialValue.startsWith('./') ? initialValue : `./${initialValue}`;
-
+						// Default to current directory
 						const projectPath = await text({
 							label: `Where would you like the ${type} to be created?`,
 							shortLabel: 'Dir',
-							initialValue: prefixedInitialValue,
+							initialValue: './',
 							onValidate: async (value) => {
 								if (!value || value.trim() === '') {
 									return 'Project path is required';
@@ -908,33 +910,63 @@ async function browseAndSelectTemplate(
 								}
 
 								const normalizedPath = path.resolve(normalizedValue);
+								const isCurrentDirectory = normalizedPath === CURR_DIR;
 								const projectName = path.basename(normalizedPath);
 								const parentDir = path.dirname(normalizedPath);
 
-								// Validate project name
-								if (!/^[a-zA-Z0-9_-]+$/.test(projectName)) {
-									return 'Project name can only contain letters, numbers, hyphens, and underscores';
-								}
-
-								// Create parent directory if it doesn't exist
-								if (!fs.existsSync(parentDir)) {
+								// If creating in current directory, check if it's empty
+								if (isCurrentDirectory) {
 									try {
-										fs.mkdirSync(parentDir, { recursive: true });
+										if (fs.existsSync(CURR_DIR)) {
+											const files = await fs.promises.readdir(CURR_DIR);
+											// Filter out hidden files and common development files that are safe to ignore
+											const visibleFiles = files.filter(
+												(file) =>
+													!file.startsWith('.') &&
+													!['node_modules', 'dist', 'build', '.git'].includes(file),
+											);
+
+											// Only allow creating in current directory if it IS empty
+											if (visibleFiles.length > 0) {
+												return 'Directory must be empty';
+											}
+										}
 									} catch (error) {
-										return `Failed to create parent directory "${parentDir}": ${error instanceof Error ? error.message : String(error)}`;
+										return 'Cannot read current directory';
+									}
+								} else {
+									// Validate project name for non-current directory
+									if (!/^[a-zA-Z0-9_-]+$/.test(projectName)) {
+										return 'Project name can only contain letters, numbers, hyphens, and underscores';
+									}
+
+									// Create parent directory if it doesn't exist
+									if (!fs.existsSync(parentDir)) {
+										try {
+											fs.mkdirSync(parentDir, { recursive: true });
+										} catch (error) {
+											return `Failed to create parent directory "${parentDir}": ${error instanceof Error ? error.message : String(error)}`;
+										}
+									}
+
+									// Check if parent directory is writable
+									try {
+										fs.accessSync(parentDir, fs.constants.W_OK);
+									} catch {
+										return `Parent directory "${parentDir}" is not writable`;
+									}
+
+									// Check if project directory already exists
+									if (fs.existsSync(normalizedPath)) {
+										return `Directory "${projectName}" already exists`;
 									}
 								}
 
-								// Check if parent directory is writable
+								// Check if current directory is writable (needed for both cases)
 								try {
-									fs.accessSync(parentDir, fs.constants.W_OK);
+									fs.accessSync(CURR_DIR, fs.constants.W_OK);
 								} catch {
-									return `Parent directory "${parentDir}" is not writable`;
-								}
-
-								// Check if project directory already exists
-								if (fs.existsSync(normalizedPath)) {
-									return `Directory "${projectName}" already exists`;
+									return 'Current directory is not writable';
 								}
 
 								return null;
@@ -978,24 +1010,49 @@ async function browseAndSelectTemplate(
 			);
 
 			// Check if target project directory is empty when using yes mode
+			// Only allow creating in current directory if it IS empty
 			if (isYesMode && options.yes) {
-				try {
-					if (fs.existsSync(answers.projectInfo.fullPath)) {
-						const files = await fs.promises.readdir(answers.projectInfo.fullPath);
-						// Filter out hidden files and common development files that are safe to ignore
-						const visibleFiles = files.filter(
-							(file) =>
-								!file.startsWith('.') && !['node_modules', 'dist', 'build', '.git'].includes(file),
-						);
+				const isCurrentDirectory = answers.projectInfo.fullPath === CURR_DIR;
+				if (isCurrentDirectory) {
+					// When creating in current directory, it must be empty
+					try {
+						if (fs.existsSync(CURR_DIR)) {
+							const files = await fs.promises.readdir(CURR_DIR);
+							// Filter out hidden files and common development files that are safe to ignore
+							const visibleFiles = files.filter(
+								(file) =>
+									!file.startsWith('.') && !['node_modules', 'dist', 'build', '.git'].includes(file),
+							);
 
-						if (visibleFiles.length > 0) {
-							await note(`[■ Error: Directory ${answers.projectInfo.dirName} is not empty.]{red}`);
-							process.exit(1);
+							if (visibleFiles.length > 0) {
+								await note(`[■ Error: Directory must be empty]{red}`);
+								process.exit(1);
+							}
 						}
+					} catch (error) {
+						await note(`[■ Error: Cannot read current directory.]{red}`);
+						process.exit(1);
 					}
-				} catch (error) {
-					// If we can't read the directory, that's fine - it might not exist yet
-					// The createProjectFromOptions function will handle directory creation
+				} else {
+					// For non-current directory, it must be empty or not exist
+					try {
+						if (fs.existsSync(answers.projectInfo.fullPath)) {
+							const files = await fs.promises.readdir(answers.projectInfo.fullPath);
+							// Filter out hidden files and common development files that are safe to ignore
+							const visibleFiles = files.filter(
+								(file) =>
+									!file.startsWith('.') && !['node_modules', 'dist', 'build', '.git'].includes(file),
+							);
+
+							if (visibleFiles.length > 0) {
+								await note(`[■ Error: Directory ${answers.projectInfo.dirName} is not empty.]{red}`);
+								process.exit(1);
+							}
+						}
+					} catch (error) {
+						// If we can't read the directory, that's fine - it might not exist yet
+						// The createProjectFromOptions function will handle directory creation
+					}
 				}
 			}
 
@@ -1218,19 +1275,23 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 						const selectedTemplateName = selectedTemplate.metadata.name || selectedTemplate.name;
 						let projectInfo: ProjectInfo;
 						if (options.dir) {
-							projectInfo = createProjectInfo(options.dir, CURR_DIR);
+							// Normalize the path to handle cases like './' or '.'
+							const normalizedDir = path.resolve(options.dir);
+							const isCurrentDirectory = normalizedDir === CURR_DIR;
+							if (isCurrentDirectory) {
+								// When creating in current directory, use current directory name as project name
+								const projectName = path.basename(CURR_DIR);
+								const parentDir = path.dirname(CURR_DIR);
+								projectInfo = createProjectInfo(projectName, parentDir);
+							} else {
+								projectInfo = createProjectInfo(options.dir, CURR_DIR);
+							}
 						} else {
-							const defaultName = generateDefaultProjectName(type, selectedTemplateName);
-							const uniqueProjectInfo = await generateUniqueProjectInfo(defaultName, CURR_DIR);
-							const initialValue = uniqueProjectInfo.dirName;
-							const prefixedInitialValue = initialValue.startsWith('./')
-								? initialValue
-								: `./${initialValue}`;
-
+							// Prompt for directory, defaulting to current directory
 							const projectPath = await text({
 								label: `Where would you like the ${type} to be created?`,
 								shortLabel: 'Dir',
-								initialValue: prefixedInitialValue,
+								initialValue: './',
 								onValidate: async (value) => {
 									if (!value || value.trim() === '') {
 										return 'Project path is required';
@@ -1246,29 +1307,61 @@ async function createFromSpecificTemplate(options: CreateCommandOptions): Promis
 									}
 
 									const normalizedPath = path.resolve(normalizedValue);
+									const isCurrentDirectory = normalizedPath === CURR_DIR;
 									const projectName = path.basename(normalizedPath);
 									const parentDir = path.dirname(normalizedPath);
 
-									if (!/^[a-zA-Z0-9_-]+$/.test(projectName)) {
-										return 'Project name can only contain letters, numbers, hyphens, and underscores';
-									}
-
-									if (!fs.existsSync(parentDir)) {
+									// If creating in current directory, check if it's empty
+									if (isCurrentDirectory) {
 										try {
-											fs.mkdirSync(parentDir, { recursive: true });
+											if (fs.existsSync(CURR_DIR)) {
+												const files = await fs.promises.readdir(CURR_DIR);
+												// Filter out hidden files and common development files that are safe to ignore
+												const visibleFiles = files.filter(
+													(file) =>
+														!file.startsWith('.') &&
+														!['node_modules', 'dist', 'build', '.git'].includes(file),
+												);
+
+												// Only allow creating in current directory if it IS empty
+												if (visibleFiles.length > 0) {
+													return 'Directory not empty';
+												}
+											}
 										} catch (error) {
-											return `Failed to create parent directory "${parentDir}": ${error instanceof Error ? error.message : String(error)}`;
+											return 'Cannot read current directory';
+										}
+									} else {
+										// Validate project name for non-current directory
+										if (!/^[a-zA-Z0-9_-]+$/.test(projectName)) {
+											return 'Project name can only contain letters, numbers, hyphens, and underscores';
+										}
+
+										if (!fs.existsSync(parentDir)) {
+											try {
+												fs.mkdirSync(parentDir, { recursive: true });
+											} catch (error) {
+												return `Failed to create parent directory "${parentDir}": ${error instanceof Error ? error.message : String(error)}`;
+											}
+										}
+
+										try {
+											fs.accessSync(parentDir, fs.constants.W_OK);
+										} catch {
+											return `Parent directory "${parentDir}" is not writable`;
+										}
+
+										// Check if project directory already exists
+										if (fs.existsSync(normalizedPath)) {
+											return `Directory "${projectName}" already exists`;
 										}
 									}
 
+									// Check if current directory is writable (needed for both cases)
 									try {
-										fs.accessSync(parentDir, fs.constants.W_OK);
+										fs.accessSync(CURR_DIR, fs.constants.W_OK);
 									} catch {
-										return `Parent directory "${parentDir}" is not writable`;
-									}
-
-									if (fs.existsSync(normalizedPath)) {
-										return `Directory "${projectName}" already exists`;
+										return 'Current directory is not writable';
 									}
 
 									return null;
@@ -1442,7 +1535,13 @@ async function createProjectFromOptions(params: {
 			action: async () => {
 				const templatesPath = getTemplatesPath();
 				const versions = getVersions();
-				clearDirectory(destDir);
+
+				// Only clear directory if not creating in current directory
+				// (when creating in current directory, it must be empty, so clearing is unnecessary)
+				const isCurrentDirectory = destDir === CURR_DIR;
+				if (!isCurrentDirectory) {
+					clearDirectory(destDir);
+				}
 
 				// Prepare template paths
 				const templates: string[] = [];
@@ -1653,18 +1752,33 @@ async function createProjectFromOptions(params: {
 	// Build success message with next steps
 	const packageManager = pkgManager || selectedPackageManager || 'npm';
 
+	// Check if plugin was created in current directory
+	const isCurrentDirectory = destDir === CURR_DIR;
+
 	// Build steps array
 	const steps: string[] = [];
-	steps.push(`1. Change dir \`cd ./${rawDirName}\``);
+
+	// Only show cd command if not creating in current directory
+	if (!isCurrentDirectory) {
+		steps.push(`1. Change dir \`cd ./${rawDirName}\``);
+	}
 
 	// Only show install command if dependencies weren't installed OR if installation failed
 	if (!pkgManager || pkgManager === 'skip' || dependencyInstallationFailed) {
 		const installCommand = getCommand(packageManager as PackageManager, 'install');
-		steps.push(`2. Install depedencies with \`${installCommand}\``);
+		const stepNum = isCurrentDirectory ? 1 : 2;
+		steps.push(`${stepNum}. Install depedencies with \`${installCommand}\``);
 	}
 
 	const devCommand = getCommand(packageManager as PackageManager, 'dev');
-	const stepNum = !pkgManager || pkgManager === 'skip' || dependencyInstallationFailed ? 3 : 2;
+	const stepNum =
+		!pkgManager || pkgManager === 'skip' || dependencyInstallationFailed
+			? isCurrentDirectory
+				? 2
+				: 3
+			: isCurrentDirectory
+				? 1
+				: 2;
 	steps.push(`${stepNum}. Use \`${devCommand}\` to start dev server`);
 	steps.push(`${stepNum + 1}. Import \`dist/manifest.json\` in Figma`);
 	steps.push(`\n\nCheckout https://plugma.dev for more info.`);
