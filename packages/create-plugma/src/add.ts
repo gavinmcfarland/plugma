@@ -19,6 +19,22 @@ function sleep(ms: number): Promise<void> {
 }
 
 export async function add(options: AddCommandOptions): Promise<void> {
+	// Check for manifest - command only runs if manifest is found
+	let userFiles;
+	try {
+		userFiles = await getUserFiles({ cwd: options.cwd });
+	} catch (error) {
+		console.error(chalk.red('No plugin or widget detected'));
+		console.log(
+			chalk.yellow(
+				'Please ensure you have a manifest.ts, manifest.js, manifest.json, or package.json with a plugma.manifest field.',
+			),
+		);
+		process.exit(1);
+	}
+
+	const manifest = { ui: userFiles.manifest.ui };
+
 	// Handle pre-selected integration validation
 	if (options.integration) {
 		const integrationsToValidate = Array.isArray(options.integration) ? options.integration : [options.integration];
@@ -38,16 +54,6 @@ export async function add(options: AddCommandOptions): Promise<void> {
 	let preSelectedInstall: boolean | undefined;
 	if (options.noInstall !== undefined) {
 		preSelectedInstall = !options.noInstall; // Convert --no-install to false
-	}
-
-	// Get manifest data to check UI field
-	let manifest: { ui?: string } | undefined;
-	try {
-		const userFiles = await getUserFiles({ cwd: options.cwd });
-		manifest = { ui: userFiles.manifest.ui };
-	} catch (error) {
-		// If no manifest is found, continue without manifest data
-		// This allows the add command to work even without a manifest
 	}
 
 	await ask(
