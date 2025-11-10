@@ -1,6 +1,6 @@
 {
 	"name": "create-plugma",
-	"version": "2.1.5",
+	"version": "2.1.6",
 	"description": "",
 	"main": "dist/index.js",
 	"type": "module",
