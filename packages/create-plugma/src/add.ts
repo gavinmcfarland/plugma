@@ -24,7 +24,7 @@ export async function add(options: AddCommandOptions): Promise<void> {
 	try {
 		userFiles = await getUserFiles({ cwd: options.cwd });
 	} catch (error) {
-		console.error(chalk.red('No plugin or widget detected'));
+		console.error(chalk.red('Plugin or widget not found'));
 		console.log(
 			chalk.yellow(
 				'Please ensure you have a manifest.ts, manifest.js, manifest.json, or package.json with a plugma.manifest field.',
