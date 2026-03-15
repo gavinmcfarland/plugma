@@ -1,20 +1,16 @@
-import chalk from 'chalk';
 import { defineIntegration } from './define-integration.js';
-import dedent from 'dedent';
 
 // TODO: Update tsconfig.json to include tests
 
 const dependencies = {
 	typescript: 'latest',
 	eslint: '9',
-	'@eslint/js': '^9.38.0',
-	'@typescript-eslint/parser': '^8.46.2',
-	// '@typescript-eslint/parser': '8',
-	// '@typescript-eslint/eslint-plugin': '8',
+	'@typescript-eslint/parser': '8',
+	'@typescript-eslint/eslint-plugin': '8',
 	'typescript-eslint': '8',
-	// NOTE: Disabled for now because they are not compatible with the latest version of ESLint
-	// '@figma/plugin-typings': 'latest',
-	// '@figma/eslint-plugin-figma-plugins': 'latest',
+
+	'@figma/plugin-typings': 'latest',
+	'@figma/eslint-plugin-figma-plugins': 'latest',
 };
 
 export default defineIntegration({

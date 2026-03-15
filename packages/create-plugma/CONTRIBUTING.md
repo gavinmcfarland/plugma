@@ -60,3 +60,7 @@ If you're using a framework that `create-plugma` doesnt currently support, you c
 You can duplicate the `react` framework to get an idea of what they look like.
 
 Frameworks must contain the dependencies needed, tsconfigs and any other necessary framework specific files.
+
+## Testing locally
+
+You can test your template locally by running `npm link` in the `packages/create-plugma` folder, and then in your local development environment run `npm link plugma`. From there on you can test the cli and select your template by running `create-plugma`.
