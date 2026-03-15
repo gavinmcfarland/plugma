@@ -14,7 +14,7 @@ This repository uses Lerna for managing and publishing packages. Follow these st
 
     - Ensure all changes are committed to the repository
     - Make sure you have the necessary permissions to publish to npm
-    - Verify you're logged in to npm (`npm whoami`)
+    - Verify you're logged in to npm using `npm whoami` (login with `npm login`)
 
 2. **Publish the Packages**
 
