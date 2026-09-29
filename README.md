@@ -16,7 +16,7 @@
 
 Plugma is a powerful command-line tool that simplifies your Figma plugin development workflow. It enables easy creation, development, and testing with features like true hot module reloading (HMR), in-browser previews, unified bundling, and .env support for environment variables.
 
-For full documentation see [plugma.dev](https://next.plugma.dev/).
+For full documentation see [plugma.dev](https://plugma.dev/).
 
 ## Quick Start
 
